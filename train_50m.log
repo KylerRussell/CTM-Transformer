@@ -1,0 +1,12 @@
+Device: cuda
+Tokenizer: gpt2 (vocab_size=50,257)
+Dataset: HuggingFaceFW/fineweb-edu (sample-10BT)
+  Streaming mode — data loaded on the fly from HuggingFace Hub
+Model: 52,411,351 parameters (52.4M)
+Config: d_model=384, d_latent=384, n_layers=6, n_heads=6, thought_steps=4, history_len=8, nlm_hidden=32, nlm_groups=1
+
+======================================================================
+Starting training for 9,765,625 steps
+Target: ~5.0B tokens from FineWeb-Edu
+======================================================================
+
