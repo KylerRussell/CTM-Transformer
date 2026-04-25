@@ -4,16 +4,20 @@ Thought Layer — Single processing block iterated T times during the thought lo
 Each thought step performs:
 1. Query Generation:  Project synchronization state → attention query
 2. Cross-Attention:   Query attends to text embeddings (K, V from input tokens)
+                      WITH CAUSAL MASK — position i can only attend to positions ≤ i
 3. Synapse Model:     Mix attention output with previous neuron state → pre-activations
 4. NLM Processing:    Per-neuron MLPs process pre-activation history → post-activations
 5. Sync Update:       Recompute synchronization from updated post-activation history
 
-Conceptual mapping from Living-Brain engine_torch.py:
-- engine_torch settle loop:
-    basal_drive = conductance(W_basal @ rho + input)    →  cross-attention + synapse model
-    apical_drive = conductance(W_apical @ rho)          →  (folded into synapse residual)
-    rho = get_soma(basal, apical, cahva, ...)           →  NLM processing
-    repeat until convergence                            →  thought loop for T steps
+CRITICAL DESIGN NOTE:
+  The latent state z has shape [B, S, d_latent] — one independent state per sequence
+  position. The cross-attention uses a causal mask so that position i's query can only
+  attend to text keys at positions 0..i. This prevents target leakage (future tokens
+  informing past predictions) while preserving autoregressive correctness.
+
+  For NLM and memory operations, we flatten B*S into the batch dimension since each
+  position's NLM and memory are independent. For attention, we reshape back to
+  [B, S, ...] to apply proper multi-head attention with causal masking.
 """
 
 import torch
@@ -27,8 +31,8 @@ from ctm_transformer.memory import TemporalMemory, SynchronizationComputer
 
 class ThoughtLayer(nn.Module):
     """
-    A single thought processing block. Multiple ThoughtLayers can be stacked,
-    and the entire stack is iterated T times in the thought loop.
+    A single thought processing block with per-position latent states
+    and causally-masked cross-attention.
 
     Args:
         d_latent: Internal neuron count (state dimension).
@@ -73,8 +77,6 @@ class ThoughtLayer(nn.Module):
         sync_dim = self.sync_computer.output_dim
 
         # ── Query Generation from Synchronization State ─────────────────
-        # Projects the flattened sync representation into attention queries.
-        # S_action_t → q_t = W_in @ flatten(S_action_t)
         self.query_proj = nn.Sequential(
             nn.Linear(sync_dim, d_model),
             nn.LayerNorm(d_model),
@@ -83,9 +85,9 @@ class ThoughtLayer(nn.Module):
         )
 
         # ── Cross-Attention ─────────────────────────────────────────────
-        # Queries come from internal state (sync), Keys and Values from text.
-        # This is the fundamental shift: the model decides what text to read
-        # based on its current thought state, not its position.
+        # Queries come from per-position sync states.
+        # Keys and Values from text embeddings.
+        # CAUSAL MASK: query at position i attends only to keys 0..i.
         self.q_norm = nn.LayerNorm(d_model)
         self.k_proj = nn.Linear(d_model, d_model)
         self.v_proj = nn.Linear(d_model, d_model)
@@ -93,13 +95,6 @@ class ThoughtLayer(nn.Module):
         self.attn_dropout = nn.Dropout(dropout)
 
         # ── Synapse Model ───────────────────────────────────────────────
-        # Mixes cross-attention output with previous neuron state to produce
-        # pre-activations. Acts like the transformer's residual connections
-        # and linear projections combined with recurrent state mixing.
-        #
-        # Conceptual parallel to engine_torch:
-        #   dv_basal = G_L*(E_L - V) + g_E*(E_E - V) + g_I*(E_I - V) + bias + input
-        # Here: pre_act = W_syn @ [attn_out; prev_state] + bias
         self.synapse_norm = nn.LayerNorm(d_model + d_latent)
         self.synapse = nn.Sequential(
             nn.Linear(d_model + d_latent, d_latent * 2),
@@ -136,82 +131,98 @@ class ThoughtLayer(nn.Module):
         key_padding_mask: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """
-        Execute one thought step.
+        Execute one thought step with per-position states and causal masking.
 
         Args:
             text_keys:   [batch, seq_len, d_model] — text embeddings for K projection.
             text_values: [batch, seq_len, d_model] — text embeddings for V projection.
-            prev_state:  [batch, d_latent] — previous neuron state (z_{t-1}).
+            prev_state:  [batch, seq_len, d_latent] — per-position neuron states z_{t-1}.
             key_padding_mask: [batch, seq_len] — True for padded positions.
 
         Returns:
-            new_state:     [batch, d_latent] — updated neuron state (z_t).
-            sync_repr:     [batch, sync_dim] — synchronization representation for output.
+            new_state:   [batch, seq_len, d_latent] — updated per-position states z_t.
+            sync_repr:   [batch*seq_len, sync_dim] — sync repr (flattened for output head).
         """
         B, S, D = text_keys.shape
+        BS = B * S
+
+        # ── Flatten B*S for per-position NLM/memory operations ──────────
+        # prev_state: [B, S, d_latent] → [B*S, d_latent]
+        prev_flat = prev_state.reshape(BS, -1)
 
         # ── Step 1: Query Generation from Synchronization ───────────────
-        # Compute sync from post-activation history
-        post_history = self.memory.get_post_history()  # [B, H, d_latent]
-        sync_repr = self.sync_computer.compute(post_history)  # [B, sync_dim]
+        # Memory operates on flat B*S dimension (each position independent)
+        post_history = self.memory.get_post_history()  # [B*S, H, d_latent]
+        sync_repr = self.sync_computer.compute(post_history)  # [B*S, sync_dim]
 
-        # Project sync → attention queries
-        queries = self.query_proj(sync_repr)  # [B, d_model]
-        queries = queries.unsqueeze(1)        # [B, 1, d_model] (single query per thought step)
+        # Project sync → per-position queries
+        queries_flat = self.query_proj(sync_repr)  # [B*S, d_model]
 
-        # ── Step 2: Cross-Attention ─────────────────────────────────────
-        # Q from internal state, K and V from text embeddings
-        q = self.q_norm(queries)                                # [B, 1, d_model]
+        # ── Step 2: Causally-Masked Cross-Attention ─────────────────────
+        # Reshape queries back to [B, S, d_model] for proper attention
+        queries = queries_flat.reshape(B, S, D)  # [B, S, d_model]
+
+        q = self.q_norm(queries)                                # [B, S, d_model]
         k = self.k_proj(text_keys)                              # [B, S, d_model]
         v = self.v_proj(text_values)                            # [B, S, d_model]
 
         # Reshape for multi-head attention
-        q = q.view(B, 1, self.n_heads, self.head_dim).transpose(1, 2)     # [B, heads, 1, head_dim]
-        k = k.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)     # [B, heads, S, head_dim]
-        v = v.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)     # [B, heads, S, head_dim]
+        q = q.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)  # [B, heads, S, head_dim]
+        k = k.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)  # [B, heads, S, head_dim]
+        v = v.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)  # [B, heads, S, head_dim]
 
         # Scaled dot-product attention
         scale = math.sqrt(self.head_dim)
-        attn_weights = torch.matmul(q, k.transpose(-2, -1)) / scale       # [B, heads, 1, S]
+        attn_weights = torch.matmul(q, k.transpose(-2, -1)) / scale  # [B, heads, S, S]
 
+        # ── CAUSAL MASK ─────────────────────────────────────────────────
+        # Position i can only attend to positions 0..i (upper triangle = -inf)
+        causal_mask = torch.triu(
+            torch.ones(S, S, device=q.device, dtype=torch.bool), diagonal=1
+        )  # [S, S] — True above diagonal (future positions)
+        attn_weights = attn_weights.masked_fill(
+            causal_mask.unsqueeze(0).unsqueeze(0), float("-inf")
+        )  # [B, heads, S, S]
+
+        # Padding mask
         if key_padding_mask is not None:
-            # Expand mask: [B, S] → [B, 1, 1, S]
-            mask = key_padding_mask.unsqueeze(1).unsqueeze(2)
+            mask = key_padding_mask.unsqueeze(1).unsqueeze(2)  # [B, 1, 1, S]
             attn_weights = attn_weights.masked_fill(mask, float("-inf"))
 
         attn_weights = F.softmax(attn_weights, dim=-1)
         attn_weights = self.attn_dropout(attn_weights)
 
-        attn_out = torch.matmul(attn_weights, v)                          # [B, heads, 1, head_dim]
-        attn_out = attn_out.transpose(1, 2).contiguous().view(B, 1, D)    # [B, 1, d_model]
-        attn_out = self.attn_out_proj(attn_out).squeeze(1)                # [B, d_model]
+        attn_out = torch.matmul(attn_weights, v)                          # [B, heads, S, head_dim]
+        attn_out = attn_out.transpose(1, 2).contiguous().view(B, S, D)    # [B, S, d_model]
+        attn_out = self.attn_out_proj(attn_out)                           # [B, S, d_model]
+
+        # Flatten attention output back to [B*S, d_model]
+        attn_flat = attn_out.reshape(BS, D)
 
         # ── Step 3: Synapse Model ───────────────────────────────────────
-        # Concatenate attention output with previous state
-        synapse_input = torch.cat([attn_out, prev_state], dim=1)  # [B, d_model + d_latent]
+        # All subsequent ops are per-position (flattened B*S)
+        synapse_input = torch.cat([attn_flat, prev_flat], dim=1)  # [B*S, d_model + d_latent]
         synapse_input = self.synapse_norm(synapse_input)
 
-        # Gated residual synapse (like GRU-style gating)
-        gate = torch.sigmoid(self.synapse_gate(synapse_input))    # [B, d_latent]
-        candidate = self.synapse(synapse_input)                   # [B, d_latent]
-        pre_activations = gate * candidate + (1 - gate) * prev_state  # [B, d_latent]
+        gate = torch.sigmoid(self.synapse_gate(synapse_input))    # [B*S, d_latent]
+        candidate = self.synapse(synapse_input)                   # [B*S, d_latent]
+        pre_activations = gate * candidate + (1 - gate) * prev_flat  # [B*S, d_latent]
 
         # ── Step 4: NLM Processing ──────────────────────────────────────
-        # Push pre-activations into the FIFO buffer
         self.memory.push_pre(pre_activations)
-
-        # Process temporal history through per-neuron MLPs
-        pre_history = self.memory.get_pre_history()  # [B, history_len, d_latent]
-        post_activations = self.nlm(pre_history)     # [B, d_latent]
+        pre_history = self.memory.get_pre_history()  # [B*S, history_len, d_latent]
+        post_activations = self.nlm(pre_history)     # [B*S, d_latent]
 
         # ── Step 5: Update Post-Activation History ──────────────────────
         self.memory.push_post(post_activations)
 
-        # Layer norm on the new state
-        new_state = self.post_norm(post_activations)  # [B, d_latent]
+        new_state_flat = self.post_norm(post_activations)  # [B*S, d_latent]
 
         # Recompute sync for output (using updated history)
         updated_post_history = self.memory.get_post_history()
-        output_sync = self.sync_computer.compute(updated_post_history)  # [B, sync_dim]
+        output_sync = self.sync_computer.compute(updated_post_history)  # [B*S, sync_dim]
+
+        # Reshape back to [B, S, d_latent]
+        new_state = new_state_flat.reshape(B, S, -1)
 
         return new_state, output_sync

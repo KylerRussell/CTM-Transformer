@@ -3,21 +3,28 @@ CTMTransformer — Full Continuous Thought Machine Transformer Model
 
 Assembles all components into the complete architecture:
   Input tokens → Embedding → Text KV
-  Initialize latent state z_0 = 0
+  Initialize per-position latent states z_0 = 0  [B, S, d_latent]
   For t in 1..T thought steps:
-    Sync → Query → Cross-Attention → Synapse → NLM → Output
+    Sync → Query → Causal Cross-Attention → Synapse → NLM → Output
   Return logits across all thought steps for temporal loss.
 
-Conceptual mapping from Living-Brain engine_torch.py:
-- engine_torch.settle():    Iterates IMEX dynamics until convergence → our thought loop
-- engine_torch.state:       Single somatic state vector → our z_t latent state
-- cerebellar_forward():     Purkinje readout from L5/6 → our output head from sync matrix
+CAUSAL CORRECTNESS:
+  Each sequence position maintains its own independent latent state.
+  Cross-attention in the ThoughtLayer uses a causal mask so that position i's
+  query can only attend to text keys at positions 0..i. This prevents any
+  information leakage from future tokens to past predictions.
+
+  The output head concatenates each position's latent state z[i] with its
+  text embedding and projects to vocab logits. Since z[i] only contains
+  information from positions 0..i (via causal masking), autoregressive
+  correctness is maintained.
 """
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
+from contextlib import nullcontext
 
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.thought_layer import ThoughtLayer
@@ -28,18 +35,15 @@ class CTMTransformer(nn.Module):
     """
     Continuous Thought Machine Transformer.
 
-    A dynamic, stateful transformer that processes text through iterative
-    internal 'thought steps' driven by neural synchronization.
-
-    Instead of a single feed-forward pass per token, the model iterates
-    through decoupled thought steps where:
-    - Queries derive from internal synchronization state, not text positions
-    - Activation functions are replaced by learned per-neuron MLPs (NLMs)
-    - Output is projected from synchronization matrices, not hidden states
-    - Loss is aggregated across the temporal thought dimension
-
-    Args:
-        config: CTMConfig with all hyperparameters.
+    Architecture flow:
+    1. Embed input text → K, V for cross-attention (computed once)
+    2. Initialize per-position latent states z_0 [B, S, d_latent]
+    3. For T thought steps:
+       a. Each position computes sync from its own post-activation history
+       b. Sync → query, which cross-attends to text with CAUSAL MASK
+       c. Synapse model mixes attention output with previous state
+       d. NLM processes temporal pre-activation history
+    4. Output head: concat z[i] + text_emb[i] → logits[i]
     """
 
     def __init__(self, config: CTMConfig):
@@ -73,22 +77,40 @@ class CTMTransformer(nn.Module):
             for _ in range(config.n_layers)
         ])
 
+        # ── Attention Residuals (Kimi AttnRes) ──────────────────────────
+        # Replaces fixed uniform residual accumulation (∑ h_i) with a
+        # learned, softmax-weighted attention over all preceding layer
+        # outputs. Bounds latent magnitude via convex combination — critical
+        # for CTM since z is looped T thought steps (uncontrolled growth
+        # would compound across both depth and time).
+        #
+        # Strict zero-init on queries → initial step is equal-weight
+        # averaging, preventing training volatility (per Kimi paper).
+        self.attn_res_queries = nn.ParameterList([
+            nn.Parameter(torch.zeros(config.d_latent))
+            for _ in range(config.n_layers)
+        ])
+
+        # RMSNorm applied to keys (previous layer outputs) before scoring.
+        # Shared across layers — stabilizes dot-product magnitudes without
+        # adding per-layer parameters.
+        self.attn_res_norm = nn.RMSNorm(config.d_latent)
+        # ────────────────────────────────────────────────────────────────
+
         # ── Output Head ─────────────────────────────────────────────────
-        # Projects synchronization representation → logits
-        # y_t = W_out @ flatten(S_out_t)
-        sync_dim = self.layers[0].sync_computer.output_dim
-        self.output_head = nn.Sequential(
-            nn.Linear(sync_dim, config.d_model),
+        # Per-position logits: concat z[i] (from thought loop) with text_emb[i],
+        # then project to vocab. Gradients flow: output → z → NLM → layers.
+        self.output_proj = nn.Sequential(
+            nn.Linear(config.d_latent + config.d_model, config.d_model),
             nn.GELU(),
             nn.LayerNorm(config.d_model),
             nn.Linear(config.d_model, config.vocab_size),
         )
 
-        # ── Initial State Projection ────────────────────────────────────
-        # Learns an initial latent state z_0 (alternatively could be zeros)
+        # ── Initial State ───────────────────────────────────────────────
+        # Learned initial latent state, broadcast to all positions
         self.z0 = nn.Parameter(torch.zeros(config.d_latent))
 
-        # Initialize weights
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
@@ -111,24 +133,34 @@ class CTMTransformer(nn.Module):
         return n_params
 
     def _embed_text(self, input_ids: torch.Tensor) -> torch.Tensor:
-        """
-        Embed input tokens into the text representation used for K and V.
-
-        Args:
-            input_ids: [batch, seq_len] — integer token IDs.
-
-        Returns:
-            text_embeddings: [batch, seq_len, d_model]
-        """
+        """Embed input tokens. Returns [batch, seq_len, d_model]."""
         B, S = input_ids.shape
-        tok_emb = self.token_embedding(input_ids)  # [B, S, d_model]
+        tok_emb = self.token_embedding(input_ids)
 
         if self.pos_embedding is not None:
             positions = torch.arange(S, device=input_ids.device).unsqueeze(0)
-            pos_emb = self.pos_embedding(positions)  # [1, S, d_model]
-            tok_emb = tok_emb + pos_emb
+            tok_emb = tok_emb + self.pos_embedding(positions)
 
         return self.embed_dropout(self.embed_norm(tok_emb))
+
+    def _output_logits(self, z: torch.Tensor, text_emb: torch.Tensor) -> torch.Tensor:
+        """
+        Project per-position latent states to logits.
+
+        Each position i's logit is computed from [z[i]; text_emb[i]].
+        Since z[i] was built using only causal attention (positions 0..i),
+        no target leakage occurs.
+
+        Args:
+            z: [B, S, d_latent] — per-position latent states.
+            text_emb: [B, S, d_model] — text embeddings.
+
+        Returns:
+            logits: [B, S, vocab_size]
+        """
+        # z is already [B, S, d_latent], just concat with text_emb
+        combined = torch.cat([z, text_emb], dim=-1)  # [B, S, d_latent + d_model]
+        return self.output_proj(combined)  # [B, S, vocab_size]
 
     def forward(
         self,
@@ -138,195 +170,185 @@ class CTMTransformer(nn.Module):
         max_thought_steps: int | None = None,
     ) -> dict:
         """
-        Full forward pass through the CTM-Transformer.
-
-        For each position in the sequence, the model runs T thought steps
-        before producing output logits. All per-tick logits are returned
-        for temporal loss computation.
-
-        Args:
-            input_ids: [batch, seq_len] — input token IDs.
-            targets: [batch, seq_len] — target token IDs (optional, for loss).
-            key_padding_mask: [batch, seq_len] — True for padded positions.
-            max_thought_steps: Override config.max_thought_steps if provided.
-
-        Returns:
-            dict with:
-                "logits":        [batch, seq_len, vocab_size] — final thought step logits
-                "all_logits":    [T, batch, seq_len, vocab_size] — logits at each thought step
-                "loss":          scalar — temporal aggregated loss (if targets provided)
-                "per_tick_loss": [T] — loss at each thought step (if targets provided)
-                "certainties":   [T, batch, seq_len] — certainty at each tick
+        Full forward pass with per-position latent states and causal masking.
+        Memory-optimized: discards intermediate logits during training if checkpointing.
         """
         T = max_thought_steps or self.config.max_thought_steps
         B, S = input_ids.shape
         device = input_ids.device
         dtype = next(self.parameters()).dtype
 
-        # ── Step 1: Ingestion ───────────────────────────────────────────
-        # Embed input text → Keys and Values (fixed across thought steps)
+        # ── Embed text (computed once) ──────────────────────────────────
         text_emb = self._embed_text(input_ids)  # [B, S, d_model]
 
-        # We process each sequence position through the thought loop.
-        # For efficiency, we process all positions in parallel by treating
-        # each position as having its own latent state.
-
-        # Initialize latent state: z_0 for all batch items and positions
-        # [B, S, d_latent] — each position gets its own latent state
+        # ── Initialize per-position latent states ───────────────────────
         z = self.z0.unsqueeze(0).unsqueeze(0).expand(B, S, -1).clone()  # [B, S, d_latent]
 
-        # Reset memory buffers in all layers
-        # We reshape B*S into a flat batch dimension for memory
+        # Reset memory buffers
         BS = B * S
         for layer in self.layers:
             layer.reset_memory(BS, device, dtype)
 
-        # Prepare text K, V tiled per-position (each position sees all text)
-        # Actually, for cross-attention, each position attends to the FULL
-        # input sequence. We repeat text embeddings for each position.
-        # Shape: text_emb is [B, S, d_model]
-        # For cross-attention: K, V are the full text, Q comes from each position's state.
-        # We process all S positions together by flattening B*S into batch dim.
-        text_k = text_emb  # [B, S, d_model] — all positions see the same keys
-        text_v = text_emb  # [B, S, d_model] — all positions see the same values
-
-        # For the thought loop, we need each position to attend to all text.
-        # We'll repeat text for each position: [B*S, S, d_model]
-        text_k_repeated = text_k.unsqueeze(1).expand(B, S, S, -1).reshape(BS, S, -1)
-        text_v_repeated = text_v.unsqueeze(1).expand(B, S, S, -1).reshape(BS, S, -1)
-
-        if key_padding_mask is not None:
-            mask_repeated = key_padding_mask.unsqueeze(1).expand(B, S, S).reshape(BS, S)
-        else:
-            mask_repeated = None
-
-        # ── Step 2-6: Thought Loop ──────────────────────────────────────
+        # ── Thought Loop ────────────────────────────────────────────────
         all_logits = []
         all_certainties = []
 
         for t in range(T):
-            # Flatten z: [B, S, d_latent] → [B*S, d_latent]
-            z_flat = z.reshape(BS, -1)
-
-            # Memory optimization: Detach the state between thought steps
-            # to prevent the backward graph from growing as O(T * layers).
-            # Only the LAST thought step retains full gradients for backprop.
-            # This is the same strategy OpenMythos uses for recurrent blocks.
             is_last_step = (t == T - 1)
-            if not is_last_step and self.training and self.config.gradient_checkpointing:
-                z_flat = z_flat.detach().requires_grad_(True)
+            is_checkpointed = (
+                not is_last_step
+                and self.training
+                and self.config.gradient_checkpointing
+            )
 
-            # Pass through each thought layer sequentially
-            sync_repr = None
-            for layer in self.layers:
-                z_flat, sync_repr = layer(
-                    text_k_repeated,
-                    text_v_repeated,
-                    z_flat,
-                    mask_repeated,
-                )
+            # Dynamic grad-mode context. Background: detaching `z` at step
+            # boundaries severs the graph through z, but the FIFO memory
+            # buffers (pre_history, post_history) push via cat/roll which
+            # holds the OLD buffer as a graph parent — chaining the graph
+            # back through every prior thought step. End result without
+            # this fix: ~T·n_layers (~192 at T=8, n_layers=24) layer-
+            # forwards of saved activations alive at backward, plus all
+            # the AttnRes K=norm(V) tensors (~225 MB/step → ~1.8 GB across
+            # 8 steps just for K). That's the OOM at line 252.
+            #
+            # nullcontext (NOT torch.enable_grad) for active steps so eval-
+            # time outer no_grad isn't overridden.
+            step_context = torch.no_grad() if is_checkpointed else nullcontext()
 
-            # Unflatten: [B*S, d_latent] → [B, S, d_latent]
-            z = z_flat.reshape(B, S, -1)
+            with step_context:
+                # ── Attention Residuals: layer stack ─────────────────────
+                # At each depth l, feed a softmax-weighted sum over ALL
+                # previous layer outputs [z_0, z_1, ..., z_{l-1}] using
+                # the layer's learned pseudo-query w_l.
+                layer_outputs = [z]
+                sync_repr = None
 
-            # ── Output projection from synchronization ──────────────────
-            # sync_repr: [B*S, sync_dim]
-            if is_last_step or not self.training:
-                # Full computation with gradients for the last step
-                logits_t = self.output_head(sync_repr)     # [B*S, vocab_size]
-                logits_t = logits_t.reshape(B, S, -1)      # [B, S, vocab_size]
-            else:
-                # Intermediate steps: compute logits for monitoring but
-                # detach to avoid building huge backward graph
-                with torch.no_grad():
-                    logits_t = self.output_head(sync_repr)
-                    logits_t = logits_t.reshape(B, S, -1)
-            all_logits.append(logits_t)
+                for l_idx, layer in enumerate(self.layers):
+                    V = torch.stack(layer_outputs, dim=0)              # [n, B, S, D]
 
-            # ── Certainty: negative entropy of softmax ──────────────────
+                    # Match V to the norm weight's dtype so RMSNorm
+                    # dispatches to its fused kernel instead of the slow
+                    # unfused fallback. Cast ONCE so the downstream einsum
+                    # also gets the matched dtype — otherwise attn_weights
+                    # (bf16) × V (fp32) would type-promote z_in to fp32
+                    # and push the mismatch one op downstream into the
+                    # layer's bf16 weights. If V is already bf16, .to()
+                    # is a no-op.
+                    V = V.to(self.attn_res_norm.weight.dtype)
+
+                    K = self.attn_res_norm(V)
+                    w_l = self.attn_res_queries[l_idx]                  # [D]
+                    scores = torch.einsum('d,nbsd->nbs', w_l, K)        # [n, B, S]
+                    attn_weights = F.softmax(scores, dim=0)
+                    z_in = torch.einsum('nbs,nbsd->bsd', attn_weights, V)
+
+                    z_out, sync_repr = layer(
+                        text_emb,
+                        text_emb,
+                        z_in,
+                        key_padding_mask,
+                    )
+                    layer_outputs.append(z_out)
+
+                # Final state = output of last layer (raw, not the
+                # AttnRes-aggregated input — aggregation only feeds
+                # INPUTS to layers).
+                z = layer_outputs[-1]
+
+                # ── Per-position logits ─────────────────────────────────
+                logits_t = self._output_logits(z, text_emb)  # [B, S, V]
+
+            # ── Certainty (always non-differentiable) ───────────────────
+            # Explicit no_grad even on the last step. The original design
+            # used certainty only as a non-differentiable weighting signal
+            # for max_cert_component; letting gradients flow through it
+            # creates a degenerate path where the model can lower loss by
+            # becoming uniformly confident regardless of correctness.
             with torch.no_grad():
                 probs_t = F.softmax(logits_t, dim=-1)
-                entropy_t = -(probs_t * (probs_t + 1e-10).log()).sum(dim=-1)  # [B, S]
-                certainty_t = -entropy_t  # Higher = more certain
+                entropy_t = -(probs_t * (probs_t + 1e-10).log()).sum(dim=-1)
+                certainty_t = -entropy_t
             all_certainties.append(certainty_t)
 
-        # Stack all thought step outputs
-        all_logits_tensor = torch.stack(all_logits, dim=0)         # [T, B, S, V]
-        all_certainties_tensor = torch.stack(all_certainties, dim=0)  # [T, B, S]
+            # ── Step-boundary cleanup ───────────────────────────────────
+            if is_checkpointed:
+                # Detach z so next step's forward starts from a fresh leaf.
+                z = z.detach().requires_grad_(True)
+
+                # Detach memory buffers — this is the actual leak fix.
+                # NOT setting requires_grad_(True): doing so would cause
+                # backward to accumulate a useless `.grad` of the buffer's
+                # full shape on the leaf, since buffers aren't optimizer
+                # parameters. Plain detach is enough — gradients through
+                # the *new* activations pushed on the last step still flow
+                # correctly via the cat/roll graph.
+                for layer in self.layers:
+                    layer.memory.pre_history = layer.memory.pre_history.detach()
+                    layer.memory.post_history = layer.memory.post_history.detach()
+
+                all_logits.append(None)
+            else:
+                all_logits.append(logits_t)
+
+        all_certainties_tensor = torch.stack(all_certainties, dim=0)
 
         result = {
-            "logits": all_logits[-1],          # Final thought step
-            "all_logits": all_logits_tensor,
+            "logits": all_logits[-1],
             "certainties": all_certainties_tensor,
         }
 
-        # ── Temporal Loss Aggregation ───────────────────────────────────
+        if not self.training and None not in all_logits:
+            result["all_logits"] = torch.stack(all_logits, dim=0)
+
         if targets is not None:
             result["loss"], result["per_tick_loss"] = self._compute_temporal_loss(
-                all_logits_tensor, all_certainties_tensor, targets
+                all_logits, all_certainties_tensor, targets
             )
 
         return result
 
     def _compute_temporal_loss(
         self,
-        all_logits: torch.Tensor,
+        all_logits: list,
         all_certainties: torch.Tensor,
         targets: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """
-        Compute the temporal loss.
-
-        When gradient_checkpointing is enabled, only the final thought step
-        has gradients (intermediate steps are detached for memory savings).
-        The loss is computed on the final step. Per-tick losses for all steps
-        are computed for logging/monitoring but do not carry gradients.
-
-        When gradient_checkpointing is disabled (e.g., during eval or small
-        models), the full temporal aggregation across all ticks is used.
-
-        Args:
-            all_logits:      [T, B, S, V] — logits at each thought step.
-            all_certainties: [T, B, S] — certainty at each tick.
-            targets:         [B, S] — target token IDs.
-
-        Returns:
-            loss: scalar — loss for backpropagation.
-            per_tick_loss: [T] — CE loss at each thought step (for logging).
+        Compute temporal loss. When gradient_checkpointing is on, only the
+        final step has gradients. Intermediate logits may be None.
         """
-        T, B, S, V = all_logits.shape
-        cfg = self.config
+        T = len(all_logits)
+        V = self.config.vocab_size
         targets_flat = targets.reshape(-1)
 
-        # Compute per-tick cross-entropy loss (some may be detached)
         per_tick_losses = []
         for t in range(T):
+            if all_logits[t] is None:
+                # Provide a zero-loss placeholder for dropped intermediate steps
+                per_tick_losses.append(torch.tensor(0.0, device=targets.device))
+                continue
+
             logits_t = all_logits[t].reshape(-1, V)
             loss_t = F.cross_entropy(logits_t, targets_flat, reduction="mean")
             per_tick_losses.append(loss_t)
 
-        per_tick_loss_tensor = torch.stack(per_tick_losses)  # [T]
+        per_tick_loss_tensor = torch.stack(per_tick_losses)
 
-        if self.training and cfg.gradient_checkpointing:
-            # Only the final step has gradients — use it directly
+        if self.training and self.config.gradient_checkpointing:
             loss = per_tick_losses[-1]
         else:
-            # Full temporal aggregation (all steps have gradients)
             temperature = 0.1
-
-            # Min-loss tick: softmin over per-tick losses
             min_loss_weights = F.softmax(-per_tick_loss_tensor / temperature, dim=0)
             min_loss_component = (min_loss_weights * per_tick_loss_tensor).sum()
 
-            # Max-certainty tick
             mean_certainty = all_certainties.mean(dim=(1, 2))
             max_cert_weights = F.softmax(mean_certainty / temperature, dim=0)
             max_cert_component = (max_cert_weights * per_tick_loss_tensor).sum()
 
             loss = (
-                cfg.min_loss_weight * min_loss_component +
-                cfg.max_cert_weight * max_cert_component +
-                cfg.aux_loss_weight * per_tick_loss_tensor.mean()
+                self.config.min_loss_weight * min_loss_component +
+                self.config.max_cert_weight * max_cert_component +
+                self.config.aux_loss_weight * per_tick_loss_tensor.mean()
             )
 
         return loss, per_tick_loss_tensor.detach()
@@ -339,36 +361,18 @@ class CTMTransformer(nn.Module):
         temperature: float = 1.0,
         top_k: int = 50,
     ) -> torch.Tensor:
-        """
-        Autoregressive generation using the final thought step.
-
-        Args:
-            input_ids: [1, seq_len] — prompt token IDs.
-            max_new_tokens: Number of tokens to generate.
-            temperature: Sampling temperature.
-            top_k: Top-k filtering.
-
-        Returns:
-            generated: [1, seq_len + max_new_tokens] — full sequence.
-        """
+        """Autoregressive generation."""
         self.eval()
         for _ in range(max_new_tokens):
-            # Crop to max_seq_len if needed
             idx = input_ids[:, -self.config.max_seq_len:]
-
-            # Forward pass
             result = self(idx, max_thought_steps=self.config.max_thought_steps)
-            logits = result["logits"][:, -1, :]  # [1, V]
+            logits = result["logits"][:, -1, :]
 
-            # Temperature scaling
             logits = logits / temperature
-
-            # Top-k filtering
             if top_k > 0:
                 v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
                 logits[logits < v[:, [-1]]] = float("-inf")
 
-            # Sample
             probs = F.softmax(logits, dim=-1)
             next_token = torch.multinomial(probs, num_samples=1)
             input_ids = torch.cat([input_ids, next_token], dim=1)

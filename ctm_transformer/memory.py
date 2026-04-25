@@ -60,14 +60,22 @@ class TemporalMemory(nn.Module):
         """
         Push new pre-activations into the FIFO buffer.
 
+        Uses roll + indexed assignment instead of cat. Memory cost is
+        equivalent (both allocate a fresh [B, H, D] tensor per call), but
+        the autograd graph is cleaner: roll has one parent (the buffer),
+        cat has two (the slice + the new entry), and the roll variant
+        plays better with the periodic .detach() applied at thought-step
+        boundaries to break cross-step graph chaining.
+
         Args:
             pre_activations: [batch, d_latent] — new pre-activation values.
         """
-        # Shift left: drop oldest (index 0), append new at the end
-        self.pre_history = torch.cat([
-            self.pre_history[:, 1:, :],
-            pre_activations.unsqueeze(1)
-        ], dim=1)
+        # roll returns a NEW tensor (not in-place), so the subsequent
+        # index_put modifies that new tensor — never the original leaf.
+        # Safe under autograd even when the buffer is a leaf with
+        # requires_grad=True.
+        self.pre_history = self.pre_history.roll(-1, dims=1)
+        self.pre_history[:, -1, :] = pre_activations
 
     def push_post(self, post_activations: torch.Tensor):
         """
@@ -76,10 +84,8 @@ class TemporalMemory(nn.Module):
         Args:
             post_activations: [batch, d_latent] — new post-activation values.
         """
-        self.post_history = torch.cat([
-            self.post_history[:, 1:, :],
-            post_activations.unsqueeze(1)
-        ], dim=1)
+        self.post_history = self.post_history.roll(-1, dims=1)
+        self.post_history[:, -1, :] = post_activations
 
     def get_pre_history(self) -> torch.Tensor:
         """Returns the full pre-activation history buffer [batch, history_len, d_latent]."""
@@ -134,27 +140,49 @@ class SynchronizationComputer(nn.Module):
             sync_repr: [batch, sync_dim] — flattened synchronization representation.
         """
         B, H, D = post_history.shape
+        H_safe = max(H, 1)
 
-        # S_t = Z_t^T @ Z_t → [batch, d_latent, d_latent]
-        # Note: We compute Z^T @ Z (not Z @ Z^T) to get neuron-neuron coupling
-        # Z_t is [batch, history_len, d_latent], so:
-        # Z_t^T @ Z_t = [batch, d_latent, history_len] @ [batch, history_len, d_latent]
-        #             = [batch, d_latent, d_latent]
+        # ── Fast path for diag_summary ──────────────────────────────────
+        # The naive path materializes S = Zᵀ Z / H of shape [B, D, D],
+        # which at D=768, B=512, bf16 is 576 MiB *per layer per thought
+        # step* — enough to OOM a 200M model on consumer hardware.
+        # Since we only need diag(S), row_means(S), col_means(S), we can
+        # compute all three directly from Z in O(B·H·D) memory, never
+        # touching the [D, D] matrix.
+        #
+        # Identities (all exact, no approximation):
+        #   diag(S)[b,i]      = (1/H) · Σ_h Z[b,h,i]²
+        #   row_means(S)[b,i] = (1/(D·H)) · Σ_h Z[b,h,i] · (Σ_j Z[b,h,j])
+        #   col_means(S)[b,j] = row_means(S)[b,j]   (S is symmetric)
+        if self.method == "diag_summary":
+            # diag: sum of squares along the history axis.
+            # einsum fuses the elementwise square with the reduction,
+            # avoiding the [B, H, D] intermediate that (post*post) would
+            # allocate before .sum(dim=1).
+            diag = torch.einsum('bhd,bhd->bd', post_history, post_history) / H_safe  # [B, D]
+
+            # row_means: via bmm against the per-history-step row sums
+            # Zsum: [B, H, 1] — cheap, no D×D tensor ever exists
+            Zsum = post_history.sum(dim=2, keepdim=True)                # [B, H, 1]
+            row_means = torch.bmm(
+                post_history.transpose(1, 2),                            # [B, D, H]
+                Zsum,                                                    # [B, H, 1]
+            ).squeeze(2) / (H_safe * D)                                  # [B, D]
+
+            # col_means == row_means by symmetry of Zᵀ Z
+            col_means = row_means
+
+            return torch.cat([diag, row_means, col_means], dim=1)       # [B, 3D]
+
+        # ── Full-matrix path (required for "full" and "low_rank") ───────
+        # S_t = Z_tᵀ @ Z_t → [batch, d_latent, d_latent]
+        # Note: We compute Zᵀ @ Z (not Z @ Zᵀ) to get neuron-neuron coupling
         S = torch.bmm(post_history.transpose(1, 2), post_history)
-
-        # Normalize by history length for stability
-        S = S / max(H, 1)
+        S = S / H_safe
 
         if self.method == "full":
             # Flatten entire matrix
             return S.reshape(B, D * D)
-
-        elif self.method == "diag_summary":
-            # Efficient summary: diagonal + row means + column means
-            diag = torch.diagonal(S, dim1=1, dim2=2)        # [batch, d_latent]
-            row_means = S.mean(dim=2)                         # [batch, d_latent]
-            col_means = S.mean(dim=1)                         # [batch, d_latent]
-            return torch.cat([diag, row_means, col_means], dim=1)  # [batch, 3*d_latent]
 
         elif self.method == "low_rank":
             # Top-k eigenvalue approximation via SVD

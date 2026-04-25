@@ -98,7 +98,7 @@ def test_forward_pass():
                 nlm_has_grad = True
             if "query_proj" in name:
                 sync_has_grad = True
-            if "output_head" in name:
+            if "output_proj" in name:
                 output_has_grad = True
         else:
             no_grad += 1
