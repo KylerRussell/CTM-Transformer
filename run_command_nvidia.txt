@@ -1,4 +1,4 @@
-cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMythos/venv/bin/activate && PYTHONUNBUFFERED=1 TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1 nohup python -m ctm_transformer.train \
+cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 nohup python -m ctm_transformer.train \
   --dataset fineweb-edu \
   --dataset_subset sample-10BT \
   --device cuda \
@@ -12,14 +12,15 @@ cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMyt
   --history_len 8 \
   --max_thought_steps 8 \
   --seq_len 512 \
-  --batch_size 1 \
+  --batch_size 3 \
   --learning_rate 3e-4 \
   --warmup_steps 2000 \
   --max_steps 2441406 \
   --gradient_checkpointing \
   --log_interval 10 \
   --eval_interval 5000 \
-  --checkpoint_dir checkpoints_200m_fineweb > train_200m.log 2>&1 &
-echo "PID: $!"
+  --optimizer adamuon \
+  --checkpoint_dir checkpoints_200m_nv > train_nv.log 2>&1 &
+echo "NVIDIA PID: $!"
 
 pkill -f "ctm_transformer.train" && echo "Killed" || echo "No process found"

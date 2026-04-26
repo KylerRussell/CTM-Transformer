@@ -45,6 +45,21 @@ class CTMConfig:
     eval_interval: int = 500          # Steps between evaluations
     log_interval: int = 50            # Steps between logging
 
+    # ── Optimizer ───────────────────────────────────────────────────────
+    optimizer: str = "adamw"           # "adamw" or "adamuon"
+    # AdamW betas (used as the AdamW group when optimizer="adamuon" too).
+    adam_beta1: float = 0.9
+    adam_beta2: float = 0.95
+    # AdaMuon hyperparameters (paper defaults).
+    adamuon_beta: float = 0.95         # shared β for first/second momentum
+    adamuon_eps: float = 1e-8          # variance denominator floor
+    adamuon_ns_steps: int = 5          # Newton-Schulz iterations
+    adamuon_rms_target: float = 0.2    # target update RMS (matches Adam)
+    # Per-paper, AdaMuon and its AdamW companion both use wd=0.1. Keeping
+    # this as a separate knob since the user's existing AdamW default is
+    # 0.01 and we don't want to silently change AdamW-only behavior.
+    adamuon_weight_decay: float = 0.1
+
     # ── Temporal Loss ───────────────────────────────────────────────────
     aux_loss_weight: float = 0.1       # Weight for mean-across-ticks auxiliary loss
     min_loss_weight: float = 0.5       # Weight for min-loss tick

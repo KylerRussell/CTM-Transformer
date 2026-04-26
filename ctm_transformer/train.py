@@ -34,6 +34,60 @@ from torch.utils.data import Dataset, IterableDataset, DataLoader, get_worker_in
 
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer
+from ctm_transformer.adamuon import AdaMuon, build_param_groups
+
+
+# ── Optimizer Construction ──────────────────────────────────────────────
+
+def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.optim.Optimizer]:
+    """
+    Build the optimizer list for training.
+
+    Returns a list of one or two optimizers:
+      * "adamw"   → [AdamW] over all parameters.
+      * "adamuon" → [AdaMuon, AdamW] split via adamuon.build_param_groups
+                    (2D hidden weights to AdaMuon; 1D / embeddings / LM-head
+                    / >2D NLM stacks to AdamW).
+
+    Both optimizers share the same LR schedule — per the AdaMuon paper, the
+    RMS-alignment step makes muon-side updates land on Adam's empirical
+    update RMS (~0.2), so a single LR works.
+    """
+    if config.optimizer == "adamw":
+        opt = torch.optim.AdamW(
+            model.parameters(),
+            lr=config.learning_rate,
+            weight_decay=config.weight_decay,
+            betas=(config.adam_beta1, config.adam_beta2),
+        )
+        return [opt]
+
+    if config.optimizer == "adamuon":
+        muon_params, adamw_params = build_param_groups(model, verbose=False)
+        opts: list[torch.optim.Optimizer] = []
+        if muon_params:
+            opts.append(AdaMuon(
+                muon_params,
+                lr=config.learning_rate,
+                weight_decay=config.adamuon_weight_decay,
+                beta=config.adamuon_beta,
+                eps=config.adamuon_eps,
+                ns_steps=config.adamuon_ns_steps,
+                rms_target=config.adamuon_rms_target,
+            ))
+        if adamw_params:
+            opts.append(torch.optim.AdamW(
+                adamw_params,
+                lr=config.learning_rate,
+                weight_decay=config.adamuon_weight_decay,
+                betas=(config.adam_beta1, config.adam_beta2),
+            ))
+        if not opts:
+            raise RuntimeError("build_param_groups returned no parameters.")
+        # Convention: AdaMuon is opts[0] when present (used by logging in train()).
+        return opts
+
+    raise ValueError(f"Unknown optimizer: {config.optimizer!r} (use 'adamw' or 'adamuon')")
 
 
 # ── Tokenizer ───────────────────────────────────────────────────────────
@@ -155,15 +209,27 @@ def get_lr(step: int, config: CTMConfig) -> float:
 
 # ── Checkpoint Management ──────────────────────────────────────────────
 
-def save_checkpoint(model, optimizer, step, config, path, keep_last=3):
-    """Save model checkpoint with rotation."""
+def save_checkpoint(model, optimizers, step, config, path, keep_last=3):
+    """
+    Save model checkpoint with rotation.
+
+    `optimizers` is a list — supports both single-optimizer (AdamW) and
+    dual-optimizer (AdaMuon + AdamW) setups. State dicts are stored under
+    `optimizer_state_dicts` (a list); the legacy single-optimizer key
+    `optimizer_state_dict` is also written for backward-compatibility with
+    older checkpoints loaded by external scripts.
+    """
     ckpt_dir = path.parent
-    torch.save({
+    payload = {
         "model_state_dict": model.state_dict(),
-        "optimizer_state_dict": optimizer.state_dict(),
+        "optimizer_state_dicts": [o.state_dict() for o in optimizers],
         "step": step,
         "config": vars(config),
-    }, path)
+    }
+    # Backward-compat: also write the single-opt key when there's only one.
+    if len(optimizers) == 1:
+        payload["optimizer_state_dict"] = optimizers[0].state_dict()
+    torch.save(payload, path)
 
     # Rotate old step checkpoints (keep last N)
     step_ckpts = sorted(ckpt_dir.glob("step_*.pt"))
@@ -174,12 +240,37 @@ def save_checkpoint(model, optimizer, step, config, path, keep_last=3):
             pass
 
 
-def load_checkpoint(model, optimizer, path, device):
-    """Load model checkpoint, return the step number."""
+def load_checkpoint(model, optimizers, path, device):
+    """
+    Load model checkpoint, return the step number.
+
+    `optimizers` is a list. Loads in order from `optimizer_state_dicts` if
+    present; otherwise falls back to the legacy single-`optimizer_state_dict`
+    key (which only works when len(optimizers) == 1).
+    """
     ckpt = torch.load(path, map_location=device, weights_only=False)
     model.load_state_dict(ckpt["model_state_dict"])
-    if optimizer is not None and "optimizer_state_dict" in ckpt:
-        optimizer.load_state_dict(ckpt["optimizer_state_dict"])
+
+    if optimizers is not None:
+        if "optimizer_state_dicts" in ckpt:
+            states = ckpt["optimizer_state_dicts"]
+            if len(states) != len(optimizers):
+                raise RuntimeError(
+                    f"Checkpoint has {len(states)} optimizer state(s) but "
+                    f"current run has {len(optimizers)}. Did you switch "
+                    f"--optimizer between runs?"
+                )
+            for o, s in zip(optimizers, states):
+                o.load_state_dict(s)
+        elif "optimizer_state_dict" in ckpt:
+            # Legacy single-optimizer checkpoint
+            if len(optimizers) != 1:
+                raise RuntimeError(
+                    "Legacy single-optimizer checkpoint cannot be loaded "
+                    "into a multi-optimizer (AdaMuon) run."
+                )
+            optimizers[0].load_state_dict(ckpt["optimizer_state_dict"])
+
     return int(ckpt.get("step", 0))
 
 
@@ -316,12 +407,14 @@ def train(config: CTMConfig):
           f"nlm_hidden={config.nlm_hidden_dim}, nlm_groups={config.nlm_groups}")
 
     # ── Optimizer ───────────────────────────────────────────────────────
-    optimizer = torch.optim.AdamW(
-        model.parameters(),
-        lr=config.learning_rate,
-        weight_decay=config.weight_decay,
-        betas=(0.9, 0.95),
-    )
+    optimizers = build_optimizers(model, config)
+    if len(optimizers) == 1:
+        print(f"Optimizer: {config.optimizer} (single group)")
+    else:
+        muon_n = sum(p.numel() for g in optimizers[0].param_groups for p in g["params"])
+        adam_n = sum(p.numel() for g in optimizers[1].param_groups for p in g["params"])
+        print(f"Optimizer: adamuon — {muon_n/1e6:.1f}M params on AdaMuon, "
+              f"{adam_n/1e6:.1f}M params on AdamW (embeddings/LM-head/1D)")
 
     # ── Resume from checkpoint ──────────────────────────────────────────
     ckpt_dir = Path(config.checkpoint_dir)
@@ -331,11 +424,11 @@ def train(config: CTMConfig):
     existing_ckpts = sorted(ckpt_dir.glob("step_*.pt"))
     if existing_ckpts:
         print(f"  Resuming from {existing_ckpts[-1]}")
-        start_step = load_checkpoint(model, optimizer, existing_ckpts[-1], device)
+        start_step = load_checkpoint(model, optimizers, existing_ckpts[-1], device)
         print(f"  Resumed at step {start_step}")
     elif (ckpt_dir / "best.pt").exists():
         print(f"  Loading best checkpoint")
-        start_step = load_checkpoint(model, optimizer, ckpt_dir / "best.pt", device)
+        start_step = load_checkpoint(model, optimizers, ckpt_dir / "best.pt", device)
 
     # ── Training ────────────────────────────────────────────────────────
     step = start_step
@@ -365,10 +458,12 @@ def train(config: CTMConfig):
         x = x.to(device)
         y = y.to(device)
 
-        # Learning rate schedule
+        # Learning rate schedule — applied to ALL optimizer groups (AdaMuon
+        # and its AdamW companion share the schedule per the paper).
         lr = get_lr(step, config)
-        for param_group in optimizer.param_groups:
-            param_group["lr"] = lr
+        for opt in optimizers:
+            for param_group in opt.param_groups:
+                param_group["lr"] = lr
 
         # Forward pass with mixed precision
         t0 = time.time()
@@ -380,7 +475,8 @@ def train(config: CTMConfig):
             loss = result["loss"]
 
         # Backward
-        optimizer.zero_grad(set_to_none=True)
+        for o in optimizers:
+            o.zero_grad(set_to_none=True)
         loss.backward()
 
         if config.grad_clip > 0:
@@ -388,7 +484,8 @@ def train(config: CTMConfig):
         else:
             grad_norm = torch.tensor(0.0)
 
-        optimizer.step()
+        for o in optimizers:
+            o.step()
 
         dt = time.time() - t0
         batch_tokens = config.batch_size * config.seq_len
@@ -426,11 +523,11 @@ def train(config: CTMConfig):
 
             if eval_loss < best_eval_loss:
                 best_eval_loss = eval_loss
-                save_checkpoint(model, optimizer, step, config, ckpt_dir / "best.pt")
+                save_checkpoint(model, optimizers, step, config, ckpt_dir / "best.pt")
                 print(f"  >>> Saved best checkpoint at step {step}")
 
             # Save step checkpoint
-            save_checkpoint(model, optimizer, step, config,
+            save_checkpoint(model, optimizers, step, config,
                           ckpt_dir / f"step_{step:07d}.pt")
 
             # Generate a sample
@@ -441,7 +538,7 @@ def train(config: CTMConfig):
         step += 1
 
     # Final save
-    save_checkpoint(model, optimizer, step, config, ckpt_dir / "final.pt")
+    save_checkpoint(model, optimizers, step, config, ckpt_dir / "final.pt")
     print(f"\nTraining complete. {tokens_seen/1e9:.2f}B tokens processed.")
 
 
@@ -548,6 +645,24 @@ def parse_args():
     train_group.add_argument("--log_interval", type=int, default=50)
     train_group.add_argument("--checkpoint_dir", type=str, default="checkpoints")
 
+    # Optimizer
+    opt_group = parser.add_argument_group("Optimizer")
+    opt_group.add_argument("--optimizer", type=str, default="adamw",
+                           choices=["adamw", "adamuon"],
+                           help="Optimizer: 'adamw' (default) or 'adamuon' (sign-stabilized "
+                                "Muon with element-wise V_t and RMS alignment).")
+    opt_group.add_argument("--adamuon_beta", type=float, default=0.95,
+                           help="Shared β for AdaMuon's first/second momentum (paper default 0.95).")
+    opt_group.add_argument("--adamuon_eps", type=float, default=1e-8)
+    opt_group.add_argument("--adamuon_ns_steps", type=int, default=5,
+                           help="Newton-Schulz iterations for the polar factor.")
+    opt_group.add_argument("--adamuon_rms_target", type=float, default=0.2,
+                           help="Target update RMS after alignment (matches Adam's empirical norm).")
+    opt_group.add_argument("--adamuon_weight_decay", type=float, default=0.1,
+                           help="Weight decay for both AdaMuon and its AdamW companion (paper uses 0.1).")
+    opt_group.add_argument("--weight_decay", type=float, default=0.01,
+                           help="Weight decay for plain --optimizer adamw (unused under adamuon).")
+
     return parser.parse_args()
 
 
@@ -572,6 +687,7 @@ def main():
         sync_method=args.sync_method,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
+        weight_decay=args.weight_decay,
         max_steps=args.max_steps,
         warmup_steps=args.warmup_steps,
         device=args.device,
@@ -580,6 +696,12 @@ def main():
         eval_interval=args.eval_interval,
         log_interval=args.log_interval,
         checkpoint_dir=args.checkpoint_dir,
+        optimizer=args.optimizer,
+        adamuon_beta=args.adamuon_beta,
+        adamuon_eps=args.adamuon_eps,
+        adamuon_ns_steps=args.adamuon_ns_steps,
+        adamuon_rms_target=args.adamuon_rms_target,
+        adamuon_weight_decay=args.adamuon_weight_decay,
     )
 
     train(config)
