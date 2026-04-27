@@ -294,6 +294,16 @@ def build_param_groups(
         # working directory), fall back to a name-based heuristic below.
         pass
 
+    # All nn.Embedding weights → AdamW. Catches both the token embedding
+    # and the Engram lookup tables (which are also nn.Embedding internally,
+    # under EngramTable.tables). isinstance is more reliable than the
+    # name-substring fallback below — Engram's parameter is named
+    # `engram_table.tables.weight`, which doesn't contain "embedding".
+    embedding_weight_ids: set[int] = set()
+    for m in model.modules():
+        if isinstance(m, torch.nn.Embedding):
+            embedding_weight_ids.add(id(m.weight))
+
     # Identify the LM head: the *last* nn.Linear nested anywhere inside
     # `model.output_proj`. Identity-check via id() so we don't accidentally
     # exclude lookalikes from elsewhere in the model.
@@ -325,13 +335,19 @@ def build_param_groups(
             adamw_log.append(f"  [adamw, nlm]        {name}  {tuple(p.shape)}")
             continue
 
-        # Rule 3: embeddings
-        if "embedding" in nlc or "embed.weight" in nlc:
+        # Rule 3: any nn.Embedding weight (token emb, Engram tables, etc.)
+        if id(p) in embedding_weight_ids:
             adamw_params.append(p)
             adamw_log.append(f"  [adamw, embed]      {name}  {tuple(p.shape)}")
             continue
 
-        # Rule 4: LM head
+        # Rule 4: name-based fallback for embeddings (handles renamed/wrapped cases)
+        if "embedding" in nlc or "embed.weight" in nlc:
+            adamw_params.append(p)
+            adamw_log.append(f"  [adamw, embed-name] {name}  {tuple(p.shape)}")
+            continue
+
+        # Rule 5: LM head
         if lm_head_weight_id is not None and id(p) == lm_head_weight_id:
             adamw_params.append(p)
             adamw_log.append(f"  [adamw, lm_head]    {name}  {tuple(p.shape)}")

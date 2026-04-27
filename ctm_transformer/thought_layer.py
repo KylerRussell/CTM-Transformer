@@ -27,6 +27,7 @@ import math
 
 from ctm_transformer.nlm import NeuronLevelModels
 from ctm_transformer.memory import TemporalMemory, SynchronizationComputer
+from ctm_transformer.engram import EngramGate
 
 
 class ThoughtLayer(nn.Module):
@@ -44,6 +45,10 @@ class ThoughtLayer(nn.Module):
         sync_method: Synchronization computation method.
         sync_rank: Rank for low-rank sync.
         dropout: Dropout rate.
+        engram_enabled: If True, this layer fuses Engram memory into attn_out.
+            The Engram K/V are projected by the parent model (not here) and
+            passed in via `engram_kv` at forward time.
+        engram_conv_kernel/dilation/use_conv: see EngramGate.
     """
 
     def __init__(
@@ -57,6 +62,10 @@ class ThoughtLayer(nn.Module):
         sync_method: str = "diag_summary",
         sync_rank: int = 32,
         dropout: float = 0.1,
+        engram_enabled: bool = False,
+        engram_use_conv: bool = True,
+        engram_conv_kernel: int = 4,
+        engram_conv_dilation: int = 3,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -119,6 +128,22 @@ class ThoughtLayer(nn.Module):
         # ── Post-NLM Layer Norm ─────────────────────────────────────────
         self.post_norm = nn.LayerNorm(d_latent)
 
+        # ── Engram Gate (optional) ──────────────────────────────────────
+        # Per-thought-step gating + conv. The K/V projections are owned by
+        # the parent model (CTMTransformer), not us — they're computed once
+        # per forward (e_t is static across thought steps) and passed in via
+        # engram_kv. We only do the dynamic part here: the per-step gate.
+        if engram_enabled:
+            self.engram_gate = EngramGate(
+                d_query=d_model,
+                d_out=d_model,
+                kernel_size=engram_conv_kernel,
+                dilation=engram_conv_dilation,
+                use_conv=engram_use_conv,
+            )
+        else:
+            self.engram_gate = None
+
     def reset_memory(self, batch_size: int, device: torch.device, dtype: torch.dtype):
         """Initialize memory buffers for a new sequence/batch."""
         self.memory.reset(batch_size, device, dtype)
@@ -129,6 +154,7 @@ class ThoughtLayer(nn.Module):
         text_values: torch.Tensor,
         prev_state: torch.Tensor,
         key_padding_mask: torch.Tensor | None = None,
+        engram_kv: tuple[torch.Tensor, torch.Tensor] | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Execute one thought step with per-position states and causal masking.
@@ -138,6 +164,10 @@ class ThoughtLayer(nn.Module):
             text_values: [batch, seq_len, d_model] — text embeddings for V projection.
             prev_state:  [batch, seq_len, d_latent] — per-position neuron states z_{t-1}.
             key_padding_mask: [batch, seq_len] — True for padded positions.
+            engram_kv: optional (k, v) tuple, each [batch, seq_len, d_model], the
+                pre-projected Engram memory for this layer. None disables fusion.
+                Computed once per forward by the parent model (not per thought step)
+                because e_t is static across the thought loop.
 
         Returns:
             new_state:   [batch, seq_len, d_latent] — updated per-position states z_t.
@@ -195,6 +225,27 @@ class ThoughtLayer(nn.Module):
         attn_out = torch.matmul(attn_weights, v)                          # [B, heads, S, head_dim]
         attn_out = attn_out.transpose(1, 2).contiguous().view(B, S, D)    # [B, S, d_model]
         attn_out = self.attn_out_proj(attn_out)                           # [B, S, d_model]
+
+        # ── Step 2.5: Engram Fusion (optional) ──────────────────────────
+        # Conditional memory: gate the static N-gram lookup by the dynamic
+        # cross-attention output, then add to attn_out (residual).
+        #
+        # Why use attn_out as the gating query (rather than text_emb or
+        # prev_state)? attn_out is the model's *current* read of the text,
+        # already conditioned on the evolving sync state via the upstream
+        # query_proj. Across thought steps, attn_out shifts as the sync
+        # state shifts — so the gate signal varies per thought iteration,
+        # giving the model a chance to re-evaluate "do I trust this memory?"
+        # at each step.
+        #
+        # The Engram contribution is exactly 0 at init (W_V zero-init in
+        # EngramProjection plus zero-init conv in EngramGate), so adding
+        # it residually is safe — the model bootstraps from its pre-Engram
+        # solution and grows into using memory.
+        if self.engram_gate is not None and engram_kv is not None:
+            engram_k, engram_v = engram_kv                                # each [B, S, d_model]
+            engram_out = self.engram_gate(attn_out, engram_k, engram_v)   # [B, S, d_model]
+            attn_out = attn_out + engram_out
 
         # Flatten attention output back to [B*S, d_model]
         attn_flat = attn_out.reshape(BS, D)

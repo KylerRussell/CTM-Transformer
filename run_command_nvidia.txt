@@ -20,7 +20,13 @@ cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMyt
   --log_interval 10 \
   --eval_interval 5000 \
   --optimizer adamuon \
-  --checkpoint_dir checkpoints_200m_nv > train_nv.log 2>&1 &
+  --use_engram \
+  --engram_ngram_orders 2 3 \
+  --engram_n_heads 8 \
+  --engram_slots_per_table 49157 \
+  --engram_d_head 64 \
+  --engram_lr_mult 5.0 \
+  --checkpoint_dir checkpoints_200m_nv_engram > train_nv_engram.log 2>&1 &
 echo "NVIDIA PID: $!"
 
 pkill -f "ctm_transformer.train" && echo "Killed" || echo "No process found"

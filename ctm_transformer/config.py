@@ -33,6 +33,40 @@ class CTMConfig:
     sync_method: str = "diag_summary"  # "full", "diag_summary", or "low_rank"
     sync_rank: int = 32                # Rank for low_rank sync method
 
+    # ── Engram (Conditional Memory via Hashed N-gram Lookup) ────────────
+    # Master switch. When False, all Engram fields below are ignored and
+    # the model is identical to the original CTM-Transformer.
+    use_engram: bool = False
+    # N-gram orders to track. Paper recommends [2, 3]; ablation in Fig 5
+    # shows 4-grams hurt at fixed memory budget (capacity dilution).
+    engram_ngram_orders: list[int] = field(default_factory=lambda: [2, 3])
+    # K independent hash heads per order. Mitigates collision bias.
+    engram_n_heads: int = 8
+    # M, slots per (order, head) table. Prime preferred. Defaults give a
+    # ~64K-slot table (16-bit indexing space), which keeps the total table
+    # small enough to fit on a consumer GPU even with d_head=64. Scale up
+    # via --engram_slots_per_table for larger memory budgets.
+    engram_slots_per_table: int = 65521         # largest prime ≤ 2^16
+    # Per-head embedding dim. Concatenated d_mem = len(orders)·n_heads·d_head.
+    # Default: matches d_model/n_heads to keep the projection matrix square-ish.
+    engram_d_head: int = 64
+    # ID used to left-pad short suffixes at sequence start.
+    engram_bos_id: int = 0
+    # Layer indices where Engram fuses into the thought loop. Empty = auto:
+    # for n_layers ≥ 4, picks {1, n_layers // 2} (paper-style early + mid),
+    # else just {0} (single early injection).
+    engram_layers: list[int] = field(default_factory=list)
+    # Depthwise causal conv: kernel size and dilation (paper Eq. 5).
+    # Set use_conv=False to skip it (slight loss per Fig 5 ablation, ~30% fewer engram params).
+    engram_use_conv: bool = True
+    engram_conv_kernel: int = 4
+    engram_conv_dilation: int = 3               # = max N-gram order
+    # Engram embedding LR multiplier. Paper uses 5× the backbone LR with no
+    # weight decay — the lookup tables are sparsely-updated and benefit from
+    # a more aggressive step on the rows that actually receive gradient.
+    engram_lr_mult: float = 5.0
+    engram_weight_decay: float = 0.0
+
     # ── Training ────────────────────────────────────────────────────────
     batch_size: int = 4
     learning_rate: float = 3e-4
@@ -105,3 +139,27 @@ class CTMConfig:
         if torch.cuda.is_available():
             return "cuda"
         return "cpu"
+
+    @property
+    def engram_d_mem(self) -> int:
+        """Total Engram lookup output dim: len(orders) × n_heads × d_head."""
+        return len(self.engram_ngram_orders) * self.engram_n_heads * self.engram_d_head
+
+    def resolve_engram_layers(self) -> list[int]:
+        """Resolve `engram_layers`: explicit list or auto-pick {1, n_layers//2}.
+
+        Auto rule: paper places Engram at layers [2, 15] of a 30-layer model
+        — early + mid. We map this to {1, n_layers // 2} for any n_layers ≥ 4
+        (the smallest depth where mid is meaningfully different from early).
+        For shallower models we collapse to a single early layer.
+        """
+        if self.engram_layers:
+            for l in self.engram_layers:
+                if l < 0 or l >= self.n_layers:
+                    raise ValueError(
+                        f"engram_layers contains {l}, outside [0, n_layers={self.n_layers})"
+                    )
+            return sorted(set(self.engram_layers))
+        if self.n_layers >= 4:
+            return [1, self.n_layers // 2]
+        return [0]

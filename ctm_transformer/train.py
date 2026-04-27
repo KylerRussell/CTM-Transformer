@@ -35,35 +35,90 @@ from torch.utils.data import Dataset, IterableDataset, DataLoader, get_worker_in
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer
 from ctm_transformer.adamuon import AdaMuon, build_param_groups
+from ctm_transformer.engram import EngramTable
 
 
 # ── Optimizer Construction ──────────────────────────────────────────────
+
+def _engram_table_param_ids(model: torch.nn.Module) -> set[int]:
+    """Return IDs of parameters owned (directly) by EngramTable modules.
+
+    These are the giant lookup tables that get the 5× LR / no-weight-decay
+    treatment per the Engram paper. Using id() identity rather than name
+    matching so wrapping/renaming the engram_table attribute doesn't break.
+    """
+    ids: set[int] = set()
+    for m in model.modules():
+        if isinstance(m, EngramTable):
+            for p in m.parameters(recurse=True):
+                ids.add(id(p))
+    return ids
+
 
 def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.optim.Optimizer]:
     """
     Build the optimizer list for training.
 
     Returns a list of one or two optimizers:
-      * "adamw"   → [AdamW] over all parameters.
+      * "adamw"   → [AdamW] over all parameters. When Engram is on, the
+                    Engram tables get their own param group with 5× LR
+                    (`engram_lr_mult`) and no weight decay.
       * "adamuon" → [AdaMuon, AdamW] split via adamuon.build_param_groups
                     (2D hidden weights to AdaMuon; 1D / embeddings / LM-head
-                    / >2D NLM stacks to AdamW).
+                    / >2D NLM stacks / Engram tables to AdamW). The AdamW
+                    optimizer holds two internal param groups when Engram
+                    is on: a "general" group at base LR, and an "engram"
+                    group at base LR × engram_lr_mult with weight_decay=0.
 
-    Both optimizers share the same LR schedule — per the AdaMuon paper, the
-    RMS-alignment step makes muon-side updates land on Adam's empirical
-    update RMS (~0.2), so a single LR works.
+    Per-group LR scheduling: each param_group carries a custom `lr_mult`
+    field. The training loop multiplies the base LR by this when applying
+    the schedule (see train()).
     """
+    engram_ids = _engram_table_param_ids(model) if config.use_engram else set()
+
     if config.optimizer == "adamw":
-        opt = torch.optim.AdamW(
-            model.parameters(),
-            lr=config.learning_rate,
-            weight_decay=config.weight_decay,
-            betas=(config.adam_beta1, config.adam_beta2),
-        )
+        if engram_ids:
+            general_p = []
+            engram_p = []
+            for p in model.parameters():
+                if not p.requires_grad:
+                    continue
+                (engram_p if id(p) in engram_ids else general_p).append(p)
+            groups: list[dict] = [
+                {"params": general_p, "lr_mult": 1.0},
+            ]
+            if engram_p:
+                groups.append({
+                    "params": engram_p,
+                    "lr_mult": config.engram_lr_mult,
+                    "weight_decay": config.engram_weight_decay,
+                })
+            opt = torch.optim.AdamW(
+                groups,
+                lr=config.learning_rate,
+                weight_decay=config.weight_decay,
+                betas=(config.adam_beta1, config.adam_beta2),
+            )
+        else:
+            opt = torch.optim.AdamW(
+                model.parameters(),
+                lr=config.learning_rate,
+                weight_decay=config.weight_decay,
+                betas=(config.adam_beta1, config.adam_beta2),
+            )
         return [opt]
 
     if config.optimizer == "adamuon":
         muon_params, adamw_params = build_param_groups(model, verbose=False)
+
+        # Split the AdamW pool into general + engram-table groups so we can
+        # apply the paper's 5× LR / no-WD rule to the lookup tables only.
+        if engram_ids:
+            general_p = [p for p in adamw_params if id(p) not in engram_ids]
+            engram_p = [p for p in adamw_params if id(p) in engram_ids]
+        else:
+            general_p, engram_p = adamw_params, []
+
         opts: list[torch.optim.Optimizer] = []
         if muon_params:
             opts.append(AdaMuon(
@@ -75,16 +130,29 @@ def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.op
                 ns_steps=config.adamuon_ns_steps,
                 rms_target=config.adamuon_rms_target,
             ))
-        if adamw_params:
+            # AdaMuon's single param-group wants an lr_mult so the scheduler
+            # treats it uniformly with everything else.
+            opts[-1].param_groups[0]["lr_mult"] = 1.0
+
+        adamw_groups: list[dict] = []
+        if general_p:
+            adamw_groups.append({"params": general_p, "lr_mult": 1.0})
+        if engram_p:
+            adamw_groups.append({
+                "params": engram_p,
+                "lr_mult": config.engram_lr_mult,
+                "weight_decay": config.engram_weight_decay,
+            })
+        if adamw_groups:
             opts.append(torch.optim.AdamW(
-                adamw_params,
+                adamw_groups,
                 lr=config.learning_rate,
                 weight_decay=config.adamuon_weight_decay,
                 betas=(config.adam_beta1, config.adam_beta2),
             ))
+
         if not opts:
             raise RuntimeError("build_param_groups returned no parameters.")
-        # Convention: AdaMuon is opts[0] when present (used by logging in train()).
         return opts
 
     raise ValueError(f"Unknown optimizer: {config.optimizer!r} (use 'adamw' or 'adamuon')")
@@ -408,13 +476,25 @@ def train(config: CTMConfig):
 
     # ── Optimizer ───────────────────────────────────────────────────────
     optimizers = build_optimizers(model, config)
+
+    def _count_group(g):
+        return sum(p.numel() for p in g["params"])
+
     if len(optimizers) == 1:
-        print(f"Optimizer: {config.optimizer} (single group)")
+        print(f"Optimizer: {config.optimizer} ({len(optimizers[0].param_groups)} param group(s))")
+        for i, g in enumerate(optimizers[0].param_groups):
+            mult = g.get("lr_mult", 1.0)
+            tag = "engram" if mult != 1.0 else "general"
+            print(f"  [{tag}] {_count_group(g)/1e6:.1f}M params, lr_mult={mult}")
     else:
-        muon_n = sum(p.numel() for g in optimizers[0].param_groups for p in g["params"])
-        adam_n = sum(p.numel() for g in optimizers[1].param_groups for p in g["params"])
+        muon_n = sum(_count_group(g) for g in optimizers[0].param_groups)
+        adam_n = sum(_count_group(g) for g in optimizers[1].param_groups)
         print(f"Optimizer: adamuon — {muon_n/1e6:.1f}M params on AdaMuon, "
-              f"{adam_n/1e6:.1f}M params on AdamW (embeddings/LM-head/1D)")
+              f"{adam_n/1e6:.1f}M params on AdamW (embeddings/LM-head/1D/Engram)")
+        for i, g in enumerate(optimizers[1].param_groups):
+            mult = g.get("lr_mult", 1.0)
+            tag = "engram" if mult != 1.0 else "general"
+            print(f"  AdamW[{tag}] {_count_group(g)/1e6:.1f}M params, lr_mult={mult}")
 
     # ── Resume from checkpoint ──────────────────────────────────────────
     ckpt_dir = Path(config.checkpoint_dir)
@@ -459,11 +539,14 @@ def train(config: CTMConfig):
         y = y.to(device)
 
         # Learning rate schedule — applied to ALL optimizer groups (AdaMuon
-        # and its AdamW companion share the schedule per the paper).
+        # and its AdamW companion share the schedule per the paper). Each
+        # param_group carries an `lr_mult` (default 1.0) which the scheduler
+        # multiplies by the base LR — used to give the Engram embedding
+        # tables their 5× LR per the Engram paper.
         lr = get_lr(step, config)
         for opt in optimizers:
             for param_group in opt.param_groups:
-                param_group["lr"] = lr
+                param_group["lr"] = lr * param_group.get("lr_mult", 1.0)
 
         # Forward pass with mixed precision
         t0 = time.time()
@@ -663,6 +746,33 @@ def parse_args():
     opt_group.add_argument("--weight_decay", type=float, default=0.01,
                            help="Weight decay for plain --optimizer adamw (unused under adamuon).")
 
+    # Engram (conditional memory)
+    engram_group = parser.add_argument_group("Engram")
+    engram_group.add_argument("--use_engram", action="store_true",
+                              help="Enable Engram conditional memory (hashed N-gram lookup).")
+    engram_group.add_argument("--engram_ngram_orders", type=int, nargs="+", default=[2, 3],
+                              help="N-gram orders to track (paper recommends [2, 3]).")
+    engram_group.add_argument("--engram_n_heads", type=int, default=8,
+                              help="K independent hash heads per order.")
+    engram_group.add_argument("--engram_slots_per_table", type=int, default=65521,
+                              help="M, slots per (order, head) table. Prime preferred. "
+                                   "Default 65521 = largest prime ≤ 2^16. "
+                                   "Total table params = len(orders) × n_heads × slots × d_head.")
+    engram_group.add_argument("--engram_d_head", type=int, default=64,
+                              help="Embedding dim per head (d_mem = orders × heads × d_head).")
+    engram_group.add_argument("--engram_layers", type=int, nargs="*", default=[],
+                              help="Layer indices where Engram fuses. Empty = auto: "
+                                   "{1, n_layers // 2} for n_layers ≥ 4, else {0}.")
+    engram_group.add_argument("--engram_no_conv", action="store_true",
+                              help="Skip the depthwise causal conv refinement (slight loss "
+                                   "per Fig 5 ablation; ~30%% fewer Engram fusion params).")
+    engram_group.add_argument("--engram_conv_kernel", type=int, default=4)
+    engram_group.add_argument("--engram_conv_dilation", type=int, default=3)
+    engram_group.add_argument("--engram_lr_mult", type=float, default=5.0,
+                              help="LR multiplier for Engram embedding tables (paper: 5×).")
+    engram_group.add_argument("--engram_weight_decay", type=float, default=0.0,
+                              help="Weight decay for Engram tables (paper: 0).")
+
     return parser.parse_args()
 
 
@@ -702,6 +812,17 @@ def main():
         adamuon_ns_steps=args.adamuon_ns_steps,
         adamuon_rms_target=args.adamuon_rms_target,
         adamuon_weight_decay=args.adamuon_weight_decay,
+        use_engram=args.use_engram,
+        engram_ngram_orders=args.engram_ngram_orders,
+        engram_n_heads=args.engram_n_heads,
+        engram_slots_per_table=args.engram_slots_per_table,
+        engram_d_head=args.engram_d_head,
+        engram_layers=args.engram_layers,
+        engram_use_conv=not args.engram_no_conv,
+        engram_conv_kernel=args.engram_conv_kernel,
+        engram_conv_dilation=args.engram_conv_dilation,
+        engram_lr_mult=args.engram_lr_mult,
+        engram_weight_decay=args.engram_weight_decay,
     )
 
     train(config)

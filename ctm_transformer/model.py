@@ -29,6 +29,7 @@ from contextlib import nullcontext
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.thought_layer import ThoughtLayer
 from ctm_transformer.memory import SynchronizationComputer
+from ctm_transformer.engram import EngramTable, EngramProjection
 
 
 class CTMTransformer(nn.Module):
@@ -62,6 +63,14 @@ class CTMTransformer(nn.Module):
         self.embed_dropout = nn.Dropout(config.dropout)
 
         # ── Thought Layers (stacked, iterated T times) ──────────────────
+        # Resolve which layers fuse Engram. If use_engram is False the set is
+        # empty and ThoughtLayers are built with engram_enabled=False (no
+        # extra params, identical to the pre-Engram CTM).
+        self.engram_layer_indices: list[int] = (
+            config.resolve_engram_layers() if config.use_engram else []
+        )
+        engram_layer_set = set(self.engram_layer_indices)
+
         self.layers = nn.ModuleList([
             ThoughtLayer(
                 d_latent=config.d_latent,
@@ -73,9 +82,40 @@ class CTMTransformer(nn.Module):
                 sync_method=config.sync_method,
                 sync_rank=config.sync_rank,
                 dropout=config.dropout,
+                engram_enabled=(l_idx in engram_layer_set),
+                engram_use_conv=config.engram_use_conv,
+                engram_conv_kernel=config.engram_conv_kernel,
+                engram_conv_dilation=config.engram_conv_dilation,
             )
-            for _ in range(config.n_layers)
+            for l_idx in range(config.n_layers)
         ])
+
+        # ── Engram Memory (optional) ────────────────────────────────────
+        # Single shared lookup table + per-fusion-layer K/V projections.
+        # The K/V projections are kept on the parent (not in ThoughtLayer)
+        # because e_t is constant across the thought loop, so we only need
+        # to project ONCE per forward pass — saving T·n_engram_layers
+        # passes of an O(B·S·d_mem·d_model) matmul.
+        if config.use_engram:
+            self.engram_table = EngramTable(
+                ngram_orders=config.engram_ngram_orders,
+                n_heads=config.engram_n_heads,
+                slots_per_table=config.engram_slots_per_table,
+                d_head=config.engram_d_head,
+                bos_id=config.engram_bos_id,
+            )
+            self.engram_projections = nn.ModuleDict({
+                str(l_idx): EngramProjection(
+                    d_mem=self.engram_table.d_mem,
+                    d_query=config.d_model,
+                    d_out=config.d_model,
+                    zero_init_v=True,
+                )
+                for l_idx in self.engram_layer_indices
+            })
+        else:
+            self.engram_table = None
+            self.engram_projections = None
 
         # ── Attention Residuals (Kimi AttnRes) ──────────────────────────
         # Replaces fixed uniform residual accumulation (∑ h_i) with a
@@ -112,6 +152,17 @@ class CTMTransformer(nn.Module):
         self.z0 = nn.Parameter(torch.zeros(config.d_latent))
 
         self.apply(self._init_weights)
+
+        # Re-apply Engram-specific inits. The generic _init_weights walk
+        # above resets every nn.Linear (std=0.02) and every nn.Embedding
+        # (std=0.02), which would clobber the paper-specified zero-init
+        # of W_V and the conv weights, and the smaller std=0.01 of the
+        # Engram lookup tables. Modules that need post-walk fixups expose
+        # `_reset_special_inits()`; we call it on every module that has it.
+        for m in self.modules():
+            reset_fn = getattr(m, "_reset_special_inits", None)
+            if callable(reset_fn) and m is not self:
+                reset_fn()
 
     def _init_weights(self, module):
         """Standard transformer weight initialization."""
@@ -181,6 +232,23 @@ class CTMTransformer(nn.Module):
         # ── Embed text (computed once) ──────────────────────────────────
         text_emb = self._embed_text(input_ids)  # [B, S, d_model]
 
+        # ── Engram Lookup + Per-Layer K/V Projection (computed once) ────
+        # e_t depends only on the input token IDs — it is *static* across
+        # the entire thought loop. We compute it once here, then pre-project
+        # to per-layer (k, v) tensors that ThoughtLayers can consume cheaply
+        # (only the dynamic gate runs per thought step).
+        engram_kv: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
+        if self.engram_table is not None:
+            e_t = self.engram_table(input_ids)                 # [B, S, d_mem]
+            # Match dtype to the rest of the forward — keeps the projection
+            # in the model's compute dtype (bf16/fp16/fp32) so we don't
+            # silently promote and double the memory cost.
+            e_t = e_t.to(text_emb.dtype)
+            for l_idx_str, proj in self.engram_projections.items():
+                l_idx = int(l_idx_str)
+                k, v = proj(e_t)                               # each [B, S, d_model]
+                engram_kv[l_idx] = (k, v)
+
         # ── Initialize per-position latent states ───────────────────────
         z = self.z0.unsqueeze(0).unsqueeze(0).expand(B, S, -1).clone()  # [B, S, d_latent]
 
@@ -247,6 +315,7 @@ class CTMTransformer(nn.Module):
                         text_emb,
                         z_in,
                         key_padding_mask,
+                        engram_kv=engram_kv.get(l_idx),
                     )
                     layer_outputs.append(z_out)
 
