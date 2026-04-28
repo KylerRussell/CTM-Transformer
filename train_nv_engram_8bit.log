@@ -1,0 +1,76 @@
+nohup: ignoring input
+Device: cuda
+Tokenizer: gpt2 (vocab_size=50,257)
+Dataset: HuggingFaceFW/fineweb-edu (sample-10BT)
+  Streaming mode — data loaded on the fly from HuggingFace Hub
+Model: 669,678,225 parameters (669.7M)
+Config: d_model=1760, d_latent=1760, n_layers=8, n_heads=8, thought_steps=8, history_len=8, nlm_hidden=96, nlm_groups=1760
+Temporal loss: ramp[0.5→1.5], mono_penalty 0.5 → 0.050 over first 732,421 steps (30% of training)
+Thought-step curriculum:
+  T=2 from step          0 →    732,421 (0% → 30%) — uncheckpointed (faster)
+  T=4 from step    732,421 →  1,464,843 (30% → 60%) — uncheckpointed (faster)
+  T=8 from step  1,464,843 →  2,441,406 (60% → 100%) — checkpointed
+Optimizer: adamw → AdamW8bit (bnb) (2 param group(s))
+  [general] 619.3M params, lr_mult=1.0
+  [engram] 50.3M params, lr_mult=5.0
+
+======================================================================
+Starting training for 2,441,406 steps
+Target: ~1.2B tokens from FineWeb-Edu
+======================================================================
+
+Step      0 | loss 11.1250 | lr 0.00e+00 | grad 2960.00 | 0.0k tok/s | T=2 | cert -10.50→-10.50 | ticks [11.125 11.188] | Δticks +0.062 | 0M tok | ETA 16041.8h
+Step     10 | loss 11.2063 | lr 1.50e-06 | grad 1656.00 | 2.0k tok/s | T=2 | cert -10.50→-10.50 | ticks [11.125 11.062] | Δticks -0.062 | 0M tok | ETA 1781.3h
+Step     20 | loss 11.0938 | lr 3.00e-06 | grad 1040.00 | 2.0k tok/s | T=2 | cert -10.50→-10.50 | ticks [11.062 11.062] | Δticks +0.000 | 0M tok | ETA 979.4h
+Step     30 | loss 11.0000 | lr 4.50e-06 | grad 496.00 | 2.0k tok/s | T=2 | cert -10.50→-10.50 | ticks [11.000 11.000] | Δticks +0.000 | 0M tok | ETA 712.2h
+Step     40 | loss 10.9375 | lr 6.00e-06 | grad 292.00 | 2.0k tok/s | T=2 | cert -10.50→-10.50 | ticks [10.938 10.812] | Δticks -0.125 | 0M tok | ETA 578.6h
+Step     50 | loss 10.8500 | lr 7.50e-06 | grad 394.00 | 2.0k tok/s | T=2 | cert -10.50→-10.50 | ticks [10.875 10.938] | Δticks +0.062 | 0M tok | ETA 498.5h
+Step     60 | loss 10.7375 | lr 9.00e-06 | grad 208.00 | 1.9k tok/s | T=2 | cert -10.50→-10.50 | ticks [10.812 10.688] | Δticks -0.125 | 0M tok | ETA 445.2h
+Step     70 | loss 10.6750 | lr 1.05e-05 | grad 199.00 | 2.0k tok/s | T=2 | cert -10.50→-10.50 | ticks [10.812 10.562] | Δticks -0.250 | 0M tok | ETA 407.1h
+Step     80 | loss 10.5250 | lr 1.20e-05 | grad 85.00 | 1.9k tok/s | T=2 | cert -10.50→-10.44 | ticks [10.625 10.250] | Δticks -0.375 | 0M tok | ETA 378.5h
+Step     90 | loss 10.4125 | lr 1.35e-05 | grad 78.00 | 1.9k tok/s | T=2 | cert -10.50→-10.44 | ticks [10.500 10.062] | Δticks -0.438 | 0M tok | ETA 356.4h
+Step    100 | loss 10.2375 | lr 1.50e-05 | grad 79.50 | 1.9k tok/s | T=2 | cert -10.50→-10.44 | ticks [10.438 10.062] | Δticks -0.375 | 0M tok | ETA 338.7h
+Step    110 | loss 10.0188 | lr 1.65e-05 | grad 57.00 | 1.9k tok/s | T=2 | cert -10.44→-10.31 | ticks [10.125 9.625] | Δticks -0.500 | 0M tok | ETA 324.2h
+Step    120 | loss 9.8375 | lr 1.80e-05 | grad 37.25 | 1.9k tok/s | T=2 | cert -10.44→-10.19 | ticks [10.062 9.812] | Δticks -0.250 | 0M tok | ETA 312.2h
+Step    130 | loss 9.6813 | lr 1.95e-05 | grad 21.00 | 1.9k tok/s | T=2 | cert -10.38→-10.12 | ticks [9.812 9.438] | Δticks -0.375 | 0M tok | ETA 302.1h
+Step    140 | loss 9.5938 | lr 2.10e-05 | grad 21.88 | 1.9k tok/s | T=2 | cert -10.31→-10.06 | ticks [9.688 9.312] | Δticks -0.375 | 0M tok | ETA 293.4h
+Step    150 | loss 9.4250 | lr 2.25e-05 | grad 15.25 | 1.9k tok/s | T=2 | cert -10.19→-9.94 | ticks [9.562 9.312] | Δticks -0.250 | 0M tok | ETA 285.9h
+Step    160 | loss 9.3938 | lr 2.40e-05 | grad 11.19 | 1.9k tok/s | T=2 | cert -10.06→-9.88 | ticks [9.375 9.125] | Δticks -0.250 | 0M tok | ETA 279.3h
+Step    170 | loss 9.1625 | lr 2.55e-05 | grad 19.50 | 1.9k tok/s | T=2 | cert -10.06→-9.94 | ticks [9.500 9.125] | Δticks -0.375 | 0M tok | ETA 273.5h
+Step    180 | loss 9.0938 | lr 2.70e-05 | grad 9.06 | 1.9k tok/s | T=2 | cert -9.88→-9.75 | ticks [9.062 8.875] | Δticks -0.188 | 0M tok | ETA 268.4h
+Step    190 | loss 8.9313 | lr 2.85e-05 | grad 7.34 | 1.9k tok/s | T=2 | cert -9.62→-9.44 | ticks [9.125 9.062] | Δticks -0.062 | 0M tok | ETA 263.8h
+Step    200 | loss 8.7375 | lr 3.00e-05 | grad 7.47 | 1.9k tok/s | T=2 | cert -9.50→-9.50 | ticks [8.938 8.812] | Δticks -0.125 | 0M tok | ETA 259.7h
+Step    210 | loss 8.6500 | lr 3.15e-05 | grad 5.59 | 1.9k tok/s | T=2 | cert -9.44→-9.31 | ticks [8.625 8.562] | Δticks -0.062 | 0M tok | ETA 256.1h
+Step    220 | loss 8.7438 | lr 3.30e-05 | grad 4.56 | 1.9k tok/s | T=2 | cert -9.12→-9.12 | ticks [9.000 8.938] | Δticks -0.062 | 0M tok | ETA 252.7h
+Step    230 | loss 8.5687 | lr 3.45e-05 | grad 5.12 | 1.9k tok/s | T=2 | cert -9.06→-9.06 | ticks [8.562 8.375] | Δticks -0.188 | 0M tok | ETA 249.6h
+Step    240 | loss 8.7937 | lr 3.60e-05 | grad 8.19 | 1.9k tok/s | T=2 | cert -9.25→-9.06 | ticks [8.750 8.625] | Δticks -0.125 | 0M tok | ETA 246.8h
+Step    250 | loss 8.5437 | lr 3.75e-05 | grad 4.09 | 1.9k tok/s | T=2 | cert -8.81→-8.81 | ticks [8.438 8.312] | Δticks -0.125 | 0M tok | ETA 244.2h
+Step    260 | loss 7.9938 | lr 3.90e-05 | grad 4.84 | 1.9k tok/s | T=2 | cert -8.56→-8.31 | ticks [7.750 7.594] | Δticks -0.156 | 0M tok | ETA 241.9h
+Step    270 | loss 8.1844 | lr 4.05e-05 | grad 4.56 | 1.9k tok/s | T=2 | cert -8.56→-8.50 | ticks [7.844 7.719] | Δticks -0.125 | 0M tok | ETA 239.7h
+Step    280 | loss 7.9250 | lr 4.20e-05 | grad 4.66 | 1.9k tok/s | T=2 | cert -8.12→-7.84 | ticks [8.062 8.000] | Δticks -0.062 | 0M tok | ETA 237.6h
+Step    290 | loss 7.8563 | lr 4.35e-05 | grad 4.28 | 1.9k tok/s | T=2 | cert -8.19→-8.12 | ticks [7.562 7.562] | Δticks +0.000 | 0M tok | ETA 235.8h
+Step    300 | loss 7.9281 | lr 4.50e-05 | grad 3.97 | 1.9k tok/s | T=2 | cert -8.00→-7.91 | ticks [7.906 7.844] | Δticks -0.062 | 0M tok | ETA 234.1h
+Step    310 | loss 7.9750 | lr 4.65e-05 | grad 2.94 | 1.9k tok/s | T=2 | cert -8.00→-7.91 | ticks [8.062 8.000] | Δticks -0.062 | 0M tok | ETA 232.5h
+Step    320 | loss 8.0344 | lr 4.80e-05 | grad 3.03 | 1.9k tok/s | T=2 | cert -8.00→-7.88 | ticks [7.938 7.875] | Δticks -0.062 | 0M tok | ETA 231.1h
+Step    330 | loss 7.9000 | lr 4.95e-05 | grad 3.48 | 1.9k tok/s | T=2 | cert -7.66→-7.66 | ticks [7.469 7.406] | Δticks -0.062 | 0M tok | ETA 229.7h
+Step    340 | loss 7.6156 | lr 5.10e-05 | grad 3.25 | 1.9k tok/s | T=2 | cert -7.66→-7.56 | ticks [7.656 7.594] | Δticks -0.062 | 0M tok | ETA 228.5h
+Step    350 | loss 7.7719 | lr 5.25e-05 | grad 3.86 | 1.9k tok/s | T=2 | cert -7.44→-7.62 | ticks [7.875 7.875] | Δticks +0.000 | 0M tok | ETA 227.3h
+Step    360 | loss 7.5750 | lr 5.40e-05 | grad 2.88 | 1.9k tok/s | T=2 | cert -7.59→-7.31 | ticks [7.531 7.438] | Δticks -0.094 | 0M tok | ETA 226.2h
+Step    370 | loss 7.8875 | lr 5.55e-05 | grad 2.97 | 1.9k tok/s | T=2 | cert -7.78→-7.81 | ticks [7.656 7.594] | Δticks -0.062 | 0M tok | ETA 225.1h
+Step    380 | loss 7.8375 | lr 5.70e-05 | grad 3.31 | 1.9k tok/s | T=2 | cert -7.66→-7.50 | ticks [8.250 8.250] | Δticks +0.000 | 0M tok | ETA 224.1h
+Step    390 | loss 7.8594 | lr 5.85e-05 | grad 4.75 | 1.8k tok/s | T=2 | cert -7.69→-7.75 | ticks [8.250 8.312] | Δticks +0.062 | 0M tok | ETA 223.2h
+Step    400 | loss 7.7156 | lr 6.00e-05 | grad 3.36 | 1.9k tok/s | T=2 | cert -7.72→-7.59 | ticks [7.750 7.625] | Δticks -0.125 | 0M tok | ETA 222.3h
+Step    410 | loss 7.6063 | lr 6.15e-05 | grad 3.23 | 1.9k tok/s | T=2 | cert -7.19→-7.34 | ticks [7.844 7.812] | Δticks -0.031 | 0M tok | ETA 221.5h
+Step    420 | loss 7.6156 | lr 6.30e-05 | grad 2.88 | 1.9k tok/s | T=2 | cert -7.56→-7.44 | ticks [7.594 7.562] | Δticks -0.031 | 0M tok | ETA 220.7h
+Step    430 | loss 7.4938 | lr 6.45e-05 | grad 3.22 | 1.8k tok/s | T=2 | cert -7.22→-7.03 | ticks [7.062 6.969] | Δticks -0.094 | 0M tok | ETA 219.9h
+Step    440 | loss 7.6625 | lr 6.60e-05 | grad 3.08 | 1.9k tok/s | T=2 | cert -7.62→-7.34 | ticks [7.250 7.188] | Δticks -0.062 | 0M tok | ETA 219.2h
+Step    450 | loss 7.7344 | lr 6.75e-05 | grad 4.50 | 1.8k tok/s | T=2 | cert -7.62→-7.97 | ticks [7.250 7.281] | Δticks +0.031 | 0M tok | ETA 218.5h
+Step    460 | loss 7.6344 | lr 6.90e-05 | grad 3.19 | 1.9k tok/s | T=2 | cert -7.53→-7.44 | ticks [8.312 8.188] | Δticks -0.125 | 0M tok | ETA 217.8h
+Step    470 | loss 7.6625 | lr 7.05e-05 | grad 5.06 | 1.8k tok/s | T=2 | cert -7.44→-7.47 | ticks [8.000 8.062] | Δticks +0.062 | 0M tok | ETA 217.1h
+Step    480 | loss 7.7844 | lr 7.20e-05 | grad 3.62 | 1.8k tok/s | T=2 | cert -7.66→-7.62 | ticks [8.500 8.438] | Δticks -0.062 | 0M tok | ETA 216.5h
+Step    490 | loss 7.5375 | lr 7.35e-05 | grad 3.31 | 1.8k tok/s | T=2 | cert -7.31→-6.88 | ticks [7.719 7.656] | Δticks -0.062 | 0M tok | ETA 215.9h
+Step    500 | loss 7.4188 | lr 7.50e-05 | grad 4.75 | 1.8k tok/s | T=2 | cert -6.91→-6.97 | ticks [7.469 7.500] | Δticks +0.031 | 0M tok | ETA 215.4h
+Step    510 | loss 7.6719 | lr 7.65e-05 | grad 2.89 | 1.9k tok/s | T=2 | cert -7.84→-7.59 | ticks [7.969 7.938] | Δticks -0.031 | 0M tok | ETA 214.8h
+Step    520 | loss 7.5000 | lr 7.80e-05 | grad 2.70 | 1.9k tok/s | T=2 | cert -6.94→-7.16 | ticks [7.500 7.500] | Δticks +0.000 | 0M tok | ETA 214.3h
+/usr/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 16 leaked semaphore objects to clean up at shutdown: {'/mp-91v0tiyk', '/mp-thoys6yc', '/mp-2u4y5a98', '/mp-1w1qcxcn', '/mp-vj5isyo2', '/mp-f_hbs086', '/mp-ufcbesiw', '/mp-tefrfudf', '/mp-gyn4s696', '/mp-vdyze9wm', '/mp-gn177o0o', '/mp-bkbr6y44', '/mp-ro_sbyc_', '/mp-mddtaqg4', '/mp-kp9at6o9', '/mp-y7bt3759'}
+  warnings.warn(

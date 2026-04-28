@@ -3,30 +3,45 @@ cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMyt
   --dataset_subset sample-10BT \
   --device cuda \
   --dtype bfloat16 \
-  --d_model 768 \
-  --d_latent 768 \
-  --n_layers 24 \
-  --n_heads 12 \
-  --nlm_hidden_dim 64 \
-  --nlm_groups 1 \
+  --d_model 1760 \
+  --d_latent 1760 \
+  --n_layers 8 \
+  --n_heads 8 \
+  --nlm_hidden_dim 96 \
+  --nlm_groups 1760 \
   --history_len 8 \
   --max_thought_steps 8 \
   --seq_len 512 \
-  --batch_size 3 \
+  --batch_size 4 \
+  --gradient_accumulation_steps 1 \
   --learning_rate 3e-4 \
   --warmup_steps 2000 \
-  --max_steps 2441406 \
+  --max_steps 10000000 \
   --gradient_checkpointing \
   --log_interval 10 \
   --eval_interval 5000 \
-  --optimizer adamuon \
+  --optimizer adamw \
+  --use_8bit_adam \
   --use_engram \
   --engram_ngram_orders 2 3 \
   --engram_n_heads 8 \
   --engram_slots_per_table 49157 \
   --engram_d_head 64 \
   --engram_lr_mult 5.0 \
-  --checkpoint_dir checkpoints_200m_nv_engram > train_nv_engram.log 2>&1 &
+  --per_tick_heads \
+  --t_curriculum \
+  --t_curriculum_stages '4:0.30,6:0.60,8:1.00' \
+  --gradient_checkpointing_min_T 5 \
+  --checkpoint_dir checkpoints_v2_200m_nv \
+  --use_feec \
+  --use_matrix_streams \
+  --n_streams 4 \
+  --use_loop_pos_emb \
+  --use_triton_attention \
+  --use_cuda_graphs \
+  --tiled_schedule \
+  > train_v2_nv.log 2>&1 &
 echo "NVIDIA PID: $!"
 
-pkill -f "ctm_transformer.train" && echo "Killed" || echo "No process found"
+# To stop:
+# pkill -f "ctm_transformer.train" && echo "Killed" || echo "No process found"

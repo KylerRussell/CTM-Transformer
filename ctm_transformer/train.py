@@ -40,6 +40,63 @@ from ctm_transformer.engram import EngramTable
 
 # ── Optimizer Construction ──────────────────────────────────────────────
 
+def _parse_curriculum_stages(spec: str) -> list[tuple[int, float]]:
+    """Parse a curriculum stages string like '2:0.30,4:0.60,8:1.00' into
+    [(T, end_fraction), ...].
+
+    Format: comma-separated pairs of `T:end_fraction`. Whitespace around
+    items is ignored. Blank string returns [], which means "no curriculum
+    even if --t_curriculum is set" (CTMConfig falls back to its default
+    schedule via field default_factory).
+
+    Validates that:
+      - Each T is a positive integer.
+      - Each end_fraction is in (0, 1].
+      - end_fractions are strictly increasing (a curriculum that goes
+        backward in fraction would be a config bug).
+    """
+    spec = (spec or "").strip()
+    if not spec:
+        return []
+
+    stages: list[tuple[int, float]] = []
+    for chunk in spec.split(","):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if ":" not in chunk:
+            raise ValueError(
+                f"Bad curriculum stage '{chunk}' — expected 'T:end_fraction', "
+                f"e.g. '2:0.30'."
+            )
+        t_str, frac_str = chunk.split(":", 1)
+        try:
+            T = int(t_str.strip())
+            frac = float(frac_str.strip())
+        except ValueError:
+            raise ValueError(
+                f"Bad curriculum stage '{chunk}' — T must be int, end_fraction "
+                f"must be float."
+            ) from None
+        if T <= 0:
+            raise ValueError(f"Curriculum stage T={T} must be positive.")
+        if not (0 < frac <= 1):
+            raise ValueError(
+                f"Curriculum stage end_fraction={frac} must be in (0, 1]."
+            )
+        stages.append((T, frac))
+
+    # Validate strictly increasing fractions
+    for i in range(1, len(stages)):
+        if stages[i][1] <= stages[i-1][1]:
+            raise ValueError(
+                f"Curriculum stage fractions must be strictly increasing: "
+                f"got {stages[i-1][1]} then {stages[i][1]}."
+            )
+
+    return stages
+
+
 def _engram_table_param_ids(model: torch.nn.Module) -> set[int]:
     """Return IDs of parameters owned (directly) by EngramTable modules.
 
@@ -53,6 +110,60 @@ def _engram_table_param_ids(model: torch.nn.Module) -> set[int]:
             for p in m.parameters(recurse=True):
                 ids.add(id(p))
     return ids
+
+
+def _make_adamw(config: CTMConfig, params, **overrides):
+    """Create an AdamW optimizer (or its 8-bit equivalent) from config.
+
+    When `config.use_8bit_adam` is True, uses bitsandbytes' AdamW8bit
+    (block-wise 8-bit quantization of the m and v moment buffers).
+    Memory: ~1 byte per param vs 8 bytes for fp32 m+v. On a 200M model
+    that's ~2.8 GB of VRAM recovered. Per the bitsandbytes paper and
+    follow-up LLaMA-scale training work, no measurable accuracy
+    degradation when used as a drop-in replacement.
+
+    Falls back to torch.optim.AdamW if bitsandbytes is requested but
+    not importable, with a loud warning — better to train at full
+    precision than to silently fail.
+
+    Args:
+        config: CTMConfig (reads use_8bit_adam, betas, lr, wd defaults).
+        params: parameter list or list of param-group dicts.
+        **overrides: any AdamW kwarg to override (e.g. lr, weight_decay).
+
+    Returns:
+        Configured AdamW (or AdamW8bit) optimizer.
+    """
+    kwargs = dict(
+        lr=config.learning_rate,
+        weight_decay=config.weight_decay,
+        betas=(config.adam_beta1, config.adam_beta2),
+    )
+    kwargs.update(overrides)
+
+    if not config.use_8bit_adam:
+        return torch.optim.AdamW(params, **kwargs)
+
+    # 8-bit AdamW path
+    try:
+        import bitsandbytes as bnb
+    except ImportError:
+        # Warn once per process — calling build_optimizers multiple times
+        # (e.g. in test loops or interactive sessions) shouldn't spam.
+        if not getattr(_make_adamw, "_bnb_warned", False):
+            print(
+                "WARNING: --use_8bit_adam set but `bitsandbytes` is not installed. "
+                "Falling back to standard fp32 AdamW. Install with:\n"
+                "    pip install bitsandbytes",
+                file=sys.stderr,
+            )
+            _make_adamw._bnb_warned = True
+        return torch.optim.AdamW(params, **kwargs)
+
+    # bitsandbytes' AdamW8bit signature matches torch.optim.AdamW exactly,
+    # so the same kwargs flow through. The block-wise quantization is
+    # automatic; no extra config needed.
+    return bnb.optim.AdamW8bit(params, **kwargs)
 
 
 def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.optim.Optimizer]:
@@ -73,6 +184,12 @@ def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.op
     Per-group LR scheduling: each param_group carries a custom `lr_mult`
     field. The training loop multiplies the base LR by this when applying
     the schedule (see train()).
+
+    When `config.use_8bit_adam` is True, the AdamW path(s) above use
+    bitsandbytes' AdamW8bit. AdaMuon stays in fp32 — it's already cheap
+    on memory (its V_t buffer mirrors the param shape only, no fp32 Adam
+    moments to compress) and bitsandbytes doesn't ship a Muon-shaped
+    8-bit variant.
     """
     engram_ids = _engram_table_param_ids(model) if config.use_engram else set()
 
@@ -93,19 +210,9 @@ def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.op
                     "lr_mult": config.engram_lr_mult,
                     "weight_decay": config.engram_weight_decay,
                 })
-            opt = torch.optim.AdamW(
-                groups,
-                lr=config.learning_rate,
-                weight_decay=config.weight_decay,
-                betas=(config.adam_beta1, config.adam_beta2),
-            )
+            opt = _make_adamw(config, groups)
         else:
-            opt = torch.optim.AdamW(
-                model.parameters(),
-                lr=config.learning_rate,
-                weight_decay=config.weight_decay,
-                betas=(config.adam_beta1, config.adam_beta2),
-            )
+            opt = _make_adamw(config, model.parameters())
         return [opt]
 
     if config.optimizer == "adamuon":
@@ -144,12 +251,11 @@ def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.op
                 "weight_decay": config.engram_weight_decay,
             })
         if adamw_groups:
-            opts.append(torch.optim.AdamW(
-                adamw_groups,
-                lr=config.learning_rate,
-                weight_decay=config.adamuon_weight_decay,
-                betas=(config.adam_beta1, config.adam_beta2),
-            ))
+            # Note the weight_decay override: when running with --optimizer adamuon,
+            # the global default WD comes from `adamuon_weight_decay` (paper-spec
+            # 0.1), not the standalone-AdamW `weight_decay` field.
+            opts.append(_make_adamw(config, adamw_groups,
+                                    weight_decay=config.adamuon_weight_decay))
 
         if not opts:
             raise RuntimeError("build_param_groups returned no parameters.")
@@ -457,13 +563,35 @@ def train(config: CTMConfig):
     # ── Model ───────────────────────────────────────────────────────────
     model = CTMTransformer(config).to(device)
 
-    # Mixed precision
+    # Mixed precision strategy
+    #
+    # We use the "manual cast" pattern (cast the entire model to the target
+    # low-precision dtype, run the forward/backward natively in that dtype)
+    # rather than the "autocast" pattern (keep the model in fp32 and let
+    # torch.amp.autocast pick which ops run in bf16/fp16).
+    #
+    # Why manual cast over autocast:
+    #   1. Activation memory is half-precision throughout — autocast with
+    #      an fp32 model still keeps the param-shaped tensors in fp32, so
+    #      gradient checkpointing's recomputation re-allocates fp32 buffers.
+    #   2. Autocast forces certain ops (RMSNorm, LayerNorm, softmax) back
+    #      to fp32 even when the surrounding tensors are bf16. That's the
+    #      source of the "Mismatch dtype between input and weight" warning
+    #      seen in mixed-mode runs: autocast upcasts the RMSNorm input to
+    #      fp32 while the weight is still the manually-cast bf16 from
+    #      `model.to(torch.bfloat16)` — the fused kernel can't dispatch
+    #      and falls back to a slower path.
+    #   3. The CTM thought loop is the dominant compute; bf16 throughout
+    #      is stable in practice for transformer-shaped models.
+    #
+    # Setting amp_dtype = torch.float32 means the autocast context further
+    # down is enabled=False (a no-op), avoiding the fused-kernel warning.
     if config.dtype == "bfloat16" and device != "cpu":
         model = model.to(torch.bfloat16)
-        amp_dtype = torch.bfloat16
+        amp_dtype = torch.float32   # autocast disabled; model is already bf16
     elif config.dtype == "float16" and device != "cpu":
         model = model.to(torch.float16)
-        amp_dtype = torch.float16
+        amp_dtype = torch.float32   # autocast disabled; model is already fp16
     else:
         amp_dtype = torch.float32
 
@@ -474,14 +602,77 @@ def train(config: CTMConfig):
           f"thought_steps={config.max_thought_steps}, history_len={config.history_len}, "
           f"nlm_hidden={config.nlm_hidden_dim}, nlm_groups={config.nlm_groups}")
 
+    # Temporal-loss schedule summary. Helps verify the decay plan matches
+    # expectations before kicking off a multi-day run.
+    base_mono = config.mono_penalty_weight
+    if config.mono_penalty_decay_until_frac > 0 and base_mono > 0:
+        decay_step = int(config.mono_penalty_decay_until_frac * config.max_steps)
+        floor_mono = base_mono * config.mono_penalty_min_frac
+        print(f"Temporal loss: ramp[{config.tick_ramp_start}→{config.tick_ramp_end}], "
+              f"mono_penalty {base_mono} → {floor_mono:.3f} over first "
+              f"{decay_step:,} steps ({config.mono_penalty_decay_until_frac:.0%} of training)")
+    else:
+        print(f"Temporal loss: ramp[{config.tick_ramp_start}→{config.tick_ramp_end}], "
+              f"mono_penalty {base_mono} (no decay)")
+
+    # Curriculum schedule summary. Catches misconfiguration before launch.
+    if config.t_curriculum:
+        if not config.t_curriculum_stages:
+            raise ValueError(
+                "--t_curriculum is set but the stages list is empty. "
+                "Either disable the flag or provide --t_curriculum_stages."
+            )
+        final_T = config.t_curriculum_stages[-1][0]
+        if final_T != config.max_thought_steps:
+            raise ValueError(
+                f"Curriculum's final stage T={final_T} doesn't match "
+                f"--max_thought_steps={config.max_thought_steps}. The curriculum "
+                f"should end with the model trained at its target depth, and the "
+                f"per-tick adapter list is sized at construction time. Either "
+                f"set --max_thought_steps {final_T} or change the final stage."
+            )
+        print(f"Thought-step curriculum:")
+        prev_frac = 0.0
+        for T_val, end_frac in config.t_curriculum_stages:
+            start_step = int(prev_frac * config.max_steps)
+            end_step = int(end_frac * config.max_steps)
+            ckpt_active = (
+                config.gradient_checkpointing
+                and T_val >= config.gradient_checkpointing_min_T
+            )
+            ckpt_label = "checkpointed" if ckpt_active else "uncheckpointed (faster)"
+            print(f"  T={T_val} from step {start_step:>10,} → {end_step:>10,} "
+                  f"({prev_frac:.0%} → {end_frac:.0%}) — {ckpt_label}")
+            prev_frac = end_frac
+    else:
+        ckpt_active = (
+            config.gradient_checkpointing
+            and config.max_thought_steps >= config.gradient_checkpointing_min_T
+        )
+        ckpt_label = "checkpointed" if ckpt_active else "uncheckpointed"
+        print(f"Thought-step curriculum: disabled "
+              f"(T={config.max_thought_steps} fixed, {ckpt_label})")
+
     # ── Optimizer ───────────────────────────────────────────────────────
     optimizers = build_optimizers(model, config)
 
     def _count_group(g):
         return sum(p.numel() for p in g["params"])
 
+    def _adam_label() -> str:
+        """Show which AdamW variant is actually in use."""
+        if not config.use_8bit_adam:
+            return "AdamW (fp32)"
+        # Detect whether the requested 8-bit version actually loaded
+        # (could have fallen back to fp32 in _make_adamw on ImportError).
+        # opts[-1] is the AdamW companion when present, opts[0] otherwise.
+        last = optimizers[-1] if config.optimizer == "adamuon" else optimizers[0]
+        cls = type(last).__name__
+        return "AdamW8bit (bnb)" if cls == "AdamW8bit" else "AdamW (fp32, 8bit fallback)"
+
     if len(optimizers) == 1:
-        print(f"Optimizer: {config.optimizer} ({len(optimizers[0].param_groups)} param group(s))")
+        print(f"Optimizer: {config.optimizer} → {_adam_label()} "
+              f"({len(optimizers[0].param_groups)} param group(s))")
         for i, g in enumerate(optimizers[0].param_groups):
             mult = g.get("lr_mult", 1.0)
             tag = "engram" if mult != 1.0 else "general"
@@ -490,7 +681,7 @@ def train(config: CTMConfig):
         muon_n = sum(_count_group(g) for g in optimizers[0].param_groups)
         adam_n = sum(_count_group(g) for g in optimizers[1].param_groups)
         print(f"Optimizer: adamuon — {muon_n/1e6:.1f}M params on AdaMuon, "
-              f"{adam_n/1e6:.1f}M params on AdamW (embeddings/LM-head/1D/Engram)")
+              f"{adam_n/1e6:.1f}M params on {_adam_label()} (embeddings/LM-head/1D/Engram)")
         for i, g in enumerate(optimizers[1].param_groups):
             mult = g.get("lr_mult", 1.0)
             tag = "engram" if mult != 1.0 else "general"
@@ -527,40 +718,89 @@ def train(config: CTMConfig):
     train_iter = iter(train_loader)
     t_start = time.time()
 
+    # Gradient accumulation: we run `accum_steps` micro-batches per optimizer
+    # step, scaling each micro-batch's loss by 1/accum_steps so the gradient
+    # we eventually apply is the *mean* over the effective batch (matching
+    # the semantics of a single forward at batch_size = batch_size·accum_steps).
+    # `step` remains the OPTIMIZER step counter — max_steps, LR schedule, eval
+    # and log intervals are all calibrated against it. Throughput is reported
+    # as effective tokens/sec (counting all micro-batches).
+    accum_steps = max(1, config.gradient_accumulation_steps)
+
+    # Track the previous T for curriculum-transition detection. We print
+    # a clear banner when T changes so transitions are easy to spot in
+    # long log files.
+    prev_T = None
+
     while step < config.max_steps:
-        # Get next batch
-        try:
-            x, y = next(train_iter)
-        except StopIteration:
-            train_iter = iter(train_loader)
-            x, y = next(train_iter)
-
-        x = x.to(device)
-        y = y.to(device)
-
-        # Learning rate schedule — applied to ALL optimizer groups (AdaMuon
-        # and its AdamW companion share the schedule per the paper). Each
-        # param_group carries an `lr_mult` (default 1.0) which the scheduler
-        # multiplies by the base LR — used to give the Engram embedding
-        # tables their 5× LR per the Engram paper.
+        # Learning rate schedule — applied once per OPTIMIZER step (not per
+        # micro-batch). Each param_group carries an `lr_mult` (default 1.0)
+        # which the scheduler multiplies by the base LR — used to give the
+        # Engram embedding tables their 5× LR per the Engram paper.
         lr = get_lr(step, config)
         for opt in optimizers:
             for param_group in opt.param_groups:
                 param_group["lr"] = lr * param_group.get("lr_mult", 1.0)
 
-        # Forward pass with mixed precision
+        # Sync the model's _train_step buffer so loss-side schedules
+        # (mono_penalty decay) can be progress-aware. Cheap (one int
+        # write per optimizer step) and keeps schedules deterministic
+        # under checkpoint resumes — `step` itself is already restored
+        # from the checkpoint via load_checkpoint.
+        model._train_step.fill_(step)
+
+        # Resolve curriculum T for this step. When t_curriculum is off,
+        # this returns config.max_thought_steps every time — same as the
+        # pre-curriculum behavior. When on, walks the stages list and
+        # picks the appropriate T.
+        current_T = config.resolve_thought_steps(step)
+
+        # Announce curriculum transitions. Easy to grep in long logs.
+        if config.t_curriculum and prev_T is not None and current_T != prev_T:
+            print(
+                f"\n{'='*70}\n"
+                f"  CURRICULUM TRANSITION at step {step}: T = {prev_T} → {current_T}\n"
+                f"  (the next {current_T - prev_T} per-tick adapter slot(s) start "
+                f"learning now)\n"
+                f"{'='*70}\n",
+                flush=True,
+            )
+        prev_T = current_T
+
+        # Zero grads once per optimizer step, before the accumulation loop.
+        for o in optimizers:
+            o.zero_grad(set_to_none=True)
+
         t0 = time.time()
         device_type = device.split(":")[0] if ":" in device else device
 
-        with torch.amp.autocast(device_type=device_type,
-                                dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
-            result = model(x, targets=y)
-            loss = result["loss"]
+        # Accumulate gradients over `accum_steps` micro-batches.
+        accum_loss = 0.0
+        last_result = None
+        for micro in range(accum_steps):
+            try:
+                x, y = next(train_iter)
+            except StopIteration:
+                train_iter = iter(train_loader)
+                x, y = next(train_iter)
 
-        # Backward
-        for o in optimizers:
-            o.zero_grad(set_to_none=True)
-        loss.backward()
+            x = x.to(device)
+            y = y.to(device)
+
+            with torch.amp.autocast(device_type=device_type,
+                                    dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
+                result = model(x, targets=y, max_thought_steps=current_T)
+                # Scale the loss so the accumulated gradient is the MEAN over
+                # the effective batch — matches what a single forward pass at
+                # batch_size = batch_size·accum_steps would compute.
+                loss = result["loss"] / accum_steps
+
+            loss.backward()
+            accum_loss += loss.item() * accum_steps   # un-scale for logging
+            last_result = result   # keep last for cert/tick logging
+
+        # Average loss across the accumulation window for logging
+        loss_for_log = accum_loss / accum_steps
 
         if config.grad_clip > 0:
             grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
@@ -571,15 +811,32 @@ def train(config: CTMConfig):
             o.step()
 
         dt = time.time() - t0
-        batch_tokens = config.batch_size * config.seq_len
+        # Effective batch tokens accounts for accumulation
+        batch_tokens = config.batch_size * config.seq_len * accum_steps
         tokens_seen += batch_tokens
-        log_losses.append(loss.item())
+        log_losses.append(loss_for_log)
+        # Use last_result for tick / certainty logging (representative of the
+        # final micro-batch — over the accumulation window these are close
+        # enough that picking one is fine for monitoring)
+        result = last_result
 
         # ── Logging ─────────────────────────────────────────────────────
         if step % config.log_interval == 0:
             window = log_losses[-config.log_interval:]
             avg_loss = sum(window) / len(window)
             tick_losses = result["per_tick_loss"].tolist()
+
+            # Δticks = last_tick_loss - first_tick_loss
+            # Negative = the model improves across thought steps (good — iterative
+            #            refinement is working). Magnitude is the per-token CE
+            #            improvement from spending more thought.
+            # ~0      = thought loop produces identical output at every step
+            #            (degenerate — architecture isn't using its iterative
+            #            capacity).
+            # Positive = later ticks are WORSE than earlier ticks (regression —
+            #            either training instability or model is "thinking
+            #            itself wrong" past some optimal step).
+            tick_delta = tick_losses[-1] - tick_losses[0] if len(tick_losses) > 1 else 0.0
 
             cert = result["certainties"]
             cert_first = cert[0].mean().item()
@@ -589,12 +846,19 @@ def train(config: CTMConfig):
             elapsed = time.time() - t_start
             eta_sec = (config.max_steps - step) * (elapsed / max(step - start_step, 1))
 
+            # T= field is only useful when curriculum is varying it.
+            # Otherwise it's redundant — the ticks list length is the same
+            # info — and adds visual noise to the log.
+            t_field = f"T={current_T} | " if config.t_curriculum else ""
+
             print(
                 f"Step {step:6d} | loss {avg_loss:.4f} | "
                 f"lr {lr:.2e} | grad {grad_norm:.2f} | "
                 f"{tok_per_sec/1e3:.1f}k tok/s | "
+                f"{t_field}"
                 f"cert {cert_first:.2f}→{cert_last:.2f} | "
                 f"ticks [{' '.join(f'{l:.3f}' for l in tick_losses)}] | "
+                f"Δticks {tick_delta:+.3f} | "
                 f"{tokens_seen/1e6:.0f}M tok | "
                 f"ETA {eta_sec/3600:.1f}h"
             )
@@ -627,12 +891,25 @@ def train(config: CTMConfig):
 
 @torch.no_grad()
 def evaluate(model, eval_loader, device, config, amp_dtype):
-    """Run evaluation and return average loss."""
+    """Run evaluation and return average loss.
+
+    Uses the curriculum-resolved T (from the model's current `_train_step`)
+    rather than the full `max_thought_steps`. This is the operationally
+    honest "what can the model do right now" — at early curriculum phases
+    the late per-tick adapters are random init and would produce garbage
+    if invoked. As training progresses past the final stage, eval uses
+    full T anyway because resolve_thought_steps returns max_thought_steps.
+    """
     model.eval()
     total_loss = 0.0
     n_batches = 0
     max_eval_batches = 50
     device_type = device.split(":")[0] if ":" in device else device
+
+    # Read current curriculum T. For non-curriculum runs this is just
+    # max_thought_steps. The model was already _train_step.fill_'d by
+    # the caller before evaluate was invoked.
+    current_T = config.resolve_thought_steps(int(model._train_step.item()))
 
     for x, y in eval_loader:
         if n_batches >= max_eval_batches:
@@ -642,7 +919,7 @@ def evaluate(model, eval_loader, device, config, amp_dtype):
 
         with torch.amp.autocast(device_type=device_type,
                                 dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
-            result = model(x, targets=y)
+            result = model(x, targets=y, max_thought_steps=current_T)
 
         total_loss += result["loss"].item()
         n_batches += 1
@@ -712,6 +989,28 @@ def parse_args():
     model_group.add_argument("--seq_len", type=int, default=512)
     model_group.add_argument("--sync_method", type=str, default="diag_summary",
                             choices=["full", "diag_summary", "low_rank"])
+    model_group.add_argument("--per_tick_heads", action="store_true",
+                            help="Give each thought tick its own output adapter feeding into a "
+                                 "shared LM head. Removes gradient interference between ticks "
+                                 "and empirically prevents the iterative-refinement collapse "
+                                 "where the model learns to produce identical output at every "
+                                 "tick. Cost: ~1%% extra params (T copies of a small adapter).")
+
+    # Thought-step curriculum
+    curr_group = parser.add_argument_group("Thought-step curriculum")
+    curr_group.add_argument("--t_curriculum", action="store_true",
+                            help="Enable curriculum on thought-step depth: gradually increase T "
+                                 "from low values early in training to max_thought_steps near "
+                                 "the end. Concentrates gradient signal early so the thought "
+                                 "loop learns meaningful refinement before being asked to do "
+                                 "deep multi-step reasoning. Empirically helps avoid the "
+                                 "'all ticks identical' collapse mode.")
+    curr_group.add_argument("--t_curriculum_stages", type=str, default="2:0.30,4:0.60,8:1.00",
+                            help="Curriculum stage definitions as 'T:end_frac,T:end_frac,...'. "
+                                 "Each stage: T value to use until the given fraction of "
+                                 "max_steps is reached. Default: '2:0.30,4:0.60,8:1.00' = "
+                                 "T=2 for first 30%%, T=4 for next 30%%, T=8 for final 40%%. "
+                                 "Final stage's T must equal --max_thought_steps.")
 
     # Training
     train_group = parser.add_argument_group("Training")
@@ -724,6 +1023,19 @@ def parse_args():
                             choices=["float32", "float16", "bfloat16"])
     train_group.add_argument("--gradient_checkpointing", action="store_true", default=True)
     train_group.add_argument("--no_gradient_checkpointing", action="store_true")
+    train_group.add_argument("--gradient_checkpointing_min_T", type=int, default=5,
+                             help="Minimum thought-step T at which checkpointing actually "
+                                  "activates. T below this threshold skips checkpointing "
+                                  "for the speedup, since the activation graph fits in VRAM "
+                                  "without recomputation. Default 5 means T=2 and T=4 "
+                                  "phases run uncheckpointed, T=5+ activates checkpointing. "
+                                  "Lower this to 3 if you OOM at T=4 uncheckpointed; raise "
+                                  "to 9 if you have VRAM headroom at T=8 and want max speed.")
+    train_group.add_argument("--gradient_accumulation_steps", type=int, default=1,
+                             help="Number of micro-batches per optimizer step. Effective batch = "
+                                  "batch_size × this. Use to fit larger effective batches in "
+                                  "limited VRAM (each micro-batch's forward/backward is one "
+                                  "batch_size, but gradients accumulate before stepping).")
     train_group.add_argument("--eval_interval", type=int, default=500)
     train_group.add_argument("--log_interval", type=int, default=50)
     train_group.add_argument("--checkpoint_dir", type=str, default="checkpoints")
@@ -745,6 +1057,11 @@ def parse_args():
                            help="Weight decay for both AdaMuon and its AdamW companion (paper uses 0.1).")
     opt_group.add_argument("--weight_decay", type=float, default=0.01,
                            help="Weight decay for plain --optimizer adamw (unused under adamuon).")
+    opt_group.add_argument("--use_8bit_adam", action="store_true",
+                           help="Use bitsandbytes' AdamW8bit for the AdamW optimizer(s). "
+                                "Cuts optimizer state memory ~8x with no measurable accuracy "
+                                "loss. Affects AdamW only; AdaMuon stays fp32. Requires "
+                                "`pip install bitsandbytes`.")
 
     # Engram (conditional memory)
     engram_group = parser.add_argument_group("Engram")
@@ -773,6 +1090,78 @@ def parse_args():
     engram_group.add_argument("--engram_weight_decay", type=float, default=0.0,
                               help="Weight decay for Engram tables (paper: 0).")
 
+    # Ternary weight quantization (TWN)
+    tern_group = parser.add_argument_group("Ternary")
+    tern_group.add_argument("--use_ternary", action="store_true",
+                            help="Replace backbone nn.Linears with TernaryLinear "
+                                 "(weights ∈ {-α, 0, +α} during forward, fp32 latent "
+                                 "weight + STE backward). Excludes token_embedding, "
+                                 "LM head, NLM stacks. Training is ~10-30%% slower; "
+                                 "inference can pack to 2-bit for ~8× weight memory cut.")
+    tern_group.add_argument("--ternary_only_modules", type=str, nargs="*", default=[],
+                            help="Optional whitelist of subtree names to quantize "
+                                 "(e.g. 'synapse' or 'k_proj v_proj attn_out_proj'). "
+                                 "Empty = all eligible Linears.")
+
+    # ── CTM-v2 Features ─────────────────────────────────────────────────
+    v2_group = parser.add_argument_group("CTM-v2 Features")
+
+    # FEEC Integrator
+    v2_group.add_argument("--use_feec", action="store_true",
+                          help="Enable FEEC integrator for structure-preserving "
+                               "thought loop dynamics. Provides bounded gradients "
+                               "as T scales via symplectic-like integration.")
+    v2_group.add_argument("--feec_dt_init", type=float, default=0.1,
+                          help="Initial learnable step size per layer.")
+    v2_group.add_argument("--feec_damping_init", type=float, default=0.1,
+                          help="Initial damping coefficient γ.")
+    v2_group.add_argument("--feec_clamp_dt", type=float, default=1.0,
+                          help="Upper bound on dt for stability.")
+    v2_group.add_argument("--feec_energy_penalty_weight", type=float, default=0.01,
+                          help="Weight of energy growth penalty in loss.")
+
+    # Matrix-Valued Residual Streams
+    v2_group.add_argument("--use_matrix_streams", action="store_true",
+                          help="Replace NLM FIFO buffers + O(D²) sync with "
+                               "Hyperloop-style parallel residual streams.")
+    v2_group.add_argument("--n_streams", type=int, default=4,
+                          help="Number of parallel residual streams.")
+    v2_group.add_argument("--stream_gating", type=str, default="diagonal",
+                          choices=["diagonal", "sigmoid"],
+                          help="Gating parameterization for matrix streams.")
+
+    # DSSA
+    v2_group.add_argument("--use_dssa", action="store_true",
+                          help="Replace O(N²) cross-attention with Dual-Space "
+                               "Sparse Attention (SSE + MoBA hybrid).")
+    v2_group.add_argument("--dssa_n_partitions", type=int, default=32)
+    v2_group.add_argument("--dssa_top_k", type=int, default=8)
+    v2_group.add_argument("--dssa_block_size", type=int, default=64)
+    v2_group.add_argument("--dssa_top_k_blocks", type=int, default=4)
+
+    # Hyperloop
+    v2_group.add_argument("--use_hyperloop", action="store_true",
+                          help="Weight-share middle layers via looping. "
+                               "Preserves depth while cutting unique params.")
+    v2_group.add_argument("--hyperloop_n_begin", type=int, default=2)
+    v2_group.add_argument("--hyperloop_n_middle", type=int, default=4)
+    v2_group.add_argument("--hyperloop_n_end", type=int, default=2)
+    v2_group.add_argument("--hyperloop_middle_loops", type=int, default=2)
+
+    # Loop Position Embeddings
+    v2_group.add_argument("--use_loop_pos_emb", action="store_true",
+                          help="Add learned per-thought-step embeddings to "
+                               "distinguish iterations in the thought loop.")
+
+    # Triton Acceleration
+    v2_group.add_argument("--use_triton_attention", action="store_true",
+                          help="Use Triton-accelerated tiled attention kernel.")
+    v2_group.add_argument("--use_cuda_graphs", action="store_true",
+                          help="Wrap thought loop in CUDA Graph for kernel "
+                               "launch elimination.")
+    v2_group.add_argument("--tiled_schedule", action="store_true",
+                          help="Use N·log(N) tiled schedule for thought steps.")
+
     return parser.parse_args()
 
 
@@ -791,6 +1180,9 @@ def main():
         n_layers=args.n_layers,
         nlm_hidden_dim=args.nlm_hidden_dim,
         nlm_groups=args.nlm_groups,
+        per_tick_heads=args.per_tick_heads,
+        t_curriculum=args.t_curriculum,
+        t_curriculum_stages=_parse_curriculum_stages(args.t_curriculum_stages),
         history_len=args.history_len,
         max_thought_steps=args.max_thought_steps,
         seq_len=args.seq_len,
@@ -803,10 +1195,15 @@ def main():
         device=args.device,
         dtype=args.dtype,
         gradient_checkpointing=not args.no_gradient_checkpointing,
+        gradient_checkpointing_min_T=args.gradient_checkpointing_min_T,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
         eval_interval=args.eval_interval,
         log_interval=args.log_interval,
         checkpoint_dir=args.checkpoint_dir,
         optimizer=args.optimizer,
+        adam_beta1=args.adam_beta1 if hasattr(args, 'adam_beta1') else 0.9,
+        adam_beta2=args.adam_beta2 if hasattr(args, 'adam_beta2') else 0.95,
+        use_8bit_adam=args.use_8bit_adam,
         adamuon_beta=args.adamuon_beta,
         adamuon_eps=args.adamuon_eps,
         adamuon_ns_steps=args.adamuon_ns_steps,
@@ -823,6 +1220,31 @@ def main():
         engram_conv_dilation=args.engram_conv_dilation,
         engram_lr_mult=args.engram_lr_mult,
         engram_weight_decay=args.engram_weight_decay,
+        use_ternary=args.use_ternary,
+        ternary_only_modules=args.ternary_only_modules,
+        # CTM-v2 features
+        use_feec=args.use_feec,
+        feec_dt_init=args.feec_dt_init,
+        feec_damping_init=args.feec_damping_init,
+        feec_clamp_dt=args.feec_clamp_dt,
+        feec_energy_penalty_weight=args.feec_energy_penalty_weight,
+        use_matrix_streams=args.use_matrix_streams,
+        n_streams=args.n_streams,
+        stream_gating=args.stream_gating,
+        use_dssa=args.use_dssa,
+        dssa_n_partitions=args.dssa_n_partitions,
+        dssa_top_k=args.dssa_top_k,
+        dssa_block_size=args.dssa_block_size,
+        dssa_top_k_blocks=args.dssa_top_k_blocks,
+        use_hyperloop=args.use_hyperloop,
+        hyperloop_n_begin=args.hyperloop_n_begin,
+        hyperloop_n_middle=args.hyperloop_n_middle,
+        hyperloop_n_end=args.hyperloop_n_end,
+        hyperloop_middle_loops=args.hyperloop_middle_loops,
+        use_loop_pos_emb=args.use_loop_pos_emb,
+        use_triton_attention=args.use_triton_attention,
+        use_cuda_graphs=args.use_cuda_graphs,
+        tiled_schedule=args.tiled_schedule,
     )
 
     train(config)

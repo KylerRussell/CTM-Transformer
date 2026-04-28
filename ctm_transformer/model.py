@@ -1,5 +1,5 @@
 """
-CTMTransformer — Full Continuous Thought Machine Transformer Model
+CTMTransformer — Full Continuous Thought Machine Transformer Model (v2)
 
 Assembles all components into the complete architecture:
   Input tokens → Embedding → Text KV
@@ -7,6 +7,15 @@ Assembles all components into the complete architecture:
   For t in 1..T thought steps:
     Sync → Query → Causal Cross-Attention → Synapse → NLM → Output
   Return logits across all thought steps for temporal loss.
+
+CTM-v2 ADDITIONS (all backward-compatible, controlled by config flags):
+  - FEEC Integrator: structure-preserving dynamics for the thought loop
+  - Matrix-Valued Residual Streams: replace NLM FIFO + O(D²) sync
+  - Dual-Space Sparse Attention: O(N) cross-attention via SSE + MoBA
+  - Hyperloop Looped Middle Cycle: weight-sharing with depth preservation
+  - Loop Position Embeddings: iteration-aware context injection
+  - CUDA Graphs: kernel launch elimination for the thought loop
+  - Triton Tiled Attention: accelerated Q·K computation
 
 CAUSAL CORRECTNESS:
   Each sequence position maintains its own independent latent state.
@@ -23,6 +32,7 @@ CAUSAL CORRECTNESS:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.utils.checkpoint as torch_checkpoint
 import math
 from contextlib import nullcontext
 
@@ -34,7 +44,7 @@ from ctm_transformer.engram import EngramTable, EngramProjection
 
 class CTMTransformer(nn.Module):
     """
-    Continuous Thought Machine Transformer.
+    Continuous Thought Machine Transformer (v2).
 
     Architecture flow:
     1. Embed input text → K, V for cross-attention (computed once)
@@ -62,17 +72,16 @@ class CTMTransformer(nn.Module):
         self.embed_norm = nn.LayerNorm(config.d_model)
         self.embed_dropout = nn.Dropout(config.dropout)
 
-        # ── Thought Layers (stacked, iterated T times) ──────────────────
-        # Resolve which layers fuse Engram. If use_engram is False the set is
-        # empty and ThoughtLayers are built with engram_enabled=False (no
-        # extra params, identical to the pre-Engram CTM).
+        # ── Thought Layers ──────────────────────────────────────────────
+        # Resolve which layers fuse Engram.
         self.engram_layer_indices: list[int] = (
             config.resolve_engram_layers() if config.use_engram else []
         )
         engram_layer_set = set(self.engram_layer_indices)
 
-        self.layers = nn.ModuleList([
-            ThoughtLayer(
+        def _make_thought_layer(l_idx: int) -> ThoughtLayer:
+            """Factory for thought layers with all v2 feature flags."""
+            return ThoughtLayer(
                 d_latent=config.d_latent,
                 d_model=config.d_model,
                 n_heads=config.n_heads,
@@ -86,16 +95,50 @@ class CTMTransformer(nn.Module):
                 engram_use_conv=config.engram_use_conv,
                 engram_conv_kernel=config.engram_conv_kernel,
                 engram_conv_dilation=config.engram_conv_dilation,
+                # v2 features
+                use_matrix_streams=config.use_matrix_streams,
+                n_streams=config.n_streams,
+                stream_gating=config.stream_gating,
+                use_dssa=config.use_dssa,
+                dssa_n_partitions=config.dssa_n_partitions,
+                dssa_top_k=config.dssa_top_k,
+                dssa_block_size=config.dssa_block_size,
+                dssa_top_k_blocks=config.dssa_top_k_blocks,
+                use_triton_attention=config.use_triton_attention,
             )
-            for l_idx in range(config.n_layers)
-        ])
+
+        # ── Hyperloop or Standard Layer Construction ────────────────────
+        if config.use_hyperloop:
+            n_begin = config.hyperloop_n_begin
+            n_middle = config.hyperloop_n_middle
+            n_end = config.hyperloop_n_end
+            # Total effective layers = n_begin + n_middle * middle_loops + n_end
+            self.begin_layers = nn.ModuleList([
+                _make_thought_layer(i) for i in range(n_begin)
+            ])
+            self.middle_layers = nn.ModuleList([
+                _make_thought_layer(n_begin + i) for i in range(n_middle)
+            ])
+            self.end_layers = nn.ModuleList([
+                _make_thought_layer(n_begin + n_middle + i)
+                for i in range(n_end)
+            ])
+            self.layers = None  # Signal that we use hyperloop
+            # Total effective layers for AttnRes and other per-layer bookkeeping
+            self._effective_n_layers = (
+                n_begin + n_middle * config.hyperloop_middle_loops + n_end
+            )
+        else:
+            self.layers = nn.ModuleList([
+                _make_thought_layer(l_idx)
+                for l_idx in range(config.n_layers)
+            ])
+            self.begin_layers = None
+            self.middle_layers = None
+            self.end_layers = None
+            self._effective_n_layers = config.n_layers
 
         # ── Engram Memory (optional) ────────────────────────────────────
-        # Single shared lookup table + per-fusion-layer K/V projections.
-        # The K/V projections are kept on the parent (not in ThoughtLayer)
-        # because e_t is constant across the thought loop, so we only need
-        # to project ONCE per forward pass — saving T·n_engram_layers
-        # passes of an O(B·S·d_mem·d_model) matmul.
         if config.use_engram:
             self.engram_table = EngramTable(
                 ngram_orders=config.engram_ngram_orders,
@@ -117,52 +160,101 @@ class CTMTransformer(nn.Module):
             self.engram_table = None
             self.engram_projections = None
 
+        # ── FEEC Integrator (v2) ────────────────────────────────────────
+        if config.use_feec:
+            from ctm_transformer.feec_integrator import FEECIntegrator
+            self.feec = FEECIntegrator(
+                d_latent=config.d_latent,
+                n_layers=self._effective_n_layers,
+                dt_init=config.feec_dt_init,
+                damping_init=config.feec_damping_init,
+                clamp_dt=config.feec_clamp_dt,
+            )
+        else:
+            self.feec = None
+
+        # ── Loop Position Embeddings (v2) ───────────────────────────────
+        if config.use_loop_pos_emb:
+            self.loop_pos_emb = nn.Embedding(
+                config.max_thought_steps, config.d_latent
+            )
+        else:
+            self.loop_pos_emb = None
+
         # ── Attention Residuals (Kimi AttnRes) ──────────────────────────
-        # Replaces fixed uniform residual accumulation (∑ h_i) with a
-        # learned, softmax-weighted attention over all preceding layer
-        # outputs. Bounds latent magnitude via convex combination — critical
-        # for CTM since z is looped T thought steps (uncontrolled growth
-        # would compound across both depth and time).
-        #
-        # Strict zero-init on queries → initial step is equal-weight
-        # averaging, preventing training volatility (per Kimi paper).
+        n_layers_for_attnres = self._effective_n_layers
         self.attn_res_queries = nn.ParameterList([
             nn.Parameter(torch.zeros(config.d_latent))
-            for _ in range(config.n_layers)
+            for _ in range(n_layers_for_attnres)
         ])
-
-        # RMSNorm applied to keys (previous layer outputs) before scoring.
-        # Shared across layers — stabilizes dot-product magnitudes without
-        # adding per-layer parameters.
         self.attn_res_norm = nn.RMSNorm(config.d_latent)
-        # ────────────────────────────────────────────────────────────────
 
         # ── Output Head ─────────────────────────────────────────────────
-        # Per-position logits: concat z[i] (from thought loop) with text_emb[i],
-        # then project to vocab. Gradients flow: output → z → NLM → layers.
-        self.output_proj = nn.Sequential(
-            nn.Linear(config.d_latent + config.d_model, config.d_model),
-            nn.GELU(),
-            nn.LayerNorm(config.d_model),
-            nn.Linear(config.d_model, config.vocab_size),
-        )
+        if config.per_tick_heads:
+            T = config.max_thought_steps
+            self.tick_adapters = nn.ModuleList([
+                nn.Sequential(
+                    nn.Linear(config.d_latent + config.d_model, config.d_model),
+                    nn.GELU(),
+                    nn.LayerNorm(config.d_model),
+                )
+                for _ in range(T)
+            ])
+            self.lm_head = nn.Linear(config.d_model, config.vocab_size)
+            self.output_proj = None
+        else:
+            self.output_proj = nn.Sequential(
+                nn.Linear(config.d_latent + config.d_model, config.d_model),
+                nn.GELU(),
+                nn.LayerNorm(config.d_model),
+                nn.Linear(config.d_model, config.vocab_size),
+            )
+            self.tick_adapters = None
+            self.lm_head = None
 
         # ── Initial State ───────────────────────────────────────────────
-        # Learned initial latent state, broadcast to all positions
         self.z0 = nn.Parameter(torch.zeros(config.d_latent))
+
+        # Velocity initial state (for FEEC)
+        if config.use_feec:
+            self.velocity_0 = nn.Parameter(torch.zeros(config.d_latent))
+        else:
+            self.velocity_0 = None
+
+        # ── CUDA Graph wrapper (v2) ─────────────────────────────────────
+        if config.use_cuda_graphs:
+            from ctm_transformer.triton_kernels import CUDAGraphThoughtLoop
+            self._cuda_graph = CUDAGraphThoughtLoop(enabled=True)
+        else:
+            self._cuda_graph = None
+
+        # ── Training step counter (non-persistent) ──────────────────────
+        self.register_buffer(
+            "_train_step",
+            torch.tensor(0, dtype=torch.long),
+            persistent=False,
+        )
 
         self.apply(self._init_weights)
 
-        # Re-apply Engram-specific inits. The generic _init_weights walk
-        # above resets every nn.Linear (std=0.02) and every nn.Embedding
-        # (std=0.02), which would clobber the paper-specified zero-init
-        # of W_V and the conv weights, and the smaller std=0.01 of the
-        # Engram lookup tables. Modules that need post-walk fixups expose
-        # `_reset_special_inits()`; we call it on every module that has it.
+        # Re-apply Engram-specific inits
         for m in self.modules():
             reset_fn = getattr(m, "_reset_special_inits", None)
             if callable(reset_fn) and m is not self:
                 reset_fn()
+
+        # ── Ternary weight swap (optional) ──────────────────────────────
+        if config.use_ternary:
+            from ctm_transformer.ternary import replace_linears_with_ternary
+            only = tuple(config.ternary_only_modules) if config.ternary_only_modules else None
+            n_swapped = replace_linears_with_ternary(
+                self,
+                only_module_names=only,
+                verbose=False,
+            )
+            self._n_ternary_layers = n_swapped
+        else:
+            self._n_ternary_layers = 0
 
     def _init_weights(self, module):
         """Standard transformer weight initialization."""
@@ -194,24 +286,145 @@ class CTMTransformer(nn.Module):
 
         return self.embed_dropout(self.embed_norm(tok_emb))
 
-    def _output_logits(self, z: torch.Tensor, text_emb: torch.Tensor) -> torch.Tensor:
+    def _output_logits(
+        self,
+        z: torch.Tensor,
+        text_emb: torch.Tensor,
+        tick: int = 0,
+    ) -> torch.Tensor:
         """
         Project per-position latent states to logits.
-
-        Each position i's logit is computed from [z[i]; text_emb[i]].
-        Since z[i] was built using only causal attention (positions 0..i),
-        no target leakage occurs.
 
         Args:
             z: [B, S, d_latent] — per-position latent states.
             text_emb: [B, S, d_model] — text embeddings.
+            tick: which thought tick this projection is for.
 
         Returns:
             logits: [B, S, vocab_size]
         """
-        # z is already [B, S, d_latent], just concat with text_emb
-        combined = torch.cat([z, text_emb], dim=-1)  # [B, S, d_latent + d_model]
-        return self.output_proj(combined)  # [B, S, vocab_size]
+        combined = torch.cat([z, text_emb], dim=-1)
+
+        if self.tick_adapters is not None:
+            adapted = self.tick_adapters[tick](combined)
+            return self.lm_head(adapted)
+
+        return self.output_proj(combined)
+
+    def _get_layers_sequence(self) -> list[ThoughtLayer]:
+        """Get the sequence of layers to iterate over (respecting Hyperloop)."""
+        if self.layers is not None:
+            return list(self.layers)
+
+        # Hyperloop: begin + middle*loops + end
+        seq = list(self.begin_layers)
+        for _ in range(self.config.hyperloop_middle_loops):
+            seq.extend(list(self.middle_layers))
+        seq.extend(list(self.end_layers))
+        return seq
+
+    def _thought_step(
+        self,
+        z: torch.Tensor,
+        t: int,
+        text_emb: torch.Tensor,
+        key_padding_mask: torch.Tensor | None,
+        engram_kv: dict,
+        pre_states: list[torch.Tensor],
+        post_states: list[torch.Tensor],
+        velocity: torch.Tensor | None = None,
+        stream_states: list[torch.Tensor] | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor, list[torch.Tensor], list[torch.Tensor],
+               torch.Tensor | None, list[torch.Tensor] | None]:
+        """
+        Run one thought-step iteration with explicit per-layer memory state.
+
+        Args:
+            z: [B, S, d_latent] — pre-step latent state.
+            t: thought-tick index.
+            text_emb: [B, S, d_model] — token embeddings.
+            key_padding_mask: [B, S] or None.
+            engram_kv: dict mapping layer index → (k, v) tuples.
+            pre_states: list of pre_history buffers (v1 path).
+            post_states: list of post_history buffers (v1 path).
+            velocity: [B, S, d_latent] or None — FEEC velocity state.
+            stream_states: list of stream states per layer (v2 path) or None.
+
+        Returns:
+            z_new, logits_t, new_pre_states, new_post_states, velocity_new, new_stream_states
+        """
+        layers = self._get_layers_sequence()
+
+        # Restore v1 memory state into layers
+        if not self.config.use_matrix_streams:
+            for l_idx, layer in enumerate(layers):
+                if layer.memory is not None and l_idx < len(pre_states):
+                    layer.memory.pre_history = pre_states[l_idx]
+                    layer.memory.post_history = post_states[l_idx]
+
+        # ── Loop Position Embedding ─────────────────────────────────────
+        if self.loop_pos_emb is not None:
+            tick_idx = torch.tensor(t, device=z.device, dtype=torch.long)
+            z = z + self.loop_pos_emb(tick_idx).unsqueeze(0).unsqueeze(0)
+
+        # ── Attention Residuals: layer stack ─────────────────────────────
+        layer_outputs = [z]
+        velocity_new = velocity
+        new_stream_states = stream_states if stream_states is not None else []
+
+        for l_idx, layer in enumerate(layers):
+            V = torch.stack(layer_outputs, dim=0)
+            V = V.to(self.attn_res_norm.weight.dtype)
+
+            K = self.attn_res_norm(V)
+            w_l = self.attn_res_queries[l_idx] if l_idx < len(self.attn_res_queries) else self.attn_res_queries[-1]
+            scores = torch.einsum('d,nbsd->nbs', w_l, K)
+            attn_weights = F.softmax(scores, dim=0)
+            z_in = torch.einsum('nbs,nbsd->bsd', attn_weights, V)
+
+            # Get stream state for this layer (if matrix streams)
+            layer_stream = None
+            if self.config.use_matrix_streams and stream_states is not None and l_idx < len(stream_states):
+                layer_stream = stream_states[l_idx]
+
+            z_out, _sync_repr, new_layer_stream = layer(
+                text_emb,
+                text_emb,
+                z_in,
+                key_padding_mask,
+                engram_kv=engram_kv.get(l_idx),
+                stream_state=layer_stream,
+            )
+
+            # Update stream state
+            if self.config.use_matrix_streams and new_layer_stream is not None:
+                if l_idx < len(new_stream_states):
+                    new_stream_states[l_idx] = new_layer_stream
+                else:
+                    new_stream_states.append(new_layer_stream)
+
+            # ── FEEC Integration ────────────────────────────────────────
+            if self.feec is not None and velocity_new is not None:
+                force = z_out - z_in  # Force field = layer's contribution
+                z_out, velocity_new = self.feec.step(
+                    z_in, velocity_new, force, layer_idx=l_idx
+                )
+
+            layer_outputs.append(z_out)
+
+        z_new = layer_outputs[-1]
+        logits_t = self._output_logits(z_new, text_emb, tick=t)
+
+        # Read out v1 memory state
+        new_pre_states = []
+        new_post_states = []
+        if not self.config.use_matrix_streams:
+            for layer in layers:
+                if layer.memory is not None:
+                    new_pre_states.append(layer.memory.pre_history)
+                    new_post_states.append(layer.memory.post_history)
+
+        return z_new, logits_t, new_pre_states, new_post_states, velocity_new, new_stream_states
 
     def forward(
         self,
@@ -222,142 +435,112 @@ class CTMTransformer(nn.Module):
     ) -> dict:
         """
         Full forward pass with per-position latent states and causal masking.
-        Memory-optimized: discards intermediate logits during training if checkpointing.
         """
         T = max_thought_steps or self.config.max_thought_steps
         B, S = input_ids.shape
         device = input_ids.device
         dtype = next(self.parameters()).dtype
 
-        # ── Embed text (computed once) ──────────────────────────────────
-        text_emb = self._embed_text(input_ids)  # [B, S, d_model]
+        # ── Embed text ──────────────────────────────────────────────────
+        text_emb = self._embed_text(input_ids)
 
-        # ── Engram Lookup + Per-Layer K/V Projection (computed once) ────
-        # e_t depends only on the input token IDs — it is *static* across
-        # the entire thought loop. We compute it once here, then pre-project
-        # to per-layer (k, v) tensors that ThoughtLayers can consume cheaply
-        # (only the dynamic gate runs per thought step).
+        # ── Engram Lookup ───────────────────────────────────────────────
         engram_kv: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
         if self.engram_table is not None:
-            e_t = self.engram_table(input_ids)                 # [B, S, d_mem]
-            # Match dtype to the rest of the forward — keeps the projection
-            # in the model's compute dtype (bf16/fp16/fp32) so we don't
-            # silently promote and double the memory cost.
+            e_t = self.engram_table(input_ids)
             e_t = e_t.to(text_emb.dtype)
             for l_idx_str, proj in self.engram_projections.items():
                 l_idx = int(l_idx_str)
-                k, v = proj(e_t)                               # each [B, S, d_model]
+                k, v = proj(e_t)
                 engram_kv[l_idx] = (k, v)
 
-        # ── Initialize per-position latent states ───────────────────────
-        z = self.z0.unsqueeze(0).unsqueeze(0).expand(B, S, -1).clone()  # [B, S, d_latent]
+        # ── Initialize latent states ────────────────────────────────────
+        z = self.z0.unsqueeze(0).unsqueeze(0).expand(B, S, -1).clone()
 
-        # Reset memory buffers
+        # FEEC velocity initialization
+        velocity = None
+        if self.feec is not None and self.velocity_0 is not None:
+            velocity = self.velocity_0.unsqueeze(0).unsqueeze(0).expand(B, S, -1).clone()
+
+        # ── Initialize memory / streams ─────────────────────────────────
+        layers = self._get_layers_sequence()
         BS = B * S
-        for layer in self.layers:
-            layer.reset_memory(BS, device, dtype)
+
+        # v2: matrix stream states
+        stream_states = None
+        if self.config.use_matrix_streams:
+            stream_states = []
+            for layer in layers:
+                if layer.stream is not None:
+                    stream_states.append(
+                        layer.stream.init_state(B, S, device, dtype)
+                    )
+                else:
+                    stream_states.append(None)
+        else:
+            # v1: reset FIFO memory buffers
+            for layer in layers:
+                if layer.memory is not None:
+                    layer.reset_memory(BS, device, dtype)
 
         # ── Thought Loop ────────────────────────────────────────────────
         all_logits = []
         all_certainties = []
+        energy_penalties = []
+
+        use_per_step_ckpt = (
+            self.training
+            and self.config.gradient_checkpointing
+            and T >= self.config.gradient_checkpointing_min_T
+        )
+
+        # Initialize v1 memory state lists
+        pre_states = []
+        post_states = []
+        if not self.config.use_matrix_streams:
+            pre_states = [layer.memory.pre_history for layer in layers if layer.memory is not None]
+            post_states = [layer.memory.post_history for layer in layers if layer.memory is not None]
+
+        z_prev = z
+        velocity_prev = velocity
 
         for t in range(T):
-            is_last_step = (t == T - 1)
-            is_checkpointed = (
-                not is_last_step
-                and self.training
-                and self.config.gradient_checkpointing
-            )
+            if use_per_step_ckpt:
+                result = torch_checkpoint.checkpoint(
+                    self._thought_step,
+                    z, t, text_emb, key_padding_mask, engram_kv,
+                    pre_states, post_states, velocity, stream_states,
+                    use_reentrant=False,
+                )
+            else:
+                result = self._thought_step(
+                    z, t, text_emb, key_padding_mask, engram_kv,
+                    pre_states, post_states, velocity, stream_states,
+                )
 
-            # Dynamic grad-mode context. Background: detaching `z` at step
-            # boundaries severs the graph through z, but the FIFO memory
-            # buffers (pre_history, post_history) push via cat/roll which
-            # holds the OLD buffer as a graph parent — chaining the graph
-            # back through every prior thought step. End result without
-            # this fix: ~T·n_layers (~192 at T=8, n_layers=24) layer-
-            # forwards of saved activations alive at backward, plus all
-            # the AttnRes K=norm(V) tensors (~225 MB/step → ~1.8 GB across
-            # 8 steps just for K). That's the OOM at line 252.
-            #
-            # nullcontext (NOT torch.enable_grad) for active steps so eval-
-            # time outer no_grad isn't overridden.
-            step_context = torch.no_grad() if is_checkpointed else nullcontext()
+            z, logits_t, pre_states, post_states, velocity, stream_states = result
 
-            with step_context:
-                # ── Attention Residuals: layer stack ─────────────────────
-                # At each depth l, feed a softmax-weighted sum over ALL
-                # previous layer outputs [z_0, z_1, ..., z_{l-1}] using
-                # the layer's learned pseudo-query w_l.
-                layer_outputs = [z]
-                sync_repr = None
+            # ── FEEC energy penalty ─────────────────────────────────────
+            if self.feec is not None and velocity is not None:
+                ep = self.feec.energy_penalty(z, velocity, z_prev, velocity_prev)
+                energy_penalties.append(ep)
+                z_prev = z
+                velocity_prev = velocity
 
-                for l_idx, layer in enumerate(self.layers):
-                    V = torch.stack(layer_outputs, dim=0)              # [n, B, S, D]
-
-                    # Match V to the norm weight's dtype so RMSNorm
-                    # dispatches to its fused kernel instead of the slow
-                    # unfused fallback. Cast ONCE so the downstream einsum
-                    # also gets the matched dtype — otherwise attn_weights
-                    # (bf16) × V (fp32) would type-promote z_in to fp32
-                    # and push the mismatch one op downstream into the
-                    # layer's bf16 weights. If V is already bf16, .to()
-                    # is a no-op.
-                    V = V.to(self.attn_res_norm.weight.dtype)
-
-                    K = self.attn_res_norm(V)
-                    w_l = self.attn_res_queries[l_idx]                  # [D]
-                    scores = torch.einsum('d,nbsd->nbs', w_l, K)        # [n, B, S]
-                    attn_weights = F.softmax(scores, dim=0)
-                    z_in = torch.einsum('nbs,nbsd->bsd', attn_weights, V)
-
-                    z_out, sync_repr = layer(
-                        text_emb,
-                        text_emb,
-                        z_in,
-                        key_padding_mask,
-                        engram_kv=engram_kv.get(l_idx),
-                    )
-                    layer_outputs.append(z_out)
-
-                # Final state = output of last layer (raw, not the
-                # AttnRes-aggregated input — aggregation only feeds
-                # INPUTS to layers).
-                z = layer_outputs[-1]
-
-                # ── Per-position logits ─────────────────────────────────
-                logits_t = self._output_logits(z, text_emb)  # [B, S, V]
-
-            # ── Certainty (always non-differentiable) ───────────────────
-            # Explicit no_grad even on the last step. The original design
-            # used certainty only as a non-differentiable weighting signal
-            # for max_cert_component; letting gradients flow through it
-            # creates a degenerate path where the model can lower loss by
-            # becoming uniformly confident regardless of correctness.
+            # ── Certainty ───────────────────────────────────────────────
             with torch.no_grad():
                 probs_t = F.softmax(logits_t, dim=-1)
                 entropy_t = -(probs_t * (probs_t + 1e-10).log()).sum(dim=-1)
                 certainty_t = -entropy_t
             all_certainties.append(certainty_t)
+            all_logits.append(logits_t)
 
-            # ── Step-boundary cleanup ───────────────────────────────────
-            if is_checkpointed:
-                # Detach z so next step's forward starts from a fresh leaf.
-                z = z.detach().requires_grad_(True)
-
-                # Detach memory buffers — this is the actual leak fix.
-                # NOT setting requires_grad_(True): doing so would cause
-                # backward to accumulate a useless `.grad` of the buffer's
-                # full shape on the leaf, since buffers aren't optimizer
-                # parameters. Plain detach is enough — gradients through
-                # the *new* activations pushed on the last step still flow
-                # correctly via the cat/roll graph.
-                for layer in self.layers:
-                    layer.memory.pre_history = layer.memory.pre_history.detach()
-                    layer.memory.post_history = layer.memory.post_history.detach()
-
-                all_logits.append(None)
-            else:
-                all_logits.append(logits_t)
+        # Restore v1 memory state
+        if not self.config.use_matrix_streams:
+            for l_idx, layer in enumerate(layers):
+                if layer.memory is not None and l_idx < len(pre_states):
+                    layer.memory.pre_history = pre_states[l_idx]
+                    layer.memory.post_history = post_states[l_idx]
 
         all_certainties_tensor = torch.stack(all_certainties, dim=0)
 
@@ -366,13 +549,27 @@ class CTMTransformer(nn.Module):
             "certainties": all_certainties_tensor,
         }
 
-        if not self.training and None not in all_logits:
-            result["all_logits"] = torch.stack(all_logits, dim=0)
+        # FEEC energy diagnostics
+        if self.feec is not None and velocity is not None:
+            with torch.no_grad():
+                result["feec_energy"] = self.feec.energy(z, velocity).item()
+
+        # Always populate all_logits for diagnostics/testing
+        result["all_logits"] = torch.stack(all_logits, dim=0)
 
         if targets is not None:
-            result["loss"], result["per_tick_loss"] = self._compute_temporal_loss(
+            loss, per_tick_loss = self._compute_temporal_loss(
                 all_logits, all_certainties_tensor, targets
             )
+
+            # Add FEEC energy penalty to loss
+            if energy_penalties and self.config.feec_energy_penalty_weight > 0:
+                energy_pen = torch.stack(energy_penalties).mean()
+                loss = loss + self.config.feec_energy_penalty_weight * energy_pen
+                result["feec_energy_penalty"] = energy_pen.item()
+
+            result["loss"] = loss
+            result["per_tick_loss"] = per_tick_loss
 
         return result
 
@@ -383,8 +580,39 @@ class CTMTransformer(nn.Module):
         targets: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """
-        Compute temporal loss. When gradient_checkpointing is on, only the
-        final step has gradients. Intermediate logits may be None.
+        Compute temporal loss aggregated over all thought steps.
+
+        Returns:
+            loss: weighted scalar combining the per-tick losses with explicit
+                  pressure for refinement across thought steps.
+            per_tick_loss: detached [T]-vector for logging — the actual
+                  cross-entropy at each thought step.
+
+        Loss formulation:
+
+        The previous min_loss + max_cert + aux_mean formulation collapsed to
+        "minimize the mean per-tick loss" whenever ticks had similar values
+        (which is exactly when iterative refinement *isn't* working). It
+        gave the model no incentive to differentiate across ticks, so the
+        thought loop trained itself into a degenerate "produce the same
+        answer at every tick" minimum.
+
+        We replace it with two explicit pressures:
+
+        1. **Linear ramp weighting** (`ramp_loss`): later ticks contribute
+           more to the gradient than earlier ticks. Forces the model to
+           prioritize getting later ticks right — if it produces identical
+           output at every tick, it pays the same loss as a model that
+           refined, but loses the option to ever exceed that performance.
+
+        2. **Monotonicity penalty** (`mono_penalty`): penalizes any tick
+           that is *worse* than its predecessor. This is a one-sided ReLU
+           on the diff — improvements are free, regressions are punished.
+
+        Both pressures push the model toward iterative refinement. The
+        ramp is the carrot ("later ticks earn you more reward"), the
+        monotonicity penalty is the stick ("don't go backward"). Together
+        they break the symmetry that lets identical-tick solutions win.
         """
         T = len(all_logits)
         V = self.config.vocab_size
@@ -392,33 +620,40 @@ class CTMTransformer(nn.Module):
 
         per_tick_losses = []
         for t in range(T):
-            if all_logits[t] is None:
-                # Provide a zero-loss placeholder for dropped intermediate steps
-                per_tick_losses.append(torch.tensor(0.0, device=targets.device))
-                continue
-
             logits_t = all_logits[t].reshape(-1, V)
             loss_t = F.cross_entropy(logits_t, targets_flat, reduction="mean")
             per_tick_losses.append(loss_t)
 
         per_tick_loss_tensor = torch.stack(per_tick_losses)
 
-        if self.training and self.config.gradient_checkpointing:
-            loss = per_tick_losses[-1]
+        # Linear ramp weighting
+        ramp = torch.linspace(
+            self.config.tick_ramp_start, self.config.tick_ramp_end, T,
+            device=per_tick_loss_tensor.device, dtype=per_tick_loss_tensor.dtype,
+        )
+        ramp = ramp * (T / ramp.sum())
+        ramp_loss = (ramp * per_tick_loss_tensor).mean()
+
+        # Monotonicity penalty
+        if T > 1:
+            diffs = per_tick_loss_tensor[1:] - per_tick_loss_tensor[:-1]
+            mono_penalty = F.relu(diffs).mean()
         else:
-            temperature = 0.1
-            min_loss_weights = F.softmax(-per_tick_loss_tensor / temperature, dim=0)
-            min_loss_component = (min_loss_weights * per_tick_loss_tensor).sum()
+            mono_penalty = torch.tensor(0.0, device=per_tick_loss_tensor.device)
 
-            mean_certainty = all_certainties.mean(dim=(1, 2))
-            max_cert_weights = F.softmax(mean_certainty / temperature, dim=0)
-            max_cert_component = (max_cert_weights * per_tick_loss_tensor).sum()
+        # Mono-penalty decay
+        decay_until_frac = self.config.mono_penalty_decay_until_frac
+        if decay_until_frac > 0 and self.config.max_steps > 0:
+            decay_until_step = decay_until_frac * self.config.max_steps
+            current_step = float(self._train_step.item())
+            progress = min(current_step / max(decay_until_step, 1.0), 1.0)
+            min_frac = self.config.mono_penalty_min_frac
+            decay_factor = 1.0 - progress * (1.0 - min_frac)
+        else:
+            decay_factor = 1.0
+        effective_mono_weight = self.config.mono_penalty_weight * decay_factor
 
-            loss = (
-                self.config.min_loss_weight * min_loss_component +
-                self.config.max_cert_weight * max_cert_component +
-                self.config.aux_loss_weight * per_tick_loss_tensor.mean()
-            )
+        loss = ramp_loss + effective_mono_weight * mono_penalty
 
         return loss, per_tick_loss_tensor.detach()
 

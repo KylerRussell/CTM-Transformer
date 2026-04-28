@@ -304,15 +304,50 @@ def build_param_groups(
         if isinstance(m, torch.nn.Embedding):
             embedding_weight_ids.add(id(m.weight))
 
-    # Identify the LM head: the *last* nn.Linear nested anywhere inside
-    # `model.output_proj`. Identity-check via id() so we don't accidentally
-    # exclude lookalikes from elsewhere in the model.
+    # TernaryLinear latent weights → AdamW.
+    # AdaMuon would be a poor fit here: its RMS-aligned update has a fixed
+    # magnitude (0.2 by default), independent of the gradient. For a
+    # *ternarized* layer, the latent weight's role is purely "which side of
+    # ±Δ am I on" — and a fixed-magnitude update of 0.2 per step would flip
+    # entries across the threshold far too aggressively, causing the
+    # ternarization pattern to thrash from step to step instead of slowly
+    # crystallizing. TWN's original paper uses SGD+momentum, which produces
+    # naturally small updates that respect the Δ threshold. AdamW is a
+    # reasonable compromise — its variance scaling adapts to the small
+    # gradient regime that ternary training tends toward.
+    ternary_param_ids: set[int] = set()
+    try:
+        from ctm_transformer.ternary import TernaryLinear
+        for m in model.modules():
+            if isinstance(m, TernaryLinear):
+                for p in m.parameters(recurse=True):
+                    ternary_param_ids.add(id(p))
+    except Exception:
+        pass
+
+    # Identify the LM head: this is the final vocabulary projection. Two
+    # possible layouts depending on `config.per_tick_heads`:
+    #   - Legacy: model.output_proj is an nn.Sequential ending in the LM
+    #     head Linear; the per-tick adapters don't exist.
+    #   - per_tick_heads=True: model.output_proj is None, model.lm_head is
+    #     the shared vocabulary Linear, and model.tick_adapters is a
+    #     ModuleList of small per-tick projections.
+    # In both cases, we want the LM head's weight routed to AdamW (large
+    # vocabulary projections typically benefit from AdamW's variance
+    # adaptation more than from AdaMuon's polar-decomposition update).
+    # Identity-check via id() so we don't accidentally match lookalikes
+    # from elsewhere in the model.
     lm_head_weight_id: int | None = None
-    if hasattr(model, "output_proj"):
+    if getattr(model, "output_proj", None) is not None:
+        # Legacy path: walk the Sequential, find the last Linear.
         for m in reversed(list(model.output_proj.modules())):
             if isinstance(m, torch.nn.Linear):
                 lm_head_weight_id = id(m.weight)
                 break
+    elif getattr(model, "lm_head", None) is not None:
+        # Per-tick heads path: lm_head IS the LM head.
+        if isinstance(model.lm_head, torch.nn.Linear):
+            lm_head_weight_id = id(model.lm_head.weight)
 
     muon_log: list[str] = []
     adamw_log: list[str] = []
@@ -333,6 +368,14 @@ def build_param_groups(
         if id(p) in nlm_param_ids or ".nlm." in f".{nlc}.":
             adamw_params.append(p)
             adamw_log.append(f"  [adamw, nlm]        {name}  {tuple(p.shape)}")
+            continue
+
+        # Rule 3: TernaryLinear latent weight (or bias) → AdamW
+        # Excluded from AdaMuon because its fixed-RMS update magnitude
+        # would thrash the ternarization across the ±Δ threshold every step.
+        if id(p) in ternary_param_ids:
+            adamw_params.append(p)
+            adamw_log.append(f"  [adamw, ternary]    {name}  {tuple(p.shape)}")
             continue
 
         # Rule 3: any nn.Embedding weight (token emb, Engram tables, etc.)
