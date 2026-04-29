@@ -13,6 +13,7 @@ class CTMConfig:
     """Configuration for the Continuous Thought Machine Transformer."""
 
     # ── Model Architecture ──────────────────────────────────────────────
+    use_feature_encoder: bool = False  # If True, replaces text token embedding with a generic FeatureEncoder
     vocab_size: int = 50257            # GPT-2 BPE tokenizer (tiktoken)
     d_model: int = 512                 # Text embedding / cross-attention dimension
     d_latent: int = 512                # Latent neuron count (internal state width)
@@ -115,8 +116,12 @@ class CTMConfig:
     per_tick_heads: bool = False
 
     # ── Synchronization ─────────────────────────────────────────────────
-    sync_method: str = "diag_summary"  # "full", "diag_summary", or "low_rank"
+    sync_method: str = "diag_summary"  # "full", "diag_summary", "low_rank", or "sparse_decay"
     sync_rank: int = 32                # Rank for low_rank sync method
+    sync_sparse_pairs: int = 256       # Number of (i, j) pairs for sparse_decay sync method
+
+    # ── Synapse ─────────────────────────────────────────────────────────
+    synapse_type: str = "mlp"          # "mlp" or "unet"
 
     # ── Ternary Weight Quantization (optional, paper-faithful TWN) ──────
     # Master switch. When False, all backbone Linears are standard nn.Linear.
@@ -207,6 +212,7 @@ class CTMConfig:
     adamuon_weight_decay: float = 0.1
 
     # ── Temporal Loss ───────────────────────────────────────────────────
+    temporal_loss_type: str = "ramp_mono" # "ramp_mono" or "dynamic_aggregate"
     # Linear ramp weights across thought ticks. ramp_start < ramp_end means
     # later ticks contribute more to the gradient — pressures the model to
     # prioritize getting later ticks right, breaking the symmetry that
@@ -264,6 +270,8 @@ class CTMConfig:
             return 3 * self.d_latent
         elif self.sync_method == "low_rank":
             return self.sync_rank * self.d_latent
+        elif self.sync_method == "sparse_decay":
+            return self.sync_sparse_pairs
         else:
             raise ValueError(f"Unknown sync_method: {self.sync_method}")
 

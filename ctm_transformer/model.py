@@ -42,6 +42,24 @@ from ctm_transformer.memory import SynchronizationComputer
 from ctm_transformer.engram import EngramTable, EngramProjection
 
 
+class FeatureEncoder(nn.Module):
+    """
+    Generic Feature Encoder backbone for multi-modal capability.
+    Replaces the text token embedding with a projection of continuous features
+    (e.g., from a Vision Transformer, ResNet, or audio frontend) into d_model.
+    """
+    def __init__(self, d_model: int):
+        super().__init__()
+        # Placeholder for a real backbone. For now, it's just a linear projection
+        # assuming the input is already a sequence of feature vectors of size d_model.
+        self.proj = nn.Linear(d_model, d_model)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: [B, S, feature_dim]
+        return self.proj(x)
+
+
+
 class CTMTransformer(nn.Module):
     """
     Continuous Thought Machine Transformer (v2).
@@ -61,8 +79,13 @@ class CTMTransformer(nn.Module):
         super().__init__()
         self.config = config
 
-        # ── Text Ingestion ──────────────────────────────────────────────
-        self.token_embedding = nn.Embedding(config.vocab_size, config.d_model)
+        # ── Text Ingestion or Feature Encoder ───────────────────────────
+        if config.use_feature_encoder:
+            self.feature_encoder = FeatureEncoder(config.d_model)
+            self.token_embedding = None
+        else:
+            self.token_embedding = nn.Embedding(config.vocab_size, config.d_model)
+            self.feature_encoder = None
 
         if config.use_positional_encoding:
             self.pos_embedding = nn.Embedding(config.max_seq_len, config.d_model)
@@ -105,6 +128,7 @@ class CTMTransformer(nn.Module):
                 dssa_block_size=config.dssa_block_size,
                 dssa_top_k_blocks=config.dssa_top_k_blocks,
                 use_triton_attention=config.use_triton_attention,
+                synapse_type=config.synapse_type,
             )
 
         # ── Hyperloop or Standard Layer Construction ────────────────────
@@ -276,9 +300,13 @@ class CTMTransformer(nn.Module):
         return n_params
 
     def _embed_text(self, input_ids: torch.Tensor) -> torch.Tensor:
-        """Embed input tokens. Returns [batch, seq_len, d_model]."""
-        B, S = input_ids.shape
-        tok_emb = self.token_embedding(input_ids)
+        """Embed input tokens or continuous features. Returns [batch, seq_len, d_model]."""
+        B, S = input_ids.shape[:2]
+        if self.config.use_feature_encoder:
+            # Assume input_ids is actually a continuous feature tensor
+            tok_emb = self.feature_encoder(input_ids)
+        else:
+            tok_emb = self.token_embedding(input_ids)
 
         if self.pos_embedding is not None:
             positions = torch.arange(S, device=input_ids.device).unsqueeze(0)
@@ -437,7 +465,7 @@ class CTMTransformer(nn.Module):
         Full forward pass with per-position latent states and causal masking.
         """
         T = max_thought_steps or self.config.max_thought_steps
-        B, S = input_ids.shape
+        B, S = input_ids.shape[:2]
         device = input_ids.device
         dtype = next(self.parameters()).dtype
 
@@ -531,7 +559,11 @@ class CTMTransformer(nn.Module):
             with torch.no_grad():
                 probs_t = F.softmax(logits_t, dim=-1)
                 entropy_t = -(probs_t * (probs_t + 1e-10).log()).sum(dim=-1)
-                certainty_t = -entropy_t
+                if self.config.temporal_loss_type == "dynamic_aggregate":
+                    max_entropy = math.log(self.config.vocab_size)
+                    certainty_t = 1.0 - (entropy_t / max_entropy)
+                else:
+                    certainty_t = -entropy_t
             all_certainties.append(certainty_t)
             all_logits.append(logits_t)
 
@@ -626,7 +658,33 @@ class CTMTransformer(nn.Module):
 
         per_tick_loss_tensor = torch.stack(per_tick_losses)
 
-        # Linear ramp weighting
+        if self.config.temporal_loss_type == "dynamic_aggregate":
+            # Dynamic Loss Aggregation (Listing 4)
+            # Find t1 (min loss) and t2 (max certainty) for each batch element
+            # Losses: [T, BS], certainties: [T, BS] (assuming dim=0 is T, let's reshape if needed)
+            # Wait, per_tick_loss_tensor is [T], not [T, BS]. The previous code did reduction="mean" on loss!
+            # To do per-data-point aggregation, we need the unreduced losses.
+            per_tick_losses_unreduced = []
+            for t in range(T):
+                logits_t = all_logits[t].reshape(-1, V)
+                loss_t = F.cross_entropy(logits_t, targets_flat, reduction="none")
+                per_tick_losses_unreduced.append(loss_t)
+            losses_unreduced = torch.stack(per_tick_losses_unreduced, dim=1) # [BS, T]
+            
+            # all_certainties is [T, B, S]. Flatten to [BS, T]
+            cert = all_certainties.view(T, -1).transpose(0, 1) # [BS, T]
+            
+            lowest_idx = losses_unreduced.argmin(dim=-1) # [BS]
+            certain_idx = cert.argmax(dim=-1) # [BS]
+            
+            # Gather
+            loss_t1 = losses_unreduced.gather(1, lowest_idx.unsqueeze(1)).squeeze(1)
+            loss_t2 = losses_unreduced.gather(1, certain_idx.unsqueeze(1)).squeeze(1)
+            
+            loss = ((loss_t1 + loss_t2) / 2.0).mean()
+            return loss, per_tick_loss_tensor.detach()
+
+        # Linear ramp weighting (default ramp_mono)
         ramp = torch.linspace(
             self.config.tick_ramp_start, self.config.tick_ramp_end, T,
             device=per_tick_loss_tensor.device, dtype=per_tick_loss_tensor.dtype,

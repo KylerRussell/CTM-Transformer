@@ -498,7 +498,7 @@ def train(config: CTMConfig):
         eval_loader = DataLoader(
             eval_dataset,
             batch_size=config.batch_size,
-            num_workers=1,
+            num_workers=0,
             pin_memory=(device != "cpu"),
         )
         raw_text = None  # No raw text buffer for generation prompts
@@ -988,7 +988,11 @@ def parse_args():
     model_group.add_argument("--max_thought_steps", type=int, default=8)
     model_group.add_argument("--seq_len", type=int, default=512)
     model_group.add_argument("--sync_method", type=str, default="diag_summary",
-                            choices=["full", "diag_summary", "low_rank"])
+                            choices=["full", "diag_summary", "low_rank", "sparse_decay"])
+    model_group.add_argument("--sync_sparse_pairs", type=int, default=256)
+    model_group.add_argument("--synapse_type", type=str, default="mlp", choices=["mlp", "unet"])
+    model_group.add_argument("--temporal_loss_type", type=str, default="ramp_mono", choices=["ramp_mono", "dynamic_aggregate"])
+    model_group.add_argument("--use_feature_encoder", action="store_true")
     model_group.add_argument("--per_tick_heads", action="store_true",
                             help="Give each thought tick its own output adapter feeding into a "
                                  "shared LM head. Removes gradient interference between ticks "
@@ -1187,6 +1191,10 @@ def main():
         max_thought_steps=args.max_thought_steps,
         seq_len=args.seq_len,
         sync_method=args.sync_method,
+        sync_sparse_pairs=args.sync_sparse_pairs,
+        synapse_type=args.synapse_type,
+        temporal_loss_type=args.temporal_loss_type,
+        use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
         weight_decay=args.weight_decay,

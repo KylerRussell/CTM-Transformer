@@ -71,9 +71,11 @@ if _HAS_TRITON:
         q_start = pid_s * BLOCK_S
         q_offsets = q_start + tl.arange(0, BLOCK_S)
         q_mask = q_offsets < S
+        safe_q = tl.where(q_mask, q_offsets, 0)
 
         d_offsets = tl.arange(0, BLOCK_D)
         d_mask = d_offsets < D
+        safe_d = tl.where(d_mask, d_offsets, 0)
 
         # Accumulators in float32 for precision
         out_acc = tl.zeros([BLOCK_S, BLOCK_D], dtype=tl.float32)
@@ -81,16 +83,17 @@ if _HAS_TRITON:
         l_i = tl.zeros([BLOCK_S], dtype=tl.float32)
 
         # Load Q tile: [BLOCK_S, BLOCK_D]
-        q_ptrs = Q_ptr + pid_bh * stride_qh + q_offsets[:, None] * stride_qs + d_offsets[None, :] * stride_qd
+        q_ptrs = Q_ptr + pid_bh * stride_qh + safe_q[:, None] * stride_qs + safe_d[None, :] * stride_qd
         q_tile = tl.load(q_ptrs, mask=(q_mask[:, None] & d_mask[None, :]), other=0.0)
 
         # Loop over key/value tiles
         for k_start in range(0, S, BLOCK_S):
             k_offsets = k_start + tl.arange(0, BLOCK_S)
             k_mask = k_offsets < S
+            safe_k = tl.where(k_mask, k_offsets, 0)
 
             # Load K tile: [BLOCK_S, BLOCK_D]
-            k_ptrs = K_ptr + pid_bh * stride_kh + k_offsets[:, None] * stride_ks + d_offsets[None, :] * stride_kd
+            k_ptrs = K_ptr + pid_bh * stride_kh + safe_k[:, None] * stride_ks + safe_d[None, :] * stride_kd
             k_tile = tl.load(k_ptrs, mask=(k_mask[:, None] & d_mask[None, :]), other=0.0)
 
             # Q·K^T: [BLOCK_S, BLOCK_S]
@@ -111,7 +114,7 @@ if _HAS_TRITON:
             p = tl.where(m_new[:, None] == float('-inf'), 0.0, tl.exp(qk - m_new[:, None]))
             
             # Load V tile: [BLOCK_S, BLOCK_D]
-            v_ptrs = V_ptr + pid_bh * stride_vh + k_offsets[:, None] * stride_vs + d_offsets[None, :] * stride_vd
+            v_ptrs = V_ptr + pid_bh * stride_vh + safe_k[:, None] * stride_vs + safe_d[None, :] * stride_vd
             v_tile = tl.load(v_ptrs, mask=(k_mask[:, None] & d_mask[None, :]), other=0.0)
 
             # Update output accumulator: Out = Out * alpha + Softmax(QK) * V
@@ -124,7 +127,7 @@ if _HAS_TRITON:
         out_acc = out_acc / l_i[:, None]
 
         # Store output: [BLOCK_S, BLOCK_D]
-        out_ptrs = Out_ptr + pid_bh * stride_oh + q_offsets[:, None] * stride_os + d_offsets[None, :] * stride_od
+        out_ptrs = Out_ptr + pid_bh * stride_oh + safe_q[:, None] * stride_os + safe_d[None, :] * stride_od
         tl.store(out_ptrs, out_acc.to(Out_ptr.dtype.element_ty), mask=(q_mask[:, None] & d_mask[None, :]))
 
 

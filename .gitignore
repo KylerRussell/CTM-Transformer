@@ -2,3 +2,5 @@ ctm_transformer/__pycache__
 venv
 .venv
 .env
+*.pt
+checkpoints*/

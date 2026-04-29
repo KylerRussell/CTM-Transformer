@@ -33,6 +33,10 @@ class TemporalMemory(nn.Module):
         self.d_latent = d_latent
         self.history_len = history_len
 
+        # Learnable initial states for history buffers
+        self.pre_history_init = nn.Parameter(torch.zeros(1, self.history_len, self.d_latent))
+        self.post_history_init = nn.Parameter(torch.zeros(1, self.history_len, self.d_latent))
+
         # Buffers are registered as non-persistent state (not saved with model params)
         # They are initialized lazily on first push() to match batch size and device.
         self.register_buffer("pre_history", None, persistent=False)
@@ -40,21 +44,19 @@ class TemporalMemory(nn.Module):
 
     def reset(self, batch_size: int, device: torch.device, dtype: torch.dtype = torch.float32):
         """
-        Initialize or clear both history buffers to zeros.
+        Initialize both history buffers using the learnable initial states.
 
         Args:
             batch_size: Current batch size.
             device: Target device.
             dtype: Data type for buffers.
         """
-        self.pre_history = torch.zeros(
-            batch_size, self.history_len, self.d_latent,
-            device=device, dtype=dtype
-        )
-        self.post_history = torch.zeros(
-            batch_size, self.history_len, self.d_latent,
-            device=device, dtype=dtype
-        )
+        self.pre_history = self.pre_history_init.to(device=device, dtype=dtype).expand(
+            batch_size, -1, -1
+        ).clone()
+        self.post_history = self.post_history_init.to(device=device, dtype=dtype).expand(
+            batch_size, -1, -1
+        ).clone()
 
     def push_pre(self, pre_activations: torch.Tensor):
         """
@@ -108,12 +110,14 @@ class SynchronizationComputer(nn.Module):
     - "full": Full S_t flattened → [d_latent^2] (expensive, most expressive)
     - "diag_summary": diag(S_t) + row_means + col_means → [3 * d_latent] (practical)
     - "low_rank": Top-k SVD approximation → [rank * d_latent] (balanced)
+    - "sparse_decay": Sparse pairing with learnable exponential decay → [sync_sparse_pairs]
 
     Args:
         d_latent: Neuron count.
         history_len: FIFO buffer depth.
         method: Synchronization computation method.
         rank: Rank for low_rank method.
+        sync_sparse_pairs: Number of sparse pairs for sparse_decay method.
     """
 
     def __init__(
@@ -122,12 +126,23 @@ class SynchronizationComputer(nn.Module):
         history_len: int,
         method: str = "diag_summary",
         rank: int = 32,
+        sync_sparse_pairs: int = 256,
     ):
         super().__init__()
         self.d_latent = d_latent
         self.history_len = history_len
         self.method = method
         self.rank = rank
+        self.sync_sparse_pairs = sync_sparse_pairs
+
+        if method == "sparse_decay":
+            # Pre-choose D_chosen neuron pairs from D total neurons
+            idxs_left = torch.randint(low=0, high=d_latent, size=(sync_sparse_pairs,))
+            idxs_right = torch.randint(low=0, high=d_latent, size=(sync_sparse_pairs,))
+            self.register_buffer("idxs_left", idxs_left)
+            self.register_buffer("idxs_right", idxs_right)
+            # Define learnable exponential decay scaling factors per neuron pair
+            self.r = nn.Parameter(torch.zeros(1, sync_sparse_pairs, 1))
 
     def compute(self, post_history: torch.Tensor) -> torch.Tensor:
         """
@@ -174,6 +189,28 @@ class SynchronizationComputer(nn.Module):
 
             return torch.cat([diag, row_means, col_means], dim=1)       # [B, 3D]
 
+        # ── Fast path for sparse_decay ──────────────────────────────────
+        if self.method == "sparse_decay":
+            S_post = post_history # [B, T=H, D]
+            # decay BACK in time
+            t_back = torch.arange(H - 1, -1, -1, device=post_history.device, dtype=post_history.dtype)
+            t_back = t_back.view(1, H, 1) # [1, H, 1]
+            
+            # Compute per NEURON PAIR exponential decays
+            # self.r is [1, D_chosen, 1]
+            # r permuted to [1, 1, D_chosen] to match t_back broadcast [1, H, 1] -> [1, H, D_chosen]
+            exp_decay = torch.exp(-t_back * self.r.view(1, 1, -1)) # [1, H, D_chosen]
+            
+            # Subsampled S
+            # S[:,:,idxs_left] * exp_decay * S[:,:,idxs_right]
+            S_left = S_post[:, :, self.idxs_left] # [B, H, D_chosen]
+            S_right = S_post[:, :, self.idxs_right] # [B, H, D_chosen]
+            S_multiplied = S_left * exp_decay * S_right # [B, H, D_chosen]
+            
+            # Sum over the free T (H) dimension and normalise by sqrt of AUC of decays
+            synch_representation = S_multiplied.sum(dim=1) / torch.sqrt(exp_decay.sum(dim=1)) # [B, D_chosen]
+            return synch_representation
+
         # ── Full-matrix path (required for "full" and "low_rank") ───────
         # S_t = Z_tᵀ @ Z_t → [batch, d_latent, d_latent]
         # Note: We compute Zᵀ @ Z (not Z @ Zᵀ) to get neuron-neuron coupling
@@ -205,5 +242,7 @@ class SynchronizationComputer(nn.Module):
             return 3 * self.d_latent
         elif self.method == "low_rank":
             return min(self.rank, self.d_latent) * self.d_latent
+        elif self.method == "sparse_decay":
+            return self.sync_sparse_pairs
         else:
             raise ValueError(f"Unknown sync method: {self.method}")

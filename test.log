@@ -1,0 +1,234 @@
+nohup: ignoring input
+Device: cuda
+Tokenizer: gpt2 (vocab_size=50,257)
+Dataset: HuggingFaceFW/fineweb-edu (sample-10BT)
+  Streaming mode — data loaded on the fly from HuggingFace Hub
+Model: 262,002,074 parameters (262.0M)
+Config: d_model=768, d_latent=768, n_layers=24, n_heads=12, thought_steps=8, history_len=8, nlm_hidden=64, nlm_groups=1
+Temporal loss: ramp[0.5→1.5], mono_penalty 0.5 → 0.050 over first 3,000,000 steps (30% of training)
+Thought-step curriculum: disabled (T=8 fixed, checkpointed)
+Optimizer: adamw → AdamW8bit (bnb) (1 param group(s))
+  [general] 262.0M params, lr_mult=1.0
+
+======================================================================
+Starting training for 10,000,000 steps
+Target: ~5.1B tokens from FineWeb-Edu
+======================================================================
+
+Step      0 | loss 11.7500 | lr 0.00e+00 | grad 2.98 | 0.0k tok/s | cert 0.01→0.01 | ticks [11.000 11.000 11.062 11.000 10.938 11.000 11.000 10.938] | Δticks -0.062 | 0M tok | ETA 59766.2h
+Step     10 | loss 11.6813 | lr 1.50e-06 | grad 2.92 | 0.6k tok/s | cert 0.01→0.01 | ticks [11.000 11.000 10.938 11.000 10.938 11.000 10.938 10.938] | Δticks -0.062 | 0M tok | ETA 8529.1h
+Step     20 | loss 11.6937 | lr 3.00e-06 | grad 2.81 | 0.6k tok/s | cert 0.01→0.01 | ticks [11.000 10.938 11.000 11.000 10.938 10.938 11.000 10.938] | Δticks -0.062 | 0M tok | ETA 5545.4h
+Step     30 | loss 11.6875 | lr 4.50e-06 | grad 3.05 | 0.5k tok/s | cert 0.01→0.01 | ticks [11.000 11.000 11.000 11.062 10.875 11.000 11.000 10.938] | Δticks -0.062 | 0M tok | ETA 4555.8h
+Step     40 | loss 11.6438 | lr 6.00e-06 | grad 2.98 | 0.5k tok/s | cert 0.01→0.01 | ticks [11.000 11.000 11.000 11.000 10.875 10.938 11.000 10.938] | Δticks -0.062 | 0M tok | ETA 4062.0h
+Step     50 | loss 11.6250 | lr 7.50e-06 | grad 2.88 | 0.6k tok/s | cert 0.01→0.01 | ticks [11.000 10.938 10.938 11.000 10.875 11.062 11.000 10.938] | Δticks -0.062 | 0M tok | ETA 3766.0h
+Step     60 | loss 11.6312 | lr 9.00e-06 | grad 2.84 | 0.6k tok/s | cert 0.01→0.01 | ticks [11.000 10.938 11.000 11.000 10.938 11.000 11.000 10.938] | Δticks -0.062 | 0M tok | ETA 3570.2h
+Step     70 | loss 11.6188 | lr 1.05e-05 | grad 2.97 | 0.5k tok/s | cert 0.01→0.01 | ticks [11.000 11.000 11.000 10.938 10.938 10.938 11.000 10.875] | Δticks -0.125 | 0M tok | ETA 3433.0h
+Step     80 | loss 11.5687 | lr 1.20e-05 | grad 3.23 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.938 10.875 10.938 11.000 10.938 11.000 10.938 11.000] | Δticks +0.062 | 0M tok | ETA 3333.4h
+Step     90 | loss 11.5125 | lr 1.35e-05 | grad 3.14 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.938 10.938 10.938 11.000 10.875 11.000 10.875 10.875] | Δticks -0.062 | 0M tok | ETA 3257.1h
+Step    100 | loss 11.4437 | lr 1.50e-05 | grad 3.20 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.938 10.938 10.938 10.938 10.875 11.000 10.875 10.938] | Δticks +0.000 | 0M tok | ETA 3197.1h
+Step    110 | loss 11.3812 | lr 1.65e-05 | grad 3.22 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.938 10.938 10.875 10.938 10.812 10.938 10.875 10.875] | Δticks -0.062 | 0M tok | ETA 3149.9h
+Step    120 | loss 11.3063 | lr 1.80e-05 | grad 3.55 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.938 10.938 10.875 10.938 10.688 10.938 10.812 10.875] | Δticks -0.062 | 0M tok | ETA 3110.1h
+Step    130 | loss 11.2250 | lr 1.95e-05 | grad 3.34 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.938 10.938 10.875 10.938 10.688 10.938 10.875 10.875] | Δticks -0.062 | 0M tok | ETA 3076.2h
+Step    140 | loss 11.1125 | lr 2.10e-05 | grad 3.28 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.875 11.000 10.812 10.812 10.688 10.812 10.750 10.750] | Δticks -0.125 | 0M tok | ETA 3047.3h
+Step    150 | loss 11.0250 | lr 2.25e-05 | grad 3.00 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.875 10.938 10.812 10.875 10.625 10.812 10.812 10.750] | Δticks -0.125 | 0M tok | ETA 3022.5h
+Step    160 | loss 10.9437 | lr 2.40e-05 | grad 2.62 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.875 10.938 10.938 10.875 10.562 10.750 10.875 10.812] | Δticks -0.062 | 0M tok | ETA 3001.1h
+Step    170 | loss 10.8000 | lr 2.55e-05 | grad 3.36 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.938 10.812 10.938 10.625 10.625 10.938 10.750] | Δticks -0.062 | 0M tok | ETA 2982.7h
+Step    180 | loss 10.6813 | lr 2.70e-05 | grad 2.95 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.938 10.812 10.688 10.500 10.688 10.812 10.750] | Δticks -0.062 | 0M tok | ETA 2966.8h
+Step    190 | loss 10.5000 | lr 2.85e-05 | grad 3.20 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.938 10.938 10.812 10.438 10.438 10.812 10.938] | Δticks +0.125 | 0M tok | ETA 2952.3h
+Step    200 | loss 10.3500 | lr 3.00e-05 | grad 2.98 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.875 10.812 10.875 10.312 10.438 10.812 10.750] | Δticks -0.062 | 0M tok | ETA 2939.9h
+Step    210 | loss 10.1750 | lr 3.15e-05 | grad 2.58 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.750 10.938 10.875 10.688 10.062 10.312 10.750 10.688] | Δticks -0.062 | 0M tok | ETA 2928.2h
+Step    220 | loss 10.1438 | lr 3.30e-05 | grad 2.55 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.938 10.812 10.625 10.188 10.375 10.875 10.812] | Δticks +0.000 | 0M tok | ETA 2917.9h
+Step    230 | loss 10.0563 | lr 3.45e-05 | grad 2.44 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.938 10.750 10.500 9.938 10.438 10.812 10.688] | Δticks -0.125 | 0M tok | ETA 2908.8h
+Step    240 | loss 10.1000 | lr 3.60e-05 | grad 3.98 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.875 10.875 10.438 9.688 10.188 10.812 10.875] | Δticks +0.062 | 0M tok | ETA 2901.2h
+Step    250 | loss 9.9000 | lr 3.75e-05 | grad 2.47 | 0.5k tok/s | cert 0.01→0.01 | ticks [10.812 10.875 10.812 10.312 9.938 10.062 10.812 10.812] | Δticks +0.000 | 0M tok | ETA 2898.6h
+Step    260 | loss 9.6312 | lr 3.90e-05 | grad 2.80 | 0.5k tok/s | cert 0.01→0.02 | ticks [10.688 10.812 10.625 10.312 9.562 9.625 10.625 10.562] | Δticks -0.125 | 0M tok | ETA 2895.5h
+Step    270 | loss 9.5125 | lr 4.05e-05 | grad 3.02 | 0.5k tok/s | cert 0.01→0.02 | ticks [10.688 10.875 10.750 10.125 9.500 9.500 10.500 10.500] | Δticks -0.188 | 0M tok | ETA 2892.8h
+Step    280 | loss 9.2937 | lr 4.20e-05 | grad 2.64 | 0.5k tok/s | cert 0.01→0.02 | ticks [10.750 10.812 10.625 10.312 9.625 9.500 10.750 10.625] | Δticks -0.125 | 0M tok | ETA 2890.0h
+Step    290 | loss 9.2188 | lr 4.35e-05 | grad 2.72 | 0.5k tok/s | cert 0.01→0.03 | ticks [10.625 10.875 10.500 9.938 9.000 9.312 10.438 10.375] | Δticks -0.250 | 0M tok | ETA 2887.2h
+Step    300 | loss 9.1687 | lr 4.50e-05 | grad 2.64 | 0.5k tok/s | cert 0.01→0.04 | ticks [10.688 10.812 10.500 10.000 9.125 9.375 10.375 10.438] | Δticks -0.250 | 0M tok | ETA 2881.8h
+Step    310 | loss 9.0938 | lr 4.65e-05 | grad 2.09 | 0.5k tok/s | cert 0.01→0.04 | ticks [10.688 10.750 10.562 9.875 9.250 9.375 10.438 10.312] | Δticks -0.375 | 0M tok | ETA 2875.9h
+Step    320 | loss 9.0250 | lr 4.80e-05 | grad 2.05 | 0.5k tok/s | cert 0.01→0.06 | ticks [10.625 10.750 10.500 9.750 9.062 9.188 10.375 10.188] | Δticks -0.438 | 0M tok | ETA 2869.7h
+Step    330 | loss 8.7500 | lr 4.95e-05 | grad 2.39 | 0.5k tok/s | cert 0.01→0.07 | ticks [10.500 10.688 10.375 9.500 8.562 8.938 10.250 10.000] | Δticks -0.500 | 0M tok | ETA 2863.3h
+Step    340 | loss 8.6562 | lr 5.10e-05 | grad 2.09 | 0.5k tok/s | cert 0.01→0.06 | ticks [10.625 10.688 10.312 9.375 8.812 8.938 10.250 9.688] | Δticks -0.938 | 0M tok | ETA 2857.2h
+Step    350 | loss 8.4938 | lr 5.25e-05 | grad 2.36 | 0.5k tok/s | cert 0.01→0.08 | ticks [10.562 10.625 10.375 9.250 8.562 8.812 10.062 9.750] | Δticks -0.812 | 0M tok | ETA 2851.7h
+Step    360 | loss 8.2875 | lr 5.40e-05 | grad 1.90 | 0.5k tok/s | cert 0.01→0.09 | ticks [10.375 10.625 10.250 9.062 8.438 8.688 9.875 9.375] | Δticks -1.000 | 0M tok | ETA 2846.6h
+Step    370 | loss 8.3562 | lr 5.55e-05 | grad 1.91 | 0.5k tok/s | cert 0.01→0.09 | ticks [10.500 10.562 10.188 8.938 8.375 8.562 9.812 9.250] | Δticks -1.250 | 0M tok | ETA 2841.9h
+Step    380 | loss 8.2438 | lr 5.70e-05 | grad 1.95 | 0.5k tok/s | cert 0.01→0.10 | ticks [10.562 10.625 10.188 9.062 8.688 8.750 9.875 9.438] | Δticks -1.125 | 0M tok | ETA 2837.1h
+Step    390 | loss 8.0875 | lr 5.85e-05 | grad 2.02 | 0.5k tok/s | cert 0.01→0.10 | ticks [10.500 10.562 10.188 8.938 8.438 8.625 9.688 9.125] | Δticks -1.375 | 0M tok | ETA 2832.8h
+Step    400 | loss 8.0813 | lr 6.00e-05 | grad 2.11 | 0.5k tok/s | cert 0.01→0.14 | ticks [10.375 10.562 9.938 8.688 8.062 8.250 9.438 9.000] | Δticks -1.375 | 0M tok | ETA 2828.6h
+Step    410 | loss 7.8344 | lr 6.15e-05 | grad 1.98 | 0.5k tok/s | cert 0.01→0.14 | ticks [10.438 10.500 9.812 8.625 8.125 8.250 9.438 8.938] | Δticks -1.500 | 0M tok | ETA 2824.7h
+Step    420 | loss 7.7687 | lr 6.30e-05 | grad 1.78 | 0.5k tok/s | cert 0.02→0.14 | ticks [10.250 10.500 9.812 8.562 8.062 8.250 9.188 8.812] | Δticks -1.438 | 0M tok | ETA 2821.0h
+Step    430 | loss 7.6125 | lr 6.45e-05 | grad 1.93 | 0.5k tok/s | cert 0.02→0.17 | ticks [10.188 10.438 9.375 8.250 7.594 7.781 9.000 8.438] | Δticks -1.750 | 0M tok | ETA 2817.6h
+Step    440 | loss 7.6906 | lr 6.60e-05 | grad 1.84 | 0.5k tok/s | cert 0.02→0.18 | ticks [10.312 10.312 9.312 8.062 7.562 7.688 8.688 8.188] | Δticks -2.125 | 0M tok | ETA 2814.3h
+Step    450 | loss 7.6719 | lr 6.75e-05 | grad 1.73 | 0.5k tok/s | cert 0.02→0.19 | ticks [10.188 10.375 9.312 8.000 7.562 7.656 8.688 8.250] | Δticks -1.938 | 0M tok | ETA 2811.1h
+Step    460 | loss 7.5563 | lr 6.90e-05 | grad 1.86 | 0.5k tok/s | cert 0.02→0.18 | ticks [10.312 10.438 9.500 8.562 8.312 8.312 9.125 8.750] | Δticks -1.562 | 0M tok | ETA 2808.1h
+Step    470 | loss 7.4688 | lr 7.05e-05 | grad 2.00 | 0.5k tok/s | cert 0.02→0.22 | ticks [10.250 10.375 9.312 8.375 7.969 8.062 8.812 8.500] | Δticks -1.750 | 0M tok | ETA 2805.3h
+Step    480 | loss 7.5375 | lr 7.20e-05 | grad 2.05 | 0.5k tok/s | cert 0.02→0.21 | ticks [10.438 10.438 9.375 8.812 8.438 8.562 9.125 8.875] | Δticks -1.562 | 0M tok | ETA 2802.5h
+Step    490 | loss 7.2969 | lr 7.35e-05 | grad 1.85 | 0.5k tok/s | cert 0.02→0.24 | ticks [10.188 10.438 9.000 8.125 7.781 7.875 8.500 8.062] | Δticks -2.125 | 0M tok | ETA 2799.9h
+Step    500 | loss 7.0844 | lr 7.50e-05 | grad 1.98 | 0.5k tok/s | cert 0.02→0.25 | ticks [10.188 10.250 8.812 7.969 7.469 7.688 8.375 8.125] | Δticks -2.062 | 0M tok | ETA 2797.4h
+Step    510 | loss 7.3250 | lr 7.65e-05 | grad 1.75 | 0.5k tok/s | cert 0.02→0.26 | ticks [10.188 10.375 9.062 8.188 8.000 8.125 8.625 8.250] | Δticks -1.938 | 0M tok | ETA 2794.9h
+Step    520 | loss 7.1469 | lr 7.80e-05 | grad 1.59 | 0.5k tok/s | cert 0.02→0.28 | ticks [10.062 10.312 8.750 7.906 7.625 7.750 8.312 8.000] | Δticks -2.062 | 0M tok | ETA 2792.7h
+Step    530 | loss 6.7500 | lr 7.95e-05 | grad 1.81 | 0.5k tok/s | cert 0.02→0.30 | ticks [10.062 10.312 8.500 7.750 7.406 7.594 8.125 7.781] | Δticks -2.281 | 0M tok | ETA 2790.3h
+Step    540 | loss 6.8219 | lr 8.10e-05 | grad 1.66 | 0.5k tok/s | cert 0.02→0.29 | ticks [10.125 10.312 8.562 8.062 7.812 7.844 8.250 8.125] | Δticks -2.000 | 0M tok | ETA 2788.2h
+Step    550 | loss 6.7062 | lr 8.25e-05 | grad 2.00 | 0.5k tok/s | cert 0.02→0.29 | ticks [10.250 10.438 8.562 8.062 7.781 7.844 8.312 8.062] | Δticks -2.188 | 0M tok | ETA 2786.2h
+Step    560 | loss 6.9062 | lr 8.40e-05 | grad 1.86 | 0.5k tok/s | cert 0.05→0.30 | ticks [10.062 10.438 8.500 7.812 7.594 7.781 8.188 8.000] | Δticks -2.062 | 0M tok | ETA 2784.5h
+Step    570 | loss 6.7969 | lr 8.55e-05 | grad 1.98 | 0.5k tok/s | cert 0.03→0.33 | ticks [10.250 10.375 8.812 8.500 8.250 8.375 8.625 8.500] | Δticks -1.750 | 0M tok | ETA 2783.2h
+Step    580 | loss 6.8187 | lr 8.70e-05 | grad 1.94 | 0.5k tok/s | cert 0.02→0.30 | ticks [10.125 10.375 8.500 8.000 7.812 7.906 8.250 8.062] | Δticks -2.062 | 0M tok | ETA 2782.7h
+Step    590 | loss 7.1281 | lr 8.85e-05 | grad 2.06 | 0.5k tok/s | cert 0.02→0.29 | ticks [10.188 10.375 8.812 8.438 8.062 8.375 8.625 8.438] | Δticks -1.750 | 0M tok | ETA 2782.2h
+Step    600 | loss 7.4188 | lr 9.00e-05 | grad 2.25 | 0.5k tok/s | cert 0.02→0.26 | ticks [10.188 10.500 8.625 8.125 7.875 7.969 8.438 8.188] | Δticks -2.000 | 0M tok | ETA 2781.7h
+Step    610 | loss 7.5750 | lr 9.15e-05 | grad 2.12 | 0.5k tok/s | cert 0.02→0.26 | ticks [10.375 10.625 8.875 8.562 8.250 8.438 8.750 8.562] | Δticks -1.812 | 0M tok | ETA 2781.2h
+Step    620 | loss 7.4750 | lr 9.30e-05 | grad 2.12 | 0.5k tok/s | cert 0.02→0.21 | ticks [10.250 10.688 8.688 8.188 7.719 8.000 8.500 8.250] | Δticks -2.000 | 0M tok | ETA 2780.6h
+Step    630 | loss 7.3875 | lr 9.45e-05 | grad 1.95 | 0.5k tok/s | cert 0.02→0.26 | ticks [10.375 10.625 8.625 8.188 7.844 8.000 8.438 8.188] | Δticks -2.188 | 0M tok | ETA 2780.1h
+Step    640 | loss 7.3406 | lr 9.60e-05 | grad 2.23 | 0.5k tok/s | cert 0.02→0.28 | ticks [10.375 10.625 8.250 7.875 7.688 7.781 8.125 7.906] | Δticks -2.469 | 0M tok | ETA 2779.3h
+Step    650 | loss 7.0469 | lr 9.75e-05 | grad 2.34 | 0.5k tok/s | cert 0.03→0.30 | ticks [10.125 10.750 8.500 8.125 7.906 8.000 8.250 8.250] | Δticks -1.875 | 0M tok | ETA 2778.6h
+Step    660 | loss 6.8969 | lr 9.90e-05 | grad 2.09 | 0.5k tok/s | cert 0.04→0.28 | ticks [10.062 10.688 8.312 7.906 7.562 7.625 8.062 8.062] | Δticks -2.000 | 0M tok | ETA 2777.3h
+Step    670 | loss 7.1000 | lr 1.00e-04 | grad 2.00 | 0.5k tok/s | cert 0.03→0.31 | ticks [10.062 10.562 8.062 7.469 7.156 7.344 7.812 7.500] | Δticks -2.562 | 0M tok | ETA 2776.0h
+Step    680 | loss 7.0969 | lr 1.02e-04 | grad 1.78 | 0.5k tok/s | cert 0.03→0.36 | ticks [10.188 10.500 8.438 7.969 7.781 7.938 8.062 8.062] | Δticks -2.125 | 0M tok | ETA 2774.7h
+Step    690 | loss 6.9406 | lr 1.03e-04 | grad 1.73 | 0.5k tok/s | cert 0.03→0.35 | ticks [10.125 10.500 8.125 7.781 7.594 7.719 7.969 7.906] | Δticks -2.219 | 0M tok | ETA 2773.5h
+Step    700 | loss 7.1063 | lr 1.05e-04 | grad 2.75 | 0.5k tok/s | cert 0.04→0.33 | ticks [10.438 10.562 8.625 8.250 8.188 8.062 8.500 8.438] | Δticks -2.000 | 0M tok | ETA 2772.3h
+Step    710 | loss 7.0219 | lr 1.07e-04 | grad 1.83 | 0.5k tok/s | cert 0.03→0.31 | ticks [10.438 10.500 8.688 8.625 8.312 8.438 8.688 8.625] | Δticks -1.812 | 0M tok | ETA 2771.1h
+Step    720 | loss 6.9156 | lr 1.08e-04 | grad 1.86 | 0.5k tok/s | cert 0.03→0.33 | ticks [10.500 10.312 8.375 8.062 7.844 8.000 8.250 8.188] | Δticks -2.312 | 0M tok | ETA 2770.0h
+Step    730 | loss 7.0031 | lr 1.09e-04 | grad 1.98 | 0.5k tok/s | cert 0.02→0.30 | ticks [10.625 10.188 8.188 7.812 7.531 7.656 8.000 7.875] | Δticks -2.750 | 0M tok | ETA 2768.9h
+Step    740 | loss 6.8344 | lr 1.11e-04 | grad 1.67 | 0.5k tok/s | cert 0.02→0.30 | ticks [10.688 10.188 8.688 8.438 8.188 8.375 8.562 8.375] | Δticks -2.312 | 0M tok | ETA 2767.8h
+Step    750 | loss 6.7062 | lr 1.12e-04 | grad 1.85 | 0.5k tok/s | cert 0.02→0.33 | ticks [10.625 10.250 8.188 7.781 7.594 7.688 8.062 7.938] | Δticks -2.688 | 0M tok | ETA 2766.8h
+Step    760 | loss 6.7562 | lr 1.14e-04 | grad 1.70 | 0.5k tok/s | cert 0.03→0.33 | ticks [10.625 10.188 7.969 7.594 7.281 7.469 7.844 7.562] | Δticks -3.062 | 0M tok | ETA 2765.7h
+Step    770 | loss 7.0094 | lr 1.15e-04 | grad 1.78 | 0.5k tok/s | cert 0.02→0.32 | ticks [10.812 10.250 8.188 7.719 7.469 7.594 7.969 7.875] | Δticks -2.938 | 0M tok | ETA 2764.6h
+Step    780 | loss 6.8063 | lr 1.17e-04 | grad 1.84 | 0.5k tok/s | cert 0.02→0.35 | ticks [10.812 10.250 8.000 7.562 7.281 7.500 7.875 7.719] | Δticks -3.094 | 0M tok | ETA 2763.5h
+Step    790 | loss 6.7656 | lr 1.18e-04 | grad 1.73 | 0.5k tok/s | cert 0.02→0.38 | ticks [11.062 10.000 7.844 7.500 7.188 7.469 7.750 7.625] | Δticks -3.438 | 0M tok | ETA 2762.4h
+Step    800 | loss 7.0375 | lr 1.20e-04 | grad 2.34 | 0.5k tok/s | cert 0.03→0.27 | ticks [11.188 10.000 8.750 8.688 8.250 8.375 8.750 8.750] | Δticks -2.438 | 0M tok | ETA 2761.4h
+Step    810 | loss 7.5719 | lr 1.21e-04 | grad 2.52 | 0.5k tok/s | cert 0.02→0.29 | ticks [11.188 10.562 9.938 9.812 9.750 9.688 10.000 9.875] | Δticks -1.312 | 0M tok | ETA 2760.3h
+Step    820 | loss 7.4188 | lr 1.23e-04 | grad 1.67 | 0.5k tok/s | cert 0.03→0.30 | ticks [11.812 9.875 8.125 7.750 7.375 7.656 7.875 7.781] | Δticks -4.031 | 0M tok | ETA 2759.4h
+Step    830 | loss 6.6000 | lr 1.24e-04 | grad 2.02 | 0.5k tok/s | cert 0.05→0.37 | ticks [11.938 9.688 7.531 7.094 6.781 7.031 7.438 7.156] | Δticks -4.781 | 0M tok | ETA 2758.4h
+Step    840 | loss 6.8469 | lr 1.26e-04 | grad 1.73 | 0.5k tok/s | cert 0.03→0.34 | ticks [11.875 9.875 8.375 8.000 7.781 7.969 8.250 8.125] | Δticks -3.750 | 0M tok | ETA 2757.5h
+Step    850 | loss 6.7469 | lr 1.28e-04 | grad 1.64 | 0.5k tok/s | cert 0.02→0.37 | ticks [12.062 9.625 8.062 7.656 7.438 7.688 7.875 7.812] | Δticks -4.250 | 0M tok | ETA 2756.6h
+Step    860 | loss 7.0438 | lr 1.29e-04 | grad 1.75 | 0.5k tok/s | cert 0.03→0.31 | ticks [12.062 9.875 8.500 7.938 7.781 8.000 8.250 8.188] | Δticks -3.875 | 0M tok | ETA 2755.6h
+Step    870 | loss 6.9562 | lr 1.30e-04 | grad 1.80 | 0.5k tok/s | cert 0.02→0.31 | ticks [12.250 9.875 8.812 8.375 8.188 8.312 8.688 8.500] | Δticks -3.750 | 0M tok | ETA 2754.7h
+Step    880 | loss 6.7188 | lr 1.32e-04 | grad 1.97 | 0.5k tok/s | cert 0.02→0.38 | ticks [12.500 9.875 8.688 8.250 8.062 8.250 8.562 8.562] | Δticks -3.938 | 0M tok | ETA 2753.9h
+Step    890 | loss 6.6750 | lr 1.33e-04 | grad 1.64 | 0.5k tok/s | cert 0.03→0.35 | ticks [12.688 9.500 7.656 7.375 7.031 7.250 7.531 7.562] | Δticks -5.125 | 0M tok | ETA 2753.0h
+Step    900 | loss 6.7719 | lr 1.35e-04 | grad 1.60 | 0.5k tok/s | cert 0.03→0.34 | ticks [12.562 9.562 8.250 7.875 7.594 7.812 7.969 7.938] | Δticks -4.625 | 0M tok | ETA 2752.2h
+Step    910 | loss 6.7750 | lr 1.36e-04 | grad 1.83 | 0.5k tok/s | cert 0.02→0.31 | ticks [12.750 9.562 8.375 7.906 7.562 7.844 8.062 7.938] | Δticks -4.812 | 0M tok | ETA 2751.4h
+Step    920 | loss 7.0531 | lr 1.38e-04 | grad 1.77 | 0.5k tok/s | cert 0.02→0.29 | ticks [12.250 9.938 8.938 8.625 8.375 8.562 8.875 8.750] | Δticks -3.500 | 0M tok | ETA 2750.6h
+Step    930 | loss 7.3312 | lr 1.39e-04 | grad 2.22 | 0.5k tok/s | cert 0.02→0.31 | ticks [12.438 9.938 9.125 8.875 8.688 8.812 9.188 9.000] | Δticks -3.438 | 0M tok | ETA 2749.9h
+Step    940 | loss 7.2875 | lr 1.41e-04 | grad 2.19 | 0.5k tok/s | cert 0.02→0.23 | ticks [12.688 10.000 8.875 8.625 8.188 8.438 8.750 8.625] | Δticks -4.062 | 0M tok | ETA 2749.1h
+Step    950 | loss 7.2219 | lr 1.42e-04 | grad 1.82 | 0.5k tok/s | cert 0.03→0.27 | ticks [12.938 9.812 8.750 8.312 8.000 8.188 8.500 8.438] | Δticks -4.500 | 0M tok | ETA 2748.4h
+Step    960 | loss 7.0563 | lr 1.44e-04 | grad 1.63 | 0.5k tok/s | cert 0.04→0.34 | ticks [13.188 9.438 7.875 7.531 7.281 7.500 7.625 7.719] | Δticks -5.469 | 0M tok | ETA 2747.7h
+Step    970 | loss 7.0312 | lr 1.45e-04 | grad 1.80 | 0.5k tok/s | cert 0.03→0.37 | ticks [13.250 9.375 7.844 7.625 7.312 7.469 7.594 7.656] | Δticks -5.594 | 0M tok | ETA 2747.1h
+Step    980 | loss 7.0469 | lr 1.47e-04 | grad 1.77 | 0.5k tok/s | cert 0.03→0.33 | ticks [13.438 9.562 7.781 7.562 7.312 7.438 7.719 7.531] | Δticks -5.906 | 1M tok | ETA 2746.4h
+Step    990 | loss 6.8688 | lr 1.49e-04 | grad 1.75 | 0.5k tok/s | cert 0.03→0.38 | ticks [13.312 9.875 8.562 8.250 8.000 8.125 8.250 8.250] | Δticks -5.062 | 1M tok | ETA 2745.9h
+Step   1000 | loss 6.5219 | lr 1.50e-04 | grad 1.78 | 0.5k tok/s | cert 0.03→0.35 | ticks [13.562 9.375 8.000 7.531 7.344 7.562 7.781 7.688] | Δticks -5.875 | 1M tok | ETA 2745.3h
+
+  >>> Eval loss: 6.8431 (best: inf)
+  >>> Saved best checkpoint at step 1000
+  >>> Sample: 'The most important thing to understand about science is' → ' and for when the first with to look to work to are also to in the time to, it to work to work for in to work to also has to to for the form to and it to work with to in for, and for'
+
+Step   1010 | loss 6.9437 | lr 1.51e-04 | grad 1.81 | 0.5k tok/s | cert 0.04→0.35 | ticks [12.625 9.875 8.688 8.250 8.062 8.125 8.500 8.375] | Δticks -4.250 | 1M tok | ETA 2849.6h
+Step   1020 | loss 6.6156 | lr 1.53e-04 | grad 1.79 | 0.5k tok/s | cert 0.03→0.37 | ticks [13.312 9.625 8.312 7.969 7.688 7.844 8.000 7.969] | Δticks -5.344 | 1M tok | ETA 2847.8h
+Step   1030 | loss 6.7969 | lr 1.54e-04 | grad 1.63 | 0.5k tok/s | cert 0.03→0.36 | ticks [13.312 9.688 8.312 7.906 7.562 7.812 7.906 7.938] | Δticks -5.375 | 1M tok | ETA 2846.2h
+Step   1040 | loss 7.0406 | lr 1.56e-04 | grad 1.89 | 0.5k tok/s | cert 0.03→0.33 | ticks [13.062 9.750 8.500 8.125 7.906 8.000 8.188 8.188] | Δticks -4.875 | 1M tok | ETA 2844.6h
+Step   1050 | loss 6.8250 | lr 1.57e-04 | grad 1.69 | 0.5k tok/s | cert 0.02→0.35 | ticks [13.938 9.750 8.188 7.469 7.156 7.406 7.656 7.562] | Δticks -6.375 | 1M tok | ETA 2843.1h
+Step   1060 | loss 6.6344 | lr 1.59e-04 | grad 2.25 | 0.5k tok/s | cert 0.03→0.38 | ticks [14.125 9.938 8.000 7.281 6.906 7.094 7.438 7.344] | Δticks -6.781 | 1M tok | ETA 2841.6h
+Step   1070 | loss 6.4437 | lr 1.60e-04 | grad 1.62 | 0.5k tok/s | cert 0.04→0.38 | ticks [13.562 9.812 8.250 7.688 7.406 7.562 7.750 7.781] | Δticks -5.781 | 1M tok | ETA 2840.3h
+Step   1080 | loss 6.6531 | lr 1.62e-04 | grad 1.61 | 0.5k tok/s | cert 0.03→0.36 | ticks [13.688 9.875 8.250 7.750 7.469 7.656 7.781 7.781] | Δticks -5.906 | 1M tok | ETA 2839.1h
+Step   1090 | loss 6.5125 | lr 1.63e-04 | grad 1.96 | 0.5k tok/s | cert 0.03→0.37 | ticks [14.188 9.500 7.594 7.156 6.906 6.875 7.250 7.062] | Δticks -7.125 | 1M tok | ETA 2839.5h
+Step   1100 | loss 6.6437 | lr 1.65e-04 | grad 1.94 | 0.5k tok/s | cert 0.03→0.37 | ticks [13.750 9.938 8.375 8.125 7.719 8.000 8.000 8.062] | Δticks -5.688 | 1M tok | ETA 2840.0h
+Step   1110 | loss 6.7281 | lr 1.66e-04 | grad 1.80 | 0.5k tok/s | cert 0.03→0.32 | ticks [13.438 9.938 8.562 7.969 7.750 7.906 8.062 8.062] | Δticks -5.375 | 1M tok | ETA 2840.4h
+Step   1120 | loss 6.9031 | lr 1.68e-04 | grad 2.11 | 0.5k tok/s | cert 0.03→0.24 | ticks [13.562 10.000 8.312 7.906 7.562 7.688 7.844 7.938] | Δticks -5.625 | 1M tok | ETA 2840.6h
+Step   1130 | loss 6.6750 | lr 1.69e-04 | grad 2.06 | 0.5k tok/s | cert 0.03→0.27 | ticks [13.750 9.812 8.250 7.906 7.688 7.750 7.875 7.938] | Δticks -5.812 | 1M tok | ETA 2840.1h
+Step   1140 | loss 6.7062 | lr 1.71e-04 | grad 1.77 | 0.5k tok/s | cert 0.04→0.35 | ticks [13.438 9.688 8.125 7.594 7.500 7.500 7.688 7.688] | Δticks -5.750 | 1M tok | ETA 2839.1h
+Step   1150 | loss 6.4938 | lr 1.72e-04 | grad 1.70 | 0.5k tok/s | cert 0.03→0.36 | ticks [13.375 10.062 8.375 7.875 7.594 7.812 7.906 7.906] | Δticks -5.469 | 1M tok | ETA 2837.8h
+Step   1160 | loss 6.9219 | lr 1.74e-04 | grad 1.68 | 0.5k tok/s | cert 0.05→0.39 | ticks [13.750 9.625 7.406 7.125 7.000 7.094 7.219 7.281] | Δticks -6.469 | 1M tok | ETA 2836.4h
+Step   1170 | loss 6.3844 | lr 1.75e-04 | grad 1.81 | 0.5k tok/s | cert 0.04→0.35 | ticks [13.250 9.875 8.375 7.906 7.688 7.875 8.000 7.906] | Δticks -5.344 | 1M tok | ETA 2835.1h
+Step   1180 | loss 6.5094 | lr 1.77e-04 | grad 1.68 | 0.5k tok/s | cert 0.03→0.36 | ticks [13.750 9.812 7.750 7.438 7.125 7.250 7.281 7.438] | Δticks -6.312 | 1M tok | ETA 2833.7h
+Step   1190 | loss 6.1813 | lr 1.79e-04 | grad 1.70 | 0.5k tok/s | cert 0.03→0.38 | ticks [13.688 10.125 8.312 7.844 7.531 7.656 7.812 7.812] | Δticks -5.875 | 1M tok | ETA 2832.4h
+Step   1200 | loss 6.4844 | lr 1.80e-04 | grad 1.91 | 0.5k tok/s | cert 0.04→0.30 | ticks [13.188 10.062 8.688 8.188 7.906 8.125 8.250 8.188] | Δticks -5.000 | 1M tok | ETA 2831.1h
+Step   1210 | loss 6.5750 | lr 1.81e-04 | grad 1.83 | 0.5k tok/s | cert 0.03→0.30 | ticks [13.562 10.062 8.250 7.906 7.625 7.750 8.000 8.000] | Δticks -5.562 | 1M tok | ETA 2829.9h
+Step   1220 | loss 6.5156 | lr 1.83e-04 | grad 1.81 | 0.5k tok/s | cert 0.04→0.36 | ticks [13.375 9.750 8.000 7.625 7.438 7.562 7.750 7.656] | Δticks -5.719 | 1M tok | ETA 2828.7h
+Step   1230 | loss 6.5812 | lr 1.84e-04 | grad 1.68 | 0.5k tok/s | cert 0.03→0.33 | ticks [13.812 9.812 8.125 7.688 7.375 7.562 7.750 7.688] | Δticks -6.125 | 1M tok | ETA 2827.5h
+Step   1240 | loss 6.6375 | lr 1.86e-04 | grad 1.80 | 0.5k tok/s | cert 0.05→0.38 | ticks [13.688 10.000 8.312 7.844 7.750 7.906 8.125 8.000] | Δticks -5.688 | 1M tok | ETA 2826.3h
+Step   1250 | loss 6.9688 | lr 1.87e-04 | grad 1.84 | 0.5k tok/s | cert 0.03→0.35 | ticks [13.625 9.938 8.688 8.250 8.188 8.312 8.375 8.312] | Δticks -5.312 | 1M tok | ETA 2825.1h
+Step   1260 | loss 7.0031 | lr 1.89e-04 | grad 1.68 | 0.5k tok/s | cert 0.03→0.37 | ticks [14.188 9.875 7.938 7.531 7.312 7.406 7.531 7.531] | Δticks -6.656 | 1M tok | ETA 2824.0h
+Step   1270 | loss 6.6750 | lr 1.90e-04 | grad 1.88 | 0.5k tok/s | cert 0.03→0.34 | ticks [13.812 10.188 8.438 8.062 7.875 8.062 8.000 8.125] | Δticks -5.688 | 1M tok | ETA 2822.9h
+Step   1280 | loss 6.7562 | lr 1.92e-04 | grad 1.81 | 0.5k tok/s | cert 0.03→0.39 | ticks [14.188 9.875 7.875 7.500 7.281 7.406 7.594 7.531] | Δticks -6.656 | 1M tok | ETA 2821.8h
+Step   1290 | loss 6.6188 | lr 1.93e-04 | grad 1.64 | 0.5k tok/s | cert 0.03→0.39 | ticks [14.312 10.188 7.906 7.281 6.969 7.219 7.281 7.344] | Δticks -6.969 | 1M tok | ETA 2820.7h
+Step   1300 | loss 6.5219 | lr 1.95e-04 | grad 1.98 | 0.5k tok/s | cert 0.04→0.38 | ticks [14.000 10.188 7.688 7.344 6.938 7.156 7.281 7.375] | Δticks -6.625 | 1M tok | ETA 2819.7h
+Step   1310 | loss 6.7719 | lr 1.96e-04 | grad 1.73 | 0.5k tok/s | cert 0.04→0.36 | ticks [13.875 10.375 8.375 8.062 7.750 7.844 8.000 7.969] | Δticks -5.906 | 1M tok | ETA 2818.6h
+Step   1320 | loss 6.8875 | lr 1.98e-04 | grad 1.88 | 0.5k tok/s | cert 0.04→0.38 | ticks [13.312 10.125 8.438 8.125 7.812 8.000 8.125 8.125] | Δticks -5.188 | 1M tok | ETA 2817.6h
+Step   1330 | loss 6.7625 | lr 1.99e-04 | grad 1.79 | 0.5k tok/s | cert 0.04→0.38 | ticks [13.438 10.000 7.938 7.594 7.281 7.500 7.562 7.625] | Δticks -5.812 | 1M tok | ETA 2816.6h
+Step   1340 | loss 6.4219 | lr 2.01e-04 | grad 1.86 | 0.5k tok/s | cert 0.04→0.32 | ticks [13.750 10.062 7.906 7.500 7.250 7.406 7.625 7.500] | Δticks -6.250 | 1M tok | ETA 2815.7h
+Step   1350 | loss 6.8250 | lr 2.02e-04 | grad 1.82 | 0.5k tok/s | cert 0.03→0.34 | ticks [13.562 9.938 8.125 7.688 7.531 7.656 7.750 7.719] | Δticks -5.844 | 1M tok | ETA 2814.7h
+Step   1360 | loss 6.4156 | lr 2.04e-04 | grad 1.91 | 0.5k tok/s | cert 0.03→0.36 | ticks [14.125 10.125 7.844 7.344 7.062 7.094 7.375 7.344] | Δticks -6.781 | 1M tok | ETA 2813.7h
+Step   1370 | loss 6.6500 | lr 2.05e-04 | grad 1.73 | 0.5k tok/s | cert 0.04→0.36 | ticks [13.812 9.688 7.594 7.219 7.000 7.094 7.375 7.375] | Δticks -6.438 | 1M tok | ETA 2812.9h
+Step   1380 | loss 6.9156 | lr 2.07e-04 | grad 2.09 | 0.5k tok/s | cert 0.04→0.37 | ticks [13.000 9.938 8.312 7.781 7.688 7.875 7.781 8.062] | Δticks -4.938 | 1M tok | ETA 2812.3h
+Step   1390 | loss 6.7313 | lr 2.08e-04 | grad 1.79 | 0.5k tok/s | cert 0.04→0.29 | ticks [12.875 10.000 8.562 8.062 7.969 8.000 8.250 8.188] | Δticks -4.688 | 1M tok | ETA 2811.7h
+Step   1400 | loss 7.0375 | lr 2.10e-04 | grad 2.50 | 0.5k tok/s | cert 0.03→0.22 | ticks [12.750 10.062 9.250 9.000 8.812 8.688 9.000 9.062] | Δticks -3.688 | 1M tok | ETA 2811.1h
+Step   1410 | loss 6.7031 | lr 2.11e-04 | grad 1.77 | 0.5k tok/s | cert 0.04→0.36 | ticks [13.438 9.812 8.188 7.875 7.688 7.812 7.938 7.875] | Δticks -5.562 | 1M tok | ETA 2810.4h
+Step   1420 | loss 6.3187 | lr 2.13e-04 | grad 2.05 | 0.5k tok/s | cert 0.05→0.40 | ticks [13.562 9.500 7.375 7.031 6.625 6.719 7.031 7.000] | Δticks -6.562 | 1M tok | ETA 2809.9h
+Step   1430 | loss 6.6625 | lr 2.14e-04 | grad 1.73 | 0.5k tok/s | cert 0.05→0.33 | ticks [12.938 9.875 8.125 7.688 7.375 7.531 7.750 7.781] | Δticks -5.156 | 1M tok | ETA 2809.3h
+Step   1440 | loss 6.6594 | lr 2.16e-04 | grad 1.59 | 0.5k tok/s | cert 0.05→0.37 | ticks [13.625 9.562 7.781 7.406 7.188 7.281 7.500 7.406] | Δticks -6.219 | 1M tok | ETA 2808.7h
+Step   1450 | loss 6.8906 | lr 2.17e-04 | grad 1.70 | 0.5k tok/s | cert 0.04→0.33 | ticks [13.500 9.438 7.938 7.469 7.281 7.438 7.562 7.625] | Δticks -5.875 | 1M tok | ETA 2808.1h
+Step   1460 | loss 6.8344 | lr 2.19e-04 | grad 2.02 | 0.5k tok/s | cert 0.05→0.34 | ticks [13.562 9.625 7.719 7.469 7.156 7.312 7.344 7.312] | Δticks -6.250 | 1M tok | ETA 2807.5h
+Step   1470 | loss 6.3844 | lr 2.20e-04 | grad 1.72 | 0.5k tok/s | cert 0.06→0.39 | ticks [13.688 9.875 8.000 7.438 7.281 7.344 7.562 7.531] | Δticks -6.156 | 1M tok | ETA 2806.9h
+Step   1480 | loss 6.2594 | lr 2.22e-04 | grad 1.62 | 0.5k tok/s | cert 0.06→0.41 | ticks [14.000 9.688 7.438 7.031 6.688 6.781 6.875 7.000] | Δticks -7.000 | 1M tok | ETA 2806.2h
+Step   1490 | loss 6.5500 | lr 2.23e-04 | grad 1.79 | 0.5k tok/s | cert 0.05→0.40 | ticks [13.500 10.250 8.438 7.938 7.719 7.906 7.938 8.062] | Δticks -5.438 | 1M tok | ETA 2805.6h
+Step   1500 | loss 6.7281 | lr 2.25e-04 | grad 2.62 | 0.5k tok/s | cert 0.05→0.23 | ticks [13.188 9.750 8.062 7.844 7.438 7.500 7.750 7.875] | Δticks -5.312 | 1M tok | ETA 2805.1h
+Step   1510 | loss 6.2938 | lr 2.26e-04 | grad 1.70 | 0.5k tok/s | cert 0.07→0.40 | ticks [13.625 9.500 7.750 7.406 7.031 7.156 7.438 7.406] | Δticks -6.219 | 1M tok | ETA 2804.5h
+Step   1520 | loss 6.2781 | lr 2.28e-04 | grad 1.73 | 0.5k tok/s | cert 0.07→0.36 | ticks [13.625 9.812 7.969 7.406 7.125 7.375 7.406 7.562] | Δticks -6.062 | 1M tok | ETA 2804.0h
+Step   1530 | loss 6.6562 | lr 2.29e-04 | grad 1.73 | 0.5k tok/s | cert 0.05→0.42 | ticks [13.188 9.812 8.062 7.844 7.531 7.750 7.906 7.969] | Δticks -5.219 | 1M tok | ETA 2803.4h
+Step   1540 | loss 6.5312 | lr 2.31e-04 | grad 1.65 | 0.5k tok/s | cert 0.05→0.33 | ticks [13.500 10.000 7.906 7.594 7.312 7.438 7.594 7.625] | Δticks -5.875 | 1M tok | ETA 2802.9h
+Step   1550 | loss 6.5344 | lr 2.32e-04 | grad 1.67 | 0.5k tok/s | cert 0.07→0.42 | ticks [13.562 9.688 7.188 6.906 6.688 6.781 6.969 7.094] | Δticks -6.469 | 1M tok | ETA 2802.3h
+Step   1560 | loss 6.6469 | lr 2.34e-04 | grad 1.66 | 0.5k tok/s | cert 0.05→0.35 | ticks [13.625 10.250 8.125 7.938 7.656 7.750 7.875 8.000] | Δticks -5.625 | 1M tok | ETA 2801.7h
+Step   1570 | loss 6.5031 | lr 2.35e-04 | grad 1.73 | 0.5k tok/s | cert 0.06→0.35 | ticks [13.812 9.562 7.500 7.094 6.875 7.062 7.375 7.188] | Δticks -6.625 | 1M tok | ETA 2801.1h
+Step   1580 | loss 6.3406 | lr 2.37e-04 | grad 1.81 | 0.5k tok/s | cert 0.07→0.32 | ticks [13.062 9.875 8.062 7.500 7.281 7.531 7.719 7.719] | Δticks -5.344 | 1M tok | ETA 2800.4h
+Step   1590 | loss 6.3906 | lr 2.38e-04 | grad 2.80 | 0.5k tok/s | cert 0.05→0.34 | ticks [13.750 10.000 7.938 7.750 7.500 7.656 7.875 7.719] | Δticks -6.031 | 1M tok | ETA 2799.8h
+Step   1600 | loss 6.5563 | lr 2.40e-04 | grad 1.66 | 0.5k tok/s | cert 0.06→0.38 | ticks [13.500 10.000 8.062 7.812 7.500 7.625 7.812 7.844] | Δticks -5.656 | 1M tok | ETA 2799.2h
+Step   1610 | loss 6.5406 | lr 2.41e-04 | grad 1.66 | 0.5k tok/s | cert 0.05→0.34 | ticks [13.562 9.750 8.062 7.625 7.344 7.344 7.625 7.594] | Δticks -5.969 | 1M tok | ETA 2798.6h
+Step   1620 | loss 6.8563 | lr 2.43e-04 | grad 2.56 | 0.5k tok/s | cert 0.04→0.30 | ticks [12.688 10.188 9.000 9.250 8.938 9.125 9.125 9.125] | Δticks -3.562 | 1M tok | ETA 2798.0h
+Step   1630 | loss 6.9906 | lr 2.44e-04 | grad 2.00 | 0.5k tok/s | cert 0.06→0.32 | ticks [13.062 9.938 8.375 8.312 8.125 8.188 8.500 8.062] | Δticks -5.000 | 1M tok | ETA 2797.4h
+Step   1640 | loss 6.5906 | lr 2.46e-04 | grad 1.74 | 0.5k tok/s | cert 0.04→0.35 | ticks [13.312 9.500 7.938 7.688 7.375 7.438 7.656 7.750] | Δticks -5.562 | 1M tok | ETA 2796.8h
+Step   1650 | loss 6.4719 | lr 2.47e-04 | grad 1.68 | 0.5k tok/s | cert 0.07→0.38 | ticks [13.188 9.375 7.375 7.062 6.719 6.969 6.938 7.125] | Δticks -6.062 | 1M tok | ETA 2796.4h
+Step   1660 | loss 5.9906 | lr 2.49e-04 | grad 1.72 | 0.5k tok/s | cert 0.08→0.39 | ticks [12.938 9.375 7.406 7.000 6.938 6.938 7.094 7.062] | Δticks -5.875 | 1M tok | ETA 2795.9h
+Step   1670 | loss 6.0750 | lr 2.51e-04 | grad 1.65 | 0.5k tok/s | cert 0.08→0.46 | ticks [13.312 9.188 7.031 6.594 6.594 6.656 6.844 6.906] | Δticks -6.406 | 1M tok | ETA 2795.3h
+Step   1680 | loss 6.3625 | lr 2.52e-04 | grad 1.99 | 0.5k tok/s | cert 0.05→0.33 | ticks [13.000 9.562 8.125 8.000 7.531 7.781 7.906 7.906] | Δticks -5.094 | 1M tok | ETA 2794.8h
+Step   1690 | loss 6.5469 | lr 2.53e-04 | grad 1.66 | 0.5k tok/s | cert 0.05→0.36 | ticks [13.438 9.812 7.656 7.125 6.812 6.844 7.094 7.219] | Δticks -6.219 | 1M tok | ETA 2794.3h
+Step   1700 | loss 6.8500 | lr 2.55e-04 | grad 1.64 | 0.5k tok/s | cert 0.04→0.38 | ticks [13.188 9.750 7.938 7.656 7.156 7.312 7.500 7.688] | Δticks -5.500 | 1M tok | ETA 2793.9h
+Step   1710 | loss 6.2344 | lr 2.56e-04 | grad 1.53 | 0.5k tok/s | cert 0.06→0.36 | ticks [13.062 9.500 7.781 7.375 6.969 7.031 7.219 7.406] | Δticks -5.656 | 1M tok | ETA 2793.4h
+Step   1720 | loss 6.1250 | lr 2.58e-04 | grad 1.84 | 0.5k tok/s | cert 0.07→0.42 | ticks [13.188 9.000 7.250 7.031 6.625 6.750 6.969 7.000] | Δticks -6.188 | 1M tok | ETA 2792.9h
+Step   1730 | loss 6.2844 | lr 2.59e-04 | grad 1.73 | 0.5k tok/s | cert 0.06→0.36 | ticks [12.688 9.375 7.938 7.594 7.312 7.406 7.562 7.531] | Δticks -5.156 | 1M tok | ETA 2792.4h
+Step   1740 | loss 6.5844 | lr 2.61e-04 | grad 1.70 | 0.5k tok/s | cert 0.08→0.34 | ticks [12.625 9.500 8.062 7.625 7.375 7.656 7.812 7.781] | Δticks -4.844 | 1M tok | ETA 2791.9h
+Step   1750 | loss 6.4562 | lr 2.62e-04 | grad 1.82 | 0.5k tok/s | cert 0.07→0.40 | ticks [13.562 9.500 7.812 7.594 7.125 7.344 7.531 7.438] | Δticks -6.125 | 1M tok | ETA 2791.4h
+Step   1760 | loss 6.0875 | lr 2.64e-04 | grad 1.73 | 0.5k tok/s | cert 0.05→0.40 | ticks [13.625 9.250 7.688 7.531 7.156 7.312 7.531 7.531] | Δticks -6.094 | 1M tok | ETA 2791.0h
+Step   1770 | loss 6.3625 | lr 2.65e-04 | grad 1.92 | 0.5k tok/s | cert 0.06→0.29 | ticks [13.000 9.562 8.062 7.750 7.344 7.500 7.875 8.000] | Δticks -5.000 | 1M tok | ETA 2790.5h
+Step   1780 | loss 6.7062 | lr 2.67e-04 | grad 1.86 | 0.5k tok/s | cert 0.06→0.24 | ticks [12.938 9.375 8.125 8.062 7.719 7.656 7.906 8.062] | Δticks -4.875 | 1M tok | ETA 2790.0h
+Step   1790 | loss 6.6688 | lr 2.68e-04 | grad 1.64 | 0.5k tok/s | cert 0.06→0.37 | ticks [13.688 9.188 7.812 7.562 7.188 7.250 7.438 7.562] | Δticks -6.125 | 1M tok | ETA 2789.6h
+Step   1800 | loss 6.5594 | lr 2.70e-04 | grad 1.73 | 0.5k tok/s | cert 0.07→0.31 | ticks [13.875 9.625 7.875 7.625 7.312 7.344 7.562 7.719] | Δticks -6.156 | 1M tok | ETA 2789.1h
+Step   1810 | loss 6.7281 | lr 2.71e-04 | grad 1.74 | 0.5k tok/s | cert 0.06→0.30 | ticks [13.750 9.188 7.562 7.406 6.938 7.125 7.094 7.344] | Δticks -6.406 | 1M tok | ETA 2788.7h
+Step   1820 | loss 6.4406 | lr 2.73e-04 | grad 1.70 | 0.5k tok/s | cert 0.07→0.39 | ticks [13.625 9.188 7.688 7.469 7.031 7.188 7.469 7.375] | Δticks -6.250 | 1M tok | ETA 2788.2h
+Step   1830 | loss 6.4719 | lr 2.74e-04 | grad 2.14 | 0.5k tok/s | cert 0.07→0.31 | ticks [13.438 9.500 8.188 8.062 7.594 7.625 7.969 7.938] | Δticks -5.500 | 1M tok | ETA 2787.8h
+Step   1840 | loss 6.6344 | lr 2.76e-04 | grad 1.81 | 0.5k tok/s | cert 0.07→0.38 | ticks [13.688 9.188 7.312 7.375 6.938 7.062 7.219 7.188] | Δticks -6.500 | 1M tok | ETA 2787.4h
+Step   1850 | loss 6.5062 | lr 2.77e-04 | grad 1.70 | 0.5k tok/s | cert 0.07→0.31 | ticks [13.562 9.562 8.062 7.812 7.344 7.562 7.781 7.812] | Δticks -5.750 | 1M tok | ETA 2786.9h
+Step   1860 | loss 6.4469 | lr 2.79e-04 | grad 1.75 | 0.5k tok/s | cert 0.10→0.35 | ticks [13.000 9.375 7.688 7.406 7.188 7.438 7.562 7.594] | Δticks -5.406 | 1M tok | ETA 2786.5h
+Step   1870 | loss 6.4469 | lr 2.80e-04 | grad 1.63 | 0.5k tok/s | cert 0.09→0.36 | ticks [12.812 9.188 7.812 7.688 7.312 7.438 7.562 7.719] | Δticks -5.094 | 1M tok | ETA 2786.0h
+Step   1880 | loss 6.3969 | lr 2.82e-04 | grad 1.77 | 0.5k tok/s | cert 0.10→0.39 | ticks [13.188 9.438 7.562 7.594 7.031 7.406 7.312 7.406] | Δticks -5.781 | 1M tok | ETA 2785.5h
+Step   1890 | loss 6.7094 | lr 2.83e-04 | grad 1.95 | 0.5k tok/s | cert 0.08→0.32 | ticks [13.000 9.375 7.906 7.906 7.438 7.469 7.750 7.844] | Δticks -5.156 | 1M tok | ETA 2785.1h
+Step   1900 | loss 6.4031 | lr 2.85e-04 | grad 1.84 | 0.5k tok/s | cert 0.06→0.39 | ticks [12.938 9.375 7.875 7.812 7.406 7.438 7.594 7.594] | Δticks -5.344 | 1M tok | ETA 2784.6h
+Step   1910 | loss 6.7156 | lr 2.86e-04 | grad 1.80 | 0.5k tok/s | cert 0.08→0.33 | ticks [12.562 9.562 8.125 8.000 7.625 7.719 7.969 7.938] | Δticks -4.625 | 1M tok | ETA 2784.1h
+Step   1920 | loss 6.3875 | lr 2.88e-04 | grad 1.69 | 0.5k tok/s | cert 0.08→0.41 | ticks [13.812 8.938 7.125 7.156 6.562 6.719 6.812 6.875] | Δticks -6.938 | 1M tok | ETA 2783.7h
+Step   1930 | loss 6.4062 | lr 2.89e-04 | grad 1.91 | 0.5k tok/s | cert 0.07→0.34 | ticks [12.875 10.062 8.688 8.562 8.250 8.375 8.562 8.562] | Δticks -4.312 | 1M tok | ETA 2783.2h
+Step   1940 | loss 7.0656 | lr 2.91e-04 | grad 1.73 | 0.5k tok/s | cert 0.08→0.39 | ticks [13.000 8.750 7.562 7.500 7.062 7.125 7.281 7.438] | Δticks -5.562 | 1M tok | ETA 2782.8h
+Step   1950 | loss 6.9250 | lr 2.93e-04 | grad 2.00 | 0.5k tok/s | cert 0.08→0.27 | ticks [12.688 9.125 7.844 7.906 7.250 7.312 7.562 7.594] | Δticks -5.094 | 1M tok | ETA 2782.4h
+Step   1960 | loss 6.0594 | lr 2.94e-04 | grad 1.63 | 0.5k tok/s | cert 0.10→0.47 | ticks [13.062 8.750 7.219 7.000 6.594 6.781 7.000 6.875] | Δticks -6.188 | 1M tok | ETA 2781.9h
+Step   1970 | loss 6.0469 | lr 2.95e-04 | grad 1.78 | 0.5k tok/s | cert 0.10→0.39 | ticks [12.812 8.938 7.156 6.844 6.500 6.656 7.031 6.781] | Δticks -6.031 | 1M tok | ETA 2781.5h
+Step   1980 | loss 6.4938 | lr 2.97e-04 | grad 1.75 | 0.5k tok/s | cert 0.07→0.38 | ticks [13.062 9.000 7.500 7.500 6.969 7.062 7.125 7.219] | Δticks -5.844 | 1M tok | ETA 2781.1h
+Step   1990 | loss 6.5531 | lr 2.98e-04 | grad 1.60 | 0.5k tok/s | cert 0.08→0.35 | ticks [13.438 9.438 7.531 7.219 6.875 7.000 7.188 7.281] | Δticks -6.156 | 1M tok | ETA 2780.8h
+Step   2000 | loss 6.9562 | lr 3.00e-04 | grad 1.73 | 0.5k tok/s | cert 0.07→0.32 | ticks [12.812 9.375 7.844 8.000 7.438 7.531 7.531 7.812] | Δticks -5.000 | 1M tok | ETA 2780.3h
+
+  >>> Eval loss: 6.5081 (best: 6.8431)
+  >>> Saved best checkpoint at step 2000
+  >>> Sample: 'The most important thing to understand about science is' → ' available for
+In to use to look for the world with the world of years ago for this can be no).
+If to use for its need. According to put to life for many part to explain to protect to to use for the'
+
+Step   2010 | loss 7.0031 | lr 3.00e-04 | grad 1.76 | 0.5k tok/s | cert 0.06→0.39 | ticks [13.688 9.375 7.688 7.594 7.125 7.125 7.438 7.375] | Δticks -6.312 | 1M tok | ETA 2825.0h
+Step   2020 | loss 6.5969 | lr 3.00e-04 | grad 1.78 | 0.5k tok/s | cert 0.08→0.33 | ticks [12.938 9.562 8.125 8.125 7.719 7.844 8.000 8.062] | Δticks -4.875 | 1M tok | ETA 2824.3h
+/usr/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 17 leaked semaphore objects to clean up at shutdown: {'/mp-7eenkwwi', '/mp-uuwsbod_', '/mp-j87jek5k', '/mp-iyx48sro', '/mp-bgr9yus2', '/mp-ioc1ou9n', '/mp-6kb8s8nc', '/mp-470q_xs_', '/mp-cxyqk5ic', '/mp-5gc0wfv6', '/mp-hd4jz21_', '/mp-5n0tsj58', '/mp-vl1rw3cd', '/mp-mcv17ht7', '/mp-6mq_a0aq', '/mp-u3algwvg', '/mp-uhwb8yp2'}
+  warnings.warn(

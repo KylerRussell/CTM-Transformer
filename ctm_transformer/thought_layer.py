@@ -35,6 +35,57 @@ from ctm_transformer.memory import TemporalMemory, SynchronizationComputer
 from ctm_transformer.engram import EngramGate
 
 
+class UNetSynapse(nn.Module):
+    """
+    1D U-Net applied across the latent feature dimension to allow 
+    complex spatial information sharing between neurons.
+    """
+    def __init__(self, in_features: int, out_features: int, dropout: float = 0.1):
+        super().__init__()
+        # Input shape: [BS, 1, in_features]
+        self.down1 = nn.Sequential(nn.Conv1d(1, 16, kernel_size=3, padding=1), nn.GELU())
+        self.pool1 = nn.MaxPool1d(2)
+        
+        self.down2 = nn.Sequential(nn.Conv1d(16, 32, kernel_size=3, padding=1), nn.GELU())
+        self.pool2 = nn.MaxPool1d(2)
+        
+        self.up1 = nn.Upsample(scale_factor=2)
+        self.conv_up1 = nn.Sequential(nn.Conv1d(32 + 16, 16, kernel_size=3, padding=1), nn.GELU())
+        
+        self.up2 = nn.Upsample(scale_factor=2)
+        self.conv_up2 = nn.Sequential(nn.Conv1d(16 + 1, 1, kernel_size=3, padding=1), nn.GELU())
+        
+        self.proj = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(in_features, out_features)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: [BS, in_features]
+        x_in = x.unsqueeze(1) # [BS, 1, in_features]
+        
+        d1 = self.down1(x_in)
+        p1 = self.pool1(d1)
+        
+        d2 = self.down2(p1)
+        p2 = self.pool2(d2)
+        
+        u1 = self.up1(p2)
+        if u1.size(2) != d1.size(2):
+            u1 = F.interpolate(u1, size=d1.size(2))
+        u1 = torch.cat([u1, d1], dim=1)
+        u1 = self.conv_up1(u1)
+        
+        u2 = self.up1(u1)
+        if u2.size(2) != x_in.size(2):
+            u2 = F.interpolate(u2, size=x_in.size(2))
+        u2 = torch.cat([u2, x_in], dim=1)
+        u2 = self.conv_up2(u2)
+        
+        out = u2.squeeze(1) # [BS, in_features]
+        return self.proj(out)
+
+
 class ThoughtLayer(nn.Module):
     """
     A single thought processing block with per-position latent states
@@ -90,6 +141,7 @@ class ThoughtLayer(nn.Module):
         dssa_block_size: int = 64,
         dssa_top_k_blocks: int = 4,
         use_triton_attention: bool = False,
+        synapse_type: str = "mlp",
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -176,12 +228,15 @@ class ThoughtLayer(nn.Module):
 
         # ── Synapse Model ───────────────────────────────────────────────
         self.synapse_norm = nn.LayerNorm(d_model + d_latent)
-        self.synapse = nn.Sequential(
-            nn.Linear(d_model + d_latent, d_latent * 2),
-            nn.GELU(),
-            nn.Dropout(dropout),
-            nn.Linear(d_latent * 2, d_latent),
-        )
+        if synapse_type == "unet":
+            self.synapse = UNetSynapse(d_model + d_latent, d_latent, dropout=dropout)
+        else:
+            self.synapse = nn.Sequential(
+                nn.Linear(d_model + d_latent, d_latent * 2),
+                nn.GELU(),
+                nn.Dropout(dropout),
+                nn.Linear(d_latent * 2, d_latent),
+            )
         self.synapse_gate = nn.Linear(d_model + d_latent, d_latent)
 
         # ── Post-NLM Layer Norm ─────────────────────────────────────────
