@@ -4,3 +4,4 @@ venv
 .env
 *.pt
 checkpoints*/
+data_cache*/

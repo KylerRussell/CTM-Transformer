@@ -257,6 +257,132 @@ class CTMConfig:
     dataset_subset: str = "sample-10BT"  # FineWeb-Edu subset (sample-10BT, sample-100BT, etc.)
     checkpoint_dir: str = "checkpoints"  # Directory for saving checkpoints
 
+    # ── Data Curriculum (Two-Phase) ─────────────────────────────────────
+    use_two_phase_curriculum: bool = False
+    phase1_tokens: int = 500_000_000   # Tokens to train in Phase 1 before switching to Phase 2
+    
+    # Phase 1: Logic Priming (Math-MIND and SFT data)
+    phase1_datasets: list[str] = field(default_factory=lambda: [
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-CC-Math-v1"
+        # , "nvidia/Nemotron-Pretraining-SFT-v1"
+    ])
+    phase1_dataset_subsets: list[str] = field(default_factory=lambda: [
+        "Nemotron-Pretraining-RQA",
+        "Nemotron-Pretraining-InfiniByte-Reasoning",
+        "Nemotron-Pretraining-Wiki-Rewrite",
+        "Nemotron-Pretraining-Scientific-Coding",
+        "Nemotron-Pretraining-Math-Textbooks",
+        "Nemotron-Pretraining-STEM-SFT",
+        "Nemotron-Pretraining-Code-Concepts",
+        "Nemotron-Pretraining-Unconditional-Algorithmic",
+        "Nemotron-Pretraining-Formal-Logic",
+        "Nemotron-Pretraining-Economics",
+        "Nemotron-Pretraining-Multiple-Choice",
+        "4plus_MIND"
+        # , "default"
+    ])
+    phase1_dataset_weights: list[float] = field(default_factory=lambda: [
+        0.10, 0.10, 0.05, 0.05, 0.10, 0.10,
+        0.10, 0.05, 0.10, 0.05, 0.10, 
+        0.10
+        # , 0.20
+    ])
+
+    # Phase 2: Full Competence (High-Signal Hybrid Mix)
+    phase2_datasets: list[str] = field(default_factory=lambda: [
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-CC-Math-v1"
+        # , "nvidia/Nemotron-Pretraining-SFT-v1"
+        # , "nvidia/Nemotron-Pretraining-Code-v2"
+        # , "nvidia/Nemotron-CC-v2"
+        # , "nvidia/Nemotron-CC-v2.1"
+    ])
+    phase2_dataset_subsets: list[str] = field(default_factory=lambda: [
+        "Nemotron-Pretraining-RQA",
+        "Nemotron-Pretraining-InfiniByte-Reasoning",
+        "Nemotron-Pretraining-Wiki-Rewrite",
+        "Nemotron-Pretraining-Scientific-Coding",
+        "Nemotron-Pretraining-Math-Textbooks",
+        "Nemotron-Pretraining-STEM-SFT",
+        "Nemotron-Pretraining-Code-Concepts",
+        "Nemotron-Pretraining-Unconditional-Algorithmic",
+        "Nemotron-Pretraining-Formal-Logic",
+        "Nemotron-Pretraining-Economics",
+        "Nemotron-Pretraining-Multiple-Choice",
+        "4plus_MIND"
+        # , "default"
+        # , "default"
+        # , "default"
+        # , "default"
+    ])
+    phase2_dataset_weights: list[float] = field(default_factory=lambda: [
+        0.05, 0.05, 0.10, 0.10, 0.10, 0.10,
+        0.10, 0.10, 0.05, 0.05, 0.10, 
+        0.10
+        # , 0.10
+        # , 0.10
+        # , 0.05
+        # , 0.05
+    ])
+
+    # ── Distillation Strategy ───────────────────────────────────────────
+    use_distillation: bool = False
+    teacher_model_name: str = "nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16"
+    teacher_d_model: int = 3136        # Teacher hidden dimension for projection
+    distill_logit_weight: float = 1.0  # Weight for KL divergence loss
+    distill_feature_weight: float = 0.0 # Weight for Z-alignment loss (default OFF — see distill_feature_method)
+
+    # Temperature for soft-target distillation. Standard KD uses T in [2, 5].
+    # The KL loss is multiplied by T^2 so the gradient magnitude is invariant
+    # to T (per Hinton 2015). Set to 1.0 to disable temperature softening.
+    distill_temperature: float = 4.0
+
+    # Which ticks to apply distillation to:
+    #   "all"           — uniform mean over every tick (recommended default;
+    #                     ensures every per-tick LM head receives KD signal,
+    #                     and avoids the V-shaped per-tick CE pattern caused
+    #                     by distilling only the last tick)
+    #   "last"          — only the final tick (legacy behavior; conflicts
+    #                     with dynamic_aggregate temporal loss — DO NOT USE
+    #                     with per_tick_heads or dynamic_aggregate)
+    #   "lm_aligned"    — mirror the temporal_loss_type aggregation:
+    #                     dynamic_aggregate → KD on the lowest-CE/highest-cert ticks
+    #                     ramp_mono         → ramp-weighted KD across ticks
+    distill_tick_aggregation: str = "all"
+
+    # Feature-distillation method (when distill_feature_weight > 0):
+    #   "mse"     — raw MSE between student z and projected teacher z.
+    #               Strongly NOT recommended for cross-architecture distillation
+    #               (e.g. NemotronH→CTM) — magnitude scales differ.
+    #   "cosine"  — 1 - cos_sim(z, teacher_z_aligned). Magnitude-invariant;
+    #               the right default when student and teacher come from
+    #               different architectures.
+    #   "mse_normed" — LayerNorm both sides before MSE. Compromise between
+    #                  the two; preserves dimensional structure while
+    #                  removing magnitude mismatch.
+    distill_feature_method: str = "cosine"
+
     # ── Device ──────────────────────────────────────────────────────────
     device: str = "auto"               # "auto", "cuda", "cpu"
 

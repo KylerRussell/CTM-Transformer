@@ -84,18 +84,35 @@ class SparseStateExpansion(nn.Module):
         text_kv: torch.Tensor,
         causal: bool = True,
     ) -> torch.Tensor:
-        """Forward pass with sparse state expansion.
+        """Forward pass with sparse state expansion (vectorized).
 
-        For the CTM's cross-attention pattern, x provides queries and
-        text_kv provides keys and values.
+        Mathematically equivalent to the per-position recurrent scan in
+        ``_forward_reference``, but expressed as four standard tensor
+        ops (matmul, scatter, matmul, softmax) instead of a Python loop
+        over S positions × k partitions × B batch elements.
 
-        Args:
-            x: [B, S, d_model] — query source (sync/latent state).
-            text_kv: [B, S, d_model] — KV source (text embeddings).
-            causal: Whether to apply causal masking.
+        Derivation. The recurrent state is
+            state[t, h, p, d_k, d_v] = Σ_{t' ≤ t} pw[t', p] · k[t', h, d_k] · v[t', h, d_v]
+        where pw is the dense partition-weight tensor (gate_weights at
+        the chosen partitions, zero elsewhere). The readout is then
+            readout[t, h, p, d_v]
+                = Σ_{d_k} q[t, h, d_k] · state[t, h, p, d_k, d_v]
+                = Σ_{t' ≤ t} pw[t', p] · (q[t,h] · k[t',h]) · v[t', h, d_v]
+        i.e. linear attention with per-partition gated values. We never
+        materialize the [B, H, m, dh, dh] state — it cancels out.
 
-        Returns:
-            output: [B, S, d_model]
+        Why the original was slow. The previous implementation had a
+        ``for t in range(S)`` Python loop with nested ``for i in range(k)``
+        and ``for b in range(B)`` plus a ``part_idx[b].item()`` call that
+        forced a CUDA→CPU sync on every iteration: 4096 syncs per call
+        at S=512, k=8, B=1. Vectorizing eliminates the sync entirely
+        and lets cuBLAS handle the heavy lifting.
+
+        Memory. Peak intermediate is ``weighted_v`` of shape
+        [B, S, H, m, dh] (~32 MB at default config in bf16) and the
+        attention scores [B, H, S, S] (~8 MB). Total well under 100 MB
+        for typical configs; scales linearly with S and quadratically
+        with H·dh, so very long contexts (S>4k) may want chunking.
         """
         B, S, D = x.shape
         H = self.n_heads
@@ -104,68 +121,131 @@ class SparseStateExpansion(nn.Module):
         k = self.top_k
 
         # Project Q from queries, K/V from text
-        q = self.q_proj(x).view(B, S, H, dh)        # [B, S, H, dh]
-        kk = self.k_proj(text_kv).view(B, S, H, dh)  # [B, S, H, dh]
-        v = self.v_proj(text_kv).view(B, S, H, dh)   # [B, S, H, dh]
+        q = self.q_proj(x).view(B, S, H, dh)
+        kk = self.k_proj(text_kv).view(B, S, H, dh)
+        v = self.v_proj(text_kv).view(B, S, H, dh)
 
-        # Normalize Q and K for stable dot products
+        # Normalize Q and K for stable dot products (preserves SSE design)
         q = self.q_norm(q)
         kk = self.k_norm(kk)
 
-        # Compute gating logits for partition selection
-        gate_logits = self.gate_proj(text_kv)  # [B, S, m]
+        # Top-k partition selection. We use the values returned by topk
+        # directly instead of an extra gather (the original did
+        # ``gate_logits.gather(-1, topk(...).indices)`` which recomputes
+        # the same values).
+        gate_logits = self.gate_proj(text_kv)            # [B, S, m]
+        top_values, top_indices = gate_logits.topk(k, dim=-1)
+        gate_weights = F.softmax(top_values, dim=-1)     # [B, S, k]
 
-        # Select top-k partitions per position
-        _, top_indices = gate_logits.topk(k, dim=-1)  # [B, S, k]
+        # Scatter the per-position k weights into a dense [B, S, m]
+        # tensor. Non-selected partitions stay at zero, so they
+        # contribute nothing to the readout — equivalent to "only the
+        # top-k partitions get updated" but in a form the rest of the
+        # pipeline can consume in vectorized fashion.
+        # We use scatter_add_ rather than scatter_ so that the (very
+        # rare) case of duplicate top-k indices accumulates exactly
+        # like the sequential reference would.
+        pw = torch.zeros(B, S, m, device=x.device, dtype=x.dtype)
+        pw.scatter_add_(2, top_indices, gate_weights.to(pw.dtype))
+
+        # Linear-attention scores (no softmax). Use matmul (cuBLAS GEMM)
+        # rather than einsum for the hot path.
+        q_h = q.permute(0, 2, 1, 3)     # [B, H, S_t, dh]
+        k_h = kk.permute(0, 2, 3, 1)    # [B, H, dh,  S_u]
+        scores = torch.matmul(q_h, k_h)  # [B, H, S_t, S_u]
+
+        # Causal mask — fill with 0 (linear attention has no softmax,
+        # so future positions just shouldn't contribute).
+        if causal:
+            causal_mask = torch.triu(
+                torch.ones(S, S, dtype=torch.bool, device=x.device),
+                diagonal=1,
+            )
+            scores = scores.masked_fill(causal_mask, 0.0)
+
+        # Per-partition weighted values: gate v by pw, broadcasting over
+        # heads and value dimension.
+        #   weighted_v[b, u, h, p, d] = pw[b, u, p] · v[b, u, h, d]
+        weighted_v = v.unsqueeze(3) * pw.view(B, S, 1, m, 1)  # [B, S, H, m, dh]
+
+        # Per-partition readout. Reshape for a single batched matmul:
+        #   scores [B, H, S_t, S_u] @ weighted_v [B, H, S_u, m·dh]
+        #     → readout_flat [B, H, S_t, m·dh]
+        # then split m·dh back out and permute S_t to dim 1.
+        wv_h = weighted_v.permute(0, 2, 1, 3, 4).reshape(B, H, S, m * dh)
+        readout_flat = torch.matmul(scores, wv_h)            # [B, H, S, m·dh]
+        readout = readout_flat.view(B, H, S, m, dh).permute(0, 2, 1, 3, 4)
+        # readout: [B, S, H, m, dh]
+
+        # Per-partition norms → softmax over partitions, with a tiny eps
+        # so positions with no contribution yet (e.g. early positions
+        # whose top-k partitions never received content) don't NaN.
+        partition_norms = readout.norm(dim=-1) + 1e-8        # [B, S, H, m]
+        attn_weights = F.softmax(partition_norms, dim=-1)    # [B, S, H, m]
+
+        # Combine partitions. Equivalent to einsum('bthm,bthmd->bthd')
+        # but written as a broadcast-and-sum so it's clearly a
+        # weighted-mean op rather than a matmul.
+        out = (attn_weights.unsqueeze(-1) * readout).sum(dim=3)  # [B, S, H, dh]
+        out = out.reshape(B, S, H * dh)
+        return self.out_proj(out)
+
+    def _forward_reference(
+        self,
+        x: torch.Tensor,
+        text_kv: torch.Tensor,
+        causal: bool = True,
+    ) -> torch.Tensor:
+        """Sequential reference implementation, kept for numerical
+        regression testing. Do NOT use in training — this is the original
+        Python-loop version that hits ~4096 CUDA syncs per call. The
+        public ``forward`` produces numerically identical output (to bf16
+        rounding) at a fraction of the cost.
+        """
+        B, S, D = x.shape
+        H = self.n_heads
+        dh = self.d_head
+        m = self.n_partitions
+        k = self.top_k
+
+        q = self.q_proj(x).view(B, S, H, dh)
+        kk = self.k_proj(text_kv).view(B, S, H, dh)
+        v = self.v_proj(text_kv).view(B, S, H, dh)
+        q = self.q_norm(q)
+        kk = self.k_norm(kk)
+
+        gate_logits = self.gate_proj(text_kv)
+        _, top_indices = gate_logits.topk(k, dim=-1)
         gate_weights = F.softmax(
             gate_logits.gather(-1, top_indices), dim=-1
-        )  # [B, S, k]
-
-        # Initialize state partitions
-        # State: [B, H, m, dh, dh] — m partitions of outer products
-        state = torch.zeros(
-            B, H, m, dh, dh,
-            device=x.device, dtype=x.dtype,
         )
 
+        state = torch.zeros(B, H, m, dh, dh, device=x.device, dtype=x.dtype)
         outputs = []
 
-        # Sequential scan over positions (recurrent)
         for t in range(S):
-            # Get this position's K, V, Q
-            kt = kk[:, t]       # [B, H, dh]
-            vt = v[:, t]        # [B, H, dh]
-            qt = q[:, t]        # [B, H, dh]
-            gt = gate_weights[:, t]  # [B, k]
-            idx_t = top_indices[:, t]  # [B, k]
+            kt = kk[:, t]
+            vt = v[:, t]
+            qt = q[:, t]
+            gt = gate_weights[:, t]
+            idx_t = top_indices[:, t]
 
-            # Update selected partitions: S_i += e_i * k^T v
-            # For each sample in the batch, update only the top-k partitions
-            kv_outer = torch.einsum('bhd,bhe->bhde', kt, vt)  # [B, H, dh, dh]
+            kv_outer = torch.einsum('bhd,bhe->bhde', kt, vt)
 
             for i in range(k):
-                part_idx = idx_t[:, i]  # [B]
-                weight = gt[:, i]  # [B]
-
-                # Gather the partition indices for each batch element
-                # and update with weighted outer product
+                part_idx = idx_t[:, i]
+                weight = gt[:, i]
                 for b in range(B):
                     pi = part_idx[b].item()
-                    state[b, :, pi] += weight[b] * kv_outer[b]
+                    state[b, :, pi] = state[b, :, pi] + weight[b] * kv_outer[b]
 
-            # Query the state: o = sum_i (q^T S_i)
-            # [B, H, 1, dh] @ [B, H, m, dh, dh] → [B, H, m, dh]
-            readout = torch.einsum('bhd,bhmde->bhme', qt, state)  # [B, H, m, dh]
-
-            # Weight readout by gate (only active partitions contribute)
-            # Add eps to norms to avoid NaN from softmax(zeros) at t=0
-            partition_norms = readout.norm(dim=-1) + 1e-8  # [B, H, m]
-            attn_weights = F.softmax(partition_norms, dim=-1)  # [B, H, m]
-
-            out_t = torch.einsum('bhm,bhmd->bhd', attn_weights, readout)  # [B, H, dh]
+            readout = torch.einsum('bhd,bhmde->bhme', qt, state)
+            partition_norms = readout.norm(dim=-1) + 1e-8
+            attn_weights = F.softmax(partition_norms, dim=-1)
+            out_t = torch.einsum('bhm,bhmd->bhd', attn_weights, readout)
             outputs.append(out_t)
 
-        output = torch.stack(outputs, dim=1)  # [B, S, H, dh]
+        output = torch.stack(outputs, dim=1)
         output = output.reshape(B, S, H * dh)
         return self.out_proj(output)
 

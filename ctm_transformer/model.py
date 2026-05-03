@@ -239,6 +239,25 @@ class CTMTransformer(nn.Module):
         # ── Initial State ───────────────────────────────────────────────
         self.z0 = nn.Parameter(torch.zeros(config.d_latent))
 
+        # ── Distillation Alignment ──────────────────────────────────────
+        # teacher_z_proj is created whenever feature distillation is enabled
+        # and the dimensions differ (or always if we want a learned mapping).
+        # The student-side LayerNorm + teacher-side LayerNorm are needed for
+        # the "cosine" and "mse_normed" feature-distillation methods, so the
+        # two architectures' hidden states are compared on a magnitude-
+        # neutral footing.
+        if config.use_distillation and config.distill_feature_weight > 0:
+            if config.teacher_d_model != config.d_latent:
+                self.teacher_z_proj = nn.Linear(config.teacher_d_model, config.d_latent)
+            else:
+                self.teacher_z_proj = None
+            self.distill_student_norm = nn.LayerNorm(config.d_latent, elementwise_affine=False)
+            self.distill_teacher_norm = nn.LayerNorm(config.d_latent, elementwise_affine=False)
+        else:
+            self.teacher_z_proj = None
+            self.distill_student_norm = None
+            self.distill_teacher_norm = None
+
         # Velocity initial state (for FEEC)
         if config.use_feec:
             self.velocity_0 = nn.Parameter(torch.zeros(config.d_latent))
@@ -460,6 +479,8 @@ class CTMTransformer(nn.Module):
         targets: torch.Tensor | None = None,
         key_padding_mask: torch.Tensor | None = None,
         max_thought_steps: int | None = None,
+        teacher_logits: torch.Tensor | None = None,
+        teacher_z: torch.Tensor | None = None,
     ) -> dict:
         """
         Full forward pass with per-position latent states and causal masking.
@@ -587,7 +608,8 @@ class CTMTransformer(nn.Module):
                 result["feec_energy"] = self.feec.energy(z, velocity).item()
 
         # Always populate all_logits for diagnostics/testing
-        result["all_logits"] = torch.stack(all_logits, dim=0)
+        # We store the list instead of stacking to save a massive allocation (vocab_size is large!)
+        result["all_logits"] = all_logits
 
         if targets is not None:
             loss, per_tick_loss = self._compute_temporal_loss(
@@ -599,6 +621,151 @@ class CTMTransformer(nn.Module):
                 energy_pen = torch.stack(energy_penalties).mean()
                 loss = loss + self.config.feec_energy_penalty_weight * energy_pen
                 result["feec_energy_penalty"] = energy_pen.item()
+
+            # ── Distillation Loss ────────────────────────────────────────
+            distill_loss = torch.tensor(0.0, device=device)
+            if self.config.use_distillation:
+                # ── 1. Soft-Target Distillation ──────────────────────────
+                # Several fixes vs. the original:
+                #   (a) reduction is now per-token: we flatten [B, S, V] →
+                #       [B*S, V] before kl_div so 'batchmean' divides by
+                #       B*S (token count), matching the per-token-mean
+                #       scale of the LM cross-entropy. The original divided
+                #       by B only, making KL ~seq_len× larger than LM —
+                #       which dominated training and produced the V-shaped
+                #       per-tick loss curve.
+                #   (b) temperature softening (Hinton 2015): both
+                #       distributions are softened by T; the resulting KL
+                #       is multiplied by T² so the gradient magnitude is
+                #       T-invariant. T=1 disables softening.
+                #   (c) softmax computed in fp32 for numerical stability
+                #       with large (131k+) vocabularies under bf16 amp.
+                #   (d) log_target=True for the KL itself — this avoids
+                #       recomputing exp(teacher_log_probs) inside kl_div
+                #       and is the numerically stable formulation.
+                #   (e) per-tick KD: KL is computed at every thought tick
+                #       and aggregated according to distill_tick_aggregation.
+                #       Distilling only the last tick (the original
+                #       behavior) creates a conflict with dynamic_aggregate
+                #       temporal loss and corrupts the per-tick LM heads
+                #       when --per_tick_heads is enabled.
+                if teacher_logits is not None:
+                    T_temp = float(self.config.distill_temperature)
+                    T_temp_sq = T_temp * T_temp
+
+                    B_, S_, V_ = teacher_logits.shape
+                    teacher_logits_flat = teacher_logits.reshape(B_ * S_, V_)
+                    # fp32 log_softmax for stability; reused across ticks.
+                    teacher_log_probs = F.log_softmax(
+                        teacher_logits_flat / T_temp,
+                        dim=-1,
+                        dtype=torch.float32,
+                    )
+
+                    n_ticks = len(all_logits)
+                    per_tick_kl = []
+                    for tk in range(n_ticks):
+                        student_logits_flat = all_logits[tk].reshape(B_ * S_, V_)
+                        student_log_probs = F.log_softmax(
+                            student_logits_flat / T_temp,
+                            dim=-1,
+                            dtype=torch.float32,
+                        )
+                        kl_t = F.kl_div(
+                            student_log_probs,
+                            teacher_log_probs,
+                            reduction="batchmean",
+                            log_target=True,
+                        ) * T_temp_sq
+                        per_tick_kl.append(kl_t)
+                    per_tick_kl_tensor = torch.stack(per_tick_kl)  # [T]
+
+                    # Aggregate per-tick KLs.
+                    agg = self.config.distill_tick_aggregation
+                    if agg == "all":
+                        # Uniform mean — recommended default. Every per-tick
+                        # head gets the same KD pressure; no tick is
+                        # uniquely degraded.
+                        kl_loss = per_tick_kl_tensor.mean()
+                    elif agg == "last":
+                        # Legacy behavior. Strongly discouraged when
+                        # combined with per_tick_heads or dynamic_aggregate.
+                        kl_loss = per_tick_kl_tensor[-1]
+                    elif agg == "lm_aligned":
+                        if self.config.temporal_loss_type == "dynamic_aggregate":
+                            # Per-token tick-selection would require
+                            # per-token KL (~Gb of fp32 at 131k vocab),
+                            # so approximate dynamic aggregation with a
+                            # uniform mean. Same effect as "all".
+                            kl_loss = per_tick_kl_tensor.mean()
+                        else:
+                            # Mirror the ramp_mono LM weighting so KD
+                            # and LM agree on which ticks matter most.
+                            ramp = torch.linspace(
+                                self.config.tick_ramp_start,
+                                self.config.tick_ramp_end,
+                                n_ticks,
+                                device=per_tick_kl_tensor.device,
+                                dtype=per_tick_kl_tensor.dtype,
+                            )
+                            ramp = ramp * (n_ticks / ramp.sum())
+                            kl_loss = (ramp * per_tick_kl_tensor).mean()
+                    else:
+                        raise ValueError(
+                            f"Unknown distill_tick_aggregation: {agg!r}"
+                        )
+
+                    kl_loss = kl_loss.to(loss.dtype)
+                    distill_loss = distill_loss + self.config.distill_logit_weight * kl_loss
+                    result["distill_kl_loss"] = kl_loss.item()
+                    result["distill_kl_per_tick"] = per_tick_kl_tensor.detach()
+
+                # ── 2. Z-Alignment Feature Distillation ──────────────────
+                # Off by default (distill_feature_weight=0). For cross-
+                # architecture distillation (NemotronH hybrid Mamba →
+                # FEEC-integrated CTM), the absolute magnitudes of the two
+                # hidden states are not comparable. The "cosine" method
+                # is magnitude-invariant and is the right default when
+                # this term is enabled. Raw "mse" is retained for parity
+                # with prior code but is NOT recommended.
+                if (
+                    teacher_z is not None
+                    and self.config.distill_feature_weight > 0
+                ):
+                    teacher_z_aligned = teacher_z
+                    if self.teacher_z_proj is not None:
+                        teacher_z_aligned = self.teacher_z_proj(teacher_z)
+
+                    method = self.config.distill_feature_method
+                    if method == "cosine":
+                        cos = F.cosine_similarity(
+                            z.float(), teacher_z_aligned.float(), dim=-1
+                        )  # [B, S]
+                        feature_loss = (1.0 - cos).mean()
+                    elif method == "mse_normed":
+                        z_n = self.distill_student_norm(z.float())
+                        t_n = self.distill_teacher_norm(teacher_z_aligned.float())
+                        feature_loss = F.mse_loss(z_n, t_n)
+                    elif method == "mse":
+                        feature_loss = F.mse_loss(z, teacher_z_aligned)
+                    else:
+                        raise ValueError(
+                            f"Unknown distill_feature_method: {method!r}"
+                        )
+
+                    feature_loss = feature_loss.to(loss.dtype)
+                    distill_loss = (
+                        distill_loss
+                        + self.config.distill_feature_weight * feature_loss
+                    )
+                    result[f"distill_feature_{method}"] = feature_loss.item()
+
+                loss = loss + distill_loss
+                result["distill_loss"] = (
+                    distill_loss.item()
+                    if isinstance(distill_loss, torch.Tensor)
+                    else float(distill_loss)
+                )
 
             result["loss"] = loss
             result["per_tick_loss"] = per_tick_loss
@@ -613,63 +780,23 @@ class CTMTransformer(nn.Module):
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Compute temporal loss aggregated over all thought steps.
-
-        Returns:
-            loss: weighted scalar combining the per-tick losses with explicit
-                  pressure for refinement across thought steps.
-            per_tick_loss: detached [T]-vector for logging — the actual
-                  cross-entropy at each thought step.
-
-        Loss formulation:
-
-        The previous min_loss + max_cert + aux_mean formulation collapsed to
-        "minimize the mean per-tick loss" whenever ticks had similar values
-        (which is exactly when iterative refinement *isn't* working). It
-        gave the model no incentive to differentiate across ticks, so the
-        thought loop trained itself into a degenerate "produce the same
-        answer at every tick" minimum.
-
-        We replace it with two explicit pressures:
-
-        1. **Linear ramp weighting** (`ramp_loss`): later ticks contribute
-           more to the gradient than earlier ticks. Forces the model to
-           prioritize getting later ticks right — if it produces identical
-           output at every tick, it pays the same loss as a model that
-           refined, but loses the option to ever exceed that performance.
-
-        2. **Monotonicity penalty** (`mono_penalty`): penalizes any tick
-           that is *worse* than its predecessor. This is a one-sided ReLU
-           on the diff — improvements are free, regressions are punished.
-
-        Both pressures push the model toward iterative refinement. The
-        ramp is the carrot ("later ticks earn you more reward"), the
-        monotonicity penalty is the stick ("don't go backward"). Together
-        they break the symmetry that lets identical-tick solutions win.
         """
         T = len(all_logits)
         V = self.config.vocab_size
         targets_flat = targets.reshape(-1)
 
-        per_tick_losses = []
-        for t in range(T):
-            logits_t = all_logits[t].reshape(-1, V)
-            loss_t = F.cross_entropy(logits_t, targets_flat, reduction="mean")
-            per_tick_losses.append(loss_t)
-
-        per_tick_loss_tensor = torch.stack(per_tick_losses)
-
         if self.config.temporal_loss_type == "dynamic_aggregate":
             # Dynamic Loss Aggregation (Listing 4)
-            # Find t1 (min loss) and t2 (max certainty) for each batch element
-            # Losses: [T, BS], certainties: [T, BS] (assuming dim=0 is T, let's reshape if needed)
-            # Wait, per_tick_loss_tensor is [T], not [T, BS]. The previous code did reduction="mean" on loss!
-            # To do per-data-point aggregation, we need the unreduced losses.
             per_tick_losses_unreduced = []
+            per_tick_losses_reduced = []
             for t in range(T):
                 logits_t = all_logits[t].reshape(-1, V)
-                loss_t = F.cross_entropy(logits_t, targets_flat, reduction="none")
-                per_tick_losses_unreduced.append(loss_t)
+                loss_t_unreduced = F.cross_entropy(logits_t, targets_flat, reduction="none")
+                per_tick_losses_unreduced.append(loss_t_unreduced)
+                per_tick_losses_reduced.append(loss_t_unreduced.mean())
+            
             losses_unreduced = torch.stack(per_tick_losses_unreduced, dim=1) # [BS, T]
+            per_tick_loss_tensor = torch.stack(per_tick_losses_reduced) # [T]
             
             # all_certainties is [T, B, S]. Flatten to [BS, T]
             cert = all_certainties.view(T, -1).transpose(0, 1) # [BS, T]
@@ -681,18 +808,23 @@ class CTMTransformer(nn.Module):
             loss_t1 = losses_unreduced.gather(1, lowest_idx.unsqueeze(1)).squeeze(1)
             loss_t2 = losses_unreduced.gather(1, certain_idx.unsqueeze(1)).squeeze(1)
             
-            loss = ((loss_t1 + loss_t2) / 2.0).mean()
-            return loss, per_tick_loss_tensor.detach()
+            base_loss = ((loss_t1 + loss_t2) / 2.0).mean()
+        else:
+            # Standard path: Linear ramp weighting (default ramp_mono)
+            per_tick_losses = []
+            for t in range(T):
+                logits_t = all_logits[t].reshape(-1, V)
+                per_tick_losses.append(F.cross_entropy(logits_t, targets_flat, reduction="mean"))
+            per_tick_loss_tensor = torch.stack(per_tick_losses)
 
-        # Linear ramp weighting (default ramp_mono)
-        ramp = torch.linspace(
-            self.config.tick_ramp_start, self.config.tick_ramp_end, T,
-            device=per_tick_loss_tensor.device, dtype=per_tick_loss_tensor.dtype,
-        )
-        ramp = ramp * (T / ramp.sum())
-        ramp_loss = (ramp * per_tick_loss_tensor).mean()
+            ramp = torch.linspace(
+                self.config.tick_ramp_start, self.config.tick_ramp_end, T,
+                device=per_tick_loss_tensor.device, dtype=per_tick_loss_tensor.dtype,
+            )
+            ramp = ramp * (T / ramp.sum())
+            base_loss = (ramp * per_tick_loss_tensor).mean()
 
-        # Monotonicity penalty
+        # ── Monotonicity Penalty (Applied to all paths) ─────────────────
         if T > 1:
             diffs = per_tick_loss_tensor[1:] - per_tick_loss_tensor[:-1]
             mono_penalty = F.relu(diffs).mean()
@@ -709,9 +841,9 @@ class CTMTransformer(nn.Module):
             decay_factor = 1.0 - progress * (1.0 - min_frac)
         else:
             decay_factor = 1.0
+        
         effective_mono_weight = self.config.mono_penalty_weight * decay_factor
-
-        loss = ramp_loss + effective_mono_weight * mono_penalty
+        loss = base_loss + effective_mono_weight * mono_penalty
 
         return loss, per_tick_loss_tensor.detach()
 

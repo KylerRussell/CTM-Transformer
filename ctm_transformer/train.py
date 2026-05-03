@@ -19,6 +19,11 @@ Usage:
     python -m ctm_transformer.train --data_path path/to/text.txt --device cuda
 """
 
+import os
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+# Reduce fragmentation and allow for larger contiguous allocations
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 import argparse
 import math
 import os
@@ -36,6 +41,80 @@ from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer
 from ctm_transformer.adamuon import AdaMuon, build_param_groups
 from ctm_transformer.engram import EngramTable
+
+import pyarrow.parquet as pq
+from huggingface_hub import HfFileSystem, hf_hub_download
+from datasets import IterableDataset as HFIterableDataset, Features, Value
+
+def sliding_window_generator(ds_name: str, subset: str, cache_dir: str, 
+                             total_shards: int = 1, shard_index: int = 0,
+                             is_eval: bool = False):
+    """
+    Custom generator that manually pulls parquet files from HF, 
+    processes them, and deletes them to save disk space.
+    """
+    fs = HfFileSystem()
+    path = f"datasets/{ds_name}/{subset}" if subset != "default" else f"datasets/{ds_name}"
+    
+    try:
+        # Resolve all parquet files for this subset
+        all_files = sorted([f for f in fs.ls(path, detail=False) if f.endswith('.parquet')])
+    except Exception as e:
+        print(f"Error listing files for {path}: {e}")
+        return
+
+    # Simple disjoint split: reserve the last 5% of files for evaluation
+    n_eval = max(1, len(all_files) // 20)
+    if is_eval:
+        # Eval only sees the reserved tail
+        my_files = all_files[-n_eval:]
+    else:
+        # Train sees everything except the reserved tail
+        train_files = all_files[:-n_eval]
+        # Shard the remaining file list across workers
+        my_files = train_files[shard_index::total_shards]
+    
+    os.makedirs(cache_dir, exist_ok=True)
+
+    for file_path in my_files:
+        # Resolve the relative path in the repo
+        repo_prefix = f"datasets/{ds_name}/"
+        if file_path.startswith(repo_prefix):
+            path_in_repo = file_path[len(repo_prefix):]
+        else:
+            path_in_repo = file_path.split("/")[-1]
+
+        # Check if already in cache to avoid cluttering logs
+        local_dest = os.path.join(cache_dir, path_in_repo)
+        
+        try:
+            if not os.path.exists(local_dest):
+                print(f"  [Worker {shard_index}] Downloading {path_in_repo}...", flush=True)
+                # Use hf_hub_download for robust, atomic downloading with LFS support
+                local_dest = hf_hub_download(
+                    repo_id=ds_name,
+                    filename=path_in_repo,
+                    repo_type="dataset",
+                    local_dir=cache_dir
+                )
+        except Exception as e:
+            print(f"Error downloading {file_path}: {e}", flush=True)
+            continue
+
+        try:
+            pf = pq.ParquetFile(local_dest)
+            for batch in pf.iter_batches(batch_size=512):
+                df = batch.to_pandas()
+                for _, row in df.iterrows():
+                    text = row.get("text", "")
+                    if text:
+                        yield {"text": str(text)}
+        except Exception as e:
+            print(f"Error processing {local_dest}: {e}")
+        finally:
+            # We no longer delete the file here so that pre-downloaded 
+            # data is preserved for future training runs.
+            pass
 
 
 # ── Optimizer Construction ──────────────────────────────────────────────
@@ -266,16 +345,33 @@ def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.op
 
 # ── Tokenizer ───────────────────────────────────────────────────────────
 
+class HFTokenizerWrapper:
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+        self.n_vocab = len(tokenizer)
+        
+    def encode(self, text, allowed_special=None):
+        return self.tokenizer.encode(text, add_special_tokens=False)
+        
+    def decode(self, tokens):
+        return self.tokenizer.decode(tokens)
+
 def get_tokenizer(config: CTMConfig):
     """
-    Load a tiktoken BPE tokenizer.
+    Load a tiktoken BPE tokenizer or HuggingFace tokenizer.
 
     Returns:
-        tokenizer: tiktoken.Encoding object with encode/decode methods.
+        tokenizer: object with encode/decode methods and n_vocab attribute.
     """
-    import tiktoken
-    enc = tiktoken.get_encoding(config.tokenizer)
-    return enc
+    if config.tokenizer.startswith("hf:"):
+        from transformers import AutoTokenizer
+        tokenizer_name = config.tokenizer[3:]
+        hf_tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True)
+        return HFTokenizerWrapper(hf_tokenizer)
+    else:
+        import tiktoken
+        enc = tiktoken.get_encoding(config.tokenizer)
+        return enc
 
 
 def tokenize_text(text: str, tokenizer) -> np.ndarray:
@@ -352,7 +448,7 @@ class FineWebEduDataset(IterableDataset):
             name=self.subset,
             split="train",
             streaming=True,
-        ).shard(num_shards=total_shards, index=shard_index)
+        ).select_columns(["text"]).shard(num_shards=total_shards, index=shard_index)
 
         # Pack documents into fixed-length chunks
         buf = []
@@ -361,6 +457,88 @@ class FineWebEduDataset(IterableDataset):
             buf.extend(tokens)
 
             # Yield complete chunks as they fill up
+            while len(buf) >= self.seq_len + 1:
+                chunk = buf[: self.seq_len + 1]
+                buf = buf[self.seq_len + 1 :]
+                yield (
+                    torch.tensor(chunk[:-1], dtype=torch.long),
+                    torch.tensor(chunk[1:], dtype=torch.long),
+                )
+
+
+class CurriculumDataset(IterableDataset):
+    """
+    Streaming interleaved dataset from HuggingFace for a specific curriculum phase.
+    """
+
+    def __init__(self, tokenizer, seq_len: int, datasets: list[str], subsets: list[str], 
+                 weights: list[float], rank: int = 0, world_size: int = 1, is_eval: bool = False):
+        self.is_eval = is_eval
+        self.tokenizer = tokenizer
+        self.seq_len = seq_len
+        self.datasets = datasets
+        self.subsets = subsets
+        self.weights = weights
+        self.rank = rank
+        self.world_size = world_size
+        # Use a local directory on disk instead of /tmp (which is often RAM-backed)
+        self.cache_dir = os.path.abspath("./data_cache")
+
+    def __iter__(self):
+        import random
+        worker = get_worker_info()
+        num_workers = worker.num_workers if worker else 1
+        worker_id = worker.id if worker else 0
+        total_shards = self.world_size * num_workers
+        shard_index = self.rank * num_workers + worker_id
+        
+        print(f"  [Worker {shard_index}] Initialized - Processing curriculum dataset mix.", flush=True)
+
+        # Initialize all generators
+        generators = []
+        for ds_name, subset in zip(self.datasets, self.subsets):
+            gen = sliding_window_generator(
+                ds_name=ds_name,
+                subset=subset,
+                cache_dir=self.cache_dir,
+                total_shards=total_shards,
+                shard_index=shard_index,
+                is_eval=self.is_eval
+            )
+            generators.append(gen)
+
+        # Custom weighted interleaving (all_exhausted strategy)
+        rng = random.Random(42 + shard_index)
+        active_indices = list(range(len(generators)))
+        current_weights = list(self.weights)
+
+        def get_sample():
+            while active_indices:
+                # Normalize weights for active indices
+                active_weights = [current_weights[i] for i in active_indices]
+                if sum(active_weights) == 0:
+                    break
+                
+                idx_in_active = rng.choices(range(len(active_indices)), weights=active_weights)[0]
+                idx = active_indices[idx_in_active]
+                
+                try:
+                    return next(generators[idx])
+                except StopIteration:
+                    active_indices.pop(idx_in_active)
+            return None
+
+        # Pack documents into fixed-length chunks
+        buf = []
+        while True:
+            sample = get_sample()
+            if sample is None:
+                break
+                
+            text_val = sample.get("text", "")
+            tokens = self.tokenizer.encode(text_val, allowed_special=set())
+            buf.extend(tokens)
+
             while len(buf) >= self.seq_len + 1:
                 chunk = buf[: self.seq_len + 1]
                 buf = buf[self.seq_len + 1 :]
@@ -466,8 +644,85 @@ def train(config: CTMConfig):
 
     # ── Data Loading ────────────────────────────────────────────────────
     use_fineweb = config.dataset == "fineweb-edu"
+    use_curriculum = config.use_two_phase_curriculum
+    first_batch = None
 
-    if use_fineweb:
+    if use_curriculum:
+        print(f"Dataset: Curriculum Mode (Phase 1 & Phase 2 Interleaved)")
+        print(f"  Streaming mode — data loaded on the fly from HuggingFace Hub")
+        
+        phase1_dataset = CurriculumDataset(
+            tokenizer=tokenizer,
+            seq_len=config.seq_len,
+            datasets=config.phase1_datasets,
+            subsets=config.phase1_dataset_subsets,
+            weights=config.phase1_dataset_weights,
+            rank=0,
+            world_size=1,
+            is_eval=False,
+        )
+        phase2_dataset = CurriculumDataset(
+            tokenizer=tokenizer,
+            seq_len=config.seq_len,
+            datasets=config.phase2_datasets,
+            subsets=config.phase2_dataset_subsets,
+            weights=config.phase2_dataset_weights,
+            rank=0,
+            world_size=1,
+            is_eval=False,
+        )
+        # Create a dedicated evaluation dataset instance using the eval split
+        eval_dataset = CurriculumDataset(
+            tokenizer=tokenizer,
+            seq_len=config.seq_len,
+            datasets=config.phase2_datasets,
+            subsets=config.phase2_dataset_subsets,
+            weights=config.phase2_dataset_weights,
+            rank=0,
+            world_size=1,
+            is_eval=True,
+        )
+        
+        phase1_loader = DataLoader(
+            phase1_dataset,
+            batch_size=config.batch_size,
+            num_workers=4,
+            prefetch_factor=8,
+            pin_memory=(device != "cpu"),
+            persistent_workers=True,
+        )
+        phase2_loader = DataLoader(
+            phase2_dataset,
+            batch_size=config.batch_size,
+            num_workers=4,
+            prefetch_factor=8,
+            pin_memory=(device != "cpu"),
+            persistent_workers=True,
+        )
+        
+        # Eval uses dedicated eval split
+        eval_loader = DataLoader(
+            eval_dataset,
+            batch_size=config.batch_size,
+            num_workers=0,
+            pin_memory=(device != "cpu"),
+        )
+        raw_text = None
+        
+        # Start with Phase 1 loader
+        train_loader = phase1_loader
+        current_phase = 1
+
+        print("  Waiting for initial data pre-fetch...", end="", flush=True)
+        train_iter = iter(train_loader)
+        try:
+            first_batch = next(train_iter)
+            print(" Done.")
+        except StopIteration:
+            print(" FAILED: Dataset is empty!")
+            sys.exit(1)
+        
+    elif use_fineweb:
         # Streaming from HuggingFace — no disk space needed
         print(f"Dataset: HuggingFaceFW/fineweb-edu ({config.dataset_subset})")
         print(f"  Streaming mode — data loaded on the fly from HuggingFace Hub")
@@ -490,7 +745,8 @@ def train(config: CTMConfig):
         train_loader = DataLoader(
             train_dataset,
             batch_size=config.batch_size,
-            num_workers=2,
+            num_workers=4,
+            prefetch_factor=8,
             pin_memory=(device != "cpu"),
             persistent_workers=True,
         )
@@ -502,6 +758,15 @@ def train(config: CTMConfig):
             pin_memory=(device != "cpu"),
         )
         raw_text = None  # No raw text buffer for generation prompts
+
+        print("  Waiting for initial data pre-fetch...", end="", flush=True)
+        train_iter = iter(train_loader)
+        try:
+            first_batch = next(train_iter)
+            print(" Done.")
+        except StopIteration:
+            print(" FAILED: Dataset is empty!")
+            sys.exit(1)
 
     elif config.data_path is not None:
         # Load from local text file
@@ -532,7 +797,7 @@ def train(config: CTMConfig):
             train_dataset,
             batch_size=config.batch_size,
             shuffle=True,
-            num_workers=2,
+            num_workers=1,
             pin_memory=(device != "cpu"),
             drop_last=True,
         )
@@ -543,6 +808,8 @@ def train(config: CTMConfig):
             num_workers=0,
             drop_last=True,
         )
+        train_iter = iter(train_loader)
+        raw_text = None  # Not needed for local file mode usually, but keep for consistency
         print(f"Train: {len(train_dataset):,} samples, Eval: {len(eval_dataset):,} samples")
 
     else:
@@ -601,6 +868,30 @@ def train(config: CTMConfig):
           f"n_layers={config.n_layers}, n_heads={config.n_heads}, "
           f"thought_steps={config.max_thought_steps}, history_len={config.history_len}, "
           f"nlm_hidden={config.nlm_hidden_dim}, nlm_groups={config.nlm_groups}")
+    if config.use_hyperloop:
+        print(f"Hyperloop: Enabled (begin={config.hyperloop_n_begin}, "
+              f"middle={config.hyperloop_n_middle}x{config.hyperloop_middle_loops}, "
+              f"end={config.hyperloop_n_end})")
+
+    # ── Teacher Model ───────────────────────────────────────────────────
+    teacher_model = None
+    if config.use_distillation:
+        try:
+            from transformers import AutoModelForCausalLM
+            print(f"Loading teacher model: {config.teacher_model_name}...")
+            teacher_model = AutoModelForCausalLM.from_pretrained(
+                config.teacher_model_name, 
+                torch_dtype="auto",
+                device_map={"": device},
+                trust_remote_code=True
+            )
+            teacher_model.eval()
+            teacher_model.requires_grad_(False)
+            print("Teacher model loaded successfully.")
+        except Exception as e:
+            print(f"WARNING: Failed to load teacher model: {e}")
+            print("Proceeding without distillation. If this is unexpected, please verify model name and access.")
+            config.use_distillation = False
 
     # Temporal-loss schedule summary. Helps verify the decay plan matches
     # expectations before kicking off a multi-day run.
@@ -709,13 +1000,16 @@ def train(config: CTMConfig):
 
     print(f"\n{'='*70}")
     print(f"Starting training for {config.max_steps:,} steps")
-    if use_fineweb:
-        target_tokens = config.max_steps * config.batch_size * config.seq_len
+    target_tokens = config.max_steps * config.batch_size * config.seq_len
+    if use_curriculum:
+        print(f"Target: ~{target_tokens/1e9:.1f}B tokens from Curriculum Mode (NVIDIA Nemotron Datasets)")
+    elif use_fineweb:
         print(f"Target: ~{target_tokens/1e9:.1f}B tokens from FineWeb-Edu")
+    else:
+        print(f"Target: Local dataset ({config.data_path})")
     print(f"{'='*70}\n")
 
     model.train()
-    train_iter = iter(train_loader)
     t_start = time.time()
 
     # Gradient accumulation: we run `accum_steps` micro-batches per optimizer
@@ -733,6 +1027,28 @@ def train(config: CTMConfig):
     prev_T = None
 
     while step < config.max_steps:
+        # ── Two-Phase Curriculum Logic ──────────────────────────────────
+        if use_curriculum:
+            if current_phase == 1 and tokens_seen >= config.phase1_tokens:
+                print(f"\n{'='*70}\n"
+                      f"  CURRICULUM PHASE SWITCH at step {step} ({tokens_seen/1e6:.0f}M tokens)\n"
+                      f"  Entering Phase 2: Full Competence\n"
+                      f"  - Switching to Hybrid Mix Loader\n"
+                      f"  - Switching Temporal Loss to Dynamic Aggregation\n"
+                      f"{'='*70}\n",
+                      flush=True)
+                current_phase = 2
+                train_loader = phase2_loader
+                print("  Waiting for Phase 2 data pre-fetch...", end="", flush=True)
+                train_iter = iter(train_loader)
+                try:
+                    first_batch = next(train_iter)
+                    print(" Done.")
+                except StopIteration:
+                    print(" FAILED: Phase 2 dataset is empty!")
+                    sys.exit(1)
+                config.temporal_loss_type = "dynamic_aggregate"
+
         # Learning rate schedule — applied once per OPTIMIZER step (not per
         # micro-batch). Each param_group carries an `lr_mult` (default 1.0)
         # which the scheduler multiplies by the base LR — used to give the
@@ -778,18 +1094,41 @@ def train(config: CTMConfig):
         accum_loss = 0.0
         last_result = None
         for micro in range(accum_steps):
-            try:
-                x, y = next(train_iter)
-            except StopIteration:
-                train_iter = iter(train_loader)
-                x, y = next(train_iter)
+            if first_batch is not None:
+                x, y = first_batch
+                first_batch = None
+            else:
+                try:
+                    x, y = next(train_iter)
+                except StopIteration:
+                    train_iter = iter(train_loader)
+                    x, y = next(train_iter)
 
             x = x.to(device)
             y = y.to(device)
 
+            # ── Teacher Forward Pass ────────────────────────────────────
+            t_logits, t_z = None, None
+            if teacher_model is not None:
+                # Only request hidden states when feature distillation is
+                # enabled — otherwise we pay extra memory for nothing.
+                want_hidden = config.distill_feature_weight > 0
+                with torch.no_grad(), torch.amp.autocast(device_type=device_type, dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
+                    teacher_out = teacher_model(x, output_hidden_states=want_hidden)
+                    t_logits = teacher_out.logits
+                    if want_hidden:
+                        # Take the final layer's hidden state
+                        t_z = teacher_out.hidden_states[-1]
+
             with torch.amp.autocast(device_type=device_type,
                                     dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
-                result = model(x, targets=y, max_thought_steps=current_T)
+                result = model(
+                    x, 
+                    targets=y, 
+                    max_thought_steps=current_T,
+                    teacher_logits=t_logits,
+                    teacher_z=t_z
+                )
                 # Scale the loss so the accumulated gradient is the MEAN over
                 # the effective batch — matches what a single forward pass at
                 # batch_size = batch_size·accum_steps would compute.
@@ -877,8 +1216,8 @@ def train(config: CTMConfig):
             save_checkpoint(model, optimizers, step, config,
                           ckpt_dir / f"step_{step:07d}.pt")
 
-            # Generate a sample
-            generate_sample(model, tokenizer, device, config, raw_text)
+            # Generate a sample using real data from the eval set
+            generate_sample(model, tokenizer, device, config, eval_loader)
             print()
             model.train()
 
@@ -928,20 +1267,43 @@ def evaluate(model, eval_loader, device, config, amp_dtype):
 
 
 @torch.no_grad()
-def generate_sample(model, tokenizer, device, config, raw_text=None):
+def generate_sample(model, tokenizer, device, config, eval_loader_or_text=None):
     """Generate and print a short sample from the model."""
     model.eval()
+    prompt_text = None
+    target_text = None
+    prompt_ids = None
 
-    # Build a prompt — either from training data or a fixed string
-    if raw_text and len(raw_text) > 200:
-        start = random.randint(0, len(raw_text) - 200)
-        prompt_text = raw_text[start : start + 80]
-    else:
+    # Option A: Pull a real sample from the evaluation loader (preferred for streaming)
+    if isinstance(eval_loader_or_text, DataLoader):
+        try:
+            # Grab one batch from eval
+            x, y = next(iter(eval_loader_or_text))
+            # Take the first sequence in the batch
+            # We take a piece of x as the prompt
+            prompt_len = min(32, x.size(1) // 2)
+            prompt_ids = x[0:1, :prompt_len].to(device)
+            # The rest of the sequence is the "ground truth" we want to see
+            target_ids = x[0, prompt_len:].tolist()
+            
+            prompt_text = tokenizer.decode(prompt_ids[0].tolist())
+            target_text = tokenizer.decode(target_ids[:48]) # Only show first 48 tokens of target
+        except Exception as e:
+            prompt_text = "The most important thing to understand about science is"
+    
+    # Option B: Use provided raw text buffer (local file mode)
+    if prompt_text is None and isinstance(eval_loader_or_text, str) and len(eval_loader_or_text) > 200:
+        start = random.randint(0, len(eval_loader_or_text) - 200)
+        prompt_text = eval_loader_or_text[start : start + 80]
+    
+    # Option C: Hard fallback
+    if prompt_text is None:
         prompt_text = "The most important thing to understand about science is"
 
-    prompt_tokens = tokenizer.encode(prompt_text, allowed_special=set())
-    prompt_tokens = prompt_tokens[:32]  # Keep prompt short
-    prompt_ids = torch.tensor([prompt_tokens], dtype=torch.long, device=device)
+    if prompt_ids is None:
+        prompt_tokens = tokenizer.encode(prompt_text, allowed_special=set())
+        prompt_tokens = prompt_tokens[:32]
+        prompt_ids = torch.tensor([prompt_tokens], dtype=torch.long, device=device)
 
     generated = model.generate(
         prompt_ids,
@@ -951,10 +1313,12 @@ def generate_sample(model, tokenizer, device, config, raw_text=None):
     )
 
     gen_tokens = generated[0].tolist()
-    prompt_decoded = tokenizer.decode(prompt_tokens)
-    gen_decoded = tokenizer.decode(gen_tokens[len(prompt_tokens):])
+    gen_decoded = tokenizer.decode(gen_tokens[prompt_ids.size(1):])
 
-    print(f"  >>> Sample: '{prompt_decoded}' → '{gen_decoded}'")
+    print(f"  >>> Prompt: '{prompt_text.replace('\n', ' ')}'")
+    print(f"  >>> Model:  '{gen_decoded.replace('\n', ' ')}'")
+    if target_text:
+        print(f"  >>> Target: '{target_text.replace('\n', ' ')}'")
 
 
 # ── CLI ─────────────────────────────────────────────────────────────────
@@ -976,8 +1340,37 @@ def parse_args():
     data_group.add_argument("--tokenizer", type=str, default="gpt2",
                            help="Tiktoken encoding name (gpt2, r50k_base, cl100k_base)")
 
-    # Model
-    model_group = parser.add_argument_group("Model")
+    # Distillation Strategy
+    distill_group = parser.add_argument_group("Distillation")
+    distill_group.add_argument("--use_distillation", action="store_true",
+                               help="Enable teacher-student distillation.")
+    distill_group.add_argument("--teacher_model_name", type=str, default="nvidia/Nemotron-3-4B-Base",
+                               help="HuggingFace model ID for the teacher model.")
+    distill_group.add_argument("--distill_logit_weight", type=float, default=1.0,
+                               help="Weight for soft-target KL divergence loss.")
+    distill_group.add_argument("--distill_feature_weight", type=float, default=0.0,
+                               help="Weight for feature-alignment loss. Default 0 (off). "
+                                    "Cross-architecture feature distillation is fragile; "
+                                    "enable only with --distill_feature_method cosine or mse_normed.")
+    distill_group.add_argument("--distill_temperature", type=float, default=4.0,
+                               help="Temperature T for soft-target distillation. The KL is "
+                                    "scaled by T^2 (Hinton 2015) so gradient magnitude is "
+                                    "T-invariant. Use 1.0 to disable softening.")
+    distill_group.add_argument("--distill_tick_aggregation", type=str, default="all",
+                               choices=["all", "last", "lm_aligned"],
+                               help="Which thought ticks receive KD signal. 'all' (default) "
+                                    "applies KD uniformly across every tick; 'last' is the "
+                                    "legacy behavior and conflicts with --per_tick_heads / "
+                                    "dynamic_aggregate; 'lm_aligned' mirrors the temporal "
+                                    "loss weighting.")
+    distill_group.add_argument("--distill_feature_method", type=str, default="cosine",
+                               choices=["cosine", "mse_normed", "mse"],
+                               help="Feature-distillation method (used only when "
+                                    "distill_feature_weight > 0). 'cosine' is recommended "
+                                    "for cross-architecture distillation.")
+
+    # Model Architecture
+    model_group = parser.add_argument_group("Model Architecture")
     model_group.add_argument("--d_model", type=int, default=512)
     model_group.add_argument("--d_latent", type=int, default=512)
     model_group.add_argument("--n_heads", type=int, default=8)
@@ -1015,6 +1408,14 @@ def parse_args():
                                  "max_steps is reached. Default: '2:0.30,4:0.60,8:1.00' = "
                                  "T=2 for first 30%%, T=4 for next 30%%, T=8 for final 40%%. "
                                  "Final stage's T must equal --max_thought_steps.")
+
+    # Two-Phase Data Curriculum
+    data_curr_group = parser.add_argument_group("Two-Phase Data Curriculum")
+    data_curr_group.add_argument("--use_two_phase_curriculum", action="store_true",
+                                 help="Enable Phase 1 (Logic Priming) and Phase 2 (Hybrid Mix) "
+                                      "interleaved datasets curriculum.")
+    data_curr_group.add_argument("--phase1_tokens", type=int, default=500000000,
+                                 help="Tokens to train in Phase 1 before switching to Phase 2.")
 
     # Training
     train_group = parser.add_argument_group("Training")
@@ -1185,8 +1586,17 @@ def main():
         nlm_hidden_dim=args.nlm_hidden_dim,
         nlm_groups=args.nlm_groups,
         per_tick_heads=args.per_tick_heads,
+        use_distillation=args.use_distillation,
+        teacher_model_name=args.teacher_model_name,
+        distill_logit_weight=args.distill_logit_weight,
+        distill_feature_weight=args.distill_feature_weight,
+        distill_temperature=args.distill_temperature,
+        distill_tick_aggregation=args.distill_tick_aggregation,
+        distill_feature_method=args.distill_feature_method,
         t_curriculum=args.t_curriculum,
         t_curriculum_stages=_parse_curriculum_stages(args.t_curriculum_stages),
+        use_two_phase_curriculum=args.use_two_phase_curriculum,
+        phase1_tokens=args.phase1_tokens,
         history_len=args.history_len,
         max_thought_steps=args.max_thought_steps,
         seq_len=args.seq_len,

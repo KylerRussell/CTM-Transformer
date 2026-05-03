@@ -1,0 +1,1 @@
+pkill -f "ctm_transformer.train" && echo "Killed CTM" || echo "No process found"

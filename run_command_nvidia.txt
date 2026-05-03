@@ -3,17 +3,17 @@ cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMyt
   --dataset_subset sample-10BT \
   --device cuda \
   --dtype bfloat16 \
-  --d_model 1152 \
-  --d_latent 1152 \
+  --d_model 1024 \
+  --d_latent 1024 \
   --n_layers 24 \
-  --n_heads 12 \
+  --n_heads 16 \
   --nlm_hidden_dim 64 \
   --nlm_groups 1 \
   --history_len 8 \
   --max_thought_steps 8 \
   --use_hyperloop \
   --hyperloop_n_begin 4 \
-  --hyperloop_n_middle 20 \
+  --hyperloop_n_middle 18 \
   --hyperloop_n_end 4 \
   --hyperloop_middle_loops 1 \
   --seq_len 512 \
@@ -40,12 +40,58 @@ cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMyt
   --sync_sparse_pairs 256 \
   --synapse_type mlp \
   --temporal_loss_type dynamic_aggregate \
+  --use_two_phase_curriculum \
+  --use_distillation \
+  --teacher_model_name "nvidia/NVIDIA-Nemotron-3-Nano-4B-FP8" \
+  --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-FP8" \
+  --phase1_tokens 500000000 \
+  --distill_logit_weight 1.0 \
+  --distill_temperature 4.0 \
+  --distill_tick_aggregation all \
+  --distill_feature_weight 0.0 \
   > train_v2_nv.log 2>&1 &
 echo "NVIDIA PID: $!"
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Distillation flag changes (vs. previous run):
+#
+# --distill_logit_weight 1.0
+#     Unchanged numerically, but the KL it weights is now ~512× smaller
+#     because the reduction bug is fixed. If this still feels too strong
+#     after a few thousand steps, drop to 0.5.
+#
+# --distill_temperature 4.0
+#     Softens both teacher and student distributions before computing KL,
+#     so the student learns the relative ordering of *all* tokens
+#     (the "dark knowledge"), not just the teacher's argmax. The KL is
+#     multiplied by T^2 so the gradient magnitude is invariant to T.
+#
+# --distill_tick_aggregation all
+#     KD is applied uniformly across every tick of the thought loop,
+#     not just the last one. Essential when --per_tick_heads is enabled
+#     (otherwise 7 of 8 heads never see KD signal); prevents the V-shaped
+#     per-tick CE pattern observed in the previous run.
+#
+# --distill_feature_weight 0.0
+#     The previous z-MSE term tried to align the FEEC-integrated student
+#     latent with NemotronH's last hidden state via raw MSE. Those two
+#     spaces have incompatible magnitude scales — that term contributed
+#     noise, not signal. Disabled by default. To re-enable later with a
+#     sensible objective, add:
+#
+#         --distill_feature_weight 0.1 \
+#         --distill_feature_method cosine
+#
+#     Cosine similarity is magnitude-invariant and is the right choice
+#     for cross-architecture distillation.
+# ─────────────────────────────────────────────────────────────────────
+
+
 # To stop:
 # pkill -f "ctm_transformer.train" && echo "Killed" || echo "No process found"
+# pkill -f "teacher_server.py"
+# pkill -f "ctm_transformer.train"
 
 # --use_engram \
 # --engram_ngram_orders 2 3 \
