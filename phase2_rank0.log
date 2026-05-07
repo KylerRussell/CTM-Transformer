@@ -1,0 +1,87 @@
+nohup: ignoring input
+Loading tokenizer: nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16
+Loading teacher: nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 on cuda:0
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/263 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 31/263 [00:00<00:00, 283.10it/s]Loading weights:  37%|███▋      | 97/263 [00:00<00:00, 489.52it/s]Loading weights:  61%|██████    | 161/263 [00:00<00:00, 540.73it/s]Loading weights:  88%|████████▊ | 231/263 [00:00<00:00, 596.48it/s]Loading weights: 100%|██████████| 263/263 [00:00<00:00, 489.95it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+Teacher vocab: 131072, caching top-128
+[multi-rank] this process is rank 0 of 2. Will write shards 0, 2, 4, ... into teacher_cache/phase2.
+[disk-cap] cache size limit: 225.0 GB (241,591,910,400 bytes), shared across all ranks. Will exit cleanly when reached.
+[curriculum] 12 sources (stratified=True, cycle=True):
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-RQA
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-InfiniByte-Reasoning
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Wiki-Rewrite
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-STEM-SFT
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Unconditional-Algorithmic
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Formal-Logic
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Economics
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Multiple-Choice
+   0.10  nvidia/Nemotron-CC-Math-v1/4plus_MIND
+[shard     0] rank=0/2 phase=2 samples=     1024 cache=0.4GB tok/s=    6563 eta= 13.1h
+[shard    10] rank=0/2 phase=2 samples=     6144 cache=4.2GB tok/s=    6772 eta=  6.8h
+[shard    20] rank=0/2 phase=2 samples=    11264 cache=7.6GB tok/s=    6782 eta=  6.8h
+[shard    30] rank=0/2 phase=2 samples=    16384 cache=11.0GB tok/s=    6773 eta=  6.7h
+[shard    40] rank=0/2 phase=2 samples=    21504 cache=14.8GB tok/s=    6765 eta=  6.4h
+[shard    50] rank=0/2 phase=2 samples=    26624 cache=18.2GB tok/s=    6767 eta=  6.3h
+[shard    60] rank=0/2 phase=2 samples=    31744 cache=22.0GB tok/s=    6764 eta=  6.1h
+[shard    70] rank=0/2 phase=2 samples=    36864 cache=25.8GB tok/s=    6761 eta=  6.0h
+[shard    80] rank=0/2 phase=2 samples=    41984 cache=29.3GB tok/s=    6757 eta=  5.9h
+[shard    90] rank=0/2 phase=2 samples=    47104 cache=33.0GB tok/s=    6755 eta=  5.8h
+[shard   100] rank=0/2 phase=2 samples=    52224 cache=36.5GB tok/s=    6757 eta=  5.7h
+[shard   110] rank=0/2 phase=2 samples=    57344 cache=40.3GB tok/s=    6757 eta=  5.5h
+[shard   120] rank=0/2 phase=2 samples=    62464 cache=43.7GB tok/s=    6755 eta=  5.5h
+[shard   130] rank=0/2 phase=2 samples=    67584 cache=47.5GB tok/s=    6754 eta=  5.3h
+[shard   140] rank=0/2 phase=2 samples=    72704 cache=50.9GB tok/s=    6752 eta=  5.2h
+[shard   150] rank=0/2 phase=2 samples=    77824 cache=54.7GB tok/s=    6751 eta=  5.1h
+[shard   160] rank=0/2 phase=2 samples=    82944 cache=58.5GB tok/s=    6750 eta=  5.0h
+[shard   170] rank=0/2 phase=2 samples=    88064 cache=61.9GB tok/s=    6751 eta=  4.9h
+[shard   180] rank=0/2 phase=2 samples=    93184 cache=65.7GB tok/s=    6752 eta=  4.8h
+[shard   190] rank=0/2 phase=2 samples=    98304 cache=69.1GB tok/s=    6751 eta=  4.7h
+[shard   200] rank=0/2 phase=2 samples=   103424 cache=72.9GB tok/s=    6750 eta=  4.5h
+[shard   210] rank=0/2 phase=2 samples=   108544 cache=76.4GB tok/s=    6750 eta=  4.5h
+[shard   220] rank=0/2 phase=2 samples=   113664 cache=80.2GB tok/s=    6750 eta=  4.3h
+[shard   230] rank=0/2 phase=2 samples=   118784 cache=83.6GB tok/s=    6751 eta=  4.2h
+[shard   240] rank=0/2 phase=2 samples=   123904 cache=87.4GB tok/s=    6751 eta=  4.1h
+[shard   250] rank=0/2 phase=2 samples=   129024 cache=91.2GB tok/s=    6750 eta=  4.0h
+[shard   260] rank=0/2 phase=2 samples=   134144 cache=94.6GB tok/s=    6751 eta=  3.9h
+[shard   270] rank=0/2 phase=2 samples=   139264 cache=98.4GB tok/s=    6751 eta=  3.8h
+[shard   280] rank=0/2 phase=2 samples=   144384 cache=101.8GB tok/s=    6751 eta=  3.7h
+[shard   290] rank=0/2 phase=2 samples=   149504 cache=105.6GB tok/s=    6751 eta=  3.6h
+[shard   300] rank=0/2 phase=2 samples=   154624 cache=109.0GB tok/s=    6751 eta=  3.5h
+[shard   310] rank=0/2 phase=2 samples=   159744 cache=112.8GB tok/s=    6752 eta=  3.3h
+[shard   320] rank=0/2 phase=2 samples=   164864 cache=116.2GB tok/s=    6752 eta=  3.2h
+[shard   330] rank=0/2 phase=2 samples=   169984 cache=120.0GB tok/s=    6752 eta=  3.1h
+[shard   340] rank=0/2 phase=2 samples=   175104 cache=123.5GB tok/s=    6752 eta=  3.0h
+[shard   350] rank=0/2 phase=2 samples=   180224 cache=127.3GB tok/s=    6752 eta=  2.9h
+[shard   360] rank=0/2 phase=2 samples=   185344 cache=131.1GB tok/s=    6752 eta=  2.8h
+[shard   370] rank=0/2 phase=2 samples=   190464 cache=134.5GB tok/s=    6752 eta=  2.7h
+[shard   380] rank=0/2 phase=2 samples=   195584 cache=138.3GB tok/s=    6752 eta=  2.6h
+[shard   390] rank=0/2 phase=2 samples=   200704 cache=141.7GB tok/s=    6753 eta=  2.5h
+[shard   400] rank=0/2 phase=2 samples=   205824 cache=145.5GB tok/s=    6754 eta=  2.4h
+[shard   410] rank=0/2 phase=2 samples=   210944 cache=148.9GB tok/s=    6754 eta=  2.3h
+[shard   420] rank=0/2 phase=2 samples=   216064 cache=152.7GB tok/s=    6754 eta=  2.2h
+[shard   430] rank=0/2 phase=2 samples=   221184 cache=156.1GB tok/s=    6754 eta=  2.1h
+[shard   440] rank=0/2 phase=2 samples=   226304 cache=159.9GB tok/s=    6754 eta=  1.9h
+[shard   450] rank=0/2 phase=2 samples=   231424 cache=163.4GB tok/s=    6754 eta=  1.8h
+[shard   460] rank=0/2 phase=2 samples=   236544 cache=167.1GB tok/s=    6754 eta=  1.7h
+[shard   470] rank=0/2 phase=2 samples=   241664 cache=170.9GB tok/s=    6754 eta=  1.6h
+[shard   480] rank=0/2 phase=2 samples=   246784 cache=174.7GB tok/s=    6754 eta=  1.5h
+[shard   490] rank=0/2 phase=2 samples=   251904 cache=178.5GB tok/s=    6754 eta=  1.4h
+[shard   500] rank=0/2 phase=2 samples=   257024 cache=182.3GB tok/s=    6755 eta=  1.3h
+[shard   510] rank=0/2 phase=2 samples=   262144 cache=186.1GB tok/s=    6754 eta=  1.2h
+[shard   520] rank=0/2 phase=2 samples=   267264 cache=189.9GB tok/s=    6754 eta=  1.0h
+[shard   530] rank=0/2 phase=2 samples=   272384 cache=193.4GB tok/s=    6754 eta=  0.9h
+[shard   540] rank=0/2 phase=2 samples=   277504 cache=197.2GB tok/s=    6754 eta=  0.8h
+[shard   550] rank=0/2 phase=2 samples=   282624 cache=201.0GB tok/s=    6754 eta=  0.7h
+[shard   560] rank=0/2 phase=2 samples=   287744 cache=204.8GB tok/s=    6754 eta=  0.6h
+[shard   570] rank=0/2 phase=2 samples=   292864 cache=208.6GB tok/s=    6753 eta=  0.5h
+[shard   580] rank=0/2 phase=2 samples=   297984 cache=212.4GB tok/s=    6753 eta=  0.4h
+[shard   590] rank=0/2 phase=2 samples=   303104 cache=216.5GB tok/s=    6753 eta=  0.2h
+[shard   600] rank=0/2 phase=2 samples=   308224 cache=220.3GB tok/s=    6753 eta=  0.1h
+[shard   610] rank=0/2 phase=2 samples=   313344 cache=224.1GB tok/s=    6753 eta=  0.0h
+[shard   614] rank=0/2 phase=2 samples=   315392 cache=225.3GB tok/s=    6753 eta=  0.0h
+Disk cap reached (225.0 GB). Stopping cleanly.
+Done. Rank 0 wrote 308 new shards (315392 samples total for phase 2).

@@ -115,6 +115,26 @@ class CTMConfig:
     # typically ~1% of the backbone.
     per_tick_heads: bool = False
 
+    # ── Shared Head + Per-Tick FiLM (post-restart architecture) ─────────
+    # When True, replaces the 8 per-tick LM heads (1.07B params for V=131072)
+    # with a single shared head + per-tick FiLM modulation (16K params total).
+    # This matches the published CTM architecture (one shared output
+    # projection across ticks) and reduces head FLOPs ~85% in forward and
+    # backward. FiLM = element-wise affine: y = gamma_t * x + beta_t,
+    # where (gamma_t, beta_t) are learned per-tick R^d_model vectors.
+    # Mutually exclusive with per_tick_heads.
+    use_shared_head_film: bool = False
+
+    # ── Tied Embeddings ─────────────────────────────────────────────────
+    # When True, the LM head's vocab projection shares weights with the
+    # token embedding (lm_head.weight = token_embedding.weight). Saves
+    # vocab_size*d_model parameters (134M at V=131072, d_model=1024) and
+    # the corresponding optimizer state (~1.6 GB for AdamW). Standard
+    # since Press & Wolf 2017; safe at student scale below ~1B params.
+    # Only meaningful when use_shared_head_film=True (with per_tick_heads,
+    # there's no canonical "the" head to tie to).
+    tie_embeddings: bool = False
+
     # ── Synchronization ─────────────────────────────────────────────────
     sync_method: str = "diag_summary"  # "full", "diag_summary", "low_rank", or "sparse_decay"
     sync_rank: int = 32                # Rank for low_rank sync method
@@ -353,21 +373,60 @@ class CTMConfig:
     distill_logit_weight: float = 1.0  # Weight for KL divergence loss
     distill_feature_weight: float = 0.0 # Weight for Z-alignment loss (default OFF — see distill_feature_method)
 
+    # Device placement for the teacher model. By default the teacher is
+    # colocated with the student ("auto" → same device as the rest of
+    # training). On multi-GPU systems with limited per-GPU VRAM, setting
+    # this to a separate device (e.g. "cuda:1") lets the student use the
+    # full memory of cuda:0 while the (frozen) teacher runs in parallel
+    # on cuda:1. The teacher inputs are shuttled across devices using
+    # non-blocking copies so the cross-GPU transfer overlaps with student
+    # compute.
+    #
+    # "auto" — same device as the student (the existing behavior).
+    # "cuda:N" — explicit device for the teacher (e.g. "cuda:1").
+    teacher_device: str = "auto"
+
     # Temperature for soft-target distillation. Standard KD uses T in [2, 5].
     # The KL loss is multiplied by T^2 so the gradient magnitude is invariant
     # to T (per Hinton 2015). Set to 1.0 to disable temperature softening.
     distill_temperature: float = 4.0
 
     # Which ticks to apply distillation to:
-    #   "all"           — uniform mean over every tick (recommended default;
-    #                     ensures every per-tick LM head receives KD signal,
-    #                     and avoids the V-shaped per-tick CE pattern caused
-    #                     by distilling only the last tick)
-    #   "last"          — only the final tick (legacy behavior; conflicts
-    #                     with dynamic_aggregate temporal loss — DO NOT USE
-    #                     with per_tick_heads or dynamic_aggregate)
+    #   "all"           — uniform mean over every tick. Strong KD signal at
+    #                     every step. CAVEAT: when the teacher signal is
+    #                     larger in magnitude than the base CE loss, this
+    #                     pulls every intermediate tick toward the teacher's
+    #                     final-answer-shaped distribution and flattens the
+    #                     thought loop — every tick predicts the same thing
+    #                     because every tick is being supervised against the
+    #                     same target. Use with mono_penalty + ramp_mono if
+    #                     you want the loop to develop genuine refinement.
+    #   "first"         — distill ONLY the first tick. The teacher
+    #                     constrains the model's initial guess; subsequent
+    #                     ticks refine via base CE + mono_penalty. Use when
+    #                     "all" is flattening the thought loop and you
+    #                     can't reduce distill_logit_weight enough to
+    #                     compensate. Cleanest interpretation: teacher
+    #                     handles fast pattern-matching, thought loop
+    #                     handles iterative refinement.
+    #   "last"          — distill ONLY the final tick. WARNING: empirically
+    #                     unstable in this codebase. The model's CE-best
+    #                     trajectory across ticks is often "rolling toward
+    #                     the right answer from a different direction than
+    #                     the teacher's prediction"; the final-tick
+    #                     distillation jerks tick T toward the teacher,
+    #                     producing per-tick CE shaped like
+    #                     [10, 9, 8, 7, 6, 9] (decreases through the loop,
+    #                     jumps up at the end), which mono_penalty then
+    #                     punishes severely.
+    #   "decay_ramp"    — linearly-decaying weights from tick 0 (full
+    #                     weight) to tick T-1 (10% weight). Front-loaded
+    #                     teacher signal: early ticks teacher-constrained,
+    #                     later ticks freer. Hybrid of "all" and "first".
+    #                     Renormalized so mean weight is 1.0, keeping
+    #                     distill_logit_weight semantics consistent.
     #   "lm_aligned"    — mirror the temporal_loss_type aggregation:
-    #                     dynamic_aggregate → KD on the lowest-CE/highest-cert ticks
+    #                     dynamic_aggregate → KD on lowest-CE/highest-cert ticks
     #                     ramp_mono         → ramp-weighted KD across ticks
     distill_tick_aggregation: str = "all"
 
@@ -382,6 +441,48 @@ class CTMConfig:
     #                  the two; preserves dimensional structure while
     #                  removing magnitude mismatch.
     distill_feature_method: str = "cosine"
+
+    # Top-K soft-target distillation. When > 0, KL is computed only over
+    # the teacher's top-K most-likely tokens at each position rather than
+    # the full vocabulary. The student is gathered at those same indices
+    # and softmaxed over only those K tokens, so both distributions live
+    # on the same support and the standard KL formulation applies.
+    #
+    # Why this is essentially free in accuracy: a calibrated 4B-class
+    # teacher puts >99% of its probability mass in its top-256 tokens for
+    # next-token prediction (the long tail is essentially noise from the
+    # softmax over an oversized vocabulary). The student matching the
+    # teacher's top-K distribution captures all the signal that wasn't
+    # already going to be drowned out anyway.
+    #
+    # Why it speeds up: the fp32 log_softmax over [B*S, V] at V=131072
+    # allocates ~268 MB per call and is a major slice of step time when
+    # distillation is on. With K=256 that becomes [B*S, 256] = ~512 KB —
+    # a ~512× reduction in softmax memory traffic, and the surrounding
+    # KL is correspondingly smaller.
+    #
+    # CALIBRATION NOTE: top-K KL has a larger absolute magnitude than
+    # full-vocab KL because the loss is no longer averaged across the
+    # near-zero tail. In synthetic tests the magnitude rises ~2-4× while
+    # the gradient cosine vs. full-vocab KL stays above 0.98. If you see
+    # KL dominating the LM loss after enabling this, drop
+    # distill_logit_weight by a similar factor (e.g. 1.0 → 0.3).
+    #
+    # 0 = full-vocab KD (legacy / safe fallback).
+    # 128-512 are reasonable values; 256 is a good default.
+    distill_top_k: int = 256
+
+    # ── Offline Teacher Cache ───────────────────────────────────────────
+    # When True, the training loop reads pre-computed teacher top-K
+    # logits from disk (produced by scripts/cache_teacher_logits.py) and
+    # does NOT load a teacher model. cuda:1 is freed for student-side
+    # data parallelism, and the per-step `teacher_issue` cost vanishes.
+    #
+    # When this is enabled, `use_distillation` is implicitly true (the
+    # cache only exists if you intend to distill), and `teacher_model_name`
+    # / `teacher_device` are ignored.
+    use_cached_teacher: bool = False
+    teacher_cache_dir: str = ""
 
     # ── Device ──────────────────────────────────────────────────────────
     device: str = "auto"               # "auto", "cuda", "cpu"

@@ -1,7 +1,9 @@
-ctm_transformer/__pycache__
+__pycache__*/
+ctm_transformer/__pycache__*/
 venv
 .venv
 .env
 *.pt
 checkpoints*/
 data_cache*/
+teacher_cache*/

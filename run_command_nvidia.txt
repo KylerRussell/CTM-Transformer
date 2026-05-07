@@ -1,6 +1,138 @@
-cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 nohup python -m ctm_transformer.train \
-  --dataset fineweb-edu \
-  --dataset_subset sample-10BT \
+# ════════════════════════════════════════════════════════════════════════
+# CTM-Transformer training, cached-teacher + DDP edition
+# ════════════════════════════════════════════════════════════════════════
+#
+# Phase 2b of the throughput overhaul: DistributedDataParallel across
+# both 3090s. Combined with the cached teacher (Phase 1) and shared
+# head + tied embeddings (Phase 2a), this is the bundle.
+#
+# Differences vs. the previous run_command_nvidia.txt:
+#
+#   LAUNCH:
+#     `torchrun --standalone --nproc_per_node=2 -m ctm_transformer.train`
+#     instead of `python -m ctm_transformer.train`. torchrun spawns 2
+#     processes (one per GPU), sets RANK / LOCAL_RANK / WORLD_SIZE in
+#     env, and the train script reads those to set up DDP.
+#
+#   ADDED FLAGS:
+#     (none — DDP is auto-detected from torchrun env vars)
+#
+#   AUTO-DISABLED UNDER DDP:
+#     --use_cuda_graphs (CUDA Graphs and DDP NCCL all-reduce don't
+#                        compose; the script auto-disables this and
+#                        warns. Removed from the command below to avoid
+#                        confusion.)
+#
+#   NEW STARTUP LOG LINES:
+#     [DDP] Wrapped model. world_size=2, this rank=0, local_rank=0
+#
+#   THROUGHPUT METRIC:
+#     `tok/s` in the log line is now the EFFECTIVE rate across both
+#     ranks (per-rank tokens × world_size). Should jump from ~400
+#     (single-GPU) to ~750-900 (two-GPU DDP without NVLink).
+# ════════════════════════════════════════════════════════════════════════
+
+
+# ──────────────────────────────────────────────────────────────────────
+# VALIDATION RUN — short, just to verify DDP works end-to-end
+# ──────────────────────────────────────────────────────────────────────
+# Run this FIRST. Trains for 100 steps with profiler reports at steps
+# 50 and 100. Takes ~2 minutes (vs. ~3-4 min single-GPU).
+#
+# Sanity checks:
+#
+#   1. Startup: should print TWICE the dataset-loading messages? NO —
+#      we silence non-rank-0 print, so logs show rank 0's view only.
+#      You'll see:
+#        [DDP] Wrapped model. world_size=2, this rank=0, local_rank=0
+#        Dataset: Cached Teacher Logits (curriculum mode)
+#        Model: 471,327,567 parameters (471.3M)
+#        ...
+#
+#   2. nvidia-smi: BOTH cards should show ~12-15 GB used (one student
+#      replica per card) and high GPU utilization. cuda:1 going from
+#      ~300 MB / 0% util to 15 GB / 80%+ util is the proof the second
+#      GPU is now doing real work.
+#
+#   3. The PhaseTimer report at step 50 should show:
+#        - student_fwd, backward, optimizer, grad_clip, data — same
+#          phases as before
+#        - Total step time: ~700-850 ms (was 1340 ms single-GPU)
+#        - Effective tok/s: ~750-900 (was ~400)
+#
+#   4. Loss should track the single-GPU run closely. Each step now
+#      processes 2× the unique data (each rank sees a different shard
+#      slice), but the per-step gradient is the average across ranks
+#      so the optimization dynamics are equivalent to batch_size×2.
+#      Don't worry if loss curves don't overlay exactly — they shouldn't.
+
+# cd /home/kyler/Documents/CTM-Transformer && \
+#   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
+#   CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 torchrun \
+#     --standalone --nproc_per_node=2 \
+#     -m ctm_transformer.train \
+#     --device cuda \
+#     --dtype bfloat16 \
+#     --d_model 1024 \
+#     --d_latent 1024 \
+#     --n_layers 24 \
+#     --n_heads 16 \
+#     --nlm_hidden_dim 64 \
+#     --nlm_groups 1 \
+#     --history_len 8 \
+#     --max_thought_steps 8 \
+#     --use_hyperloop \
+#     --hyperloop_n_begin 4 \
+#     --hyperloop_n_middle 18 \
+#     --hyperloop_n_end 4 \
+#     --hyperloop_middle_loops 1 \
+#     --seq_len 512 \
+#     --batch_size 1 \
+#     --gradient_accumulation_steps 1 \
+#     --learning_rate 3e-4 \
+#     --warmup_steps 2000 \
+#     --max_steps 100 \
+#     --gradient_checkpointing \
+#     --log_interval 10 \
+#     --eval_interval 100000 \
+#     --optimizer adamw \
+#     --use_8bit_adam \
+#     --gradient_checkpointing_min_T 2 \
+#     --checkpoint_dir checkpoints_v2_ddp_validation \
+#     --use_feec \
+#     --n_streams 4 \
+#     --use_loop_pos_emb \
+#     --use_triton_attention \
+#     --tiled_schedule \
+#     --sync_method sparse_decay \
+#     --sync_sparse_pairs 256 \
+#     --synapse_type mlp \
+#     --temporal_loss_type dynamic_aggregate \
+#     --use_two_phase_curriculum \
+#     --use_distillation \
+#     --use_cached_teacher \
+#     --teacher_cache_dir ./teacher_cache \
+#     --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16" \
+#     --phase1_tokens 500000000 \
+#     --distill_logit_weight 1.0 \
+#     --distill_temperature 4.0 \
+#     --distill_tick_aggregation all \
+#     --distill_top_k 128 \
+#     --distill_feature_weight 0.0 \
+#     --use_shared_head_film \
+#     --tie_embeddings \
+#     --profile \
+#     --profile_warmup 20 \
+#     --profile_interval 50
+
+
+# ──────────────────────────────────────────────────────────────────────
+# FULL TRAINING RUN — once validation looks good
+# ──────────────────────────────────────────────────────────────────────
+
+cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 nohup torchrun \
+  --standalone --nproc_per_node=2 \
+  -m ctm_transformer.train \
   --device cuda \
   --dtype bfloat16 \
   --d_model 1024 \
@@ -27,14 +159,12 @@ cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMyt
   --eval_interval 1000 \
   --optimizer adamw \
   --use_8bit_adam \
-  --per_tick_heads \
   --gradient_checkpointing_min_T 2 \
-  --checkpoint_dir checkpoints_v2_200m_nv \
+  --checkpoint_dir checkpoints_v2_ddp \
   --use_feec \
   --n_streams 4 \
   --use_loop_pos_emb \
   --use_triton_attention \
-  --use_cuda_graphs \
   --tiled_schedule \
   --sync_method sparse_decay \
   --sync_sparse_pairs 256 \
@@ -42,57 +172,84 @@ cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMyt
   --temporal_loss_type dynamic_aggregate \
   --use_two_phase_curriculum \
   --use_distillation \
-  --teacher_model_name "nvidia/NVIDIA-Nemotron-3-Nano-4B-FP8" \
-  --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-FP8" \
+  --use_cached_teacher \
+  --teacher_cache_dir ./teacher_cache \
+  --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16" \
   --phase1_tokens 500000000 \
   --distill_logit_weight 1.0 \
   --distill_temperature 4.0 \
   --distill_tick_aggregation all \
+  --distill_top_k 128 \
   --distill_feature_weight 0.0 \
-  > train_v2_nv.log 2>&1 &
-echo "NVIDIA PID: $!"
+  --use_shared_head_film \
+  --tie_embeddings \
+  --profile \
+  --profile_warmup 20 \
+  --profile_interval 10000 \
+  > train_v2_ddp.log 2>&1 &
+echo "DDP PID (torchrun parent): $!"
 
 
 # ─────────────────────────────────────────────────────────────────────
-# Distillation flag changes (vs. previous run):
+# Sanity check on first launch:
 #
-# --distill_logit_weight 1.0
-#     Unchanged numerically, but the KL it weights is now ~512× smaller
-#     because the reduction bug is fixed. If this still feels too strong
-#     after a few thousand steps, drop to 0.5.
+#   1. nvidia-smi:
+#        cuda:0: ~12-15 GB, 80%+ util
+#        cuda:1: ~12-15 GB, 80%+ util  ← was 300 MB / 0% before DDP
+#      Both ranks running real work confirms DDP wiring.
 #
-# --distill_temperature 4.0
-#     Softens both teacher and student distributions before computing KL,
-#     so the student learns the relative ordering of *all* tokens
-#     (the "dark knowledge"), not just the teacher's argmax. The KL is
-#     multiplied by T^2 so the gradient magnitude is invariant to T.
+#   2. The first PhaseTimer report (around step 30 with warmup=20)
+#      should show total step time of ~700-850 ms. Single-GPU was
+#      1340 ms. The reduction is roughly 1.6-1.9× depending on how
+#      well the gradient all-reduce overlaps with backward compute.
 #
-# --distill_tick_aggregation all
-#     KD is applied uniformly across every tick of the thought loop,
-#     not just the last one. Essential when --per_tick_heads is enabled
-#     (otherwise 7 of 8 heads never see KD signal); prevents the V-shaped
-#     per-tick CE pattern observed in the previous run.
+#   3. Effective tok/s should be 1.6-1.9× the single-GPU number.
+#      Was ~400; expect ~640-760.
 #
-# --distill_feature_weight 0.0
-#     The previous z-MSE term tried to align the FEEC-integrated student
-#     latent with NemotronH's last hidden state via raw MSE. Those two
-#     spaces have incompatible magnitude scales — that term contributed
-#     noise, not signal. Disabled by default. To re-enable later with a
-#     sensible objective, add:
+#   4. Both ranks must complete each backward together. If you see
+#      one rank's nvidia-smi util drop to 0% while the other stays
+#      at 100%, DDP's all-reduce is hung — kill and investigate
+#      with NCCL_DEBUG=INFO.
 #
-#         --distill_feature_weight 0.1 \
-#         --distill_feature_method cosine
-#
-#     Cosine similarity is magnitude-invariant and is the right choice
-#     for cross-architecture distillation.
+#   5. Loss values should be similar to (but not identical to) the
+#      single-GPU run. With DDP, each step's gradient is averaged
+#      across ranks, so it's mathematically equivalent to a single
+#      machine running batch_size=2*batch_size. Convergence
+#      trajectory should be similar in shape.
 # ─────────────────────────────────────────────────────────────────────
 
 
 # To stop:
-# pkill -f "ctm_transformer.train" && echo "Killed" || echo "No process found"
-# pkill -f "teacher_server.py"
-# pkill -f "ctm_transformer.train"
+# pkill -f "torchrun.*ctm_transformer" && echo "Killed DDP" || echo "No DDP process"
+# pkill -f "ctm_transformer.train" && echo "Killed children"
 
+
+# ─────────────────────────────────────────────────────────────────────
+# Diagnosing DDP problems
+# ─────────────────────────────────────────────────────────────────────
+#
+# If the run hangs at startup before any training begins:
+#   - Likely NCCL initialization. Add NCCL_DEBUG=INFO to env to see
+#     where it's stuck. Typical issues: firewall blocking the rendezvous
+#     port, or another process already using port 29500.
+#
+# If the run starts but hangs after a few backward passes:
+#   - find_unused_parameters detection issue. The model has tick-
+#     conditional FiLM access — if a tick is ever skipped, that step's
+#     unused params will trigger DDP's hang-on-mismatch behavior.
+#     Confirm by adding TORCH_DISTRIBUTED_DEBUG=DETAIL to env.
+#
+# If throughput is BELOW 1.5× single-GPU:
+#   - PCIe contention. Check that both GPUs are at full PCIe gen 4 x16:
+#     `nvidia-smi --query-gpu=pcie.link.gen.current,pcie.link.width.current --format=csv`
+#   - Check if CPU-side dispatch is the bottleneck (rare on 3090): the
+#     PhaseTimer report should show student_fwd close to single-GPU value;
+#     if it's 2× single-GPU value, something's wrong with the device
+#     binding.
+# ─────────────────────────────────────────────────────────────────────
+
+
+# Engram (optional, currently disabled — uncomment if re-enabling later):
 # --use_engram \
 # --engram_ngram_orders 2 3 \
 # --engram_n_heads 8 \

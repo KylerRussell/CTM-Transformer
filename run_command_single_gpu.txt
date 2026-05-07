@@ -1,0 +1,63 @@
+# ── Option A: Single GPU, No DDP ──────────────────────────────────────
+# Eliminates the PCIe NCCL bottleneck entirely by running on one 3090.
+# Expected throughput: ~2-4k tok/s (vs 0.3k with DDP).
+# Uses `python` instead of `torchrun` — no RANK/LOCAL_RANK env vars,
+# so DDP is never initialized.
+
+cd /home/kyler/Documents/CTM-Transformer && \
+  source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
+  CUDA_VISIBLE_DEVICES=0 PYTHONUNBUFFERED=1 python \
+    -m ctm_transformer.train \
+    --device cuda \
+    --dtype bfloat16 \
+    --d_model 1024 \
+    --d_latent 1024 \
+    --n_layers 24 \
+    --n_heads 16 \
+    --nlm_hidden_dim 64 \
+    --nlm_groups 1 \
+    --history_len 8 \
+    --max_thought_steps 8 \
+    --use_hyperloop \
+    --hyperloop_n_begin 4 \
+    --hyperloop_n_middle 18 \
+    --hyperloop_n_end 4 \
+    --hyperloop_middle_loops 1 \
+    --seq_len 512 \
+    --batch_size 1 \
+    --gradient_accumulation_steps 1 \
+    --learning_rate 3e-4 \
+    --warmup_steps 2000 \
+    --max_steps 1000 \
+    --gradient_checkpointing \
+    --log_interval 10 \
+    --eval_interval 100000 \
+    --optimizer adamw \
+    --use_8bit_adam \
+    --gradient_checkpointing_min_T 2 \
+    --checkpoint_dir checkpoints_v2_single_gpu \
+    --use_feec \
+    --n_streams 4 \
+    --use_loop_pos_emb \
+    --use_triton_attention \
+    --tiled_schedule \
+    --sync_method sparse_decay \
+    --sync_sparse_pairs 256 \
+    --synapse_type mlp \
+    --temporal_loss_type dynamic_aggregate \
+    --use_two_phase_curriculum \
+    --use_distillation \
+    --use_cached_teacher \
+    --teacher_cache_dir ./teacher_cache \
+    --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16" \
+    --phase1_tokens 500000000 \
+    --distill_logit_weight 1.0 \
+    --distill_temperature 4.0 \
+    --distill_tick_aggregation all \
+    --distill_top_k 128 \
+    --distill_feature_weight 0.0 \
+    --use_shared_head_film \
+    --tie_embeddings \
+    --profile \
+    --profile_warmup 20 \
+    --profile_interval 20

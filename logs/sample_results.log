@@ -1,0 +1,31 @@
+--teacher_batch_size 1 \
+[shard     0] phase=1 samples=     1024 tok/s=    5427 eta= 26.2h
+[shard     2] phase=1 samples=     3072 tok/s=    5679 eta= 25.0h
+
+--teacher_batch_size 2 \
+[shard     0] phase=1 samples=     1024 tok/s=    5937 eta= 23.9h
+[shard     2] phase=1 samples=     3072 tok/s=    6153 eta= 23.0h
+
+--teacher_batch_size 4 \
+[shard     0] phase=1 samples=     1024 tok/s=    6098 eta= 23.3h
+[shard     2] phase=1 samples=     3072 tok/s=    6387 eta= 22.2h
+
+--teacher_batch_size 6 \
+[shard     0] phase=1 samples=     1024 tok/s=    6214 eta= 22.9h
+[shard     2] phase=1 samples=     3072 tok/s=    6578 eta= 21.6h
+
+--teacher_batch_size 8 \
+[shard     0] phase=1 samples=     1024 tok/s=    6440 eta= 22.1h
+[shard     2] phase=1 samples=     3072 tok/s=    6781 eta= 20.9h
+
+--teacher_batch_size 10 \
+[shard     0] phase=1 samples=     1024 tok/s=    6288 eta= 22.6h
+[shard     2] phase=1 samples=     3072 tok/s=    6617 eta= 21.4h
+
+--teacher_batch_size 12 \
+[shard     0] phase=1 samples=     1024 tok/s=    6359 eta= 22.3h
+[shard     2] phase=1 samples=     3072 tok/s=    6701 eta= 21.2h
+
+--teacher_batch_size 16 \ (23500 MiB VRAM)
+[shard     0] phase=1 samples=     1024 tok/s=    6312 eta= 22.5h
+[shard     2] phase=1 samples=     3072 tok/s=    6652 eta= 21.3h

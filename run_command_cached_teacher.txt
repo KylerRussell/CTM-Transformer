@@ -1,0 +1,250 @@
+# ════════════════════════════════════════════════════════════════════════
+# Phase 1 of the throughput overhaul: offline teacher cache
+# ════════════════════════════════════════════════════════════════════════
+#
+# This run command supersedes run_command_nvidia.txt. The teacher model
+# is no longer loaded into the training process — top-K logits are read
+# from a pre-built cache on disk. Expected impact: teacher_issue (413 ms,
+# 23% of step time) goes to zero. cuda:1 sits empty, freed for Phase 4
+# DDP work later.
+#
+# Reference: see the throughput optimization report for the full plan.
+# ════════════════════════════════════════════════════════════════════════
+
+
+# ──────────────────────────────────────────────────────────────────────
+# STEP 1 — Build the teacher cache (one-time, ~24-48h on a single 3090)
+# ──────────────────────────────────────────────────────────────────────
+#
+# Run these two commands sequentially. They build phase1/ and phase2/
+# subdirectories under teacher_cache/ matching the curriculum mix in
+# config.py. Each is killable/resumable — shards already on disk are
+# skipped on restart.
+#
+# IMPORTANT: this uses the BF16 teacher, not FP8. RTX 3090 (Ampere,
+# SM 8.6) has no FP8 tensor cores; the BF16 variant runs faster. The
+# tokenizer and vocab are identical between the two checkpoints, so
+# the student's V=131072 head is unaffected.
+
+# Phase 1 (logic priming — math, formal logic, scientific coding, etc.)
+# Capped at 75 GB on disk: ~half the 150 GB budget, K=128 keeps gradient
+# cosine >0.95 vs full vocab.
+#
+# By default, exhausted small sources cycle (re-shuffled and re-read) so
+# the configured curriculum mixing weights are preserved. Without cycling,
+# small sources like Formal-Logic (18M tokens, weight 0.10) drop out
+# early and the cache becomes dominated by large sources regardless of
+# the configured weights. Use --no_cycle to opt out.
+
+# ── SINGLE-GPU build (legacy / one-card setups) ─────────────────────
+# cd /home/kyler/Documents/CTM-Transformer && \
+#   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
+#   PYTHONUNBUFFERED=1 python -m scripts.cache_teacher_logits \
+#     --phase 1 \
+#     --output_dir teacher_cache/phase1 \
+#     --data_cache_dir ./data_cache \
+#     --teacher_model nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --tokenizer nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --seq_len 512 \
+#     --top_k 128 \
+#     --samples_per_shard 1024 \
+#     --max_samples 100000000 \
+#     --max_cache_gb 75 \
+#     --teacher_batch_size 8 \
+#     --device cuda:0
+
+# ── DUAL-GPU build (recommended; ~1.95× throughput vs single-GPU) ───
+# Launch two producer processes in parallel — one per GPU. Both write
+# disjoint shard indices into the same --output_dir, with each rank
+# using an independent random stream so the cached samples are
+# statistically distinct (not duplicates). The shared --max_cache_gb
+# is honored globally; whichever rank notices the cap is hit first
+# exits cleanly, and the other rank exits on its next shard boundary.
+#
+# At 6,700 tok/s per GPU, two GPUs ≈ 13,000 tok/s, dropping the 75 GB
+# Phase 1 ETA from ~22h to ~11h. Phase 2 at 225 GB drops correspondingly.
+#
+# Run BOTH commands (in separate terminals, or one in the background):
+#
+# # Terminal 1 (rank 0, GPU 0):
+# cd /home/kyler/Documents/CTM-Transformer && \
+#   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
+#   PYTHONUNBUFFERED=1 python -m scripts.cache_teacher_logits \
+#     --phase 1 \
+#     --output_dir teacher_cache/phase1 \
+#     --data_cache_dir ./data_cache \
+#     --teacher_model nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --tokenizer nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --seq_len 512 \
+#     --top_k 128 \
+#     --samples_per_shard 1024 \
+#     --max_samples 100000000 \
+#     --max_cache_gb 75 \
+#     --teacher_batch_size 8 \
+#     --rank 0 --world_size 2 \
+#     --device cuda:0
+#
+# # Terminal 2 (rank 1, GPU 1):
+# cd /home/kyler/Documents/CTM-Transformer && \
+#   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
+#   PYTHONUNBUFFERED=1 python -m scripts.cache_teacher_logits \
+#     --phase 1 \
+#     --output_dir teacher_cache/phase1 \
+#     --data_cache_dir ./data_cache \
+#     --teacher_model nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --tokenizer nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --seq_len 512 \
+#     --top_k 128 \
+#     --samples_per_shard 1024 \
+#     --max_samples 100000000 \
+#     --max_cache_gb 75 \
+#     --teacher_batch_size 8 \
+#     --rank 1 --world_size 2 \
+#     --device cuda:1
+#
+# Or as a single command running both in background:
+# nohup python -m scripts.cache_teacher_logits ... --rank 0 --world_size 2 --device cuda:0 > rank0.log 2>&1 &
+# nohup python -m scripts.cache_teacher_logits ... --rank 1 --world_size 2 --device cuda:1 > rank1.log 2>&1 &
+# wait
+#
+# Notes:
+#   --max_samples is set HUGE on purpose; --max_cache_gb is the binding
+#     constraint. Both gates exist (belt + suspenders) but the disk cap
+#     is what stops the run.
+#   Stratified sampling is on by default (use --no_stratified to disable).
+#     This means parquet files within each source are visited in seeded-
+#     shuffled order, and rows within each batch are shuffled too — gives
+#     a representative slice of each source rather than its first N files.
+#   Cycling is on by default (use --no_cycle to disable). Small sources
+#     get re-shuffled and re-read when exhausted so their cache share
+#     stays at the configured mixing weight. Documents repeat across
+#     cycles, but teacher logits are deterministic so this is just
+#     oversampling — equivalent to "10% of the cache is Formal-Logic
+#     content" per the curriculum config.
+#   Storage math: at S=512, K=128, each sample is ~389 KB
+#     (input_ids + targets + top-K indices + values + residual). 75 GB
+#     of cache = ~193K samples ≈ ~99 M unique tokens. The student will
+#     cycle this many times during the 500 M-token Phase 1 budget.
+
+# Phase 2 (full-competence mix, capped at 225 GB)
+# cd /home/kyler/Documents/CTM-Transformer && \
+#   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
+#   PYTHONUNBUFFERED=1 python -m scripts.cache_teacher_logits \
+#     --phase 2 \
+#     --output_dir teacher_cache/phase2 \
+#     --data_cache_dir ./data_cache \
+#     --teacher_model nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --tokenizer nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 \
+#     --seq_len 512 \
+#     --top_k 128 \
+#     --samples_per_shard 1024 \
+#     --max_samples 100000000 \
+#     --max_cache_gb 225 \
+#     --teacher_batch_size 8 \
+#     --device cuda:0
+#
+# Total disk: 75 + 225 = 300 GB, leaves ~290 GB free on the 1.9 TB drive
+# after the 1.3 TB existing usage.
+
+
+# ──────────────────────────────────────────────────────────────────────
+# STEP 2 — Training run (uses the cache; teacher model is NOT loaded)
+# ──────────────────────────────────────────────────────────────────────
+
+cd /home/kyler/Documents/CTM-Transformer && source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 nohup python -m ctm_transformer.train \
+  --device cuda \
+  --dtype bfloat16 \
+  --d_model 1024 \
+  --d_latent 1024 \
+  --n_layers 24 \
+  --n_heads 16 \
+  --nlm_hidden_dim 64 \
+  --nlm_groups 1 \
+  --history_len 8 \
+  --max_thought_steps 8 \
+  --use_hyperloop \
+  --hyperloop_n_begin 4 \
+  --hyperloop_n_middle 18 \
+  --hyperloop_n_end 4 \
+  --hyperloop_middle_loops 1 \
+  --seq_len 512 \
+  --batch_size 1 \
+  --gradient_accumulation_steps 1 \
+  --learning_rate 3e-4 \
+  --warmup_steps 2000 \
+  --max_steps 10000000 \
+  --gradient_checkpointing \
+  --log_interval 10 \
+  --eval_interval 1000 \
+  --optimizer adamw \
+  --use_8bit_adam \
+  --per_tick_heads \
+  --gradient_checkpointing_min_T 2 \
+  --checkpoint_dir checkpoints_v2_200m_nv_cached \
+  --use_feec \
+  --n_streams 4 \
+  --use_loop_pos_emb \
+  --use_triton_attention \
+  --use_cuda_graphs \
+  --tiled_schedule \
+  --sync_method sparse_decay \
+  --sync_sparse_pairs 256 \
+  --synapse_type mlp \
+  --temporal_loss_type dynamic_aggregate \
+  --use_two_phase_curriculum \
+  --use_distillation \
+  --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16" \
+  --phase1_tokens 500000000 \
+  --distill_logit_weight 1.0 \
+  --distill_temperature 4.0 \
+  --distill_tick_aggregation all \
+  --distill_top_k 256 \
+  --distill_feature_weight 0.0 \
+  --use_cached_teacher \
+  --teacher_cache_dir ./teacher_cache \
+  --profile \
+  --profile_warmup 20 \
+  --profile_interval 10000 \
+  > train_v2_nv_cached.log 2>&1 &
+echo "NVIDIA PID: $!"
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Differences from run_command_nvidia.txt:
+#
+#   ADDED:
+#     --use_cached_teacher
+#     --teacher_cache_dir ./teacher_cache
+#     --tokenizer changed BF16 (was FP8) — same vocab, faster locally
+#                                          (relevant if any tokenizer
+#                                          init does on-device work)
+#   REMOVED:
+#     --teacher_model_name "nvidia/NVIDIA-Nemotron-3-Nano-4B-FP8"
+#     --teacher_device cuda:1
+#     --dataset / --dataset_subset (overridden by curriculum + cache)
+#
+# Everything else is identical. The model architecture, optimizer,
+# distillation hyperparameters, curriculum tokens-budget — all unchanged.
+# ─────────────────────────────────────────────────────────────────────
+
+
+# Sanity checks for the first few minutes of the run:
+#   1. The startup log should print:
+#        [cached-teacher] Skipping teacher model load — top-K logits will
+#        be streamed from ./teacher_cache
+#      and NOT print "Loading teacher model:".
+#   2. nvidia-smi: cuda:0 around 12-15 GB (no teacher); cuda:1 should
+#      drop to near 0 (only background CUDA context).
+#   3. The first PhaseTimer report (around step 30 with warmup=20) should
+#      show NO "teacher_issue" / "teacher_fwd" line at all; the rest of
+#      the breakdown stays similar minus those 413 ms.
+#   4. tok/s in the log should rise from ~300 to ~510 — about 1.30× from
+#      this single change. This is Phase 1 of the 5-7× plan; later phases
+#      pile on additional gains (see throughput report Path B/C/D).
+
+
+# To stop:
+# pkill -f "ctm_transformer.train" && echo "Killed" || echo "No process found"
+
+# To resume after a kill, use: --resume_from latest (existing flag).
+# The cache itself is unchanged across runs.

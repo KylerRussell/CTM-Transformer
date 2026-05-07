@@ -1,0 +1,1 @@
+pkill -9 -f "venv_nv/bin/python" && echo "Killed training processes" || echo "No training process found"

@@ -35,14 +35,96 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn.functional as F
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import Dataset, IterableDataset, DataLoader, get_worker_info
 
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer
 from ctm_transformer.adamuon import AdaMuon, build_param_groups
 from ctm_transformer.engram import EngramTable
+from ctm_transformer.phase_timer import PhaseTimer
+from ctm_transformer.cached_teacher_dataset import (
+    CachedTeacherDataset,
+    cached_teacher_collate,
+)
 
 import pyarrow.parquet as pq
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Distributed Data Parallel helpers
+# ─────────────────────────────────────────────────────────────────────
+
+def is_torchrun_launch() -> bool:
+    """True if we were launched via torchrun (RANK + LOCAL_RANK + WORLD_SIZE
+    in env). torchrun sets all three; presence of any one is sufficient
+    in practice but we check the canonical RANK + LOCAL_RANK pair."""
+    return "RANK" in os.environ and "LOCAL_RANK" in os.environ
+
+
+def setup_distributed() -> tuple[int, int, int]:
+    """Initialize torch.distributed if running under torchrun.
+
+    Returns (rank, world_size, local_rank). When not running under
+    torchrun, returns (0, 1, 0) and is a no-op.
+
+    Side effect: on non-rank-0 processes, replaces the built-in `print`
+    with a no-op so verbose startup banners and per-step logs only
+    appear once. Errors and explicit `sys.stderr.write` calls are NOT
+    silenced.
+    """
+    if not is_torchrun_launch():
+        return 0, 1, 0
+
+    rank = int(os.environ["RANK"])
+    world_size = int(os.environ["WORLD_SIZE"])
+    local_rank = int(os.environ["LOCAL_RANK"])
+
+    # NCCL is the right backend for CUDA — supports tensor reductions
+    # directly between GPU memory regions. The Gloo CPU backend works
+    # everywhere but is significantly slower for our workload.
+    if not dist.is_initialized():
+        dist.init_process_group(backend="nccl")
+    torch.cuda.set_device(local_rank)
+
+    # Silence non-rank-0 stdout. We do this BEFORE returning so the
+    # rest of training emits a single rank's view in the log file.
+    # Errors should still flow: stderr is unaffected, and assertion/
+    # exception traces don't go through `print`.
+    if rank != 0:
+        import builtins
+        _real_print = builtins.print
+        def _silenced_print(*args, **kwargs):
+            # Allow `flush=True` calls to flush stderr if anyone wrote
+            # to it via print(file=sys.stderr); other calls are dropped.
+            return None
+        builtins.print = _silenced_print
+
+    return rank, world_size, local_rank
+
+
+def cleanup_distributed():
+    """Tear down the process group at the end of training, if it was set up."""
+    if dist.is_initialized():
+        dist.destroy_process_group()
+
+
+def is_main_process() -> bool:
+    """Rank-0 check — used to gate prints, checkpoint saves, eval."""
+    if not dist.is_initialized():
+        return True
+    return dist.get_rank() == 0
+
+
+def unwrap_model(m):
+    """Return the underlying nn.Module if `m` is a DDP wrapper, else `m`.
+
+    Use this anywhere we need to access non-Parameter attributes
+    (e.g. `model._train_step`, `model.config`) — DDP forwards through
+    `.forward()` but doesn't proxy arbitrary attribute lookups."""
+    return m.module if hasattr(m, "module") else m
+
 from huggingface_hub import HfFileSystem, hf_hub_download
 from datasets import IterableDataset as HFIterableDataset, Features, Value
 
@@ -570,10 +652,19 @@ def save_checkpoint(model, optimizers, step, config, path, keep_last=3):
     `optimizer_state_dicts` (a list); the legacy single-optimizer key
     `optimizer_state_dict` is also written for backward-compatibility with
     older checkpoints loaded by external scripts.
+
+    DDP-aware: the underlying model's state_dict is saved (no `module.`
+    prefix), so checkpoints round-trip cleanly between single-GPU and
+    DDP runs.
     """
+    # Only rank 0 saves. Other ranks would either overwrite (race) or
+    # waste I/O writing identical state.
+    if not is_main_process():
+        return
+    underlying = unwrap_model(model)
     ckpt_dir = path.parent
     payload = {
-        "model_state_dict": model.state_dict(),
+        "model_state_dict": underlying.state_dict(),
         "optimizer_state_dicts": [o.state_dict() for o in optimizers],
         "step": step,
         "config": vars(config),
@@ -599,9 +690,19 @@ def load_checkpoint(model, optimizers, path, device):
     `optimizers` is a list. Loads in order from `optimizer_state_dicts` if
     present; otherwise falls back to the legacy single-`optimizer_state_dict`
     key (which only works when len(optimizers) == 1).
+
+    DDP-aware: state is loaded into the underlying module so the
+    `module.`-prefix accidentally written by older DDP-naive code paths
+    is not produced.
     """
     ckpt = torch.load(path, map_location=device, weights_only=False)
-    model.load_state_dict(ckpt["model_state_dict"])
+    underlying = unwrap_model(model)
+    # Strip a possible "module." prefix from older checkpoints saved by
+    # DDP-naive code (we don't write these anymore, but accept them).
+    sd = ckpt["model_state_dict"]
+    if any(k.startswith("module.") for k in sd):
+        sd = {k.removeprefix("module."): v for k, v in sd.items()}
+    underlying.load_state_dict(sd)
 
     if optimizers is not None:
         if "optimizer_state_dicts" in ckpt:
@@ -628,8 +729,24 @@ def load_checkpoint(model, optimizers, path, device):
 
 # ── Training Loop ───────────────────────────────────────────────────────
 
-def train(config: CTMConfig):
-    """Main training loop."""
+def train(
+    config: CTMConfig,
+    profile: bool = False,
+    profile_warmup: int = 10,
+    profile_interval: int = 50,
+):
+    """Main training loop.
+
+    Args:
+        config: Model and training configuration.
+        profile: If True, time each per-step phase (data, teacher_fwd,
+            student_fwd, backward, grad_clip, optimizer) and print a
+            summary every ``profile_interval`` steps. Adds a CUDA
+            synchronization at each phase boundary, so leave off for
+            production runs.
+        profile_warmup: Skip this many initial steps before recording.
+        profile_interval: How often (in steps) to print the report.
+    """
     device = config.resolve_device()
     print(f"Device: {device}")
 
@@ -643,11 +760,140 @@ def train(config: CTMConfig):
         config.vocab_size = tokenizer.n_vocab
 
     # ── Data Loading ────────────────────────────────────────────────────
+    use_cached_teacher = config.use_cached_teacher
     use_fineweb = config.dataset == "fineweb-edu"
     use_curriculum = config.use_two_phase_curriculum
     first_batch = None
 
-    if use_curriculum:
+    if use_cached_teacher:
+        # ── Offline-cached teacher path ──────────────────────────────────
+        # Highest precedence: when this flag is set, all other data
+        # source choices are overridden — the cache fully determines
+        # what the student sees, and the live teacher is dropped from
+        # the training process.
+        #
+        # Layout:
+        #   - With --use_two_phase_curriculum: expects two subdirectories
+        #     named phase1/ and phase2/ under teacher_cache_dir, each
+        #     populated by `scripts/cache_teacher_logits.py --phase {1,2}`.
+        #   - Without curriculum: shards live directly under teacher_cache_dir.
+        if not config.teacher_cache_dir:
+            print("ERROR: --use_cached_teacher requires --teacher_cache_dir")
+            sys.exit(1)
+        if not config.use_distillation:
+            print("[cached-teacher] auto-enabling use_distillation "
+                  "(implied by --use_cached_teacher)")
+            config.use_distillation = True
+
+        from pathlib import Path as _Path
+        cache_root = _Path(config.teacher_cache_dir)
+        phase1_dir = cache_root / "phase1"
+        phase2_dir = cache_root / "phase2"
+
+        # Read distributed sharding info. When DDP is on, the train
+        # dataset round-robins shards across ranks so every rank sees
+        # a disjoint subset; the eval dataset always uses rank=0/world=1
+        # because eval runs on rank 0 only.
+        ddp_rank = dist.get_rank() if dist.is_initialized() else 0
+        ddp_world = dist.get_world_size() if dist.is_initialized() else 1
+
+        def _make_loader(cache_dir, *, is_eval=False, shuffle=True, loop=True,
+                         num_workers=2, prefetch_factor=4):
+            ds = CachedTeacherDataset(
+                cache_dir=str(cache_dir),
+                # Eval runs on rank 0 only; train shards round-robin
+                # across ranks so each sees a unique slice.
+                rank=0 if is_eval else ddp_rank,
+                world_size=1 if is_eval else ddp_world,
+                shuffle_shards=shuffle,
+                loop=loop,
+                is_eval=is_eval,
+            )
+            if ds.seq_len != config.seq_len:
+                print(f"ERROR: cache at {cache_dir} has seq_len={ds.seq_len} "
+                      f"but config.seq_len={config.seq_len}. "
+                      f"Re-run the cache producer with --seq_len {config.seq_len}.")
+                sys.exit(1)
+            loader = DataLoader(
+                ds,
+                batch_size=config.batch_size,
+                num_workers=num_workers,
+                prefetch_factor=prefetch_factor if num_workers > 0 else None,
+                pin_memory=(device != "cpu"),
+                persistent_workers=(num_workers > 0),
+                collate_fn=cached_teacher_collate,
+            )
+            return ds, loader
+
+        if use_curriculum:
+            # Curriculum cache: phase1/ and phase2/ subdirectories.
+            if not phase1_dir.exists():
+                print(f"ERROR: --use_two_phase_curriculum + --use_cached_teacher "
+                      f"requires {phase1_dir} to exist. "
+                      f"Run scripts/cache_teacher_logits.py --phase 1 first.")
+                sys.exit(1)
+
+            phase2_missing = not phase2_dir.exists()
+            if phase2_missing:
+                # Allow validation runs / Phase 2 cache build in parallel
+                # with training. Phase 2 won't actually be consumed until
+                # tokens_seen >= phase1_tokens (default 500M), so it's
+                # safe to bootstrap with phase 1 data here. The training
+                # loop will need a real phase 2 cache by the time the
+                # curriculum switch fires; if it doesn't, the switch
+                # will use phase 1 again, which trains correctly but
+                # without the curriculum's intended distribution shift.
+                print(f"WARNING: {phase2_dir} does not exist. "
+                      f"Using {phase1_dir} as the Phase 2 fallback. "
+                      f"Build the real Phase 2 cache before training "
+                      f"reaches phase1_tokens={config.phase1_tokens:,}.")
+
+            print(f"Dataset: Cached Teacher Logits (curriculum mode)")
+            print(f"  Phase 1: {phase1_dir}")
+            print(f"  Phase 2: {phase2_dir if not phase2_missing else f'{phase1_dir} (fallback)'}")
+
+            _p1_ds, phase1_loader = _make_loader(phase1_dir, is_eval=False)
+            _p2_dir_actual = phase1_dir if phase2_missing else phase2_dir
+            _p2_ds, phase2_loader = _make_loader(_p2_dir_actual, is_eval=False)
+            # Eval pulls from phase 2 (the more recent / harder mix); using
+            # is_eval=True reserves the last 5% of phase-2 shards. When
+            # phase 2 is missing, eval falls back to the phase 1 tail.
+            _eval_ds, eval_loader = _make_loader(
+                _p2_dir_actual, is_eval=True, shuffle=False, loop=False,
+                num_workers=0,
+            )
+
+            # Match the live-teacher curriculum control state.
+            train_loader = phase1_loader
+            current_phase = 1
+            raw_text = None
+            print("  Waiting for initial data pre-fetch...", end="", flush=True)
+            train_iter = iter(train_loader)
+            try:
+                first_batch = next(train_iter)
+                print(" Done.")
+            except StopIteration:
+                print(" FAILED: phase1 cache directory is empty!")
+                sys.exit(1)
+        else:
+            # Single-cache (no curriculum) path.
+            print(f"Dataset: Cached Teacher Logits ({cache_root})")
+            _train_ds, train_loader = _make_loader(cache_root, is_eval=False)
+            _eval_ds, eval_loader = _make_loader(
+                cache_root, is_eval=True, shuffle=False, loop=False,
+                num_workers=0,
+            )
+            raw_text = None
+            print("  Waiting for initial data pre-fetch...", end="", flush=True)
+            train_iter = iter(train_loader)
+            try:
+                first_batch = next(train_iter)
+                print(" Done.")
+            except StopIteration:
+                print(" FAILED: cache directory is empty!")
+                sys.exit(1)
+
+    elif use_curriculum:
         print(f"Dataset: Curriculum Mode (Phase 1 & Phase 2 Interleaved)")
         print(f"  Streaming mode — data loaded on the fly from HuggingFace Hub")
         
@@ -863,35 +1109,104 @@ def train(config: CTMConfig):
         amp_dtype = torch.float32
 
     n_params = model.get_num_params()
-    print(f"Model: {n_params:,} parameters ({n_params/1e6:.1f}M)")
-    print(f"Config: d_model={config.d_model}, d_latent={config.d_latent}, "
-          f"n_layers={config.n_layers}, n_heads={config.n_heads}, "
-          f"thought_steps={config.max_thought_steps}, history_len={config.history_len}, "
-          f"nlm_hidden={config.nlm_hidden_dim}, nlm_groups={config.nlm_groups}")
-    if config.use_hyperloop:
-        print(f"Hyperloop: Enabled (begin={config.hyperloop_n_begin}, "
-              f"middle={config.hyperloop_n_middle}x{config.hyperloop_middle_loops}, "
-              f"end={config.hyperloop_n_end})")
+    if is_main_process():
+        print(f"Model: {n_params:,} parameters ({n_params/1e6:.1f}M)")
+        print(f"Config: d_model={config.d_model}, d_latent={config.d_latent}, "
+              f"n_layers={config.n_layers}, n_heads={config.n_heads}, "
+              f"thought_steps={config.max_thought_steps}, history_len={config.history_len}, "
+              f"nlm_hidden={config.nlm_hidden_dim}, nlm_groups={config.nlm_groups}")
+        if config.use_hyperloop:
+            print(f"Hyperloop: Enabled (begin={config.hyperloop_n_begin}, "
+                  f"middle={config.hyperloop_n_middle}x{config.hyperloop_middle_loops}, "
+                  f"end={config.hyperloop_n_end})")
+
+    # ── DDP wrap ────────────────────────────────────────────────────────
+    # If running under torchrun, wrap the model so backward triggers
+    # all-reduce of gradients across ranks. DDP must come AFTER:
+    #   - .to(device)         (every rank's params live on the right card)
+    #   - .to(dtype)          (parameter dtypes are final)
+    # and BEFORE:
+    #   - optimizer construction (so the optimizer sees the wrapped params)
+    #
+    # find_unused_parameters=True is REQUIRED here because our model has
+    # tick-conditional execution (FiLM picks 1 of T gamma/beta vectors
+    # per forward, the other T-1 receive no gradient that step). Without
+    # this flag, DDP's all-reduce hangs forever waiting for grads on the
+    # unused params.
+    #
+    # static_graph=True is a *post-init* speedup we set after one warm-up
+    # step (PyTorch checks for it once and caches the unused-param set
+    # going forward). We can't set both flags at construction; the order
+    # is: construct with find_unused=True → run one step → set static.
+    if dist.is_initialized():
+        local_rank = int(os.environ.get("LOCAL_RANK", "0"))
+        model = DDP(
+            model,
+            device_ids=[local_rank] if device.startswith("cuda") else None,
+            output_device=local_rank if device.startswith("cuda") else None,
+            find_unused_parameters=True,
+        )
+        if is_main_process():
+            print(f"[DDP] Wrapped model. world_size={dist.get_world_size()}, "
+                  f"this rank={dist.get_rank()}, local_rank={local_rank}")
 
     # ── Teacher Model ───────────────────────────────────────────────────
     teacher_model = None
-    if config.use_distillation:
+    teacher_device = None  # resolved below for use in the training loop
+    if config.use_cached_teacher:
+        # Cache-based distillation: nothing to load, nothing to put on
+        # cuda:1. The student loop reads top-K logits straight from disk.
+        print("[cached-teacher] Skipping teacher model load — "
+              "top-K logits will be streamed from "
+              f"{config.teacher_cache_dir}")
+    elif config.use_distillation:
+        # Resolve teacher device. "auto" colocates with the student;
+        # an explicit "cuda:N" places the teacher on a separate GPU.
+        # Validate that the requested device is actually available so
+        # we fail loudly at startup, not 200 steps in with a CUDA error.
+        if config.teacher_device == "auto":
+            teacher_device = device
+        else:
+            teacher_device = config.teacher_device
+            if teacher_device.startswith("cuda:"):
+                idx = int(teacher_device.split(":")[1])
+                if not torch.cuda.is_available() or idx >= torch.cuda.device_count():
+                    raise RuntimeError(
+                        f"--teacher_device={teacher_device} requested but only "
+                        f"{torch.cuda.device_count()} CUDA device(s) visible. "
+                        f"Check CUDA_VISIBLE_DEVICES."
+                    )
+
         try:
             from transformers import AutoModelForCausalLM
-            print(f"Loading teacher model: {config.teacher_model_name}...")
+            colocated = (torch.device(teacher_device) == torch.device(device))
+            placement_msg = (
+                f"colocated with student on {device}"
+                if colocated
+                else f"on separate device {teacher_device} (student on {device})"
+            )
+            print(f"Loading teacher model: {config.teacher_model_name} ({placement_msg})...")
             teacher_model = AutoModelForCausalLM.from_pretrained(
-                config.teacher_model_name, 
+                config.teacher_model_name,
                 torch_dtype="auto",
-                device_map={"": device},
+                device_map={"": teacher_device},
                 trust_remote_code=True
             )
             teacher_model.eval()
             teacher_model.requires_grad_(False)
             print("Teacher model loaded successfully.")
+            if not colocated:
+                print(
+                    f"  Teacher inputs will be transferred to {teacher_device} "
+                    f"and outputs back to {device} via non_blocking copies, "
+                    f"overlapping with student compute."
+                )
         except Exception as e:
             print(f"WARNING: Failed to load teacher model: {e}")
             print("Proceeding without distillation. If this is unexpected, please verify model name and access.")
             config.use_distillation = False
+            teacher_model = None
+            teacher_device = None
 
     # Temporal-loss schedule summary. Helps verify the decay plan matches
     # expectations before kicking off a multi-day run.
@@ -996,11 +1311,12 @@ def train(config: CTMConfig):
     step = start_step
     best_eval_loss = float("inf")
     log_losses = []
-    tokens_seen = step * config.batch_size * config.seq_len
+    ddp_world = dist.get_world_size() if dist.is_initialized() else 1
+    tokens_seen = step * config.batch_size * config.seq_len * ddp_world
 
     print(f"\n{'='*70}")
     print(f"Starting training for {config.max_steps:,} steps")
-    target_tokens = config.max_steps * config.batch_size * config.seq_len
+    target_tokens = config.max_steps * config.batch_size * config.seq_len * ddp_world
     if use_curriculum:
         print(f"Target: ~{target_tokens/1e9:.1f}B tokens from Curriculum Mode (NVIDIA Nemotron Datasets)")
     elif use_fineweb:
@@ -1025,6 +1341,14 @@ def train(config: CTMConfig):
     # a clear banner when T changes so transitions are easy to spot in
     # long log files.
     prev_T = None
+
+    # Phase profiler — disabled by default. When enabled, wraps each
+    # per-step phase with a timed context that calls torch.cuda.synchronize
+    # at the boundaries and aggregates wall-clock samples.
+    timer = PhaseTimer(enabled=profile, warmup_steps=profile_warmup)
+    if profile:
+        print(f"Phase profiling enabled (warmup={profile_warmup} steps, "
+              f"report every {profile_interval} steps)")
 
     while step < config.max_steps:
         # ── Two-Phase Curriculum Logic ──────────────────────────────────
@@ -1063,7 +1387,7 @@ def train(config: CTMConfig):
         # write per optimizer step) and keeps schedules deterministic
         # under checkpoint resumes — `step` itself is already restored
         # from the checkpoint via load_checkpoint.
-        model._train_step.fill_(step)
+        unwrap_model(model)._train_step.fill_(step)
 
         # Resolve curriculum T for this step. When t_curriculum is off,
         # this returns config.max_thought_steps every time — same as the
@@ -1090,68 +1414,153 @@ def train(config: CTMConfig):
         t0 = time.time()
         device_type = device.split(":")[0] if ":" in device else device
 
-        # Accumulate gradients over `accum_steps` micro-batches.
-        accum_loss = 0.0
-        last_result = None
-        for micro in range(accum_steps):
-            if first_batch is not None:
-                x, y = first_batch
-                first_batch = None
-            else:
-                try:
-                    x, y = next(train_iter)
-                except StopIteration:
-                    train_iter = iter(train_loader)
-                    x, y = next(train_iter)
+        # Wrap the entire step (excluding logging and eval) in timer.step()
+        # so the warmup counter advances. Inner scopes time individual phases.
+        with timer.step():
+            # Accumulate gradients over `accum_steps` micro-batches.
+            accum_loss = 0.0
+            last_result = None
+            for micro in range(accum_steps):
+                with timer("data"):
+                    if first_batch is not None:
+                        batch = first_batch
+                        first_batch = None
+                    else:
+                        try:
+                            batch = next(train_iter)
+                        except StopIteration:
+                            train_iter = iter(train_loader)
+                            batch = next(train_iter)
 
-            x = x.to(device)
-            y = y.to(device)
+                    # Two batch shapes are supported:
+                    #   (x, y)                                          — live-teacher / no-distill path
+                    #   (x, y, top_indices, top_values, residual)       — cached-teacher path
+                    cached_top_indices = None
+                    cached_top_values = None
+                    if config.use_cached_teacher:
+                        x, y, cached_top_indices, cached_top_values, _residual = batch
+                        x = x.to(device, non_blocking=True)
+                        y = y.to(device, non_blocking=True)
+                        cached_top_indices = cached_top_indices.to(device, non_blocking=True)
+                        cached_top_values = cached_top_values.to(device, non_blocking=True)
+                    else:
+                        x, y = batch
+                        x = x.to(device)
+                        y = y.to(device)
 
-            # ── Teacher Forward Pass ────────────────────────────────────
-            t_logits, t_z = None, None
-            if teacher_model is not None:
-                # Only request hidden states when feature distillation is
-                # enabled — otherwise we pay extra memory for nothing.
-                want_hidden = config.distill_feature_weight > 0
-                with torch.no_grad(), torch.amp.autocast(device_type=device_type, dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
-                    teacher_out = teacher_model(x, output_hidden_states=want_hidden)
-                    t_logits = teacher_out.logits
-                    if want_hidden:
-                        # Take the final layer's hidden state
-                        t_z = teacher_out.hidden_states[-1]
+                # ── Teacher Forward Pass ────────────────────────────────
+                # When the teacher lives on a separate device, we issue
+                # its work without waiting for it to finish. The teacher
+                # output is only consumed in the student's loss block
+                # (after the full student forward pass), so the teacher's
+                # ~88 ms of compute overlaps with the student's ~454 ms
+                # of compute on the other GPU. The cross-device copy of
+                # t_logits uses non_blocking=True; the actual sync
+                # happens implicitly when the student's KL kernel reads
+                # the tensor, by which point the copy is already done.
+                #
+                # Note about the timer: with the colocated-teacher path,
+                # the surrounding `timer("teacher_fwd")` scope syncs at
+                # the boundary, which is fine since teacher and student
+                # share the device anyway. With the separate-device path
+                # we deliberately *don't* time the teacher with a sync
+                # boundary — that would destroy the overlap. We log the
+                # time-to-issue under "teacher_issue" instead, which
+                # measures the cost of launching teacher kernels but not
+                # waiting for them.
+                #
+                # When use_cached_teacher is True, this whole block is
+                # skipped — the top-K logits already arrived with the
+                # batch, so there's nothing to do here.
+                t_logits, t_z = None, None
+                if teacher_model is not None:
+                    want_hidden = config.distill_feature_weight > 0
+                    # Normalize device strings: "cuda" and "cuda:0" both
+                    # refer to device 0, but compare unequal as strings.
+                    # Use torch.device for canonical comparison.
+                    teacher_colocated = (
+                        torch.device(teacher_device) == torch.device(device)
+                    )
 
-            with torch.amp.autocast(device_type=device_type,
-                                    dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
-                result = model(
-                    x, 
-                    targets=y, 
-                    max_thought_steps=current_T,
-                    teacher_logits=t_logits,
-                    teacher_z=t_z
-                )
-                # Scale the loss so the accumulated gradient is the MEAN over
-                # the effective batch — matches what a single forward pass at
-                # batch_size = batch_size·accum_steps would compute.
-                loss = result["loss"] / accum_steps
+                    if teacher_colocated:
+                        with timer("teacher_fwd"):
+                            with torch.no_grad(), torch.amp.autocast(device_type=device_type, dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
+                                teacher_out = teacher_model(x, output_hidden_states=want_hidden)
+                                t_logits = teacher_out.logits
+                                if want_hidden:
+                                    t_z = teacher_out.hidden_states[-1]
+                    else:
+                        # Separate-device teacher: launch and don't sync.
+                        with timer("teacher_issue"):
+                            x_for_teacher = x.to(teacher_device, non_blocking=True)
+                            teacher_device_type = (
+                                teacher_device.split(":")[0]
+                                if ":" in teacher_device
+                                else teacher_device
+                            )
+                            with torch.no_grad(), torch.amp.autocast(
+                                device_type=teacher_device_type,
+                                dtype=amp_dtype,
+                                enabled=(amp_dtype != torch.float32),
+                            ):
+                                teacher_out = teacher_model(
+                                    x_for_teacher,
+                                    output_hidden_states=want_hidden,
+                                )
+                                # Initiate non-blocking copies back to
+                                # student device. These return tensors
+                                # that will be ready by the time the
+                                # KL kernel reads them.
+                                t_logits = teacher_out.logits.to(
+                                    device, non_blocking=True
+                                )
+                                if want_hidden:
+                                    t_z = teacher_out.hidden_states[-1].to(
+                                        device, non_blocking=True
+                                    )
 
-            loss.backward()
-            accum_loss += loss.item() * accum_steps   # un-scale for logging
-            last_result = result   # keep last for cert/tick logging
+                with timer("student_fwd"):
+                    with torch.amp.autocast(device_type=device_type,
+                                            dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
+                        result = model(
+                            x,
+                            targets=y,
+                            max_thought_steps=current_T,
+                            teacher_logits=t_logits,
+                            teacher_z=t_z,
+                            cached_top_indices=cached_top_indices,
+                            cached_top_values=cached_top_values,
+                        )
+                        # Scale the loss so the accumulated gradient is the MEAN
+                        # over the effective batch — matches what a single forward
+                        # pass at batch_size = batch_size·accum_steps would
+                        # compute.
+                        loss = result["loss"] / accum_steps
 
-        # Average loss across the accumulation window for logging
-        loss_for_log = accum_loss / accum_steps
+                with timer("backward"):
+                    loss.backward()
+                accum_loss += loss.item() * accum_steps   # un-scale for logging
+                last_result = result   # keep last for cert/tick logging
 
-        if config.grad_clip > 0:
-            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
-        else:
-            grad_norm = torch.tensor(0.0)
+            # Average loss across the accumulation window for logging
+            loss_for_log = accum_loss / accum_steps
 
-        for o in optimizers:
-            o.step()
+            with timer("grad_clip"):
+                if config.grad_clip > 0:
+                    grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
+                else:
+                    grad_norm = torch.tensor(0.0)
+
+            with timer("optimizer"):
+                for o in optimizers:
+                    o.step()
 
         dt = time.time() - t0
-        # Effective batch tokens accounts for accumulation
-        batch_tokens = config.batch_size * config.seq_len * accum_steps
+        # Effective batch tokens accounts for accumulation AND, under DDP,
+        # the world size — every rank processes its own batch each step,
+        # so the effective tokens/step is multiplied by world_size.
+        ddp_world = dist.get_world_size() if dist.is_initialized() else 1
+        batch_tokens = config.batch_size * config.seq_len * accum_steps * ddp_world
         tokens_seen += batch_tokens
         log_losses.append(loss_for_log)
         # Use last_result for tick / certainty logging (representative of the
@@ -1160,7 +1569,7 @@ def train(config: CTMConfig):
         result = last_result
 
         # ── Logging ─────────────────────────────────────────────────────
-        if step % config.log_interval == 0:
+        if step % config.log_interval == 0 and is_main_process():
             window = log_losses[-config.log_interval:]
             avg_loss = sum(window) / len(window)
             tick_losses = result["per_tick_loss"].tolist()
@@ -1202,23 +1611,38 @@ def train(config: CTMConfig):
                 f"ETA {eta_sec/3600:.1f}h"
             )
 
+        # ── Phase Profiler Report ────────────────────────────────────────
+        # Independent of the main log cadence so the report can be denser
+        # or sparser depending on what's being investigated.
+        if profile and step > profile_warmup and step % profile_interval == 0:
+            timer.report(last_n=profile_interval)
+
         # ── Evaluation ──────────────────────────────────────────────────
         if step > 0 and step % config.eval_interval == 0:
-            eval_loss = evaluate(model, eval_loader, device, config, amp_dtype)
-            print(f"\n  >>> Eval loss: {eval_loss:.4f} (best: {best_eval_loss:.4f})")
+            # Eval runs on rank 0 only; other ranks wait at the barrier
+            # below so all ranks stay aligned for the next training step.
+            if is_main_process():
+                eval_loss = evaluate(model, eval_loader, device, config, amp_dtype)
+                print(f"\n  >>> Eval loss: {eval_loss:.4f} (best: {best_eval_loss:.4f})")
 
-            if eval_loss < best_eval_loss:
-                best_eval_loss = eval_loss
-                save_checkpoint(model, optimizers, step, config, ckpt_dir / "best.pt")
-                print(f"  >>> Saved best checkpoint at step {step}")
+                if eval_loss < best_eval_loss:
+                    best_eval_loss = eval_loss
+                    save_checkpoint(model, optimizers, step, config, ckpt_dir / "best.pt")
+                    print(f"  >>> Saved best checkpoint at step {step}")
 
-            # Save step checkpoint
-            save_checkpoint(model, optimizers, step, config,
-                          ckpt_dir / f"step_{step:07d}.pt")
+                # Save step checkpoint
+                save_checkpoint(model, optimizers, step, config,
+                              ckpt_dir / f"step_{step:07d}.pt")
 
-            # Generate a sample using real data from the eval set
-            generate_sample(model, tokenizer, device, config, eval_loader)
-            print()
+                # Generate a sample using real data from the eval set
+                generate_sample(model, tokenizer, device, config, eval_loader)
+                print()
+            # All ranks must rejoin here before the next training step,
+            # otherwise rank 0 (still doing eval) and rank 1 (already
+            # iterating) drift apart and the next backward all-reduce
+            # hangs waiting for rank 0's grads.
+            if dist.is_initialized():
+                dist.barrier()
             model.train()
 
         step += 1
@@ -1248,11 +1672,14 @@ def evaluate(model, eval_loader, device, config, amp_dtype):
     # Read current curriculum T. For non-curriculum runs this is just
     # max_thought_steps. The model was already _train_step.fill_'d by
     # the caller before evaluate was invoked.
-    current_T = config.resolve_thought_steps(int(model._train_step.item()))
+    current_T = config.resolve_thought_steps(int(unwrap_model(model)._train_step.item()))
 
-    for x, y in eval_loader:
+    for batch in eval_loader:
         if n_batches >= max_eval_batches:
             break
+        # Eval just needs (x, y); cached batches carry extra teacher tensors
+        # that we ignore here (we're measuring LM loss, not distillation).
+        x, y = batch[0], batch[1]
         x = x.to(device)
         y = y.to(device)
 
@@ -1278,7 +1705,11 @@ def generate_sample(model, tokenizer, device, config, eval_loader_or_text=None):
     if isinstance(eval_loader_or_text, DataLoader):
         try:
             # Grab one batch from eval
-            x, y = next(iter(eval_loader_or_text))
+            batch = next(iter(eval_loader_or_text))
+            # Cached batches are 5-tuples (input_ids, targets, top_indices,
+            # top_values, residual); plain batches are 2-tuples. We only
+            # need x for prompt sampling.
+            x = batch[0]
             # Take the first sequence in the batch
             # We take a piece of x as the prompt
             prompt_len = min(32, x.size(1) // 2)
@@ -1346,6 +1777,13 @@ def parse_args():
                                help="Enable teacher-student distillation.")
     distill_group.add_argument("--teacher_model_name", type=str, default="nvidia/Nemotron-3-4B-Base",
                                help="HuggingFace model ID for the teacher model.")
+    distill_group.add_argument("--teacher_device", type=str, default="auto",
+                               help="Device placement for the teacher. 'auto' (default) "
+                                    "colocates the teacher with the student. On multi-GPU "
+                                    "systems, set to e.g. 'cuda:1' to run the teacher on a "
+                                    "separate GPU — the student gets full memory on cuda:0, "
+                                    "and the cross-device transfers overlap with student "
+                                    "compute via non_blocking copies.")
     distill_group.add_argument("--distill_logit_weight", type=float, default=1.0,
                                help="Weight for soft-target KL divergence loss.")
     distill_group.add_argument("--distill_feature_weight", type=float, default=0.0,
@@ -1357,17 +1795,38 @@ def parse_args():
                                     "scaled by T^2 (Hinton 2015) so gradient magnitude is "
                                     "T-invariant. Use 1.0 to disable softening.")
     distill_group.add_argument("--distill_tick_aggregation", type=str, default="all",
-                               choices=["all", "last", "lm_aligned"],
-                               help="Which thought ticks receive KD signal. 'all' (default) "
-                                    "applies KD uniformly across every tick; 'last' is the "
-                                    "legacy behavior and conflicts with --per_tick_heads / "
-                                    "dynamic_aggregate; 'lm_aligned' mirrors the temporal "
-                                    "loss weighting.")
+                               choices=["all", "first", "last", "decay_ramp", "lm_aligned"],
+                               help="Which thought ticks receive KD signal. 'all' applies KD "
+                                    "uniformly across every tick; 'first' supervises only the "
+                                    "model's initial-guess tick (recommended when distillation "
+                                    "is overpowering the thought-loop dynamics); 'last' is the "
+                                    "legacy behavior — known unstable when combined with "
+                                    "mono_penalty because it can cause the per-tick loss to "
+                                    "go [10, 9, 8, 7, 6, 9] (jumps up at the final tick); "
+                                    "'decay_ramp' uses linearly-decaying weights from tick 0 "
+                                    "to tick T-1 (front-loaded teacher signal); 'lm_aligned' "
+                                    "mirrors the temporal loss weighting.")
     distill_group.add_argument("--distill_feature_method", type=str, default="cosine",
                                choices=["cosine", "mse_normed", "mse"],
                                help="Feature-distillation method (used only when "
                                     "distill_feature_weight > 0). 'cosine' is recommended "
                                     "for cross-architecture distillation.")
+    distill_group.add_argument("--distill_top_k", type=int, default=256,
+                               help="Top-K soft-target distillation. KL is computed only "
+                                    "over the teacher's top-K most-likely tokens at each "
+                                    "position, dramatically reducing fp32 softmax memory "
+                                    "traffic at large vocabularies. 0 disables (full-vocab "
+                                    "KD). Reasonable values are 128-512.")
+    distill_group.add_argument("--use_cached_teacher", action="store_true",
+                               help="Read pre-computed teacher top-K logits from disk "
+                                    "(produced by scripts/cache_teacher_logits.py) instead "
+                                    "of running a live teacher each step. Drops the teacher "
+                                    "model from the training process entirely; --teacher_device "
+                                    "is ignored. Implies --use_distillation.")
+    distill_group.add_argument("--teacher_cache_dir", type=str, default="",
+                               help="Directory containing shard_*.npz files written by "
+                                    "scripts/cache_teacher_logits.py. Required when "
+                                    "--use_cached_teacher is set.")
 
     # Model Architecture
     model_group = parser.add_argument_group("Model Architecture")
@@ -1392,6 +1851,16 @@ def parse_args():
                                  "and empirically prevents the iterative-refinement collapse "
                                  "where the model learns to produce identical output at every "
                                  "tick. Cost: ~1%% extra params (T copies of a small adapter).")
+    model_group.add_argument("--use_shared_head_film", action="store_true",
+                            help="Replace per-tick heads (1.07B params at V=131072) with a single "
+                                 "shared head + per-tick FiLM modulation (135M + 16K params). "
+                                 "Matches published CTM architecture and reduces head FLOPs ~85%% "
+                                 "in forward and backward. Mutually exclusive with --per_tick_heads.")
+    model_group.add_argument("--tie_embeddings", action="store_true",
+                            help="Tie the LM head weight matrix to the token embedding (Press & "
+                                 "Wolf 2017). Saves vocab_size*d_model parameters (134M at "
+                                 "V=131072, d_model=1024) plus the corresponding optimizer state. "
+                                 "Requires --use_shared_head_film.")
 
     # Thought-step curriculum
     curr_group = parser.add_argument_group("Thought-step curriculum")
@@ -1444,6 +1913,19 @@ def parse_args():
     train_group.add_argument("--eval_interval", type=int, default=500)
     train_group.add_argument("--log_interval", type=int, default=50)
     train_group.add_argument("--checkpoint_dir", type=str, default="checkpoints")
+    train_group.add_argument("--profile", action="store_true",
+                             help="Enable per-phase wall-clock profiling. Reports mean / "
+                                  "median / p95 of each training-step phase (data, "
+                                  "teacher_fwd, student_fwd, backward, grad_clip, optimizer) "
+                                  "every --profile_interval steps. Adds a torch.cuda.synchronize "
+                                  "at each phase boundary, so it has small (single-digit %) "
+                                  "overhead — use it for diagnosis, not in production runs.")
+    train_group.add_argument("--profile_warmup", type=int, default=10,
+                             help="Number of initial steps to skip before recording timing "
+                                  "samples (avoids polluting stats with allocator/JIT warmup).")
+    train_group.add_argument("--profile_interval", type=int, default=50,
+                             help="Print phase-timing report every N steps (only when "
+                                  "--profile is set).")
 
     # Optimizer
     opt_group = parser.add_argument_group("Optimizer")
@@ -1573,6 +2055,33 @@ def parse_args():
 def main():
     args = parse_args()
 
+    # ── Set up DDP (must happen BEFORE any CUDA allocations) ───────────
+    # If we were launched by torchrun, this initializes the process
+    # group, sets the right CUDA device per rank, and returns the rank
+    # info. Otherwise it's a no-op and returns (0, 1, 0).
+    rank, world_size, local_rank = setup_distributed()
+    is_ddp = world_size > 1
+
+    if is_ddp:
+        # CUDA Graphs and DDP don't compose cleanly: graph capture
+        # records a fixed kernel sequence, but DDP's NCCL all-reduces
+        # are dispatched dynamically by the autograd engine. Disable
+        # CUDA Graphs automatically and warn (rather than failing
+        # mid-training with a confusing error).
+        if args.use_cuda_graphs:
+            if rank == 0:
+                print("[DDP] Disabling --use_cuda_graphs (incompatible "
+                      "with DDP's dynamic all-reduce dispatch).")
+            args.use_cuda_graphs = False
+
+        # Override --device to the local rank's GPU. The user's
+        # `--device cuda` becomes `cuda:LOCAL_RANK`. Important: this
+        # has to happen after setup_distributed sets the default
+        # device, but config.device is still used in train() below
+        # to .to(device) the model.
+        if args.device.startswith("cuda"):
+            args.device = f"cuda:{local_rank}"
+
     config = CTMConfig(
         data_path=args.data_path,
         eval_data_path=args.eval_data_path,
@@ -1586,13 +2095,19 @@ def main():
         nlm_hidden_dim=args.nlm_hidden_dim,
         nlm_groups=args.nlm_groups,
         per_tick_heads=args.per_tick_heads,
+        use_shared_head_film=args.use_shared_head_film,
+        tie_embeddings=args.tie_embeddings,
         use_distillation=args.use_distillation,
         teacher_model_name=args.teacher_model_name,
+        teacher_device=args.teacher_device,
         distill_logit_weight=args.distill_logit_weight,
         distill_feature_weight=args.distill_feature_weight,
         distill_temperature=args.distill_temperature,
         distill_tick_aggregation=args.distill_tick_aggregation,
         distill_feature_method=args.distill_feature_method,
+        distill_top_k=args.distill_top_k,
+        use_cached_teacher=args.use_cached_teacher,
+        teacher_cache_dir=args.teacher_cache_dir,
         t_curriculum=args.t_curriculum,
         t_curriculum_stages=_parse_curriculum_stages(args.t_curriculum_stages),
         use_two_phase_curriculum=args.use_two_phase_curriculum,
@@ -1665,7 +2180,15 @@ def main():
         tiled_schedule=args.tiled_schedule,
     )
 
-    train(config)
+    try:
+        train(
+            config,
+            profile=args.profile,
+            profile_warmup=args.profile_warmup,
+            profile_interval=args.profile_interval,
+        )
+    finally:
+        cleanup_distributed()
 
 
 if __name__ == "__main__":

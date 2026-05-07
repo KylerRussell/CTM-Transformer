@@ -214,7 +214,42 @@ class CTMTransformer(nn.Module):
         self.attn_res_norm = nn.RMSNorm(config.d_latent)
 
         # ── Output Head ─────────────────────────────────────────────────
-        if config.per_tick_heads:
+        # Three configurations, mutually exclusive:
+        #   1. per_tick_heads:    8 separate adapters, 1 shared head
+        #                         (1.07B params at V=131072 — old default)
+        #   2. use_shared_head_film: 1 shared adapter, 1 shared head, with
+        #                         per-tick FiLM modulation between them
+        #                         (135M params + 16K FiLM — recommended)
+        #   3. neither (legacy):  1 shared output_proj used at every tick,
+        #                         no tick conditioning — collapses ticks
+        if config.per_tick_heads and config.use_shared_head_film:
+            raise ValueError(
+                "per_tick_heads and use_shared_head_film are mutually "
+                "exclusive. Choose one (use_shared_head_film is the "
+                "recommended successor)."
+            )
+
+        if config.use_shared_head_film:
+            T = config.max_thought_steps
+            # Shared adapter: latent + text → d_model with norm.
+            self.shared_adapter = nn.Sequential(
+                nn.Linear(config.d_latent + config.d_model, config.d_model),
+                nn.GELU(),
+                nn.LayerNorm(config.d_model),
+            )
+            # Per-tick FiLM parameters. Initialize gamma=1, beta=0 so the
+            # initial behavior matches the un-modulated shared head; the
+            # network learns to differentiate ticks during training.
+            self.film_gamma = nn.Parameter(torch.ones(T, config.d_model))
+            self.film_beta = nn.Parameter(torch.zeros(T, config.d_model))
+            # Shared LM head — single [d_model, vocab_size] linear.
+            # When tie_embeddings is on, the weight is shared with
+            # token_embedding (set up further below).
+            self.lm_head = nn.Linear(config.d_model, config.vocab_size,
+                                     bias=False)
+            self.tick_adapters = None
+            self.output_proj = None
+        elif config.per_tick_heads:
             T = config.max_thought_steps
             self.tick_adapters = nn.ModuleList([
                 nn.Sequential(
@@ -226,6 +261,9 @@ class CTMTransformer(nn.Module):
             ])
             self.lm_head = nn.Linear(config.d_model, config.vocab_size)
             self.output_proj = None
+            self.shared_adapter = None
+            self.film_gamma = None
+            self.film_beta = None
         else:
             self.output_proj = nn.Sequential(
                 nn.Linear(config.d_latent + config.d_model, config.d_model),
@@ -235,6 +273,33 @@ class CTMTransformer(nn.Module):
             )
             self.tick_adapters = None
             self.lm_head = None
+            self.shared_adapter = None
+            self.film_gamma = None
+            self.film_beta = None
+
+        # ── Tied Embeddings ─────────────────────────────────────────────
+        # Share weights between token_embedding and lm_head. Only meaningful
+        # when use_shared_head_film=True (per_tick_heads has its own
+        # lm_head we could tie, but the combination is not recommended;
+        # with the legacy output_proj path there is no separable head to
+        # tie to). The Embedding stores [V, d_model]; nn.Linear stores
+        # [V, in_features=d_model] (same shape). Direct assignment of
+        # the underlying parameter is the canonical way to tie.
+        if config.tie_embeddings:
+            if not config.use_shared_head_film:
+                raise ValueError(
+                    "tie_embeddings requires use_shared_head_film=True "
+                    "(no canonical head to tie to otherwise)."
+                )
+            if self.token_embedding is None:
+                raise ValueError(
+                    "tie_embeddings requires a token_embedding (cannot "
+                    "tie to a feature encoder)."
+                )
+            # Share the underlying Parameter object. Both modules now point
+            # to the same memory; gradients accumulate correctly via
+            # autograd's standard handling of shared parameters.
+            self.lm_head.weight = self.token_embedding.weight
 
         # ── Initial State ───────────────────────────────────────────────
         self.z0 = nn.Parameter(torch.zeros(config.d_latent))
@@ -351,6 +416,17 @@ class CTMTransformer(nn.Module):
             logits: [B, S, vocab_size]
         """
         combined = torch.cat([z, text_emb], dim=-1)
+
+        if self.shared_adapter is not None:
+            # Shared head + per-tick FiLM modulation.
+            # adapter: [B, S, d_latent + d_model] → [B, S, d_model]
+            x = self.shared_adapter(combined)
+            # FiLM: y = gamma_t * x + beta_t. Per-tick scalars broadcast
+            # over the [B, S] dimensions.
+            gamma = self.film_gamma[tick]   # [d_model]
+            beta = self.film_beta[tick]     # [d_model]
+            x = x * gamma + beta
+            return self.lm_head(x)
 
         if self.tick_adapters is not None:
             adapted = self.tick_adapters[tick](combined)
@@ -481,9 +557,24 @@ class CTMTransformer(nn.Module):
         max_thought_steps: int | None = None,
         teacher_logits: torch.Tensor | None = None,
         teacher_z: torch.Tensor | None = None,
+        cached_top_indices: torch.Tensor | None = None,
+        cached_top_values: torch.Tensor | None = None,
     ) -> dict:
         """
         Full forward pass with per-position latent states and causal masking.
+
+        Distillation paths (mutually exclusive — supply one OR the other,
+        not both):
+          - teacher_logits:  full [B, S, V] logits from a live teacher.
+              The model computes top-K internally. Used by the legacy
+              online-teacher path.
+          - cached_top_indices, cached_top_values:
+              precomputed top-K indices [B, S, K] (long) and the
+              corresponding RAW logit values [B, S, K] (float). Used by
+              the offline teacher cache path (scripts/cache_teacher_logits.py).
+              When supplied, the model skips the topk computation and
+              feeds these straight into the KL loss. cuda:1 can sit
+              empty.
         """
         T = max_thought_steps or self.config.max_thought_steps
         B, S = input_ids.shape[:2]
@@ -649,28 +740,94 @@ class CTMTransformer(nn.Module):
                 #       behavior) creates a conflict with dynamic_aggregate
                 #       temporal loss and corrupts the per-tick LM heads
                 #       when --per_tick_heads is enabled.
-                if teacher_logits is not None:
+                #   (f) top-K distillation: when distill_top_k > 0, KL is
+                #       computed only over the teacher's top-K support
+                #       rather than the full vocabulary. For V=131072 and
+                #       K=256 the fp32 softmax memory drops by ~512×; the
+                #       teacher's top-K typically contains >99% of the
+                #       probability mass at this scale, so the accuracy
+                #       cost is negligible.
+                if teacher_logits is not None or cached_top_indices is not None:
                     T_temp = float(self.config.distill_temperature)
                     T_temp_sq = T_temp * T_temp
+                    top_k = int(getattr(self.config, "distill_top_k", 0) or 0)
 
-                    B_, S_, V_ = teacher_logits.shape
-                    teacher_logits_flat = teacher_logits.reshape(B_ * S_, V_)
-                    # fp32 log_softmax for stability; reused across ticks.
-                    teacher_log_probs = F.log_softmax(
-                        teacher_logits_flat / T_temp,
-                        dim=-1,
-                        dtype=torch.float32,
-                    )
+                    if cached_top_indices is not None:
+                        # ── Offline-cache path ───────────────────────────
+                        # The expensive teacher forward already happened
+                        # before training started; we just renormalize
+                        # over the K-token support at the chosen
+                        # temperature.
+                        if cached_top_values is None:
+                            raise ValueError(
+                                "cached_top_indices was supplied without "
+                                "cached_top_values; both are required."
+                            )
+                        B_, S_, K_ = cached_top_indices.shape
+                        V_ = self.config.vocab_size
+                        teacher_top_indices = cached_top_indices.reshape(B_ * S_, K_).long()
+                        cached_values_flat = cached_top_values.reshape(B_ * S_, K_)
+                        teacher_log_probs = F.log_softmax(
+                            cached_values_flat.float() / T_temp,
+                            dim=-1,
+                            dtype=torch.float32,
+                        )
+                    else:
+                        B_, S_, V_ = teacher_logits.shape
+                        teacher_logits_flat = teacher_logits.reshape(B_ * S_, V_)
+
+                        # Top-K vs full-vocab path. Top-K is much faster and
+                        # uses dramatically less memory; the only caveat is
+                        # that it computes KL between two distributions
+                        # restricted to (and renormalized over) the teacher's
+                        # top-K support, rather than the full vocabulary.
+                        # See `distill_top_k` in CTMConfig for rationale.
+                        if top_k > 0 and top_k < V_:
+                            teacher_top_logits, teacher_top_indices = (
+                                teacher_logits_flat.topk(top_k, dim=-1)
+                            )
+                            # Teacher distribution renormalized over its
+                            # own top-K support (computed once, reused
+                            # across all student ticks).
+                            teacher_log_probs = F.log_softmax(
+                                teacher_top_logits / T_temp,
+                                dim=-1,
+                                dtype=torch.float32,
+                            )
+                        else:
+                            teacher_top_indices = None
+                            teacher_log_probs = F.log_softmax(
+                                teacher_logits_flat / T_temp,
+                                dim=-1,
+                                dtype=torch.float32,
+                            )
 
                     n_ticks = len(all_logits)
                     per_tick_kl = []
                     for tk in range(n_ticks):
                         student_logits_flat = all_logits[tk].reshape(B_ * S_, V_)
-                        student_log_probs = F.log_softmax(
-                            student_logits_flat / T_temp,
-                            dim=-1,
-                            dtype=torch.float32,
-                        )
+
+                        if teacher_top_indices is not None:
+                            # Gather student logits at the teacher's
+                            # top-K positions and softmax over only
+                            # those K tokens. Both teacher and student
+                            # log-probs now live on the same K-token
+                            # support, so KL has the standard meaning.
+                            student_top_logits = student_logits_flat.gather(
+                                -1, teacher_top_indices
+                            )
+                            student_log_probs = F.log_softmax(
+                                student_top_logits / T_temp,
+                                dim=-1,
+                                dtype=torch.float32,
+                            )
+                        else:
+                            student_log_probs = F.log_softmax(
+                                student_logits_flat / T_temp,
+                                dim=-1,
+                                dtype=torch.float32,
+                            )
+
                         kl_t = F.kl_div(
                             student_log_probs,
                             teacher_log_probs,
@@ -683,14 +840,59 @@ class CTMTransformer(nn.Module):
                     # Aggregate per-tick KLs.
                     agg = self.config.distill_tick_aggregation
                     if agg == "all":
-                        # Uniform mean — recommended default. Every per-tick
-                        # head gets the same KD pressure; no tick is
-                        # uniquely degraded.
+                        # Uniform mean — every per-tick head gets the
+                        # same KD pressure; no tick is uniquely degraded.
+                        # Risk: when the teacher signal is strong, it
+                        # can flatten the thought loop because every
+                        # intermediate state is pulled toward the same
+                        # final-answer-ish distribution. Use with
+                        # mono_penalty + ramp_mono if you want the loop
+                        # to develop genuine refinement dynamics.
                         kl_loss = per_tick_kl_tensor.mean()
+                    elif agg == "first":
+                        # Distill ONLY the first tick. The teacher
+                        # constrains the model's "initial guess" (the
+                        # output after one CTM iteration) to look like
+                        # the teacher's prediction. Subsequent ticks are
+                        # free to refine via the base CE + mono_penalty.
+                        # Empirically more stable than "last" because
+                        # there is no "oh no, every tick was getting
+                        # closer to the answer and now I have to jerk
+                        # toward the teacher" failure mode.
+                        kl_loss = per_tick_kl_tensor[0]
                     elif agg == "last":
-                        # Legacy behavior. Strongly discouraged when
-                        # combined with per_tick_heads or dynamic_aggregate.
+                        # Distill ONLY the last tick.  WARNING: known
+                        # unstable when combined with mono_penalty —
+                        # the loop's final tick gets pulled toward the
+                        # teacher away from the natural CE-best
+                        # trajectory, producing a per-tick loss like
+                        # [10, 9, 8, 7, 6, 9] (best at tick T-1 then
+                        # jumps up at tick T), which the mono_penalty
+                        # then violently penalizes. Use "first" or
+                        # "decay_ramp" instead.
                         kl_loss = per_tick_kl_tensor[-1]
+                    elif agg == "decay_ramp":
+                        # Distill weight decays across ticks: strongest
+                        # at tick 0 (initial guess), weakest at tick T-1
+                        # (final answer). The teacher front-loads the
+                        # signal — early ticks are constrained to look
+                        # teacher-like, later ticks are increasingly
+                        # free to develop independent dynamics. Hybrid
+                        # of "all" and "first" that keeps a softer
+                        # teacher anchor across the whole loop.
+                        # Weights: [1.0, 0.85, 0.71, ...] decaying
+                        # linearly to ~0.1 at the last tick.
+                        T_local = per_tick_kl_tensor.shape[0]
+                        weights = torch.linspace(
+                            1.0, 0.1, T_local,
+                            device=per_tick_kl_tensor.device,
+                            dtype=per_tick_kl_tensor.dtype,
+                        )
+                        # Renormalize so the mean weight is 1.0 — keeps
+                        # distill_logit_weight semantics consistent
+                        # across modes.
+                        weights = weights * (T_local / weights.sum())
+                        kl_loss = (weights * per_tick_kl_tensor).mean()
                     elif agg == "lm_aligned":
                         if self.config.temporal_loss_type == "dynamic_aggregate":
                             # Per-token tick-selection would require
@@ -712,7 +914,9 @@ class CTMTransformer(nn.Module):
                             kl_loss = (ramp * per_tick_kl_tensor).mean()
                     else:
                         raise ValueError(
-                            f"Unknown distill_tick_aggregation: {agg!r}"
+                            f"Unknown distill_tick_aggregation: {agg!r}. "
+                            f"Valid: 'all', 'first', 'last', 'decay_ramp', "
+                            f"'lm_aligned'."
                         )
 
                     kl_loss = kl_loss.to(loss.dtype)

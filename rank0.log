@@ -1,0 +1,45 @@
+nohup: ignoring input
+Loading tokenizer: nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16
+Loading teacher: nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16 on cuda:0
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/263 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 31/263 [00:00<00:00, 307.63it/s]Loading weights:  37%|███▋      | 97/263 [00:00<00:00, 501.47it/s]Loading weights:  62%|██████▏   | 162/263 [00:00<00:00, 551.69it/s]Loading weights:  88%|████████▊ | 231/263 [00:00<00:00, 593.03it/s]Loading weights: 100%|██████████| 263/263 [00:00<00:00, 498.69it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+Teacher vocab: 131072, caching top-128
+[multi-rank] this process is rank 0 of 2. Will write shards 0, 2, 4, ... into teacher_cache/phase1.
+[disk-cap] cache size limit: 75.0 GB (80,530,636,800 bytes), shared across all ranks. Will exit cleanly when reached.
+[curriculum] 12 sources (stratified=True, cycle=True):
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-RQA
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-InfiniByte-Reasoning
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Wiki-Rewrite
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-STEM-SFT
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Unconditional-Algorithmic
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Formal-Logic
+   0.05  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Economics
+   0.10  nvidia/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Multiple-Choice
+   0.10  nvidia/Nemotron-CC-Math-v1/4plus_MIND
+[shard     0] rank=0/2 phase=1 samples=     1024 cache=0.4GB tok/s=    6655 eta=  4.3h
+[shard    10] rank=0/2 phase=1 samples=     6144 cache=4.2GB tok/s=    6818 eta=  2.2h
+[shard    20] rank=0/2 phase=1 samples=    11264 cache=7.6GB tok/s=    6803 eta=  2.1h
+[shard    30] rank=0/2 phase=1 samples=    16384 cache=11.4GB tok/s=    6787 eta=  1.9h
+[shard    40] rank=0/2 phase=1 samples=    21504 cache=15.2GB tok/s=    6779 eta=  1.8h
+[shard    50] rank=0/2 phase=1 samples=    26624 cache=19.4GB tok/s=    6768 eta=  1.6h
+[shard    60] rank=0/2 phase=1 samples=    31744 cache=23.2GB tok/s=    6765 eta=  1.5h
+[shard    70] rank=0/2 phase=1 samples=    36864 cache=27.0GB tok/s=    6764 eta=  1.4h
+[shard    80] rank=0/2 phase=1 samples=    41984 cache=30.8GB tok/s=    6758 eta=  1.3h
+[shard    90] rank=0/2 phase=1 samples=    47104 cache=34.6GB tok/s=    6754 eta=  1.2h
+[shard   100] rank=0/2 phase=1 samples=    52224 cache=38.7GB tok/s=    6751 eta=  1.0h
+[shard   110] rank=0/2 phase=1 samples=    57344 cache=42.5GB tok/s=    6749 eta=  0.9h
+[shard   120] rank=0/2 phase=1 samples=    62464 cache=46.3GB tok/s=    6747 eta=  0.8h
+[shard   130] rank=0/2 phase=1 samples=    67584 cache=50.1GB tok/s=    6747 eta=  0.7h
+[shard   140] rank=0/2 phase=1 samples=    72704 cache=54.3GB tok/s=    6745 eta=  0.6h
+[shard   150] rank=0/2 phase=1 samples=    77824 cache=58.1GB tok/s=    6744 eta=  0.5h
+[shard   160] rank=0/2 phase=1 samples=    82944 cache=61.9GB tok/s=    6745 eta=  0.4h
+[shard   170] rank=0/2 phase=1 samples=    88064 cache=65.7GB tok/s=    6743 eta=  0.3h
+[shard   180] rank=0/2 phase=1 samples=    93184 cache=69.9GB tok/s=    6742 eta=  0.1h
+[shard   190] rank=0/2 phase=1 samples=    98304 cache=73.7GB tok/s=    6741 eta=  0.0h
+[shard   194] rank=0/2 phase=1 samples=   100352 cache=75.2GB tok/s=    6741 eta=  0.0h
+Disk cap reached (75.0 GB). Stopping cleanly.
+Done. Rank 0 wrote 98 new shards (100352 samples total for phase 1).

@@ -1,0 +1,108 @@
+# ── Dual-GPU Training (NCCL, no DDP) — INSTRUMENTED VERSION ────────────
+# Two patches landed vs. the previous `train_offload.py`:
+#   1. Optimizer construction now goes through `_make_adamw` so
+#      --use_8bit_adam actually takes effect (was previously ignored,
+#      forcing fp32 moments and burning ~3.6 GB extra VRAM per rank).
+#   2. PhaseTimer instrumentation around data, student_fwd, backward,
+#      allreduce, grad_clip, optimizer phases on rank 0 only. Adds
+#      torch.cuda.synchronize() at each phase boundary so timings are
+#      real elapsed time, not just kernel-launch time.
+#
+# This run is for DIAGNOSIS, not production. ~200 steps with profiler
+# reports every 100 steps. Once the breakdown is in hand, we'll know
+# where to spend the next optimization effort.
+#
+# Expected report at step 100 will look something like:
+#   data         ~0-1ms
+#   student_fwd  ~400-450ms
+#   backward     ~900-1100ms      (single-GPU was 905ms)
+#   allreduce    ~150-300ms       (only fires every 8 steps; mean is
+#                                   amortized, so /8 of the actual cost)
+#   grad_clip    ~5-8ms
+#   optimizer    ~25-50ms         (lower than before with 8-bit AdamW)
+#
+# If allreduce mean is ~25-40ms (i.e. actual cost ~200-300ms / 8), it's
+# already well-amortized and the bottleneck is forward+backward themselves
+# — the only remaining lever is something like chunked KL or a batch=2
+# attempt. If allreduce mean is >100ms, the all-reduce is the bottleneck
+# and we should look at view-based flattening (torch._utils._flatten_dense_tensors).
+#
+# To stop:
+# pkill -9 -f "venv_nv/bin/python" && echo "Killed training processes" || echo "No training process found"
+# fuser -k -9 29501/tcp && echo "Freed PyTorch distributed port" || echo "Port already free"
+
+
+cd /home/kyler/Documents/CTM-Transformer && \
+  source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
+  CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 python \
+    -m ctm_transformer.train_offload \
+    --device cuda \
+    --dtype bfloat16 \
+    --d_model 1024 \
+    --d_latent 1024 \
+    --n_layers 24 \
+    --n_heads 16 \
+    --nlm_hidden_dim 64 \
+    --nlm_groups 1 \
+    --history_len 8 \
+    --max_thought_steps 8 \
+    --use_hyperloop \
+    --hyperloop_n_begin 4 \
+    --hyperloop_n_middle 18 \
+    --hyperloop_n_end 4 \
+    --hyperloop_middle_loops 1 \
+    --seq_len 512 \
+    --batch_size 1 \
+    --gradient_accumulation_steps 8 \
+    --learning_rate 3e-4 \
+    --warmup_steps 2000 \
+    --max_steps 200 \
+    --no_gradient_checkpointing \
+    --log_interval 10 \
+    --eval_interval 100000 \
+    --optimizer adamw \
+    --use_8bit_adam \
+    --gradient_checkpointing_min_T 2 \
+    --checkpoint_dir checkpoints_v2_dual_diag \
+    --use_feec \
+    --use_matrix_streams \
+    --n_streams 4 \
+    --use_loop_pos_emb \
+    --use_triton_attention \
+    --tiled_schedule \
+    --sync_method sparse_decay \
+    --sync_sparse_pairs 256 \
+    --synapse_type mlp \
+    --temporal_loss_type dynamic_aggregate \
+    --use_two_phase_curriculum \
+    --use_distillation \
+    --use_cached_teacher \
+    --teacher_cache_dir ./teacher_cache \
+    --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16" \
+    --phase1_tokens 500000000 \
+    --distill_logit_weight 1.0 \
+    --distill_temperature 4.0 \
+    --distill_tick_aggregation all \
+    --distill_top_k 128 \
+    --distill_feature_weight 0.0 \
+    --use_shared_head_film \
+    --tie_embeddings \
+    --profile \
+    --profile_warmup 50 \
+    --profile_interval 100
+echo "Diagnostic run finished."
+
+# What to look for in the output:
+#   1. The startup log should show:
+#        Optimizer: AdamW8bit (8-bit moments)
+#      If it says just "AdamW", bitsandbytes isn't installed and you
+#      should pip install it. Check with: python -c "import bitsandbytes"
+#
+#   2. nvidia-smi during the run should show LOWER VRAM usage than
+#      before (~12-14 GB per card instead of ~22 GB). Optimizer state
+#      drops from fp32 (8 bytes/param) to int8 (1 byte/param), saving
+#      ~3.3 GB per rank. Verifying this confirms the 8-bit path is active.
+#
+#   3. The PhaseTimer report at step 100 will tell us exactly where
+#      the 360ms of "missing" speedup is going. Send the report
+#      output back when it's done.
