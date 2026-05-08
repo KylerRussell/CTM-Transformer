@@ -1,0 +1,139 @@
+Spawning 2 workers...
+archlinux:423886:423886 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:423886:423886 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:423886:423886 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:423887:423887 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:423886:423886 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:423887:423887 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:423887:423887 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:423887:423887 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:423886:423886 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:423887:423887 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:423886:423886 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:423886:423886 [0] NCCL INFO NET/IB : No device found.
+archlinux:423886:423886 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:423886:423886 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:423886:423886 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:423886:423886 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:423886:423886 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:423886:423886 [0] NCCL INFO Using network Socket
+archlinux:423886:423886 [0] NCCL INFO ncclCommInitRankConfig comm 0x5587458a1810 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0xc2516e53976a537a - Init START
+archlinux:423887:423887 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:423887:423887 [1] NCCL INFO NET/IB : No device found.
+archlinux:423887:423887 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:423887:423887 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:423887:423887 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:423887:423887 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:423887:423887 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:423887:423887 [1] NCCL INFO Using network Socket
+archlinux:423887:423887 [1] NCCL INFO ncclCommInitRankConfig comm 0x5622c0e2ab40 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0xc2516e53976a537a - Init START
+archlinux:423887:423887 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:423886:423886 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:423887:423887 [1] NCCL INFO Bootstrap timings total 0.000577 (create 0.000014, send 0.000082, recv 0.000076, ring 0.000013, delay 0.000000)
+archlinux:423886:423886 [0] NCCL INFO Bootstrap timings total 0.048449 (create 0.000014, send 0.000066, recv 0.047964, ring 0.000014, delay 0.000000)
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:423887:423887 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:423886:423886 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:423887:423887 [1] NCCL INFO comm 0x5622c0e2ab40 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:423886:423886 [0] NCCL INFO comm 0x5587458a1810 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:423886:423886 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:423887:423887 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:423886:423886 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:423887:423887 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:423886:423886 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:423886:423886 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:423887:423887 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:423886:423886 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:423886:423886 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:423887:423985 [0] NCCL INFO [Proxy Service] Device 1 CPU core 18
+archlinux:423887:423987 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 19
+archlinux:423886:423984 [0] NCCL INFO [Proxy Service] Device 0 CPU core 18
+archlinux:423886:423986 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 19
+archlinux:423886:423886 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:423886:423886 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:423886:423886 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:423887:423887 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:423887:423887 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:423887:423887 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:423886:423886 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:423886:423886 [0] NCCL INFO ncclCommInitRankConfig comm 0x5587458a1810 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0xc2516e53976a537a - Init COMPLETE
+archlinux:423886:423886 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.12 (kernels 0.06, alloc 0.00, bootstrap 0.05, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+archlinux:423887:423887 [1] NCCL INFO ncclCommInitRankConfig comm 0x5622c0e2ab40 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0xc2516e53976a537a - Init COMPLETE
+archlinux:423887:423887 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.12 (kernels 0.11, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+[worker 0] Building model on cuda:0...
+Model: 492.5M params × 2 workers
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:423886:423886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423886:423886 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:423887:423887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:423887:423887 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:423887:423887 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:423886:423886 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments)
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+Resumed at step 100000
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 100000 → 200000
+  Batch: 2 × 512 tokens
+  Thought ticks: 8
+  Gradient checkpointing: True
+============================================================
+
+step 100000 | loss 8.7736 | lr 1.52e-04 | grad 0.00 | 0.7k tok/s (avg 0.7k) | cert 0.55→0.64 | ticks [4.719 3.906 3.875 4.031 4.062 4.406 4.219 4.094] | Δticks -0.625 | ETA 39.1h
+  Saved checkpoint at step 100000
+step 100010 | loss 14.1887 | lr 1.52e-04 | grad 0.00 | 1.0k tok/s (avg 0.8k) | cert 0.70→0.65 | ticks [3.250 3.188 3.047 3.219 3.078 3.281 3.172 3.141] | Δticks -0.109 | ETA 33.7h
+step 100020 | loss 8.9641 | lr 1.52e-04 | grad 1.48 | 0.8k tok/s (avg 0.8k) | cert 0.35→0.59 | ticks [5.312 4.156 4.250 4.156 4.406 4.656 4.469 4.219] | Δticks -1.094 | ETA 35.2h
+step 100030 | loss 8.9398 | lr 1.52e-04 | grad 1.48 | 1.2k tok/s (avg 0.9k) | cert 0.36→0.49 | ticks [5.688 4.969 4.812 4.812 4.875 5.094 5.031 5.094] | Δticks -0.594 | ETA 31.3h
+step 100040 | loss 10.0227 | lr 1.52e-04 | grad 1.39 | 0.8k tok/s (avg 0.9k) | cert 0.54→0.57 | ticks [5.875 5.438 5.219 5.250 5.188 5.531 5.188 5.375] | Δticks -0.500 | ETA 32.7h
+step 100050 | loss 10.3333 | lr 1.52e-04 | grad 1.64 | 0.8k tok/s (avg 0.9k) | cert 0.43→0.64 | ticks [4.844 4.031 4.125 4.281 4.125 4.438 4.344 4.156] | Δticks -0.688 | ETA 33.3h
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 2845, in <module>
+    main_multi_gpu()
+    ~~~~~~~~~~~~~~^^
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 2823, in main_multi_gpu
+    mp.spawn(worker_multi_gpu, args=(world_size, config_dict, runtime_kwargs),
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             nprocs=world_size, join=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 340, in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 296, in start_processes
+    while not context.join():
+              ~~~~~~~~~~~~^^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 192, in join
+    raise ProcessExitedException(
+    ...<5 lines>...
+    )
+torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with signal SIGKILL

@@ -53,7 +53,7 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --hyperloop_middle_loops 1 \
     --seq_len 512 \
     --batch_size 1 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 16 \
     --learning_rate 3e-4 \
     --warmup_steps 2000 \
     --max_steps 200 \
@@ -62,13 +62,13 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --eval_interval 100000 \
     --optimizer adamw \
     --use_8bit_adam \
-    --gradient_checkpointing_min_T 2 \
     --checkpoint_dir checkpoints_v2_dual_diag \
     --use_feec \
     --use_matrix_streams \
     --n_streams 4 \
     --use_loop_pos_emb \
     --use_triton_attention \
+    --compile \
     --tiled_schedule \
     --sync_method sparse_decay \
     --sync_sparse_pairs 256 \
@@ -82,7 +82,7 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --phase1_tokens 500000000 \
     --distill_logit_weight 1.0 \
     --distill_temperature 4.0 \
-    --distill_tick_aggregation all \
+    --distill_tick_aggregation first \
     --distill_top_k 128 \
     --distill_feature_weight 0.0 \
     --use_shared_head_film \

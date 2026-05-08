@@ -1,0 +1,186 @@
+Spawning 2 workers...
+archlinux:835710:835710 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:835710:835710 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:835710:835710 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:835711:835711 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:835711:835711 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:835710:835710 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:835711:835711 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:835711:835711 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:835710:835710 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:835711:835711 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:835710:835710 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:835710:835710 [0] NCCL INFO NET/IB : No device found.
+archlinux:835710:835710 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:835710:835710 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:835710:835710 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:835710:835710 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:835710:835710 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:835710:835710 [0] NCCL INFO Using network Socket
+archlinux:835710:835710 [0] NCCL INFO ncclCommInitRankConfig comm 0x55b33ef7aaf0 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x8dd728f6a5168694 - Init START
+archlinux:835711:835711 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:835711:835711 [1] NCCL INFO NET/IB : No device found.
+archlinux:835711:835711 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:835711:835711 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:835711:835711 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:835711:835711 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:835711:835711 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:835711:835711 [1] NCCL INFO Using network Socket
+archlinux:835711:835711 [1] NCCL INFO ncclCommInitRankConfig comm 0x55f655b64550 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x8dd728f6a5168694 - Init START
+archlinux:835711:835711 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:835710:835710 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:835710:835710 [0] NCCL INFO Bootstrap timings total 0.047620 (create 0.000013, send 0.000069, recv 0.047111, ring 0.000011, delay 0.000000)
+archlinux:835711:835711 [1] NCCL INFO Bootstrap timings total 0.000598 (create 0.000014, send 0.000075, recv 0.000090, ring 0.000032, delay 0.000000)
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:835711:835711 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:835710:835710 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:835711:835711 [1] NCCL INFO comm 0x55f655b64550 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:835710:835710 [0] NCCL INFO comm 0x55b33ef7aaf0 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:835710:835710 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:835711:835711 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:835710:835710 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:835711:835711 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:835710:835710 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:835710:835710 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:835711:835711 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:835710:835710 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:835710:835710 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:835711:835795 [0] NCCL INFO [Proxy Service] Device 1 CPU core 21
+archlinux:835710:835796 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 18
+archlinux:835710:835794 [0] NCCL INFO [Proxy Service] Device 0 CPU core 21
+archlinux:835711:835797 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 18
+archlinux:835710:835710 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:835710:835710 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:835710:835710 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:835711:835711 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:835711:835711 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:835711:835711 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:835710:835710 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:835710:835710 [0] NCCL INFO ncclCommInitRankConfig comm 0x55b33ef7aaf0 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x8dd728f6a5168694 - Init COMPLETE
+archlinux:835711:835711 [1] NCCL INFO ncclCommInitRankConfig comm 0x55f655b64550 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x8dd728f6a5168694 - Init COMPLETE
+archlinux:835710:835710 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.13 (kernels 0.07, alloc 0.00, bootstrap 0.05, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+archlinux:835711:835711 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.13 (kernels 0.12, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+[worker 0] Building model on cuda:0...
+Model: 492.5M params × 2 workers
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:835710:835710 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835710:835710 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:835711:835711 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:835711:835711 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:835710:835710 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:835711:835711 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments)
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 0 → 50
+  Batch: 2 × 512 tokens
+  Thought ticks: 8
+  Gradient checkpointing: False
+============================================================
+
+Phase profiling enabled (warmup=5 steps, report every 10 steps)
+step      0 | loss 19.9828 | lr 0.00e+00 | grad 0.00 | 0.7k tok/s (avg 0.7k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000 12.000 12.000 12.000 12.000] | Δticks +0.000 | ETA 0.0h
+
+────────────────────────────────────────────────────────────────────────
+PhaseTimer  (step 11, warmup 5)
+────────────────────────────────────────────────────────────────────────
+phase                      mean(ms)    median       p95     n   %total
+────────────────────────────────────────────────────────────────────────
+backward                     375.75    376.18    376.50     6    61.5%
+student_fwd                  235.21    231.82    253.91     6    38.5%
+data                           0.29      0.26      0.44     6     0.0%
+────────────────────────────────────────────────────────────────────────
+TOTAL (mean per step)        611.25 ms
+────────────────────────────────────────────────────────────────────────
+
+step     10 | loss 17.7270 | lr 1.50e-06 | grad 0.00 | 1.7k tok/s (avg 1.4k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.938 11.938 11.938 11.938 11.938] | Δticks +0.000 | ETA 0.0h
+
+────────────────────────────────────────────────────────────────────────
+PhaseTimer  (step 21, warmup 5)
+────────────────────────────────────────────────────────────────────────
+phase                      mean(ms)    median       p95     n   %total
+────────────────────────────────────────────────────────────────────────
+sync_wait                   3842.19   3842.19   3842.19     1    24.9%
+allreduce                   1789.19   1789.19   1789.19     1    11.6%
+backward                     377.17    377.06    378.56    10    39.1%
+student_fwd                  231.84    231.69    232.40    10    24.0%
+optimizer                     40.00     40.00     40.00     1     0.3%
+grad_clip                     19.75     19.75     19.75     1     0.1%
+data                           0.26      0.26      0.30    10     0.0%
+────────────────────────────────────────────────────────────────────────
+TOTAL (mean per step)        964.96 ms
+────────────────────────────────────────────────────────────────────────
+
+step     20 | loss 20.3024 | lr 3.00e-06 | grad 20.25 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | ticks [11.938 11.938 12.000 12.000 12.000 12.000 11.938 11.938] | Δticks +0.000 | ETA 0.0h
+
+────────────────────────────────────────────────────────────────────────
+PhaseTimer  (step 31, warmup 5)
+────────────────────────────────────────────────────────────────────────
+phase                      mean(ms)    median       p95     n   %total
+────────────────────────────────────────────────────────────────────────
+sync_wait                   3842.19   3842.19   3842.19     1    17.7%
+allreduce                   1789.19   1789.19   1789.19     1     8.2%
+backward                     379.47    379.67    380.46    10    45.4%
+student_fwd                  236.81    233.07    274.02    10    28.3%
+optimizer                     40.00     40.00     40.00     1     0.2%
+grad_clip                     19.75     19.75     19.75     1     0.1%
+data                           0.26      0.25      0.29    10     0.0%
+────────────────────────────────────────────────────────────────────────
+TOTAL (mean per step)        835.42 ms
+────────────────────────────────────────────────────────────────────────
+
+step     30 | loss 21.5488 | lr 4.50e-06 | grad 20.25 | 1.6k tok/s (avg 1.2k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000 12.000 12.000 12.000 12.000] | Δticks +0.000 | ETA 0.0h
+
+────────────────────────────────────────────────────────────────────────
+PhaseTimer  (step 41, warmup 5)
+────────────────────────────────────────────────────────────────────────
+phase                      mean(ms)    median       p95     n   %total
+────────────────────────────────────────────────────────────────────────
+sync_wait                   3697.30   3697.30   3842.19     2    22.3%
+allreduce                   1799.96   1799.96   1810.72     2    10.8%
+backward                     380.62    380.22    385.61    10    41.3%
+student_fwd                  233.84    233.37    236.04    10    25.3%
+optimizer                     33.08     33.08     40.00     2     0.2%
+grad_clip                     12.26     12.26     19.75     2     0.1%
+data                           0.26      0.27      0.29    10     0.0%
+────────────────────────────────────────────────────────────────────────
+TOTAL (mean per step)        922.65 ms
+────────────────────────────────────────────────────────────────────────
+
+step     40 | loss 19.3983 | lr 6.00e-06 | grad 21.50 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | ticks [12.000 12.000 11.938 12.000 12.000 12.000 12.000 12.000] | Δticks +0.000 | ETA 0.0h
+
+Training complete!
+archlinux:835710:835710 [0] NCCL INFO comm 0x55b33ef7aaf0 rank 0 nranks 2 cudaDev 0 busId 1000 - Destroy COMPLETE
+archlinux:835711:835711 [1] NCCL INFO comm 0x55f655b64550 rank 1 nranks 2 cudaDev 1 busId a000 - Destroy COMPLETE
+archlinux:835710:835710 [0] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
+archlinux:835711:835711 [1] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault

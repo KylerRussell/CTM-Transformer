@@ -1,25 +1,14 @@
-# ── Dual-GPU Training (NCCL, no DDP) — consolidated layout ──────────────
-# Same as before, but the entry-point module is now `ctm_transformer.train`
-# with the `--multi_gpu` flag (replaces the old `ctm_transformer.train_offload`).
-# Internally this still runs the dual-GPU NCCL-with-flat-allreduce path
-# (worker_multi_gpu spawned via mp.spawn) — only the dispatch lives in train.py.
+# ── VRAM Iterative Testing (No Compile) ────────────────────────────
+# Use this script to test VRAM reduction strategies without waiting
+# for long torch.compile times.
 #
-# Two model replicas process different micro-batches in parallel.
-# Gradients flattened + allreduced via NCCL AFTER backward (no DDP).
-# Effective batch size = 2 (1 per GPU).
-#
-# Throughput: ~0.8k tok/s (2× single GPU)
-#
-# To stop:
-# pkill -9 -f "venv_nv/bin/python" && echo "Killed training processes" || echo "No training process found"
-# fuser -k -9 29501/tcp && echo "Freed PyTorch distributed port" || echo "Port already free"
-
+# To run:
+# bash run_command_offload_vram_test.txt
 
 cd /home/kyler/Documents/CTM-Transformer && \
   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
   CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 python \
-    -m ctm_transformer.train \
-    --multi_gpu \
+    -m ctm_transformer.train_offload \
     --device cuda \
     --dtype bfloat16 \
     --d_model 1024 \
@@ -40,14 +29,14 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --gradient_accumulation_steps 16 \
     --learning_rate 3e-4 \
     --warmup_steps 2000 \
-    --max_steps 200000 \
+    --max_steps 50 \
+    --gradient_checkpointing \
+    --gradient_checkpointing_min_T 1 \
     --log_interval 10 \
     --eval_interval 100000 \
     --optimizer adamw \
     --use_8bit_adam \
-    --gradient_checkpointing \
-    --gradient_checkpointing_min_T 2 \
-    --checkpoint_dir checkpoints_v2_dual \
+    --checkpoint_dir checkpoints_v2_vram_test \
     --use_feec \
     --use_matrix_streams \
     --n_streams 4 \
@@ -71,5 +60,6 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --distill_feature_weight 0.0 \
     --use_shared_head_film \
     --tie_embeddings \
-    > train_dual_gpu_vram_optimized.log 2>&1 &
-echo "Dual-GPU Training PID: $!"
+    --profile \
+    --profile_warmup 5 \
+    --profile_interval 10
