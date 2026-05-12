@@ -34,6 +34,12 @@ from torch.utils.data import IterableDataset, get_worker_info
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer, EngramTable
 from ctm_transformer.extras import AdaMuon, build_param_groups
+from ctm_transformer.validation import (
+    compute_validation_metrics,
+    compute_validation_metrics_t_sweep,
+    format_validation_report,
+    format_t_sweep_report,
+)
 
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
@@ -49,13 +55,14 @@ os.environ["TORCHINDUCTOR_SPLIT_REDUCTIONS"] = "1"
 os.environ["TORCHINDUCTOR_ONLINE_SOFTMAX"] = "1"
 import warnings
 
-
+warnings.filterwarnings("ignore", message=".*Online softmax is disabled on the fly.*")
 # ═════════════════════════════════════════════════════════════════════════
 # phase_timer.py
 # ═════════════════════════════════════════════════════════════════════════
 
 class PhaseTimer:
-    def __init__(self, enabled: bool = True, warmup_steps: int = 5):
+    def __init__(self, enabled: bool = True, warmup_steps: int = 5,
+                 track_memory: bool = True):
         self.enabled = enabled
         self.warmup_steps = warmup_steps
         self.timings: dict[str, list[float]] = defaultdict(list)
@@ -63,38 +70,69 @@ class PhaseTimer:
         self._is_cuda = torch.cuda.is_available()
         self._in_warmup = True
 
+        # Memory tracking
+        self.track_memory = track_memory and self._is_cuda
+        self.mem_peak: dict[str, list[int]] = defaultdict(list)   # bytes, peak DURING phase
+        self.mem_delta: dict[str, list[int]] = defaultdict(list)  # bytes, end - start (signed)
+        self.step_peak_alloc: list[int] = []                      # peak allocated in step
+        self.step_end_reserved: list[int] = []                    # caching-allocator pool size at step end
+        self._step_phase_peaks: list[int] | None = None
+
     def _sync(self):
         if self._is_cuda:
             torch.cuda.synchronize()
 
     @contextmanager
     def step(self):
-        """Wrap each training step. Increments step counter and toggles
-        warmup state so the first few steps don't dominate the stats."""
+        """Wrap each training step."""
         if not self.enabled:
             yield
             return
         self.step_count += 1
         self._in_warmup = self.step_count <= self.warmup_steps
-        yield
+        record_mem = self.track_memory and not self._in_warmup
+        if record_mem:
+            self._step_phase_peaks = []
+        try:
+            yield
+        finally:
+            if record_mem:
+                self._sync()
+                if self._step_phase_peaks:
+                    self.step_peak_alloc.append(max(self._step_phase_peaks))
+                else:
+                    self.step_peak_alloc.append(torch.cuda.memory_allocated())
+                self.step_end_reserved.append(torch.cuda.memory_reserved())
+                self._step_phase_peaks = None
 
     @contextmanager
     def __call__(self, name: str):
-        """Time a phase. No-ops if timer is disabled or in warmup."""
+        """Time + memory-track a phase. No-ops in warmup."""
         if not self.enabled or self._in_warmup:
             yield
             return
         self._sync()
+        track_mem = self.track_memory
+        if track_mem:
+            # Note: peak counter is per-device global. Phases are sequential
+            # in this codebase; nesting would clobber the inner phase's peak.
+            torch.cuda.reset_peak_memory_stats()
+            start_alloc = torch.cuda.memory_allocated()
         t0 = time.perf_counter()
         try:
             yield
         finally:
             self._sync()
             self.timings[name].append(time.perf_counter() - t0)
+            if track_mem:
+                end_alloc = torch.cuda.memory_allocated()
+                peak = torch.cuda.max_memory_allocated()
+                self.mem_peak[name].append(peak)
+                self.mem_delta[name].append(end_alloc - start_alloc)
+                if self._step_phase_peaks is not None:
+                    self._step_phase_peaks.append(peak)
 
     def report(self, last_n: int | None = None, sort_by: str = "mean"):
-        """Print a summary table. last_n=N restricts to the last N samples;
-        sort_by ∈ {'mean', 'median', 'name'}."""
         if not self.timings:
             print("[PhaseTimer] no samples yet")
             return
@@ -102,6 +140,10 @@ class PhaseTimer:
         steps_recorded = max(1, self.step_count - self.warmup_steps)
         rows = []
         total_mean_per_step = 0.0
+
+        def _avg(seq):
+            return sum(seq) / len(seq) if seq else 0.0
+
         for name, samples in self.timings.items():
             true_n = len(self.timings[name])
             if last_n is not None:
@@ -113,9 +155,19 @@ class PhaseTimer:
             med_ms = statistics.median(samples) * 1000
             sorted_s = sorted(samples)
             p95_ms = sorted_s[min(int(n * 0.95), n - 1)] * 1000
-            
             mean_per_step = mean_ms * (true_n / steps_recorded)
-            rows.append((name, mean_ms, med_ms, p95_ms, n, mean_per_step))
+
+            # Memory: peak-during-phase and net delta
+            peak_samples = self.mem_peak.get(name, [])
+            delta_samples = self.mem_delta.get(name, [])
+            if last_n is not None:
+                peak_samples = peak_samples[-last_n:]
+                delta_samples = delta_samples[-last_n:]
+            peak_gb = _avg(peak_samples) / (1024**3)
+            delta_mb = _avg(delta_samples) / (1024**2)
+
+            rows.append((name, mean_ms, med_ms, p95_ms, n, mean_per_step,
+                         peak_gb, delta_mb))
             total_mean_per_step += mean_per_step
 
         if sort_by == "mean":
@@ -125,20 +177,29 @@ class PhaseTimer:
         else:
             rows.sort(key=lambda r: r[0])
 
-        bar = "─" * 72
+        bar = "─" * 96
         print()
         print(bar)
         print(f"PhaseTimer  (step {self.step_count}, warmup {self.warmup_steps})")
         print(bar)
-        print(f"{'phase':<24s} {'mean(ms)':>10s} {'median':>9s} {'p95':>9s} "
-              f"{'n':>5s} {'%total':>8s}")
+        print(f"{'phase':<22s} {'mean(ms)':>9s} {'median':>8s} {'p95':>8s} "
+              f"{'n':>4s} {'%total':>7s} {'peak(GB)':>9s} {'Δ(MB)':>9s}")
         print(bar)
-        for name, mean_ms, med_ms, p95_ms, n, mean_per_step in rows:
+        for name, mean_ms, med_ms, p95_ms, n, mean_per_step, peak_gb, delta_mb in rows:
             pct = 100 * mean_per_step / total_mean_per_step if total_mean_per_step > 0 else 0
-            print(f"{name:<24s} {mean_ms:10.2f} {med_ms:9.2f} {p95_ms:9.2f} "
-                  f"{n:5d} {pct:7.1f}%")
+            print(f"{name:<22s} {mean_ms:9.2f} {med_ms:8.2f} {p95_ms:8.2f} "
+                  f"{n:4d} {pct:6.1f}% {peak_gb:9.2f} {delta_mb:+9.1f}")
         print(bar)
-        print(f"{'TOTAL (mean per step)':<24s} {total_mean_per_step:10.2f} ms")
+        print(f"{'TOTAL (mean per step)':<22s} {total_mean_per_step:9.2f} ms")
+
+        # Step-level memory summary
+        if self.track_memory and self.step_peak_alloc:
+            sp = self.step_peak_alloc[-last_n:] if last_n else self.step_peak_alloc
+            sr = self.step_end_reserved[-last_n:] if last_n else self.step_end_reserved
+            print(f"{'step peak allocated':<22s} {_avg(sp)/1024**3:.2f} GB "
+                  f"(max {max(sp)/1024**3:.2f} GB)")
+            print(f"{'step end reserved':<22s} {_avg(sr)/1024**3:.2f} GB "
+                  f"(max {max(sr)/1024**3:.2f} GB)")
         print(bar)
         print()
 
@@ -906,8 +967,17 @@ def save_checkpoint(model, optimizers, step, config, path, keep_last=3):
         payload["optimizer_state_dict"] = optimizers[0].state_dict()
     torch.save(payload, path)
 
-    # Rotate old step checkpoints (keep last N)
-    step_ckpts = sorted(ckpt_dir.glob("step_*.pt"))
+    # Rotate old step checkpoints (keep last N).
+    # IMPORTANT: sort by step number, NOT lexicographically. Default sort
+    # would put "step_100000.pt" before "step_85000.pt" because '1' < '8',
+    # which causes the rotation logic to delete the most recent checkpoint
+    # (thinking it's the oldest) once step counts cross the next digit.
+    def _step_num(p):
+        try:
+            return int(p.stem.split("_", 1)[1])
+        except (IndexError, ValueError):
+            return -1
+    step_ckpts = sorted(ckpt_dir.glob("step_*.pt"), key=_step_num)
     for old in step_ckpts[:-keep_last]:
         try:
             old.unlink()
@@ -2159,6 +2229,13 @@ def parse_args():
     train_group.add_argument("--profile_interval", type=int, default=50,
                              help="Print phase-timing report every N steps (only when "
                                   "--profile is set).")
+    train_group.add_argument("--val_interval", type=int, default=200,
+                             help="Run held-out validation (PPL + distill top-k alignment) "
+                                  "every N steps. Rank 0 only. ~50 fwd passes, cheap. "
+                                  "Set to 0 to disable.")
+    train_group.add_argument("--t_sweep_interval", type=int, default=2000,
+                             help="Run T-ablation sweep (T=1,4,8) every N steps. Rank 0 only. "
+                                  "~3× the cost of a single validation run. Set to 0 to disable.")
 
     # Optimizer
     opt_group = parser.add_argument_group("Optimizer")
@@ -2533,6 +2610,29 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
             train_iter = iter(train_loader)
             return next(train_iter)
 
+    # ── Eval loader (rank 0 only) ────────────────────────────────────
+    # Held-out slice of the cached teacher data via is_eval=True.
+    # Only rank 0 evaluates — weights stay synced across ranks via the
+    # flat allreduce on grads, so single-rank eval is correct.
+    # Factory pattern lets each call (and each T in the T-sweep) get a
+    # fresh deterministic loader.
+    eval_loader_factory = None
+    if rank == 0:
+        def _make_eval_loader():
+            eval_ds = CachedTeacherDataset(
+                cache_dir=str(phase_dir),
+                rank=0, world_size=1,
+                is_eval=True,
+                eval_fraction=0.05,
+                shuffle_shards=False,
+            )
+            return torch.utils.data.DataLoader(
+                eval_ds, batch_size=config.batch_size,
+                collate_fn=cached_teacher_collate,
+                num_workers=1, pin_memory=True,
+            )
+        eval_loader_factory = _make_eval_loader
+
     # ── Checkpoint ───────────────────────────────────────────────────
     start_step = 0
     ckpt_dir = Path(config.checkpoint_dir)
@@ -2579,9 +2679,29 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
               f"report every {profile_interval} steps)")
 
     optimizer.zero_grad()
+    prev_T = None
     for step in range(start_step, config.max_steps):
         with timer.step():
             t0 = time.perf_counter()
+
+            # Sync _train_step BEFORE forward so loss-side schedules
+            # (mono_penalty decay, etc.) read the current step.
+            model._train_step.fill_(step)
+
+            # Resolve curriculum T for this step. When t_curriculum is
+            # off this returns config.max_thought_steps. When on, walks
+            # the stages list and picks the appropriate T.
+            current_T = config.resolve_thought_steps(step)
+
+            # Announce curriculum transitions on rank 0 only.
+            if rank == 0 and config.t_curriculum and prev_T is not None and current_T != prev_T:
+                print(
+                    f"\n{'='*70}\n"
+                    f"  CURRICULUM TRANSITION at step {step}: T = {prev_T} → {current_T}\n"
+                    f"{'='*70}\n",
+                    flush=True,
+                )
+            prev_T = current_T
 
             with timer("data"):
                 batch = get_batch()
@@ -2601,6 +2721,7 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                     ids, targets=tgt,
                     cached_top_indices=top_idx,
                     cached_top_values=top_val,
+                    max_thought_steps=current_T,
                 )
                 # Scale loss so the gradients accumulate correctly
                 loss = result['loss'] / config.gradient_accumulation_steps
@@ -2639,8 +2760,6 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 with timer("optimizer"):
                     optimizer.step()
                     optimizer.zero_grad()
-
-            model._train_step.fill_(step + 1)
 
             t1 = time.perf_counter()
             step_time = t1 - t0
@@ -2686,13 +2805,62 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 cert_last = cert[-1].mean().item()
                 cert_str = f" | cert {cert_first:.2f}→{cert_last:.2f}"
 
+            t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
-                f"step {step:>6d} | loss {loss.item() * config.gradient_accumulation_steps:.4f} | "
+                f"step {step:>6d} | {t_field}loss {loss.item() * config.gradient_accumulation_steps:.4f} | "
                 f"lr {lr:.2e} | grad {last_grad_norm:.2f} | "
                 f"{tps/1000:.1f}k tok/s (avg {avg_tps/1000:.1f}k)"
                 f"{cert_str}{tick_str} | "
                 f"ETA {eta_sec/3600:.1f}h"
             )
+
+        # ── Periodic validation (rank 0 only) ────────────────────────
+        # Held-out PPL + distillation top-k alignment every val_interval
+        # steps; pricier T-ablation every t_sweep_interval steps.
+        # Both are CLI-tunable; set to 0 to disable.
+        # Wrapped in try/except: a hiccup in a periodic probe should
+        # never take down a multi-day training run. We log and continue.
+        VAL_INTERVAL = runtime_kwargs.get('val_interval', 200)
+        T_SWEEP_INTERVAL = runtime_kwargs.get('t_sweep_interval', 2000)
+
+        if (rank == 0 and eval_loader_factory is not None
+                and VAL_INTERVAL > 0
+                and step > 0 and step % VAL_INTERVAL == 0):
+            try:
+                unwrap_model(model)._train_step.fill_(step)
+                metrics = compute_validation_metrics(
+                    model=model,
+                    eval_loader=eval_loader_factory(),
+                    device=device, config=config,
+                    amp_dtype=dtype, max_batches=50,
+                )
+                print(f"  >>> val @ step {step}:")
+                print(format_validation_report(metrics))
+            except Exception as e:
+                print(f"  [val @ step {step}] FAILED: {type(e).__name__}: {e}",
+                      flush=True)
+                # Restore train mode in case the failure left model.eval() set
+                model.train()
+
+        if (rank == 0 and eval_loader_factory is not None
+                and T_SWEEP_INTERVAL > 0
+                and step > 0 and step % T_SWEEP_INTERVAL == 0):
+            try:
+                unwrap_model(model)._train_step.fill_(step)
+                t_sweep = compute_validation_metrics_t_sweep(
+                    model=model,
+                    eval_loader_factory=eval_loader_factory,
+                    device=device, config=config,
+                    amp_dtype=dtype,
+                    T_values=(1, 4, 8),
+                    max_batches=30,
+                )
+                print(f"  >>> T-ablation @ step {step}:")
+                print(format_t_sweep_report(t_sweep))
+            except Exception as e:
+                print(f"  [T-sweep @ step {step}] FAILED: {type(e).__name__}: {e}",
+                      flush=True)
+                model.train()
 
         # ── Checkpoint ───────────────────────────────────────────────
         if step > 0 and step % save_interval == 0:
@@ -2818,6 +2986,8 @@ def main_multi_gpu():
         profile_warmup=args.profile_warmup,
         profile_interval=args.profile_interval,
         compile=getattr(args, 'compile', False),
+        val_interval=args.val_interval,
+        t_sweep_interval=args.t_sweep_interval,
     )
 
     mp.spawn(worker_multi_gpu, args=(world_size, config_dict, runtime_kwargs),

@@ -1,0 +1,32 @@
+{
+  "8": {
+    "arc_easy": {
+      "alias": "arc_easy",
+      "acc,none": 0.2904040404040404,
+      "acc_stderr,none": 0.009314833302936464,
+      "acc_norm,none": 0.2996632996632997,
+      "acc_norm_stderr,none": 0.009400228586206167
+    },
+    "hellaswag": {
+      "alias": "hellaswag",
+      "acc,none": 0.2614021111332404,
+      "acc_stderr,none": 0.004385004998923735,
+      "acc_norm,none": 0.262796255725951,
+      "acc_norm_stderr,none": 0.004392531344297222
+    },
+    "lambada_openai": {
+      "alias": "lambada_openai",
+      "perplexity,none": 2184209.02926164,
+      "perplexity_stderr,none": 170347.69349143878,
+      "acc,none": 0.00019406171162429653,
+      "acc_stderr,none": 0.00019406171162429653
+    },
+    "piqa": {
+      "alias": "piqa",
+      "acc,none": 0.5272034820457019,
+      "acc_stderr,none": 0.01164854526242911,
+      "acc_norm,none": 0.5097932535364527,
+      "acc_norm_stderr,none": 0.011663586263283307
+    }
+  }
+}

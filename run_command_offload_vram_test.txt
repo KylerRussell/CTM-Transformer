@@ -7,8 +7,9 @@
 
 cd /home/kyler/Documents/CTM-Transformer && \
   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
-  CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 python \
-    -m ctm_transformer.train_offload \
+  CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 NCCL_P2P_DISABLE=1 python \
+    -m ctm_transformer.train \
+    --multi_gpu \
     --device cuda \
     --dtype bfloat16 \
     --d_model 1024 \
@@ -30,12 +31,12 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --learning_rate 3e-4 \
     --warmup_steps 2000 \
     --max_steps 50 \
-    --gradient_checkpointing \
-    --gradient_checkpointing_min_T 1 \
     --log_interval 10 \
     --eval_interval 100000 \
     --optimizer adamw \
     --use_8bit_adam \
+    --gradient_checkpointing \
+    --gradient_checkpointing_min_T 9 \
     --checkpoint_dir checkpoints_v2_vram_test \
     --use_feec \
     --use_matrix_streams \

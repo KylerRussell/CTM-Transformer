@@ -39,14 +39,16 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --batch_size 1 \
     --gradient_accumulation_steps 16 \
     --learning_rate 3e-4 \
+    --t_curriculum \
+    --t_curriculum_stages 2:0.30,4:0.60,8:0.85,16:1.00 \
     --warmup_steps 2000 \
-    --max_steps 200000 \
+    --max_steps 10000000 \
     --log_interval 10 \
     --eval_interval 100000 \
     --optimizer adamw \
     --use_8bit_adam \
     --gradient_checkpointing \
-    --gradient_checkpointing_min_T 2 \
+    --gradient_checkpointing_min_T 9 \
     --checkpoint_dir checkpoints_v2_dual \
     --use_feec \
     --use_matrix_streams \
@@ -71,5 +73,7 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --distill_feature_weight 0.0 \
     --use_shared_head_film \
     --tie_embeddings \
+    --val_interval 1000 \
+    --t_sweep_interval 10000 \
     > train_dual_gpu_vram_optimized.log 2>&1 &
 echo "Dual-GPU Training PID: $!"

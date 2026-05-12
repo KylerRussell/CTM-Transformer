@@ -73,6 +73,13 @@ from ctm_transformer.extras import (
     CTMCPUOffloadEngine,
 )
 
+from ctm_transformer.validation import (
+    compute_validation_metrics,
+    compute_validation_metrics_t_sweep,
+    format_validation_report,
+    format_t_sweep_report,
+)
+
 
 __all__ = [
     "CTMConfig",
@@ -108,5 +115,10 @@ __all__ = [
     "build_param_groups",
     "newton_schulz5",
     "CTMCPUOffloadEngine",
+    # Validation
+    "compute_validation_metrics",
+    "compute_validation_metrics_t_sweep",
+    "format_validation_report",
+    "format_t_sweep_report",
 ]
 __version__ = "2.0.0"
