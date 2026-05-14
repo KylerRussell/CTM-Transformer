@@ -73,6 +73,11 @@ from ctm_transformer.extras import (
     CTMCPUOffloadEngine,
 )
 
+from ctm_transformer.biological import (
+    HebbianSynapse,
+    CerebellarReadout,
+)
+
 from ctm_transformer.validation import (
     compute_validation_metrics,
     compute_validation_metrics_t_sweep,
@@ -115,6 +120,9 @@ __all__ = [
     "build_param_groups",
     "newton_schulz5",
     "CTMCPUOffloadEngine",
+    # Biological
+    "HebbianSynapse",
+    "CerebellarReadout",
     # Validation
     "compute_validation_metrics",
     "compute_validation_metrics_t_sweep",

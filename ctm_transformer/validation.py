@@ -67,10 +67,12 @@ def compute_validation_metrics(
 
     Notes:
         - Caller is responsible for whatever rank gating they want.
-        - eval_loader yields (ids, tgt, top_idx, top_val, _res) tuples
-          per cached_teacher_collate. top_idx and top_val may be empty
+        - eval_loader yields (ids, tgt, top_idx, top_val, _res[, teacher_z])
+          tuples per cached_teacher_collate. top_idx and top_val may be empty
           tensors if the cache wasn't built with distillation; we detect
-          that and skip alignment metrics.
+          that and skip alignment metrics. The optional 6th `teacher_z`
+          element is ignored here — validation measures pure LM quality,
+          not the training-time predictive-coding signal.
         - PPL is capped to e^30 to avoid overflow on early-step nonsense
           checkpoints — if you see ppl == 1.07e13, treat it as +inf.
     """
@@ -102,7 +104,9 @@ def compute_validation_metrics(
     for batch in eval_loader:
         if n_batches >= max_batches:
             break
-        ids, tgt, top_idx, top_val, _res = batch
+        # Robust to both 5-tuple (legacy) and 6-tuple (with teacher_z)
+        # collate outputs — we only need the first 4 elements here.
+        ids, tgt, top_idx, top_val = batch[0], batch[1], batch[2], batch[3]
         ids = ids.to(device, non_blocking=True)
         tgt = tgt.to(device, non_blocking=True)
 

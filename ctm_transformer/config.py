@@ -487,6 +487,140 @@ class CTMConfig:
     # ── Device ──────────────────────────────────────────────────────────
     device: str = "auto"               # "auto", "cuda", "cpu"
 
+    # ── Biological Learning Extensions ──────────────────────────────────
+    # Two opt-in mechanisms that exploit the CTM's recurrent thought loop.
+    # Both default OFF. When OFF, no parameters are created and the
+    # training loop runs the original code path with zero overhead.
+
+    # 1) Hebbian fast-weights inside the Synapse.
+    #    Each ThoughtLayer maintains a per-(batch, position) fast-weight
+    #    matrix M updated by outer product of (prev_state, attn_out) at
+    #    every tick. The readout M·a is added (gated) to the synapse
+    #    output, giving the model an instant, per-sequence associative
+    #    memory that lives entirely in activation state — no gradient
+    #    update needed. M resets between batches, persists across ticks.
+    #
+    #    Memory cost scales with bottleneck_dim²:
+    #      bottleneck_dim=64  →  ~2 MB per layer per fwd pass at B=1, S=512
+    #      bottleneck_dim=0   →  full d_latent × d_model (very expensive)
+    use_hebbian_synapse: bool = False
+    hebbian_bottleneck_dim: int = 64        # 0 → no bottleneck (full matrix)
+    hebbian_decay_init: float = 0.9         # Persistence of M across ticks
+    hebbian_lr_init: float = 0.1            # Outer-product update magnitude
+    hebbian_gate_init: float = -3.0         # Logit; -3 ≈ 5% initial readout
+    # ── Diagnostic: force the Hebbian readout gate to a fixed value ──
+    # When set (e.g. 0.9), the gate logit is bypassed and the readout
+    # contribution is multiplied by this constant. Used to isolate
+    # "is the readout content useful?" from "is the gate blocked from
+    # opening?". Three diagnostic outcomes:
+    #   No CE change vs baseline → readout content adds nothing
+    #   CE worse than baseline   → readout is actively noisy
+    #   CE better than baseline  → gate gradient was the bottleneck
+    # Default None = use learned gate (normal training).
+    hebbian_force_gate: float | None = None
+    # Hebbian update rule selection:
+    #   "outer_product" (default) — classic M ← decay·M + lr·(z⊗a).
+    #                Simple, but saturates: |M| grows unbounded since
+    #                every co-occurrence is accumulated regardless of
+    #                whether M already encodes it.
+    #   "delta"      — error-correcting rule from Nested Learning /
+    #                Schlag-Schmidhuber FW Programmers:
+    #                  M ← decay·M + lr·(z - M·a)⊗a
+    #                The bracketed (z - M·a) term is a local prediction
+    #                error. Only writes corrections to whatever the
+    #                current M fails to retrieve. Reaches steady-state
+    #                M·a ≈ z and stops growing rather than saturating.
+    #                Better choice if observed |M| growth correlates
+    #                with degraded readout quality at scale.
+    hebbian_update_rule: str = "outer_product"
+
+    # ── Prospective Configuration ───────────────────────────────────────
+    # Biologically motivated: in real neural circuits, learning is gated
+    # by stability — synapses update strongly only when the recurrent
+    # activity has settled into a steady state, not while it's still
+    # transitioning. This prevents the network from learning transient
+    # noise.
+    #
+    # Implementation: we use FEEC energy as a settling signal. At each
+    # tick t > 0, compute relative energy change |E_t - E_{t-1}| / E_t.
+    # Map this to a per-tick stability weight w_t = exp(-beta * rel_delta).
+    # When energy is changing fast (loop not settled), w_t is small and
+    # that tick's loss contribution is downweighted. When energy is
+    # stable, w_t ≈ 1 and the loss flows normally.
+    #
+    # Crucially this multiplies the LOSS, not the gradient — autograd
+    # still works end-to-end, gradient checkpointing still applies,
+    # multi-GPU allreduce still applies. No `.backward()` inside the
+    # loop, no detach, no broken BPTT. The weight is a coefficient
+    # applied to each per-tick CE loss before temporal aggregation.
+    #
+    # Requires use_feec=True (we need per-tick energy values). When
+    # use_feec=False, the flag has no effect.
+    #
+    # Composes orthogonally with temporal_loss_type:
+    #   - dynamic_aggregate: stability-weights are applied to per-tick
+    #     losses before the lowest-loss / highest-certainty selection,
+    #     so unsettled ticks are less likely to be chosen as the
+    #     "best tick" for the model to learn from.
+    #   - ramp: stability-weights multiply the existing linear ramp.
+    use_prospective_config: bool = False
+    prospective_beta: float = 2.0           # Higher = more aggressive
+                                            # downweighting of unsettled ticks.
+                                            # 0 disables (uniform weights).
+                                            # 2.0 means a 50% energy change
+                                            # gives weight exp(-1) ≈ 0.37.
+    # Certainty-modulated learning rate ("neurochemical modulation"):
+    # When > 0, the Hebbian outer-product update is scaled per-position
+    # by (1 + alpha * uncertainty), where uncertainty = 1 - certainty at
+    # the PREVIOUS tick. Biologically: locus coeruleus releases NE in
+    # response to surprise, which then potentiates plasticity for
+    # subsequent events. Functionally: it writes to fast-weight memory
+    # preferentially in surprising contexts rather than every position
+    # equally, which we hope gives the Hebbian path informative content
+    # rather than noise. Tick 0 has no predecessor → no modulation.
+    # alpha=0 disables (same as base behavior). alpha=2 means an
+    # uncertainty of 1.0 triples the lr at that position.
+    hebbian_cert_lr_alpha: float = 0.0
+
+    # 2) Predictive Coding via temporal hierarchy.
+    #    A per-tick "cerebellar" readout predicts the teacher's hidden
+    #    state at tick t (with the *same* teacher_z target supplied each
+    #    tick — the student should converge toward it). Yields an
+    #    auxiliary loss that gives local gradient at every tick rather
+    #    than only at the final-tick LM head. Requires the cached
+    #    teacher to provide hidden-state features (teacher_z); if
+    #    teacher_z is missing the PC loss is silently zero.
+    use_predictive_coding: bool = False
+    pc_loss_weight: float = 0.05            # Weight of PC loss in total
+    pc_hidden_dim: int = 0                  # 0 → auto: max(2*d_latent, teacher_d_model)
+    pc_normalize: str = "layernorm"         # "layernorm" or "none"
+    pc_loss_type: str = "cosine"            # "cosine" or "mse"
+    pc_dropout: float = 0.0
+    # What the cerebellar readout tries to predict at each tick:
+    #   "teacher"    — the teacher's hidden state at the same position.
+    #                  Most faithful to canonical PC-as-distillation, but
+    #                  REQUIRES teacher_z to be available (either via a
+    #                  live teacher, or by extending the cache with
+    #                  scripts/extend_teacher_cache_with_z.py). If
+    #                  teacher_z is absent, PC silently degrades to zero.
+    #   "next_tick"  — at tick t, predict z_{t+1} (the student's own
+    #                  next-tick latent, detached). Zero extra compute,
+    #                  no teacher_z needed. This is the most direct
+    #                  realisation of canonical Predictive Coding
+    #                  (Friston: brain predicts its own next state).
+    #                  Recommended when teacher_z is unavailable.
+    #   "final_tick" — at tick t, predict z_{T-1} (the student's own
+    #                  final-tick latent, detached). Stronger
+    #                  "converge toward the answer" pressure than
+    #                  next_tick; cheap (one stored tensor) but less
+    #                  truly local.
+    pc_target: str = "teacher"
+    # Which ticks to apply PC loss to:
+    #   "all"   — every tick (default; richest signal)
+    #   "early" — first floor(T/2) ticks (focus the predictor on early refinement)
+    #   "last"  — final tick only (equivalent to feature-distillation, mostly here for ablation)
+    pc_tick_aggregation: str = "all"
+
     @property
     def sync_dim(self) -> int:
         """Dimension of the flattened synchronization representation."""

@@ -1,0 +1,654 @@
+Spawning 2 workers...
+archlinux:1157240:1157240 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1157240:1157240 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1157240:1157240 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:1157241:1157241 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1157241:1157241 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:1157240:1157240 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1157241:1157241 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1157241:1157241 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1157240:1157240 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:1157241:1157241 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:1157240:1157240 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1157240:1157240 [0] NCCL INFO NET/IB : No device found.
+archlinux:1157240:1157240 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1157240:1157240 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1157240:1157240 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1157240:1157240 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:1157240:1157240 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1157240:1157240 [0] NCCL INFO Using network Socket
+archlinux:1157240:1157240 [0] NCCL INFO ncclCommInitRankConfig comm 0x55f19229c920 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x69e828e39a38532c - Init START
+archlinux:1157241:1157241 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1157241:1157241 [1] NCCL INFO NET/IB : No device found.
+archlinux:1157241:1157241 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1157241:1157241 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1157241:1157241 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1157241:1157241 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:1157241:1157241 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1157241:1157241 [1] NCCL INFO Using network Socket
+archlinux:1157241:1157241 [1] NCCL INFO ncclCommInitRankConfig comm 0x559c9055dab0 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x69e828e39a38532c - Init START
+archlinux:1157241:1157241 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1157240:1157240 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1157241:1157241 [1] NCCL INFO Bootstrap timings total 0.000594 (create 0.000015, send 0.000088, recv 0.000073, ring 0.000014, delay 0.000000)
+archlinux:1157240:1157240 [0] NCCL INFO Bootstrap timings total 0.060087 (create 0.000015, send 0.000072, recv 0.059575, ring 0.000013, delay 0.000000)
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1157241:1157241 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:1157240:1157240 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1157240:1157240 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:1157241:1157241 [1] NCCL INFO comm 0x559c9055dab0 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:1157240:1157240 [0] NCCL INFO comm 0x55f19229c920 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:1157240:1157240 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:1157241:1157241 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:1157240:1157240 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:1157241:1157241 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:1157240:1157240 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:1157240:1157240 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:1157240:1157240 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1157241:1157241 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1157241:1157241 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1157240:1157335 [0] NCCL INFO [Proxy Service] Device 0 CPU core 19
+archlinux:1157241:1157337 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 1
+archlinux:1157240:1157336 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 1
+archlinux:1157241:1157334 [0] NCCL INFO [Proxy Service] Device 1 CPU core 19
+archlinux:1157240:1157240 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1157241:1157241 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1157241:1157241 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1157240:1157240 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1157241:1157241 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1157240:1157240 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1157240:1157240 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:1157240:1157240 [0] NCCL INFO ncclCommInitRankConfig comm 0x55f19229c920 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x69e828e39a38532c - Init COMPLETE
+archlinux:1157241:1157241 [1] NCCL INFO ncclCommInitRankConfig comm 0x559c9055dab0 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x69e828e39a38532c - Init COMPLETE
+archlinux:1157240:1157240 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.15 (kernels 0.07, alloc 0.00, bootstrap 0.06, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+archlinux:1157241:1157241 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.14 (kernels 0.13, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+[worker 0] Building model on cuda:0...
+Model: 501.8M params × 2 workers
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1157240:1157240 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157240:1157240 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1157241:1157241 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1157241:1157241 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1157240:1157240 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:1157241:1157241 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments)
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 0 → 10000000
+  Batch: 2 × 512 tokens
+  Thought ticks: 8
+  Gradient checkpointing: True
+============================================================
+
+step      0 | T=2 | loss 23.9761 | lr 0.00e+00 | grad 0.00 | 0.5k tok/s (avg 0.5k) | cert 0.02→0.02 | ticks [11.875 11.875] | Δticks +0.000 | pc 0.990 | gate 0.500 | |M| 0.2372 | dist 11.520 | ETA 5611.5h
+step     10 | T=2 | loss 20.1249 | lr 1.50e-06 | grad 0.00 | 6.1k tok/s (avg 2.8k) | cert 0.02→0.02 | ticks [11.938 11.938] | Δticks +0.000 | pc 1.010 | gate 0.500 | |M| 0.1683 | dist 7.570 | ETA 1026.4h
+step     20 | T=2 | loss 23.3761 | lr 3.00e-06 | grad 41.25 | 2.2k tok/s (avg 2.4k) | cert 0.02→0.02 | ticks [11.938 12.000] | Δticks +0.062 | pc 0.952 | gate 0.500 | |M| 0.1577 | dist 10.836 | ETA 1173.1h
+step     30 | T=2 | loss 21.3905 | lr 4.50e-06 | grad 41.25 | 6.0k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [12.000 12.000] | Δticks +0.000 | pc 0.994 | gate 0.500 | |M| 0.2178 | dist 8.825 | ETA 941.0h
+step     40 | T=2 | loss 18.9932 | lr 6.00e-06 | grad 39.50 | 2.3k tok/s (avg 2.8k) | cert 0.02→0.02 | ticks [12.000 12.000] | Δticks +0.000 | pc 1.015 | gate 0.500 | |M| 0.1415 | dist 6.515 | ETA 1019.1h
+step     50 | T=2 | loss 22.3987 | lr 7.50e-06 | grad 37.50 | 2.4k tok/s (avg 2.7k) | cert 0.02→0.02 | ticks [11.750 11.750] | Δticks +0.000 | pc 1.012 | gate 0.500 | |M| 0.2974 | dist 10.100 | ETA 1053.6h
+step     60 | T=2 | loss 22.5705 | lr 9.00e-06 | grad 37.50 | 6.1k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.875 11.875] | Δticks +0.000 | pc 1.021 | gate 0.500 | |M| 0.2078 | dist 10.195 | ETA 956.1h
+step     70 | T=2 | loss 20.0617 | lr 1.05e-05 | grad 29.00 | 2.2k tok/s (avg 2.8k) | cert 0.02→0.02 | ticks [12.062 12.000] | Δticks -0.062 | pc 0.958 | gate 0.500 | |M| 0.1563 | dist 7.629 | ETA 1000.5h
+step     80 | T=2 | loss 24.4914 | lr 1.20e-05 | grad 24.38 | 2.4k tok/s (avg 2.8k) | cert 0.02→0.02 | ticks [11.875 11.875] | Δticks +0.000 | pc 1.012 | gate 0.500 | |M| 0.1978 | dist 12.144 | ETA 1025.5h
+step     90 | T=2 | loss 21.7254 | lr 1.35e-05 | grad 24.38 | 6.1k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [12.000 12.000] | Δticks +0.000 | pc 0.997 | gate 0.500 | |M| 0.1881 | dist 9.232 | ETA 963.8h
+step    100 | T=2 | loss 20.1803 | lr 1.50e-05 | grad 19.00 | 2.2k tok/s (avg 2.9k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | pc 0.989 | gate 0.500 | |M| 0.1739 | dist 7.924 | ETA 998.0h
+step    110 | T=2 | loss 30.5714 | lr 1.65e-05 | grad 19.00 | 6.0k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | pc 0.979 | gate 0.500 | |M| 0.1617 | dist 18.228 | ETA 950.1h
+step    120 | T=2 | loss 17.8156 | lr 1.80e-05 | grad 16.88 | 2.3k tok/s (avg 2.9k) | cert 0.02→0.02 | ticks [12.000 11.938] | Δticks -0.062 | pc 0.967 | gate 0.500 | |M| 0.1666 | dist 5.400 | ETA 975.8h
+step    130 | T=2 | loss 18.2659 | lr 1.95e-05 | grad 19.12 | 2.5k tok/s (avg 2.9k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | pc 0.992 | gate 0.500 | |M| 0.1520 | dist 5.927 | ETA 990.0h
+step    140 | T=2 | loss 18.6328 | lr 2.10e-05 | grad 19.12 | 6.0k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | pc 1.035 | gate 0.500 | |M| 0.1721 | dist 6.358 | ETA 952.9h
+step    150 | T=2 | loss 19.8853 | lr 2.25e-05 | grad 19.00 | 2.3k tok/s (avg 2.9k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | pc 0.920 | gate 0.500 | |M| 0.1556 | dist 7.494 | ETA 973.2h
+step    160 | T=2 | loss 18.2288 | lr 2.40e-05 | grad 18.62 | 2.2k tok/s (avg 2.9k) | cert 0.02→0.02 | ticks [12.000 11.875] | Δticks -0.125 | pc 0.970 | gate 0.500 | |M| 0.1705 | dist 5.835 | ETA 993.1h
+step    170 | T=2 | loss 20.8164 | lr 2.55e-05 | grad 18.62 | 6.0k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.875 11.688] | Δticks -0.188 | pc 0.971 | gate 0.500 | |M| 0.1712 | dist 8.651 | ETA 962.5h
+step    180 | T=2 | loss 17.3774 | lr 2.70e-05 | grad 17.38 | 2.5k tok/s (avg 2.9k) | cert 0.02→0.02 | ticks [11.750 11.562] | Δticks -0.188 | pc 0.948 | gate 0.500 | |M| 0.1992 | dist 5.377 | ETA 971.5h
+step    190 | T=2 | loss 22.3736 | lr 2.85e-05 | grad 17.38 | 6.0k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.875 11.812] | Δticks -0.062 | pc 0.935 | gate 0.500 | |M| 0.1814 | dist 10.173 | ETA 945.1h
+step    200 | T=2 | loss 20.0530 | lr 3.00e-05 | grad 13.75 | 2.7k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.750 11.688] | Δticks -0.062 | pc 0.951 | gate 0.500 | |M| 0.2415 | dist 7.882 | ETA 951.5h
+step    210 | T=2 | loss 18.3740 | lr 3.15e-05 | grad 13.88 | 2.5k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.938 11.938] | Δticks +0.000 | pc 0.922 | gate 0.500 | |M| 0.1754 | dist 6.060 | ETA 959.9h
+step    220 | T=2 | loss 19.6645 | lr 3.30e-05 | grad 13.88 | 6.0k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.938 11.812] | Δticks -0.125 | pc 0.870 | gate 0.500 | |M| 0.1789 | dist 7.482 | ETA 937.9h
+step    230 | T=2 | loss 23.3014 | lr 3.45e-05 | grad 10.94 | 2.6k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.938 11.812] | Δticks -0.125 | pc 0.859 | gate 0.500 | |M| 0.1830 | dist 11.159 | ETA 945.4h
+step    240 | T=2 | loss 19.1659 | lr 3.60e-05 | grad 9.62 | 2.6k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.812 11.750] | Δticks -0.062 | pc 0.833 | gate 0.500 | |M| 0.1695 | dist 7.164 | ETA 951.1h
+step    250 | T=2 | loss 18.2881 | lr 3.75e-05 | grad 9.62 | 6.0k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.875 11.750] | Δticks -0.125 | pc 0.858 | gate 0.500 | |M| 0.1702 | dist 6.202 | ETA 932.0h
+step    260 | T=2 | loss 24.6320 | lr 3.90e-05 | grad 8.38 | 2.6k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.750 11.562] | Δticks -0.188 | pc 0.796 | gate 0.500 | |M| 0.2574 | dist 12.713 | ETA 937.5h
+step    270 | T=2 | loss 18.8186 | lr 4.05e-05 | grad 8.38 | 6.0k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.875 11.750] | Δticks -0.125 | pc 0.828 | gate 0.500 | |M| 0.1902 | dist 6.759 | ETA 920.5h
+step    280 | T=2 | loss 17.8263 | lr 4.20e-05 | grad 8.44 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.875 11.812] | Δticks -0.062 | pc 0.728 | gate 0.500 | |M| 0.1889 | dist 5.763 | ETA 926.8h
+step    290 | T=2 | loss 23.7727 | lr 4.35e-05 | grad 8.00 | 2.5k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.688 11.562] | Δticks -0.125 | pc 0.660 | gate 0.500 | |M| 0.2203 | dist 11.970 | ETA 934.6h
+step    300 | T=2 | loss 19.7009 | lr 4.50e-05 | grad 8.00 | 6.0k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.688 11.562] | Δticks -0.125 | pc 0.678 | gate 0.500 | |M| 0.2020 | dist 7.838 | ETA 919.3h
+step    310 | T=2 | loss 33.5406 | lr 4.65e-05 | grad 7.75 | 2.4k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.812 11.750] | Δticks -0.062 | pc 0.619 | gate 0.500 | |M| 0.1886 | dist 21.507 | ETA 927.8h
+step    320 | T=2 | loss 25.0007 | lr 4.80e-05 | grad 7.16 | 2.5k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.688 11.562] | Δticks -0.125 | pc 0.536 | gate 0.500 | |M| 0.2215 | dist 13.157 | ETA 933.8h
+step    330 | T=2 | loss 19.1226 | lr 4.95e-05 | grad 7.16 | 5.9k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.875 11.750] | Δticks -0.125 | pc 0.561 | gate 0.500 | |M| 0.1988 | dist 7.090 | ETA 920.0h
+step    340 | T=2 | loss 17.7719 | lr 5.10e-05 | grad 6.31 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.750 11.562] | Δticks -0.188 | pc 0.485 | gate 0.500 | |M| 0.2114 | dist 5.927 | ETA 924.7h
+step    350 | T=2 | loss 17.0670 | lr 5.25e-05 | grad 6.31 | 5.9k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.875 11.750] | Δticks -0.125 | pc 0.480 | gate 0.500 | |M| 0.1846 | dist 5.046 | ETA 912.1h
+step    360 | T=2 | loss 20.5484 | lr 5.40e-05 | grad 5.50 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.500 11.250] | Δticks -0.250 | pc 0.428 | gate 0.500 | |M| 0.2268 | dist 8.945 | ETA 917.0h
+step    370 | T=2 | loss 17.7031 | lr 5.55e-05 | grad 6.19 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.312 11.062] | Δticks -0.250 | pc 0.358 | gate 0.500 | |M| 0.2360 | dist 6.289 | ETA 921.9h
+step    380 | T=2 | loss 19.2478 | lr 5.70e-05 | grad 6.19 | 5.9k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.125 10.812] | Δticks -0.312 | pc 0.372 | gate 0.500 | |M| 0.2767 | dist 8.063 | ETA 910.4h
+step    390 | T=2 | loss 19.0166 | lr 5.85e-05 | grad 4.69 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.688 11.562] | Δticks -0.125 | pc 0.323 | gate 0.500 | |M| 0.2032 | dist 7.165 | ETA 914.9h
+step    400 | T=2 | loss 19.3178 | lr 6.00e-05 | grad 4.50 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [10.938 10.562] | Δticks -0.375 | pc 0.276 | gate 0.500 | |M| 0.2939 | dist 8.326 | ETA 919.5h
+step    410 | T=2 | loss 17.9863 | lr 6.15e-05 | grad 4.50 | 5.8k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.688 11.562] | Δticks -0.125 | pc 0.298 | gate 0.500 | |M| 0.2170 | dist 6.134 | ETA 908.9h
+step    420 | T=2 | loss 16.1678 | lr 6.30e-05 | grad 4.62 | 2.7k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.188 10.938] | Δticks -0.250 | pc 0.221 | gate 0.500 | |M| 0.2513 | dist 4.946 | ETA 912.6h
+step    430 | T=2 | loss 17.6303 | lr 6.45e-05 | grad 4.62 | 5.7k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.562 11.438] | Δticks -0.125 | pc 0.231 | gate 0.500 | |M| 0.2296 | dist 5.909 | ETA 903.0h
+step    440 | T=2 | loss 17.2367 | lr 6.60e-05 | grad 3.61 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.375 11.125] | Δticks -0.250 | pc 0.175 | gate 0.500 | |M| 0.2289 | dist 5.828 | ETA 907.2h
+step    450 | T=2 | loss 18.5396 | lr 6.75e-05 | grad 3.84 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.312 11.062] | Δticks -0.250 | pc 0.130 | gate 0.500 | |M| 0.2262 | dist 7.132 | ETA 911.0h
+step    460 | T=2 | loss 18.8578 | lr 6.90e-05 | grad 3.84 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [11.500 11.375] | Δticks -0.125 | pc 0.144 | gate 0.500 | |M| 0.2359 | dist 7.202 | ETA 901.8h
+step    470 | T=2 | loss 18.4191 | lr 7.05e-05 | grad 3.55 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [10.688 10.312] | Δticks -0.375 | pc 0.096 | gate 0.500 | |M| 0.2857 | dist 7.674 | ETA 906.0h
+step    480 | T=2 | loss 20.8728 | lr 7.20e-05 | grad 3.66 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.312 11.125] | Δticks -0.188 | pc 0.103 | gate 0.500 | |M| 0.2975 | dist 9.445 | ETA 909.8h
+step    490 | T=2 | loss 15.4132 | lr 7.35e-05 | grad 3.66 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [11.438 11.188] | Δticks -0.250 | pc 0.074 | gate 0.500 | |M| 0.2198 | dist 3.869 | ETA 901.2h
+step    500 | T=2 | loss 21.2620 | lr 7.50e-05 | grad 3.94 | 2.6k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.312 11.062] | Δticks -0.250 | pc 0.067 | gate 0.500 | |M| 0.2111 | dist 9.836 | ETA 904.7h
+step    510 | T=2 | loss 18.4665 | lr 7.65e-05 | grad 3.94 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [11.500 11.312] | Δticks -0.188 | pc 0.077 | gate 0.500 | |M| 0.2416 | dist 6.850 | ETA 896.5h
+step    520 | T=2 | loss 17.0042 | lr 7.80e-05 | grad 3.19 | 2.6k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [11.188 10.875] | Δticks -0.312 | pc 0.059 | gate 0.500 | |M| 0.2599 | dist 5.749 | ETA 900.3h
+step    530 | T=2 | loss 17.1391 | lr 7.95e-05 | grad 3.64 | 2.7k tok/s (avg 3.1k) | cert 0.02→0.02 | ticks [11.375 11.125] | Δticks -0.250 | pc 0.045 | gate 0.500 | |M| 0.2050 | dist 5.635 | ETA 903.3h
+step    540 | T=2 | loss 18.2124 | lr 8.10e-05 | grad 3.64 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [11.188 10.938] | Δticks -0.250 | pc 0.045 | gate 0.500 | |M| 0.2388 | dist 6.892 | ETA 895.7h
+step    550 | T=2 | loss 22.1362 | lr 8.25e-05 | grad 3.41 | 2.7k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.562 10.250] | Δticks -0.312 | pc 0.052 | gate 0.500 | |M| 0.2642 | dist 11.489 | ETA 898.8h
+step    560 | T=2 | loss 22.2890 | lr 8.40e-05 | grad 3.42 | 2.6k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.938 10.625] | Δticks -0.312 | pc 0.048 | gate 0.500 | |M| 0.2493 | dist 11.261 | ETA 902.2h
+step    570 | T=2 | loss 16.4422 | lr 8.55e-05 | grad 3.42 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [11.000 10.688] | Δticks -0.312 | pc 0.044 | gate 0.500 | |M| 0.2367 | dist 5.354 | ETA 895.0h
+step    580 | T=2 | loss 17.0561 | lr 8.70e-05 | grad 3.48 | 2.7k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.375 10.000] | Δticks -0.375 | pc 0.043 | gate 0.500 | |M| 0.3049 | dist 6.622 | ETA 898.1h
+step    590 | T=2 | loss 20.7363 | lr 8.85e-05 | grad 3.48 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.875 10.562] | Δticks -0.312 | pc 0.047 | gate 0.500 | |M| 0.2464 | dist 9.746 | ETA 891.2h
+step    600 | T=2 | loss 16.9730 | lr 9.00e-05 | grad 4.44 | 2.7k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.500 10.125] | Δticks -0.375 | pc 0.047 | gate 0.500 | |M| 0.2789 | dist 6.353 | ETA 894.2h
+step    610 | T=2 | loss 16.0895 | lr 9.15e-05 | grad 3.55 | 2.7k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.938 10.688] | Δticks -0.250 | pc 0.040 | gate 0.500 | |M| 0.2229 | dist 5.041 | ETA 896.9h
+step    620 | T=2 | loss 21.2546 | lr 9.30e-05 | grad 3.55 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.500 10.188] | Δticks -0.312 | pc 0.046 | gate 0.500 | |M| 0.2609 | dist 10.643 | ETA 890.4h
+step    630 | T=2 | loss 16.9773 | lr 9.45e-05 | grad 3.27 | 2.7k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [9.750 9.438] | Δticks -0.312 | pc 0.040 | gate 0.500 | |M| 0.2926 | dist 7.163 | ETA 893.1h
+step    640 | T=2 | loss 18.8624 | lr 9.60e-05 | grad 2.92 | 2.6k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.375 10.062] | Δticks -0.312 | pc 0.037 | gate 0.500 | |M| 0.2784 | dist 8.487 | ETA 896.0h
+step    650 | T=2 | loss 18.3193 | lr 9.75e-05 | grad 2.92 | 5.8k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.812 10.500] | Δticks -0.312 | pc 0.040 | gate 0.500 | |M| 0.2967 | dist 7.448 | ETA 889.8h
+step    660 | T=2 | loss 16.1188 | lr 9.90e-05 | grad 3.06 | 2.5k tok/s (avg 3.2k) | cert 0.02→0.02 | ticks [10.438 10.125] | Δticks -0.312 | pc 0.042 | gate 0.500 | |M| 0.3126 | dist 5.732 | ETA 893.2h
+step    670 | T=2 | loss 16.9041 | lr 1.00e-04 | grad 3.06 | 5.8k tok/s (avg 3.2k) | cert 0.03→0.03 | ticks [9.688 9.375] | Δticks -0.312 | pc 0.042 | gate 0.500 | |M| 0.3148 | dist 7.252 | ETA 887.2h
+step    680 | T=2 | loss 13.9777 | lr 1.02e-04 | grad 3.27 | 2.7k tok/s (avg 3.2k) | cert 0.02→0.03 | ticks [9.375 9.062] | Δticks -0.312 | pc 0.038 | gate 0.500 | |M| 0.3147 | dist 4.626 | ETA 889.8h
+step    690 | T=2 | loss 20.8959 | lr 1.03e-04 | grad 2.95 | 2.5k tok/s (avg 3.2k) | cert 0.02→0.03 | ticks [10.188 9.875] | Δticks -0.312 | pc 0.034 | gate 0.500 | |M| 0.2810 | dist 10.662 | ETA 893.2h
+step    700 | T=2 | loss 13.5849 | lr 1.05e-04 | grad 2.95 | 5.8k tok/s (avg 3.2k) | cert 0.03→0.04 | ticks [8.500 8.188] | Δticks -0.312 | pc 0.033 | gate 0.500 | |M| 0.3589 | dist 5.031 | ETA 887.4h
+step    710 | T=2 | loss 19.8253 | lr 1.07e-04 | grad 3.23 | 2.6k tok/s (avg 3.2k) | cert 0.03→0.04 | ticks [9.500 9.188] | Δticks -0.312 | pc 0.028 | gate 0.500 | |M| 0.3555 | dist 10.279 | ETA 890.4h
+step    720 | T=2 | loss 16.0040 | lr 1.08e-04 | grad 2.89 | 2.7k tok/s (avg 3.2k) | cert 0.03→0.04 | ticks [9.375 9.062] | Δticks -0.312 | pc 0.031 | gate 0.500 | |M| 0.3418 | dist 6.592 | ETA 892.8h
+step    730 | T=2 | loss 17.4437 | lr 1.09e-04 | grad 2.89 | 5.8k tok/s (avg 3.2k) | cert 0.03→0.04 | ticks [9.000 8.750] | Δticks -0.250 | pc 0.034 | gate 0.500 | |M| 0.3765 | dist 8.344 | ETA 887.3h
+step    740 | T=2 | loss 14.5447 | lr 1.11e-04 | grad 2.72 | 2.7k tok/s (avg 3.2k) | cert 0.04→0.05 | ticks [8.750 8.500] | Δticks -0.250 | pc 0.035 | gate 0.500 | |M| 0.3777 | dist 5.695 | ETA 889.8h
+step    750 | T=2 | loss 14.9891 | lr 1.12e-04 | grad 2.72 | 5.8k tok/s (avg 3.2k) | cert 0.03→0.04 | ticks [9.125 8.812] | Δticks -0.312 | pc 0.032 | gate 0.500 | |M| 0.3371 | dist 5.835 | ETA 884.5h
+step    760 | T=2 | loss 14.4366 | lr 1.14e-04 | grad 2.69 | 2.7k tok/s (avg 3.2k) | cert 0.03→0.04 | ticks [10.188 9.938] | Δticks -0.250 | pc 0.030 | gate 0.500 | |M| 0.2813 | dist 4.167 | ETA 886.7h
+step    770 | T=2 | loss 17.6460 | lr 1.15e-04 | grad 2.52 | 2.7k tok/s (avg 3.2k) | cert 0.04→0.05 | ticks [9.000 8.688] | Δticks -0.312 | pc 0.050 | gate 0.500 | |M| 0.3786 | dist 8.634 | ETA 889.1h
+step    780 | T=2 | loss 17.4031 | lr 1.17e-04 | grad 2.52 | 5.8k tok/s (avg 3.2k) | cert 0.04→0.06 | ticks [8.812 8.562] | Δticks -0.250 | pc 0.035 | gate 0.500 | |M| 0.4233 | dist 8.511 | ETA 884.0h
+step    790 | T=2 | loss 15.7823 | lr 1.18e-04 | grad 2.80 | 2.7k tok/s (avg 3.2k) | cert 0.04→0.06 | ticks [8.625 8.375] | Δticks -0.250 | pc 0.037 | gate 0.500 | |M| 0.4078 | dist 7.075 | ETA 886.2h
+step    800 | T=2 | loss 17.3991 | lr 1.20e-04 | grad 2.73 | 2.7k tok/s (avg 3.2k) | cert 0.04→0.06 | ticks [9.312 9.062] | Δticks -0.250 | pc 0.034 | gate 0.500 | |M| 0.3970 | dist 8.015 | ETA 888.5h
+step    810 | T=2 | loss 15.4928 | lr 1.21e-04 | grad 2.73 | 5.8k tok/s (avg 3.2k) | cert 0.04→0.06 | ticks [9.875 9.688] | Δticks -0.188 | pc 0.029 | gate 0.500 | |M| 0.3462 | dist 5.489 | ETA 883.5h
+step    820 | T=2 | loss 16.7106 | lr 1.23e-04 | grad 2.44 | 2.6k tok/s (avg 3.2k) | cert 0.06→0.08 | ticks [8.875 8.562] | Δticks -0.312 | pc 0.034 | gate 0.500 | |M| 0.4087 | dist 7.834 | ETA 886.2h
+step    830 | T=2 | loss 13.1906 | lr 1.24e-04 | grad 2.44 | 5.8k tok/s (avg 3.2k) | cert 0.05→0.07 | ticks [9.062 8.875] | Δticks -0.188 | pc 0.031 | gate 0.500 | |M| 0.3708 | dist 4.068 | ETA 881.4h
+step    840 | T=2 | loss 14.6152 | lr 1.26e-04 | grad 2.36 | 2.5k tok/s (avg 3.2k) | cert 0.05→0.09 | ticks [8.438 8.125] | Δticks -0.312 | pc 0.047 | gate 0.500 | |M| 0.5028 | dist 6.175 | ETA 884.4h
+step    850 | T=2 | loss 16.4322 | lr 1.28e-04 | grad 2.31 | 2.6k tok/s (avg 3.2k) | cert 0.05→0.08 | ticks [9.688 9.500] | Δticks -0.188 | pc 0.038 | gate 0.500 | |M| 0.3448 | dist 6.649 | ETA 886.7h
+step    860 | T=2 | loss 16.0034 | lr 1.29e-04 | grad 2.31 | 5.8k tok/s (avg 3.2k) | cert 0.06→0.08 | ticks [9.312 9.062] | Δticks -0.250 | pc 0.040 | gate 0.500 | |M| 0.3967 | dist 6.658 | ETA 882.1h
+step    870 | T=2 | loss 13.8251 | lr 1.30e-04 | grad 2.30 | 2.4k tok/s (avg 3.2k) | cert 0.06→0.10 | ticks [8.312 8.062] | Δticks -0.250 | pc 0.040 | gate 0.500 | |M| 0.5462 | dist 5.485 | ETA 885.5h
+step    880 | T=2 | loss 14.7555 | lr 1.32e-04 | grad 2.14 | 2.4k tok/s (avg 3.2k) | cert 0.11→0.15 | ticks [7.781 7.531] | Δticks -0.250 | pc 0.095 | gate 0.500 | |M| 0.5660 | dist 6.952 | ETA 888.8h
+step    890 | T=2 | loss 14.2759 | lr 1.33e-04 | grad 2.14 | 5.8k tok/s (avg 3.2k) | cert 0.07→0.12 | ticks [8.250 7.938] | Δticks -0.312 | pc 0.055 | gate 0.500 | |M| 0.5321 | dist 6.064 | ETA 884.4h
+step    900 | T=2 | loss 13.8767 | lr 1.35e-04 | grad 2.12 | 2.5k tok/s (avg 3.2k) | cert 0.08→0.13 | ticks [7.500 7.250] | Δticks -0.250 | pc 0.087 | gate 0.500 | |M| 0.6749 | dist 6.384 | ETA 887.2h
+step    910 | T=2 | loss 12.0899 | lr 1.36e-04 | grad 2.12 | 5.8k tok/s (avg 3.2k) | cert 0.07→0.12 | ticks [7.969 7.688] | Δticks -0.281 | pc 0.069 | gate 0.500 | |M| 0.6074 | dist 4.169 | ETA 882.9h
+step    920 | T=2 | loss 12.9572 | lr 1.38e-04 | grad 2.34 | 2.3k tok/s (avg 3.2k) | cert 0.06→0.11 | ticks [9.938 9.688] | Δticks -0.250 | pc 0.064 | gate 0.500 | |M| 0.3405 | dist 3.026 | ETA 887.0h
+step    930 | T=2 | loss 13.3294 | lr 1.39e-04 | grad 1.84 | 2.4k tok/s (avg 3.2k) | cert 0.08→0.15 | ticks [7.906 7.594] | Δticks -0.312 | pc 0.099 | gate 0.500 | |M| 0.6820 | dist 5.498 | ETA 890.1h
+step    940 | T=2 | loss 16.8201 | lr 1.41e-04 | grad 1.84 | 5.7k tok/s (avg 3.2k) | cert 0.09→0.14 | ticks [8.875 8.625] | Δticks -0.250 | pc 0.057 | gate 0.500 | |M| 0.5301 | dist 7.965 | ETA 885.9h
+step    950 | T=2 | loss 13.7106 | lr 1.42e-04 | grad 1.97 | 2.2k tok/s (avg 3.2k) | cert 0.10→0.17 | ticks [7.031 6.781] | Δticks -0.250 | pc 0.060 | gate 0.500 | |M| 0.7022 | dist 6.731 | ETA 889.9h
+step    960 | T=2 | loss 15.5547 | lr 1.44e-04 | grad 1.88 | 2.4k tok/s (avg 3.2k) | cert 0.10→0.16 | ticks [8.750 8.438] | Δticks -0.312 | pc 0.065 | gate 0.500 | |M| 0.5320 | dist 6.908 | ETA 892.9h
+step    970 | T=2 | loss 12.8364 | lr 1.45e-04 | grad 1.88 | 5.8k tok/s (avg 3.2k) | cert 0.08→0.15 | ticks [8.625 8.250] | Δticks -0.375 | pc 0.070 | gate 0.500 | |M| 0.6242 | dist 4.367 | ETA 888.7h
+step    980 | T=2 | loss 12.1995 | lr 1.47e-04 | grad 1.77 | 2.2k tok/s (avg 3.2k) | cert 0.14→0.23 | ticks [6.500 6.188] | Δticks -0.312 | pc 0.086 | gate 0.500 | |M| 0.9417 | dist 5.821 | ETA 893.0h
+step    990 | T=2 | loss 13.3555 | lr 1.49e-04 | grad 1.77 | 5.8k tok/s (avg 3.2k) | cert 0.09→0.18 | ticks [7.906 7.562] | Δticks -0.344 | pc 0.083 | gate 0.500 | |M| 0.7523 | dist 5.574 | ETA 888.9h
+step   1000 | T=2 | loss 12.1931 | lr 1.50e-04 | grad 2.14 | 2.5k tok/s (avg 3.2k) | cert 0.09→0.19 | ticks [7.625 7.188] | Δticks -0.438 | pc 0.089 | gate 0.500 | |M| 0.7958 | dist 4.790 | ETA 891.3h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 1000:
+  T=2 | CE=6.8759 | PPL=968.65 | top1=15.1% | top5=30.4% | (25600 tok)
+step   1010 | T=2 | loss 13.3048 | lr 1.51e-04 | grad 1.83 | 1.1k tok/s (avg 3.1k) | cert 0.10→0.19 | ticks [8.562 8.125] | Δticks -0.438 | pc 0.061 | gate 0.500 | |M| 0.6244 | dist 5.057 | ETA 907.7h
+step   1020 | T=2 | loss 15.6086 | lr 1.53e-04 | grad 1.83 | 5.7k tok/s (avg 3.1k) | cert 0.11→0.22 | ticks [8.125 7.719] | Δticks -0.406 | pc 0.071 | gate 0.500 | |M| 0.6851 | dist 7.717 | ETA 903.6h
+step   1030 | T=2 | loss 12.3105 | lr 1.54e-04 | grad 1.63 | 2.2k tok/s (avg 3.1k) | cert 0.10→0.22 | ticks [7.938 7.344] | Δticks -0.594 | pc 0.060 | gate 0.500 | |M| 0.7501 | dist 4.817 | ETA 907.7h
+step   1040 | T=2 | loss 14.1585 | lr 1.56e-04 | grad 2.73 | 2.4k tok/s (avg 3.1k) | cert 0.15→0.27 | ticks [7.562 7.062] | Δticks -0.500 | pc 0.076 | gate 0.500 | |M| 0.7337 | dist 6.922 | ETA 910.5h
+step   1050 | T=2 | loss 13.4863 | lr 1.57e-04 | grad 2.73 | 5.8k tok/s (avg 3.1k) | cert 0.12→0.24 | ticks [8.625 8.125] | Δticks -0.500 | pc 0.072 | gate 0.500 | |M| 0.6422 | dist 5.174 | ETA 906.5h
+step   1060 | T=2 | loss 21.1295 | lr 1.59e-04 | grad 2.05 | 2.2k tok/s (avg 3.1k) | cert 0.24→0.37 | ticks [5.906 5.281] | Δticks -0.625 | pc 0.100 | gate 0.500 | |M| 0.9217 | dist 15.620 | ETA 910.0h
+step   1070 | T=2 | loss 13.3618 | lr 1.60e-04 | grad 2.05 | 5.8k tok/s (avg 3.1k) | cert 0.10→0.25 | ticks [8.375 7.844] | Δticks -0.531 | pc 0.065 | gate 0.500 | |M| 0.7100 | dist 5.367 | ETA 906.1h
+step   1080 | T=2 | loss 11.2624 | lr 1.62e-04 | grad 2.20 | 2.3k tok/s (avg 3.1k) | cert 0.15→0.30 | ticks [7.094 6.375] | Δticks -0.719 | pc 0.096 | gate 0.500 | |M| 0.9149 | dist 4.753 | ETA 909.3h
+step   1090 | T=2 | loss 14.6473 | lr 1.63e-04 | grad 2.91 | 2.4k tok/s (avg 3.1k) | cert 0.14→0.29 | ticks [8.250 7.625] | Δticks -0.625 | pc 0.099 | gate 0.499 | |M| 0.7207 | dist 6.880 | ETA 911.7h
+step   1100 | T=2 | loss 11.5377 | lr 1.65e-04 | grad 2.91 | 5.8k tok/s (avg 3.1k) | cert 0.19→0.34 | ticks [7.031 6.250] | Δticks -0.781 | pc 0.079 | gate 0.499 | |M| 0.9534 | dist 5.087 | ETA 907.9h
+step   1110 | T=2 | loss 13.5839 | lr 1.66e-04 | grad 1.72 | 2.3k tok/s (avg 3.1k) | cert 0.14→0.33 | ticks [7.312 6.594] | Δticks -0.719 | pc 0.078 | gate 0.499 | |M| 1.0075 | dist 6.851 | ETA 910.9h
+step   1120 | T=2 | loss 11.0493 | lr 1.68e-04 | grad 1.62 | 2.5k tok/s (avg 3.1k) | cert 0.18→0.38 | ticks [6.688 5.969] | Δticks -0.719 | pc 0.085 | gate 0.499 | |M| 1.0048 | dist 4.937 | ETA 913.2h
+step   1130 | T=2 | loss 13.9853 | lr 1.69e-04 | grad 1.62 | 5.8k tok/s (avg 3.1k) | cert 0.15→0.33 | ticks [7.250 6.469] | Δticks -0.781 | pc 0.103 | gate 0.499 | |M| 0.8962 | dist 7.374 | ETA 909.4h
+step   1140 | T=2 | loss 14.3338 | lr 1.71e-04 | grad 1.78 | 2.3k tok/s (avg 3.1k) | cert 0.10→0.29 | ticks [8.500 7.531] | Δticks -0.969 | pc 0.096 | gate 0.499 | |M| 0.8356 | dist 6.695 | ETA 912.5h
+step   1150 | T=2 | loss 16.0328 | lr 1.72e-04 | grad 1.78 | 5.8k tok/s (avg 3.1k) | cert 0.09→0.28 | ticks [8.625 7.656] | Δticks -0.969 | pc 0.087 | gate 0.499 | |M| 0.7550 | dist 8.277 | ETA 908.8h
+step   1160 | T=2 | loss 12.4990 | lr 1.74e-04 | grad 2.92 | 2.3k tok/s (avg 3.1k) | cert 0.20→0.42 | ticks [6.281 5.500] | Δticks -0.781 | pc 0.115 | gate 0.499 | |M| 1.2127 | dist 6.829 | ETA 911.6h
+step   1170 | T=2 | loss 11.9276 | lr 1.75e-04 | grad 3.97 | 2.5k tok/s (avg 3.1k) | cert 0.10→0.33 | ticks [8.750 7.844] | Δticks -0.906 | pc 0.077 | gate 0.499 | |M| 0.7862 | dist 3.978 | ETA 913.7h
+step   1180 | T=2 | loss 12.2893 | lr 1.77e-04 | grad 3.97 | 5.8k tok/s (avg 3.1k) | cert 0.09→0.31 | ticks [8.125 7.281] | Δticks -0.844 | pc 0.106 | gate 0.499 | |M| 0.8769 | dist 4.896 | ETA 910.1h
+step   1190 | T=2 | loss 13.6875 | lr 1.79e-04 | grad 2.09 | 2.3k tok/s (avg 3.1k) | cert 0.13→0.35 | ticks [8.438 7.469] | Δticks -0.969 | pc 0.090 | gate 0.499 | |M| 0.8625 | dist 6.124 | ETA 912.9h
+step   1200 | T=2 | loss 15.3846 | lr 1.80e-04 | grad 2.39 | 2.5k tok/s (avg 3.1k) | cert 0.12→0.35 | ticks [8.625 7.656] | Δticks -0.969 | pc 0.105 | gate 0.499 | |M| 0.8845 | dist 7.632 | ETA 915.0h
+step   1210 | T=2 | loss 16.0533 | lr 1.81e-04 | grad 2.39 | 5.8k tok/s (avg 3.1k) | cert 0.13→0.38 | ticks [7.594 6.750] | Δticks -0.844 | pc 0.118 | gate 0.499 | |M| 1.1961 | dist 9.177 | ETA 911.5h
+step   1220 | T=2 | loss 13.3879 | lr 1.83e-04 | grad 3.59 | 2.3k tok/s (avg 3.1k) | cert 0.11→0.38 | ticks [7.875 7.031] | Δticks -0.844 | pc 0.114 | gate 0.499 | |M| 0.9765 | dist 6.229 | ETA 914.2h
+step   1230 | T=2 | loss 15.8696 | lr 1.84e-04 | grad 3.59 | 5.8k tok/s (avg 3.1k) | cert 0.10→0.36 | ticks [8.438 7.594] | Δticks -0.844 | pc 0.112 | gate 0.499 | |M| 0.9524 | dist 8.216 | ETA 910.7h
+step   1240 | T=2 | loss 11.4110 | lr 1.86e-04 | grad 2.58 | 2.3k tok/s (avg 3.1k) | cert 0.22→0.44 | ticks [6.688 5.781] | Δticks -0.906 | pc 0.121 | gate 0.499 | |M| 1.2423 | dist 5.482 | ETA 913.4h
+step   1250 | T=2 | loss 13.0311 | lr 1.87e-04 | grad 1.98 | 2.4k tok/s (avg 3.1k) | cert 0.19→0.45 | ticks [5.938 5.125] | Δticks -0.812 | pc 0.170 | gate 0.499 | |M| 1.6823 | dist 7.777 | ETA 915.4h
+step   1260 | T=2 | loss 12.0235 | lr 1.89e-04 | grad 1.98 | 5.8k tok/s (avg 3.1k) | cert 0.06→0.25 | ticks [10.125 8.875] | Δticks -1.250 | pc 0.185 | gate 0.499 | |M| 0.6784 | dist 3.040 | ETA 912.1h
+step   1270 | T=2 | loss 13.2710 | lr 1.90e-04 | grad 7.31 | 2.3k tok/s (avg 3.1k) | cert 0.29→0.52 | ticks [5.094 4.312] | Δticks -0.781 | pc 0.152 | gate 0.499 | |M| 1.5908 | dist 8.786 | ETA 914.6h
+step   1280 | T=2 | loss 12.0970 | lr 1.92e-04 | grad 6.22 | 2.4k tok/s (avg 3.1k) | cert 0.12→0.38 | ticks [8.562 7.531] | Δticks -1.031 | pc 0.136 | gate 0.499 | |M| 0.9184 | dist 4.520 | ETA 916.6h
+step   1290 | T=2 | loss 10.2545 | lr 1.93e-04 | grad 6.22 | 5.8k tok/s (avg 3.1k) | cert 0.17→0.44 | ticks [6.344 5.500] | Δticks -0.844 | pc 0.092 | gate 0.499 | |M| 1.4665 | dist 4.619 | ETA 913.3h
+step   1300 | T=2 | loss 11.7198 | lr 1.95e-04 | grad 2.58 | 2.3k tok/s (avg 3.1k) | cert 0.23→0.48 | ticks [7.125 6.594] | Δticks -0.531 | pc 0.104 | gate 0.499 | |M| 1.2243 | dist 5.037 | ETA 916.0h
+step   1310 | T=2 | loss 14.6731 | lr 1.96e-04 | grad 2.58 | 5.8k tok/s (avg 3.1k) | cert 0.13→0.41 | ticks [7.656 6.812] | Δticks -0.844 | pc 0.084 | gate 0.499 | |M| 1.1423 | dist 7.779 | ETA 912.7h
+step   1320 | T=2 | loss 16.1915 | lr 1.98e-04 | grad 3.72 | 2.3k tok/s (avg 3.1k) | cert 0.18→0.43 | ticks [7.156 6.406] | Δticks -0.750 | pc 0.132 | gate 0.499 | |M| 1.4822 | dist 9.663 | ETA 915.2h
+step   1330 | T=2 | loss 12.3293 | lr 1.99e-04 | grad 2.12 | 2.5k tok/s (avg 3.1k) | cert 0.14→0.40 | ticks [7.906 6.906] | Δticks -1.000 | pc 0.119 | gate 0.499 | |M| 1.2509 | dist 5.370 | ETA 917.0h
+step   1340 | T=2 | loss 12.8635 | lr 2.01e-04 | grad 2.12 | 5.8k tok/s (avg 3.1k) | cert 0.10→0.36 | ticks [8.562 7.438] | Δticks -1.125 | pc 0.145 | gate 0.499 | |M| 1.1003 | dist 5.378 | ETA 913.8h
+step   1350 | T=2 | loss 13.7509 | lr 2.02e-04 | grad 2.58 | 2.3k tok/s (avg 3.1k) | cert 0.18→0.44 | ticks [6.156 5.406] | Δticks -0.750 | pc 0.089 | gate 0.499 | |M| 1.7043 | dist 8.270 | ETA 916.2h
+step   1360 | T=2 | loss 10.8728 | lr 2.04e-04 | grad 2.53 | 2.4k tok/s (avg 3.1k) | cert 0.16→0.42 | ticks [7.688 6.844] | Δticks -0.844 | pc 0.094 | gate 0.499 | |M| 1.0711 | dist 3.982 | ETA 918.0h
+step   1370 | T=2 | loss 9.8574 | lr 2.05e-04 | grad 2.53 | 5.8k tok/s (avg 3.1k) | cert 0.16→0.43 | ticks [6.469 5.562] | Δticks -0.906 | pc 0.084 | gate 0.499 | |M| 1.7568 | dist 4.181 | ETA 914.9h
+step   1380 | T=2 | loss 9.6211 | lr 2.07e-04 | grad 2.14 | 2.3k tok/s (avg 3.1k) | cert 0.19→0.44 | ticks [6.344 5.375] | Δticks -0.969 | pc 0.107 | gate 0.499 | |M| 1.7459 | dist 4.131 | ETA 917.4h
+step   1390 | T=2 | loss 16.5458 | lr 2.08e-04 | grad 2.14 | 5.8k tok/s (avg 3.1k) | cert 0.19→0.43 | ticks [6.875 6.031] | Δticks -0.844 | pc 0.115 | gate 0.499 | |M| 1.4633 | dist 10.433 | ETA 914.3h
+step   1400 | T=2 | loss 13.2076 | lr 2.10e-04 | grad 2.45 | 2.3k tok/s (avg 3.1k) | cert 0.14→0.40 | ticks [7.656 6.688] | Δticks -0.969 | pc 0.125 | gate 0.499 | |M| 1.2066 | dist 6.443 | ETA 916.7h
+step   1410 | T=2 | loss 12.4204 | lr 2.11e-04 | grad 1.88 | 2.5k tok/s (avg 3.1k) | cert 0.13→0.43 | ticks [7.594 6.750] | Δticks -0.844 | pc 0.122 | gate 0.499 | |M| 1.3863 | dist 5.602 | ETA 918.4h
+step   1420 | T=2 | loss 12.5813 | lr 2.13e-04 | grad 1.88 | 5.8k tok/s (avg 3.1k) | cert 0.25→0.49 | ticks [6.719 5.812] | Δticks -0.906 | pc 0.130 | gate 0.499 | |M| 1.7244 | dist 6.668 | ETA 915.4h
+step   1430 | T=2 | loss 11.2226 | lr 2.14e-04 | grad 2.19 | 2.3k tok/s (avg 3.1k) | cert 0.27→0.50 | ticks [6.250 5.375] | Δticks -0.875 | pc 0.104 | gate 0.499 | |M| 1.8900 | dist 5.753 | ETA 917.7h
+step   1440 | T=2 | loss 17.6780 | lr 2.16e-04 | grad 1.90 | 2.5k tok/s (avg 3.1k) | cert 0.08→0.34 | ticks [8.750 7.438] | Δticks -1.312 | pc 0.143 | gate 0.499 | |M| 1.1003 | dist 10.198 | ETA 919.4h
+step   1450 | T=2 | loss 12.3902 | lr 2.17e-04 | grad 1.90 | 5.7k tok/s (avg 3.1k) | cert 0.24→0.47 | ticks [6.500 5.531] | Δticks -0.969 | pc 0.143 | gate 0.499 | |M| 1.6520 | dist 6.752 | ETA 916.5h
+step   1460 | T=2 | loss 10.6233 | lr 2.19e-04 | grad 3.55 | 2.3k tok/s (avg 3.1k) | cert 0.23→0.48 | ticks [5.938 4.938] | Δticks -1.000 | pc 0.116 | gate 0.499 | |M| 1.8273 | dist 5.611 | ETA 918.8h
+step   1470 | T=2 | loss 11.6919 | lr 2.20e-04 | grad 3.55 | 5.8k tok/s (avg 3.1k) | cert 0.17→0.42 | ticks [7.438 6.219] | Δticks -1.219 | pc 0.147 | gate 0.499 | |M| 1.2147 | dist 5.405 | ETA 915.9h
+step   1480 | T=2 | loss 13.5222 | lr 2.22e-04 | grad 3.14 | 2.3k tok/s (avg 3.1k) | cert 0.12→0.41 | ticks [7.906 7.156] | Δticks -0.750 | pc 0.084 | gate 0.499 | |M| 1.3035 | dist 6.377 | ETA 918.0h
+step   1490 | T=2 | loss 10.1959 | lr 2.23e-04 | grad 4.91 | 2.4k tok/s (avg 3.1k) | cert 0.26→0.49 | ticks [6.156 5.562] | Δticks -0.594 | pc 0.089 | gate 0.499 | |M| 2.0634 | dist 4.530 | ETA 919.6h
+step   1500 | T=2 | loss 9.9189 | lr 2.25e-04 | grad 4.91 | 5.8k tok/s (avg 3.1k) | cert 0.30→0.51 | ticks [6.062 5.312] | Δticks -0.750 | pc 0.113 | gate 0.499 | |M| 2.0497 | dist 4.495 | ETA 916.8h
+step   1510 | T=2 | loss 12.2931 | lr 2.26e-04 | grad 5.47 | 2.3k tok/s (avg 3.1k) | cert 0.22→0.47 | ticks [6.188 5.344] | Δticks -0.844 | pc 0.134 | gate 0.499 | |M| 1.9766 | dist 6.897 | ETA 919.0h
+step   1520 | T=2 | loss 11.5820 | lr 2.28e-04 | grad 2.50 | 2.4k tok/s (avg 3.1k) | cert 0.07→0.34 | ticks [8.625 7.375] | Δticks -1.250 | pc 0.179 | gate 0.499 | |M| 1.2588 | dist 4.114 | ETA 920.6h
+step   1530 | T=2 | loss 11.6090 | lr 2.29e-04 | grad 2.50 | 5.8k tok/s (avg 3.1k) | cert 0.22→0.56 | ticks [4.875 3.984] | Δticks -0.891 | pc 0.205 | gate 0.499 | |M| 2.2381 | dist 7.496 | ETA 917.8h
+step   1540 | T=2 | loss 10.9548 | lr 2.31e-04 | grad 5.28 | 2.3k tok/s (avg 3.1k) | cert 0.13→0.41 | ticks [8.500 7.500] | Δticks -1.000 | pc 0.098 | gate 0.499 | |M| 1.3223 | dist 3.459 | ETA 919.9h
+step   1550 | T=2 | loss 12.3630 | lr 2.32e-04 | grad 5.28 | 5.8k tok/s (avg 3.1k) | cert 0.11→0.40 | ticks [8.375 7.344] | Δticks -1.031 | pc 0.122 | gate 0.499 | |M| 1.1079 | dist 5.022 | ETA 917.2h
+step   1560 | T=2 | loss 12.0132 | lr 2.34e-04 | grad 2.38 | 2.3k tok/s (avg 3.1k) | cert 0.33→0.55 | ticks [5.344 4.719] | Δticks -0.625 | pc 0.104 | gate 0.499 | |M| 2.1409 | dist 7.205 | ETA 919.2h
+step   1570 | T=2 | loss 11.7523 | lr 2.35e-04 | grad 1.73 | 2.5k tok/s (avg 3.1k) | cert 0.10→0.38 | ticks [8.750 7.594] | Δticks -1.156 | pc 0.127 | gate 0.499 | |M| 1.2155 | dist 4.132 | ETA 920.7h
+step   1580 | T=2 | loss 17.4210 | lr 2.37e-04 | grad 1.73 | 5.8k tok/s (avg 3.1k) | cert 0.34→0.53 | ticks [6.188 5.625] | Δticks -0.562 | pc 0.117 | gate 0.499 | |M| 2.0622 | dist 11.735 | ETA 918.0h
+step   1590 | T=2 | loss 13.6473 | lr 2.38e-04 | grad 2.64 | 2.3k tok/s (avg 3.1k) | cert 0.18→0.45 | ticks [6.906 6.000] | Δticks -0.906 | pc 0.127 | gate 0.499 | |M| 1.8836 | dist 7.567 | ETA 920.0h
+step   1600 | T=2 | loss 8.8083 | lr 2.40e-04 | grad 3.59 | 2.5k tok/s (avg 3.1k) | cert 0.33→0.56 | ticks [5.281 4.156] | Δticks -1.125 | pc 0.197 | gate 0.499 | |M| 2.3429 | dist 4.539 | ETA 921.5h
+step   1610 | T=2 | loss 11.8846 | lr 2.41e-04 | grad 3.59 | 5.8k tok/s (avg 3.1k) | cert 0.24→0.49 | ticks [6.094 5.219] | Δticks -0.875 | pc 0.119 | gate 0.499 | |M| 1.9952 | dist 6.595 | ETA 918.8h
+step   1620 | T=2 | loss 9.9251 | lr 2.43e-04 | grad 2.75 | 2.3k tok/s (avg 3.1k) | cert 0.23→0.50 | ticks [5.969 4.812] | Δticks -1.156 | pc 0.151 | gate 0.499 | |M| 2.2043 | dist 5.024 | ETA 920.9h
+step   1630 | T=2 | loss 12.9876 | lr 2.44e-04 | grad 2.75 | 5.8k tok/s (avg 3.1k) | cert 0.22→0.48 | ticks [6.531 5.531] | Δticks -1.000 | pc 0.154 | gate 0.499 | |M| 1.8630 | dist 7.387 | ETA 918.2h
+step   1640 | T=2 | loss 12.4549 | lr 2.46e-04 | grad 2.52 | 2.3k tok/s (avg 3.1k) | cert 0.11→0.41 | ticks [8.188 7.094] | Δticks -1.094 | pc 0.107 | gate 0.499 | |M| 1.2805 | dist 5.368 | ETA 920.1h
+step   1650 | T=2 | loss 12.4510 | lr 2.47e-04 | grad 2.05 | 2.4k tok/s (avg 3.1k) | cert 0.16→0.44 | ticks [7.781 6.625] | Δticks -1.156 | pc 0.102 | gate 0.499 | |M| 1.5356 | dist 5.803 | ETA 921.6h
+step   1660 | T=2 | loss 14.4106 | lr 2.49e-04 | grad 2.05 | 5.8k tok/s (avg 3.1k) | cert 0.07→0.37 | ticks [8.750 7.438] | Δticks -1.312 | pc 0.094 | gate 0.499 | |M| 1.2931 | dist 6.977 | ETA 919.0h
+step   1670 | T=2 | loss 12.3939 | lr 2.51e-04 | grad 2.14 | 2.3k tok/s (avg 3.1k) | cert 0.08→0.37 | ticks [8.938 7.594] | Δticks -1.344 | pc 0.112 | gate 0.499 | |M| 1.2726 | dist 4.767 | ETA 920.9h
+step   1680 | T=2 | loss 11.1384 | lr 2.52e-04 | grad 2.45 | 2.5k tok/s (avg 3.1k) | cert 0.17→0.46 | ticks [7.375 6.156] | Δticks -1.219 | pc 0.185 | gate 0.499 | |M| 1.7412 | dist 4.919 | ETA 922.3h
+step   1690 | T=2 | loss 10.9218 | lr 2.53e-04 | grad 2.45 | 5.8k tok/s (avg 3.1k) | cert 0.11→0.37 | ticks [8.375 6.906] | Δticks -1.469 | pc 0.135 | gate 0.499 | |M| 1.4234 | dist 3.964 | ETA 919.8h
+step   1700 | T=2 | loss 9.8703 | lr 2.55e-04 | grad 4.88 | 2.3k tok/s (avg 3.1k) | cert 0.21→0.48 | ticks [6.438 5.312] | Δticks -1.125 | pc 0.117 | gate 0.499 | |M| 2.1723 | dist 4.437 | ETA 921.8h
+step   1710 | T=2 | loss 9.9070 | lr 2.56e-04 | grad 4.88 | 5.8k tok/s (avg 3.1k) | cert 0.21→0.47 | ticks [6.500 5.562] | Δticks -0.938 | pc 0.117 | gate 0.499 | |M| 2.0099 | dist 4.307 | ETA 919.3h
+step   1720 | T=2 | loss 11.3150 | lr 2.58e-04 | grad 1.62 | 2.3k tok/s (avg 3.1k) | cert 0.22→0.50 | ticks [7.062 5.938] | Δticks -1.125 | pc 0.153 | gate 0.499 | |M| 1.7783 | dist 5.249 | ETA 921.1h
+step   1730 | T=2 | loss 13.1824 | lr 2.59e-04 | grad 3.28 | 2.4k tok/s (avg 3.1k) | cert 0.23→0.47 | ticks [6.156 5.375] | Δticks -0.781 | pc 0.160 | gate 0.499 | |M| 2.0775 | dist 7.715 | ETA 922.5h
+step   1740 | T=2 | loss 12.9200 | lr 2.61e-04 | grad 3.28 | 5.8k tok/s (avg 3.1k) | cert 0.06→0.29 | ticks [10.000 8.125] | Δticks -1.875 | pc 0.188 | gate 0.499 | |M| 0.9193 | dist 4.769 | ETA 920.0h
+step   1750 | T=2 | loss 11.2093 | lr 2.62e-04 | grad 5.59 | 2.3k tok/s (avg 3.1k) | cert 0.09→0.39 | ticks [8.625 7.312] | Δticks -1.312 | pc 0.119 | gate 0.499 | |M| 1.5276 | dist 3.896 | ETA 921.9h
+step   1760 | T=2 | loss 9.9938 | lr 2.64e-04 | grad 2.19 | 2.4k tok/s (avg 3.1k) | cert 0.24→0.50 | ticks [5.969 5.281] | Δticks -0.688 | pc 0.083 | gate 0.499 | |M| 2.1173 | dist 4.662 | ETA 923.3h
+step   1770 | T=2 | loss 13.6096 | lr 2.65e-04 | grad 2.19 | 5.8k tok/s (avg 3.1k) | cert 0.32→0.54 | ticks [5.844 5.250] | Δticks -0.594 | pc 0.112 | gate 0.499 | |M| 2.2174 | dist 8.257 | ETA 920.8h
+step   1780 | T=2 | loss 10.0788 | lr 2.67e-04 | grad 7.38 | 2.3k tok/s (avg 3.1k) | cert 0.33→0.54 | ticks [5.938 5.438] | Δticks -0.500 | pc 0.110 | gate 0.499 | |M| 2.0104 | dist 4.616 | ETA 922.7h
+step   1790 | T=2 | loss 10.5855 | lr 2.68e-04 | grad 7.38 | 5.8k tok/s (avg 3.1k) | cert 0.38→0.57 | ticks [5.062 4.875] | Δticks -0.188 | pc 0.118 | gate 0.499 | |M| 2.1751 | dist 5.720 | ETA 920.3h
+step   1800 | T=2 | loss 14.5914 | lr 2.70e-04 | grad 6.16 | 2.3k tok/s (avg 3.1k) | cert 0.15→0.42 | ticks [7.375 6.250] | Δticks -1.125 | pc 0.184 | gate 0.499 | |M| 1.6715 | dist 8.290 | ETA 922.0h
+step   1810 | T=2 | loss 9.4310 | lr 2.71e-04 | grad 2.17 | 2.4k tok/s (avg 3.1k) | cert 0.16→0.49 | ticks [6.781 4.969] | Δticks -1.812 | pc 0.136 | gate 0.499 | |M| 2.0841 | dist 4.402 | ETA 923.4h
+step   1820 | T=2 | loss 11.0585 | lr 2.73e-04 | grad 2.17 | 5.8k tok/s (avg 3.1k) | cert 0.08→0.39 | ticks [8.938 7.344] | Δticks -1.594 | pc 0.137 | gate 0.499 | |M| 1.4193 | dist 3.699 | ETA 921.0h
+step   1830 | T=2 | loss 9.8845 | lr 2.74e-04 | grad 7.25 | 2.2k tok/s (avg 3.1k) | cert 0.26→0.52 | ticks [6.312 5.375] | Δticks -0.938 | pc 0.115 | gate 0.499 | |M| 1.6301 | dist 4.439 | ETA 922.9h
+step   1840 | T=2 | loss 10.0407 | lr 2.76e-04 | grad 2.33 | 2.4k tok/s (avg 3.1k) | cert 0.23→0.49 | ticks [6.031 4.938] | Δticks -1.094 | pc 0.091 | gate 0.499 | |M| 2.3092 | dist 5.041 | ETA 924.4h
+step   1850 | T=2 | loss 11.6593 | lr 2.77e-04 | grad 2.33 | 5.7k tok/s (avg 3.1k) | cert 0.37→0.58 | ticks [3.922 3.469] | Δticks -0.453 | pc 0.147 | gate 0.499 | |M| 2.5166 | dist 8.168 | ETA 922.2h
+step   1860 | T=2 | loss 11.6852 | lr 2.79e-04 | grad 3.09 | 2.2k tok/s (avg 3.1k) | cert 0.09→0.32 | ticks [8.562 7.281] | Δticks -1.281 | pc 0.098 | gate 0.499 | |M| 1.3215 | dist 4.357 | ETA 924.1h
+step   1870 | T=2 | loss 14.8055 | lr 2.80e-04 | grad 3.09 | 5.8k tok/s (avg 3.1k) | cert 0.19→0.44 | ticks [6.656 5.406] | Δticks -1.250 | pc 0.126 | gate 0.499 | |M| 2.0747 | dist 9.334 | ETA 921.8h
+step   1880 | T=2 | loss 17.7860 | lr 2.82e-04 | grad 7.91 | 2.2k tok/s (avg 3.1k) | cert 0.16→0.40 | ticks [6.844 5.969] | Δticks -0.875 | pc 0.146 | gate 0.499 | |M| 1.6865 | dist 11.755 | ETA 923.9h
+step   1890 | T=2 | loss 10.6276 | lr 2.83e-04 | grad 3.91 | 2.1k tok/s (avg 3.1k) | cert 0.16→0.46 | ticks [6.875 6.219] | Δticks -0.656 | pc 0.133 | gate 0.499 | |M| 1.5233 | dist 4.430 | ETA 926.0h
+step   1900 | T=2 | loss 11.9798 | lr 2.85e-04 | grad 3.91 | 5.8k tok/s (avg 3.1k) | cert 0.25→0.47 | ticks [7.281 6.719] | Δticks -0.562 | pc 0.107 | gate 0.499 | |M| 1.4371 | dist 5.296 | ETA 923.7h
+step   1910 | T=2 | loss 12.5424 | lr 2.86e-04 | grad 6.72 | 2.6k tok/s (avg 3.1k) | cert 0.34→0.54 | ticks [5.688 5.188] | Δticks -0.500 | pc 0.112 | gate 0.499 | |M| 2.3218 | dist 7.312 | ETA 924.7h
+step   1920 | T=2 | loss 9.2999 | lr 2.88e-04 | grad 5.84 | 2.5k tok/s (avg 3.1k) | cert 0.16→0.51 | ticks [6.938 4.750] | Δticks -2.188 | pc 0.159 | gate 0.499 | |M| 2.1682 | dist 4.454 | ETA 925.8h
+step   1930 | T=2 | loss 9.4903 | lr 2.89e-04 | grad 5.84 | 5.8k tok/s (avg 3.1k) | cert 0.24→0.54 | ticks [6.188 4.531] | Δticks -1.656 | pc 0.138 | gate 0.499 | |M| 2.3110 | dist 4.876 | ETA 923.5h
+step   1940 | T=2 | loss 10.5121 | lr 2.91e-04 | grad 8.56 | 2.6k tok/s (avg 3.1k) | cert 0.14→0.47 | ticks [7.281 5.375] | Δticks -1.906 | pc 0.122 | gate 0.499 | |M| 1.6880 | dist 5.047 | ETA 924.4h
+step   1950 | T=2 | loss 13.1639 | lr 2.93e-04 | grad 8.56 | 5.8k tok/s (avg 3.1k) | cert 0.21→0.58 | ticks [6.688 4.938] | Δticks -1.750 | pc 0.169 | gate 0.499 | |M| 2.2478 | dist 8.094 | ETA 922.1h
+step   1960 | T=2 | loss 10.4845 | lr 2.94e-04 | grad 9.38 | 2.7k tok/s (avg 3.1k) | cert 0.15→0.45 | ticks [7.750 6.562] | Δticks -1.188 | pc 0.119 | gate 0.499 | |M| 1.4187 | dist 3.928 | ETA 922.8h
+step   1970 | T=2 | loss 13.2919 | lr 2.95e-04 | grad 1.91 | 2.7k tok/s (avg 3.1k) | cert 0.12→0.40 | ticks [8.625 7.938] | Δticks -0.688 | pc 0.117 | gate 0.499 | |M| 1.2580 | dist 5.435 | ETA 923.6h
+step   1980 | T=2 | loss 11.2775 | lr 2.97e-04 | grad 1.91 | 5.8k tok/s (avg 3.1k) | cert 0.28→0.50 | ticks [6.938 6.344] | Δticks -0.594 | pc 0.124 | gate 0.499 | |M| 1.6823 | dist 4.899 | ETA 921.4h
+step   1990 | T=2 | loss 12.8510 | lr 2.98e-04 | grad 4.31 | 2.6k tok/s (avg 3.1k) | cert 0.25→0.46 | ticks [5.688 4.875] | Δticks -0.812 | pc 0.134 | gate 0.499 | |M| 2.1235 | dist 7.958 | ETA 922.3h
+step   2000 | T=2 | loss 10.6532 | lr 3.00e-04 | grad 7.16 | 2.5k tok/s (avg 3.1k) | cert 0.34→0.51 | ticks [5.656 4.906] | Δticks -0.750 | pc 0.135 | gate 0.499 | |M| 1.9487 | dist 5.691 | ETA 923.3h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 2000:
+  T=2 | CE=5.4990 | PPL=244.46 | top1=22.9% | top5=41.8% | (25600 tok)
+step   2010 | T=2 | loss 9.9418 | lr 3.00e-04 | grad 7.16 | 1.4k tok/s (avg 3.1k) | cert 0.32→0.51 | ticks [5.625 4.969] | Δticks -0.656 | pc 0.144 | gate 0.499 | |M| 2.1640 | dist 4.947 | ETA 928.6h
+step   2020 | T=2 | loss 10.8123 | lr 3.00e-04 | grad 2.86 | 2.9k tok/s (avg 3.1k) | cert 0.41→0.57 | ticks [5.250 4.688] | Δticks -0.562 | pc 0.105 | gate 0.499 | |M| 2.5197 | dist 6.066 | ETA 928.8h
+step   2030 | T=2 | loss 11.5511 | lr 3.00e-04 | grad 2.86 | 5.8k tok/s (avg 3.1k) | cert 0.16→0.44 | ticks [7.781 6.781] | Δticks -1.000 | pc 0.094 | gate 0.499 | |M| 1.6902 | dist 4.748 | ETA 926.7h
+step   2040 | T=2 | loss 10.9443 | lr 3.00e-04 | grad 4.72 | 2.4k tok/s (avg 3.1k) | cert 0.12→0.43 | ticks [8.750 7.594] | Δticks -1.156 | pc 0.113 | gate 0.499 | |M| 1.1917 | dist 3.368 | ETA 927.9h
+step   2050 | T=2 | loss 13.3028 | lr 3.00e-04 | grad 2.97 | 2.1k tok/s (avg 3.1k) | cert 0.17→0.50 | ticks [8.125 6.750] | Δticks -1.375 | pc 0.119 | gate 0.499 | |M| 1.6460 | dist 6.560 | ETA 929.9h
+step   2060 | T=2 | loss 10.2951 | lr 3.00e-04 | grad 2.97 | 5.7k tok/s (avg 3.1k) | cert 0.15→0.49 | ticks [7.938 6.219] | Δticks -1.719 | pc 0.127 | gate 0.499 | |M| 1.8400 | dist 4.053 | ETA 927.8h
+step   2070 | T=2 | loss 9.8670 | lr 3.00e-04 | grad 4.34 | 2.2k tok/s (avg 3.1k) | cert 0.12→0.48 | ticks [7.219 5.625] | Δticks -1.594 | pc 0.105 | gate 0.499 | |M| 2.0076 | dist 4.223 | ETA 929.7h
+step   2080 | T=2 | loss 11.2430 | lr 3.00e-04 | grad 3.17 | 2.3k tok/s (avg 3.1k) | cert 0.23→0.51 | ticks [6.688 5.781] | Δticks -0.906 | pc 0.093 | gate 0.499 | |M| 2.1274 | dist 5.439 | ETA 931.0h
+step   2090 | T=2 | loss 12.9513 | lr 3.00e-04 | grad 3.17 | 5.8k tok/s (avg 3.1k) | cert 0.17→0.48 | ticks [7.406 6.719] | Δticks -0.688 | pc 0.078 | gate 0.499 | |M| 1.4035 | dist 6.306 | ETA 928.9h
+step   2100 | T=2 | loss 11.2935 | lr 3.00e-04 | grad 3.92 | 2.2k tok/s (avg 3.1k) | cert 0.23→0.50 | ticks [6.344 5.438] | Δticks -0.906 | pc 0.078 | gate 0.499 | |M| 2.4106 | dist 5.821 | ETA 930.6h
+step   2110 | T=2 | loss 11.3618 | lr 3.00e-04 | grad 3.92 | 5.8k tok/s (avg 3.1k) | cert 0.21→0.44 | ticks [7.312 6.438] | Δticks -0.875 | pc 0.124 | gate 0.499 | |M| 1.4996 | dist 4.932 | ETA 928.5h
+step   2120 | T=2 | loss 9.8191 | lr 3.00e-04 | grad 2.33 | 2.4k tok/s (avg 3.1k) | cert 0.28→0.53 | ticks [5.906 4.625] | Δticks -1.281 | pc 0.119 | gate 0.499 | |M| 2.3992 | dist 5.172 | ETA 929.7h
+step   2130 | T=2 | loss 16.2072 | lr 3.00e-04 | grad 3.78 | 2.4k tok/s (avg 3.1k) | cert 0.34→0.56 | ticks [6.375 4.969] | Δticks -1.406 | pc 0.154 | gate 0.499 | |M| 2.1383 | dist 11.101 | ETA 930.9h
+step   2140 | T=2 | loss 9.3674 | lr 3.00e-04 | grad 3.78 | 5.8k tok/s (avg 3.1k) | cert 0.24→0.53 | ticks [6.375 5.188] | Δticks -1.188 | pc 0.082 | gate 0.499 | |M| 2.2970 | dist 4.138 | ETA 928.8h
+step   2150 | T=2 | loss 12.7657 | lr 3.00e-04 | grad 1.79 | 2.4k tok/s (avg 3.1k) | cert 0.22→0.53 | ticks [6.438 5.156] | Δticks -1.281 | pc 0.119 | gate 0.499 | |M| 2.4220 | dist 7.558 | ETA 930.1h
+step   2160 | T=2 | loss 11.1540 | lr 3.00e-04 | grad 2.25 | 2.5k tok/s (avg 3.1k) | cert 0.12→0.47 | ticks [7.500 5.656] | Δticks -1.844 | pc 0.110 | gate 0.499 | |M| 1.9970 | dist 5.450 | ETA 931.0h
+step   2170 | T=2 | loss 9.3215 | lr 3.00e-04 | grad 2.25 | 5.8k tok/s (avg 3.1k) | cert 0.12→0.48 | ticks [7.188 5.469] | Δticks -1.719 | pc 0.110 | gate 0.499 | |M| 2.1117 | dist 3.809 | ETA 929.0h
+step   2180 | T=2 | loss 11.7763 | lr 3.00e-04 | grad 3.36 | 2.4k tok/s (avg 3.1k) | cert 0.59→0.67 | ticks [4.469 3.938] | Δticks -0.531 | pc 0.112 | gate 0.499 | |M| 2.9071 | dist 7.683 | ETA 930.1h
+step   2190 | T=2 | loss 11.7414 | lr 3.00e-04 | grad 3.36 | 5.8k tok/s (avg 3.1k) | cert 0.16→0.45 | ticks [7.406 6.469] | Δticks -0.938 | pc 0.099 | gate 0.499 | |M| 1.5055 | dist 5.274 | ETA 928.1h
+step   2200 | T=2 | loss 7.9832 | lr 3.00e-04 | grad 2.22 | 2.5k tok/s (avg 3.1k) | cert 0.36→0.59 | ticks [5.125 4.281] | Δticks -0.844 | pc 0.087 | gate 0.499 | |M| 2.4289 | dist 3.655 | ETA 929.0h
+step   2210 | T=2 | loss 10.8932 | lr 3.00e-04 | grad 2.41 | 2.5k tok/s (avg 3.1k) | cert 0.16→0.50 | ticks [6.750 5.406] | Δticks -1.344 | pc 0.090 | gate 0.499 | |M| 2.3321 | dist 5.415 | ETA 929.9h
+step   2220 | T=2 | loss 12.7625 | lr 3.00e-04 | grad 2.41 | 5.8k tok/s (avg 3.1k) | cert 0.18→0.50 | ticks [6.844 5.781] | Δticks -1.062 | pc 0.103 | gate 0.499 | |M| 2.0251 | dist 6.980 | ETA 927.9h
+step   2230 | T=2 | loss 10.2717 | lr 3.00e-04 | grad 2.25 | 2.6k tok/s (avg 3.1k) | cert 0.29→0.53 | ticks [5.625 4.625] | Δticks -1.000 | pc 0.099 | gate 0.499 | |M| 2.5733 | dist 5.583 | ETA 928.7h
+step   2240 | T=2 | loss 12.3666 | lr 3.00e-04 | grad 1.90 | 2.7k tok/s (avg 3.1k) | cert 0.15→0.43 | ticks [8.438 7.344] | Δticks -1.094 | pc 0.117 | gate 0.499 | |M| 1.3395 | dist 5.074 | ETA 929.3h
+step   2250 | T=2 | loss 11.1056 | lr 3.00e-04 | grad 1.90 | 5.8k tok/s (avg 3.1k) | cert 0.15→0.47 | ticks [7.094 6.125] | Δticks -0.969 | pc 0.083 | gate 0.499 | |M| 1.8167 | dist 4.954 | ETA 927.4h
+step   2260 | T=2 | loss 13.3117 | lr 3.00e-04 | grad 2.98 | 2.4k tok/s (avg 3.1k) | cert 0.31→0.59 | ticks [7.688 6.344] | Δticks -1.344 | pc 0.140 | gate 0.499 | |M| 1.8551 | dist 6.933 | ETA 928.4h
+step   2270 | T=2 | loss 11.2654 | lr 3.00e-04 | grad 2.98 | 5.8k tok/s (avg 3.1k) | cert 0.18→0.45 | ticks [7.250 6.031] | Δticks -1.219 | pc 0.134 | gate 0.499 | |M| 2.0334 | dist 5.157 | ETA 926.5h
+step   2280 | T=2 | loss 16.3169 | lr 3.00e-04 | grad 4.03 | 2.7k tok/s (avg 3.1k) | cert 0.49→0.65 | ticks [4.719 4.062] | Δticks -0.656 | pc 0.086 | gate 0.499 | |M| 2.7205 | dist 12.195 | ETA 927.1h
+step   2290 | T=2 | loss 12.0964 | lr 3.00e-04 | grad 2.62 | 2.3k tok/s (avg 3.1k) | cert 0.51→0.63 | ticks [5.281 4.688] | Δticks -0.594 | pc 0.103 | gate 0.499 | |M| 2.6851 | dist 7.327 | ETA 928.3h
+step   2300 | T=2 | loss 10.9136 | lr 3.00e-04 | grad 2.62 | 5.7k tok/s (avg 3.1k) | cert 0.17→0.45 | ticks [7.969 6.812] | Δticks -1.156 | pc 0.078 | gate 0.499 | |M| 1.5601 | dist 4.128 | ETA 926.5h
+step   2310 | T=2 | loss 10.1479 | lr 3.00e-04 | grad 2.91 | 2.5k tok/s (avg 3.1k) | cert 0.29→0.55 | ticks [6.938 5.781] | Δticks -1.156 | pc 0.138 | gate 0.499 | |M| 1.9378 | dist 4.337 | ETA 927.3h
+step   2320 | T=2 | loss 10.3983 | lr 3.00e-04 | grad 2.94 | 2.5k tok/s (avg 3.1k) | cert 0.19→0.44 | ticks [7.312 6.000] | Δticks -1.312 | pc 0.123 | gate 0.499 | |M| 1.4695 | dist 4.350 | ETA 928.3h
+step   2330 | T=2 | loss 11.4693 | lr 3.00e-04 | grad 2.94 | 5.8k tok/s (avg 3.1k) | cert 0.11→0.38 | ticks [8.188 6.688] | Δticks -1.500 | pc 0.116 | gate 0.499 | |M| 1.3827 | dist 4.716 | ETA 926.4h
+step   2340 | T=2 | loss 11.7873 | lr 3.00e-04 | grad 2.67 | 2.4k tok/s (avg 3.1k) | cert 0.36→0.55 | ticks [5.750 5.156] | Δticks -0.594 | pc 0.110 | gate 0.499 | |M| 2.5522 | dist 6.575 | ETA 927.6h
+step   2350 | T=2 | loss 9.6019 | lr 3.00e-04 | grad 2.67 | 5.8k tok/s (avg 3.1k) | cert 0.29→0.56 | ticks [5.875 5.094] | Δticks -0.781 | pc 0.091 | gate 0.499 | |M| 2.3491 | dist 4.513 | ETA 925.8h
+step   2360 | T=2 | loss 15.4006 | lr 3.00e-04 | grad 3.19 | 2.3k tok/s (avg 3.1k) | cert 0.12→0.44 | ticks [7.812 6.625] | Δticks -1.188 | pc 0.105 | gate 0.499 | |M| 1.4729 | dist 8.783 | ETA 927.1h
+step   2370 | T=2 | loss 12.1742 | lr 3.00e-04 | grad 2.31 | 2.3k tok/s (avg 3.1k) | cert 0.15→0.42 | ticks [7.875 6.562] | Δticks -1.312 | pc 0.167 | gate 0.499 | |M| 1.5821 | dist 5.602 | ETA 928.3h
+step   2380 | T=2 | loss 10.0407 | lr 3.00e-04 | grad 2.31 | 5.8k tok/s (avg 3.1k) | cert 0.15→0.48 | ticks [6.688 5.062] | Δticks -1.625 | pc 0.110 | gate 0.499 | |M| 2.4144 | dist 4.928 | ETA 926.4h
+step   2390 | T=2 | loss 12.9329 | lr 3.00e-04 | grad 6.31 | 2.5k tok/s (avg 3.1k) | cert 0.41→0.60 | ticks [6.250 5.219] | Δticks -1.031 | pc 0.169 | gate 0.499 | |M| 2.2367 | dist 7.595 | ETA 927.4h
+step   2400 | T=2 | loss 16.7249 | lr 3.00e-04 | grad 4.38 | 2.4k tok/s (avg 3.1k) | cert 0.65→0.68 | ticks [4.312 3.750] | Δticks -0.562 | pc 0.108 | gate 0.499 | |M| 2.9980 | dist 12.759 | ETA 928.5h
+step   2410 | T=2 | loss 15.4159 | lr 3.00e-04 | grad 4.38 | 5.8k tok/s (avg 3.1k) | cert 0.30→0.53 | ticks [6.375 5.875] | Δticks -0.500 | pc 0.123 | gate 0.499 | |M| 2.1082 | dist 9.570 | ETA 926.6h
+step   2420 | T=2 | loss 9.7868 | lr 3.00e-04 | grad 3.36 | 2.5k tok/s (avg 3.1k) | cert 0.23→0.47 | ticks [7.094 6.281] | Δticks -0.812 | pc 0.095 | gate 0.499 | |M| 1.5187 | dist 3.507 | ETA 927.5h
+step   2430 | T=2 | loss 11.0599 | lr 3.00e-04 | grad 3.36 | 5.8k tok/s (avg 3.1k) | cert 0.25→0.53 | ticks [7.156 6.375] | Δticks -0.781 | pc 0.115 | gate 0.499 | |M| 1.9327 | dist 4.740 | ETA 925.7h
+step   2440 | T=2 | loss 10.5936 | lr 3.00e-04 | grad 3.39 | 2.4k tok/s (avg 3.1k) | cert 0.12→0.48 | ticks [7.500 5.719] | Δticks -1.781 | pc 0.101 | gate 0.499 | |M| 2.2833 | dist 4.834 | ETA 926.7h
+step   2450 | T=2 | loss 8.1887 | lr 3.00e-04 | grad 2.64 | 2.6k tok/s (avg 3.1k) | cert 0.25→0.58 | ticks [5.500 4.062] | Δticks -1.438 | pc 0.090 | gate 0.499 | |M| 2.9378 | dist 4.067 | ETA 927.3h
+step   2460 | T=2 | loss 11.1046 | lr 3.00e-04 | grad 2.64 | 5.7k tok/s (avg 3.1k) | cert 0.22→0.49 | ticks [7.094 5.562] | Δticks -1.531 | pc 0.133 | gate 0.499 | |M| 2.1942 | dist 5.502 | ETA 925.6h
+step   2470 | T=2 | loss 10.6841 | lr 3.00e-04 | grad 4.75 | 2.5k tok/s (avg 3.1k) | cert 0.11→0.41 | ticks [8.312 6.906] | Δticks -1.406 | pc 0.093 | gate 0.499 | |M| 1.5627 | dist 3.767 | ETA 926.5h
+step   2480 | T=2 | loss 9.6756 | lr 3.00e-04 | grad 1.95 | 2.6k tok/s (avg 3.1k) | cert 0.28→0.54 | ticks [5.812 4.969] | Δticks -0.844 | pc 0.084 | gate 0.499 | |M| 2.5330 | dist 4.696 | ETA 927.1h
+step   2490 | T=2 | loss 10.6708 | lr 3.00e-04 | grad 1.95 | 5.8k tok/s (avg 3.1k) | cert 0.24→0.49 | ticks [7.406 6.688] | Δticks -0.719 | pc 0.111 | gate 0.499 | |M| 2.0568 | dist 4.017 | ETA 925.4h
+step   2500 | T=2 | loss 10.4972 | lr 3.00e-04 | grad 3.02 | 2.6k tok/s (avg 3.1k) | cert 0.16→0.46 | ticks [7.438 6.344] | Δticks -1.094 | pc 0.113 | gate 0.499 | |M| 2.0442 | dist 4.182 | ETA 926.0h
+step   2510 | T=2 | loss 14.8209 | lr 3.00e-04 | grad 3.02 | 5.8k tok/s (avg 3.1k) | cert 0.31→0.53 | ticks [5.500 4.656] | Δticks -0.844 | pc 0.063 | gate 0.499 | |M| 2.0587 | dist 10.112 | ETA 924.3h
+step   2520 | T=2 | loss 10.1704 | lr 3.00e-04 | grad 2.02 | 2.6k tok/s (avg 3.1k) | cert 0.34→0.57 | ticks [5.812 5.125] | Δticks -0.688 | pc 0.091 | gate 0.499 | |M| 2.7014 | dist 5.070 | ETA 925.0h
+step   2530 | T=2 | loss 9.5093 | lr 3.00e-04 | grad 1.80 | 2.5k tok/s (avg 3.1k) | cert 0.17→0.49 | ticks [7.312 6.156] | Δticks -1.156 | pc 0.110 | gate 0.499 | |M| 2.1274 | dist 3.415 | ETA 925.8h
+step   2540 | T=2 | loss 11.0226 | lr 3.00e-04 | grad 1.80 | 5.8k tok/s (avg 3.1k) | cert 0.27→0.51 | ticks [6.531 5.406] | Δticks -1.125 | pc 0.137 | gate 0.499 | |M| 2.6209 | dist 5.586 | ETA 924.1h
+step   2550 | T=2 | loss 14.9764 | lr 3.00e-04 | grad 1.98 | 2.6k tok/s (avg 3.1k) | cert 0.12→0.42 | ticks [7.812 6.594] | Δticks -1.219 | pc 0.126 | gate 0.499 | |M| 1.5312 | dist 8.403 | ETA 924.8h
+step   2560 | T=2 | loss 11.1959 | lr 3.00e-04 | grad 2.53 | 2.6k tok/s (avg 3.1k) | cert 0.16→0.47 | ticks [7.125 6.250] | Δticks -0.875 | pc 0.106 | gate 0.499 | |M| 1.6129 | dist 4.966 | ETA 925.5h
+step   2570 | T=2 | loss 9.7138 | lr 3.00e-04 | grad 2.53 | 5.8k tok/s (avg 3.1k) | cert 0.23→0.54 | ticks [5.969 4.938] | Δticks -1.031 | pc 0.083 | gate 0.499 | |M| 2.4648 | dist 4.757 | ETA 923.8h
+step   2580 | T=2 | loss 12.1596 | lr 3.00e-04 | grad 2.19 | 2.6k tok/s (avg 3.1k) | cert 0.29→0.48 | ticks [6.594 5.906] | Δticks -0.688 | pc 0.116 | gate 0.499 | |M| 1.6577 | dist 6.191 | ETA 924.4h
+step   2590 | T=2 | loss 10.1120 | lr 3.00e-04 | grad 2.19 | 5.8k tok/s (avg 3.1k) | cert 0.17→0.43 | ticks [8.062 6.875] | Δticks -1.188 | pc 0.093 | gate 0.499 | |M| 1.7499 | dist 3.226 | ETA 922.8h
+step   2600 | T=2 | loss 14.2757 | lr 3.00e-04 | grad 1.84 | 2.5k tok/s (avg 3.1k) | cert 0.41→0.55 | ticks [5.125 4.625] | Δticks -0.500 | pc 0.107 | gate 0.499 | |M| 2.4087 | dist 9.655 | ETA 923.7h
+step   2610 | T=2 | loss 9.3835 | lr 3.00e-04 | grad 2.77 | 2.5k tok/s (avg 3.1k) | cert 0.35→0.57 | ticks [5.188 4.281] | Δticks -0.906 | pc 0.108 | gate 0.499 | |M| 2.8330 | dist 5.123 | ETA 924.5h
+step   2620 | T=2 | loss 10.2127 | lr 3.00e-04 | grad 2.77 | 5.8k tok/s (avg 3.1k) | cert 0.40→0.59 | ticks [5.156 4.156] | Δticks -1.000 | pc 0.099 | gate 0.499 | |M| 2.9825 | dist 6.036 | ETA 922.8h
+step   2630 | T=2 | loss 11.3535 | lr 3.00e-04 | grad 1.70 | 2.5k tok/s (avg 3.1k) | cert 0.15→0.48 | ticks [7.312 6.125] | Δticks -1.188 | pc 0.083 | gate 0.499 | |M| 1.5893 | dist 5.247 | ETA 923.6h
+step   2640 | T=2 | loss 10.5045 | lr 3.00e-04 | grad 1.71 | 2.6k tok/s (avg 3.1k) | cert 0.25→0.50 | ticks [7.281 6.062] | Δticks -1.219 | pc 0.097 | gate 0.499 | |M| 2.0310 | dist 4.400 | ETA 924.2h
+step   2650 | T=2 | loss 9.4538 | lr 3.00e-04 | grad 1.71 | 5.8k tok/s (avg 3.1k) | cert 0.45→0.62 | ticks [5.094 4.031] | Δticks -1.062 | pc 0.118 | gate 0.499 | |M| 2.8827 | dist 5.300 | ETA 922.6h
+step   2660 | T=2 | loss 10.7909 | lr 3.00e-04 | grad 2.64 | 2.5k tok/s (avg 3.1k) | cert 0.32→0.57 | ticks [5.344 4.344] | Δticks -1.000 | pc 0.076 | gate 0.499 | |M| 2.6789 | dist 6.401 | ETA 923.4h
+step   2670 | T=2 | loss 10.6879 | lr 3.00e-04 | grad 2.64 | 5.7k tok/s (avg 3.1k) | cert 0.52→0.61 | ticks [5.281 4.594] | Δticks -0.688 | pc 0.087 | gate 0.499 | |M| 2.6333 | dist 5.979 | ETA 921.8h
+step   2680 | T=2 | loss 7.3284 | lr 3.00e-04 | grad 1.99 | 2.5k tok/s (avg 3.1k) | cert 0.44→0.64 | ticks [4.656 3.797] | Δticks -0.859 | pc 0.076 | gate 0.499 | |M| 2.9032 | dist 3.522 | ETA 922.5h
+step   2690 | T=2 | loss 11.5097 | lr 3.00e-04 | grad 3.00 | 2.5k tok/s (avg 3.1k) | cert 0.29→0.54 | ticks [6.594 5.750] | Δticks -0.844 | pc 0.166 | gate 0.499 | |M| 2.0557 | dist 5.819 | ETA 923.3h
+step   2700 | T=2 | loss 9.5803 | lr 3.00e-04 | grad 3.00 | 5.8k tok/s (avg 3.1k) | cert 0.18→0.51 | ticks [6.375 5.219] | Δticks -1.156 | pc 0.119 | gate 0.499 | |M| 2.4648 | dist 4.360 | ETA 921.7h
+step   2710 | T=2 | loss 9.7246 | lr 3.00e-04 | grad 3.03 | 2.6k tok/s (avg 3.1k) | cert 0.29→0.51 | ticks [6.156 5.031] | Δticks -1.125 | pc 0.103 | gate 0.499 | |M| 2.1494 | dist 4.663 | ETA 922.4h
+step   2720 | T=2 | loss 10.4053 | lr 3.00e-04 | grad 2.34 | 2.5k tok/s (avg 3.1k) | cert 0.49→0.66 | ticks [4.219 3.641] | Δticks -0.578 | pc 0.085 | gate 0.499 | |M| 3.0790 | dist 6.767 | ETA 923.2h
+step   2730 | T=2 | loss 14.3780 | lr 3.00e-04 | grad 2.34 | 5.8k tok/s (avg 3.1k) | cert 0.37→0.55 | ticks [5.469 5.031] | Δticks -0.438 | pc 0.070 | gate 0.499 | |M| 2.0074 | dist 9.365 | ETA 921.6h
+step   2740 | T=2 | loss 12.8562 | lr 3.00e-04 | grad 2.41 | 2.5k tok/s (avg 3.1k) | cert 0.55→0.64 | ticks [4.625 3.766] | Δticks -0.859 | pc 0.085 | gate 0.499 | |M| 3.3946 | dist 9.004 | ETA 922.5h
+step   2750 | T=2 | loss 10.3802 | lr 3.00e-04 | grad 2.41 | 5.8k tok/s (avg 3.1k) | cert 0.34→0.57 | ticks [5.250 4.438] | Δticks -0.812 | pc 0.091 | gate 0.499 | |M| 2.3083 | dist 5.916 | ETA 920.9h
+step   2760 | T=2 | loss 9.7747 | lr 3.00e-04 | grad 2.05 | 2.4k tok/s (avg 3.1k) | cert 0.27→0.55 | ticks [5.875 4.906] | Δticks -0.969 | pc 0.112 | gate 0.499 | |M| 2.3497 | dist 4.839 | ETA 921.8h
+step   2770 | T=2 | loss 9.9557 | lr 3.00e-04 | grad 1.89 | 2.5k tok/s (avg 3.1k) | cert 0.36→0.54 | ticks [5.750 4.969] | Δticks -0.781 | pc 0.091 | gate 0.499 | |M| 2.1531 | dist 4.981 | ETA 922.6h
+step   2780 | T=2 | loss 13.9925 | lr 3.00e-04 | grad 1.89 | 5.8k tok/s (avg 3.1k) | cert 0.52→0.61 | ticks [5.469 4.719] | Δticks -0.750 | pc 0.088 | gate 0.499 | |M| 2.9454 | dist 9.207 | ETA 921.1h
+step   2790 | T=2 | loss 7.9280 | lr 3.00e-04 | grad 2.98 | 2.6k tok/s (avg 3.1k) | cert 0.21→0.56 | ticks [5.812 4.094] | Δticks -1.719 | pc 0.112 | gate 0.499 | |M| 2.5081 | dist 3.817 | ETA 921.8h
+step   2800 | T=2 | loss 9.9279 | lr 3.00e-04 | grad 3.12 | 2.5k tok/s (avg 3.1k) | cert 0.41→0.64 | ticks [4.719 3.953] | Δticks -0.766 | pc 0.086 | gate 0.499 | |M| 2.7339 | dist 5.955 | ETA 922.6h
+step   2810 | T=2 | loss 12.3914 | lr 3.00e-04 | grad 3.12 | 5.8k tok/s (avg 3.1k) | cert 0.44→0.64 | ticks [5.094 4.031] | Δticks -1.062 | pc 0.106 | gate 0.499 | |M| 2.9862 | dist 8.247 | ETA 921.1h
+step   2820 | T=2 | loss 12.1174 | lr 3.00e-04 | grad 2.02 | 2.4k tok/s (avg 3.1k) | cert 0.34→0.55 | ticks [5.938 5.219] | Δticks -0.719 | pc 0.111 | gate 0.499 | |M| 2.0901 | dist 6.911 | ETA 922.0h
+step   2830 | T=2 | loss 11.0175 | lr 3.00e-04 | grad 2.02 | 5.7k tok/s (avg 3.1k) | cert 0.18→0.46 | ticks [7.781 6.656] | Δticks -1.125 | pc 0.107 | gate 0.499 | |M| 1.5158 | dist 4.408 | ETA 920.5h
+step   2840 | T=2 | loss 14.4599 | lr 3.00e-04 | grad 2.28 | 2.6k tok/s (avg 3.1k) | cert 0.24→0.48 | ticks [6.531 5.750] | Δticks -0.781 | pc 0.125 | gate 0.499 | |M| 2.0348 | dist 8.731 | ETA 921.1h
+step   2850 | T=2 | loss 10.0515 | lr 3.00e-04 | grad 3.11 | 2.5k tok/s (avg 3.1k) | cert 0.16→0.43 | ticks [7.656 6.250] | Δticks -1.406 | pc 0.097 | gate 0.499 | |M| 1.6382 | dist 3.822 | ETA 921.8h
+step   2860 | T=2 | loss 10.1663 | lr 3.00e-04 | grad 3.11 | 5.8k tok/s (avg 3.1k) | cert 0.49→0.63 | ticks [4.688 4.000] | Δticks -0.688 | pc 0.111 | gate 0.499 | |M| 2.8273 | dist 6.100 | ETA 920.3h
+step   2870 | T=2 | loss 9.2069 | lr 3.00e-04 | grad 1.59 | 2.6k tok/s (avg 3.1k) | cert 0.30→0.55 | ticks [5.281 4.594] | Δticks -0.688 | pc 0.094 | gate 0.499 | |M| 2.3249 | dist 4.605 | ETA 921.0h
+step   2880 | T=2 | loss 14.5681 | lr 3.00e-04 | grad 3.16 | 2.4k tok/s (avg 3.1k) | cert 0.67→0.64 | ticks [3.672 3.625] | Δticks -0.047 | pc 0.101 | gate 0.499 | |M| 4.0525 | dist 11.078 | ETA 921.9h
+step   2890 | T=2 | loss 11.5730 | lr 3.00e-04 | grad 3.16 | 5.8k tok/s (avg 3.1k) | cert 0.21→0.50 | ticks [6.688 5.500] | Δticks -1.188 | pc 0.082 | gate 0.499 | |M| 1.9312 | dist 6.062 | ETA 920.4h
+step   2900 | T=2 | loss 11.1161 | lr 3.00e-04 | grad 2.98 | 2.6k tok/s (avg 3.1k) | cert 0.09→0.45 | ticks [8.125 6.500] | Δticks -1.625 | pc 0.096 | gate 0.499 | |M| 1.5657 | dist 4.614 | ETA 921.0h
+step   2910 | T=2 | loss 10.8205 | lr 3.00e-04 | grad 2.98 | 5.8k tok/s (avg 3.1k) | cert 0.41→0.59 | ticks [5.562 4.719] | Δticks -0.844 | pc 0.106 | gate 0.499 | |M| 3.2895 | dist 6.090 | ETA 919.6h
+step   2920 | T=2 | loss 12.1835 | lr 3.00e-04 | grad 2.09 | 2.6k tok/s (avg 3.1k) | cert 0.29→0.53 | ticks [6.875 5.938] | Δticks -0.938 | pc 0.094 | gate 0.499 | |M| 1.6682 | dist 6.268 | ETA 920.2h
+step   2930 | T=2 | loss 6.9133 | lr 3.00e-04 | grad 2.69 | 2.5k tok/s (avg 3.1k) | cert 0.42→0.63 | ticks [4.688 3.797] | Δticks -0.891 | pc 0.086 | gate 0.499 | |M| 2.8036 | dist 3.105 | ETA 920.8h
+step   2940 | T=2 | loss 9.4710 | lr 3.00e-04 | grad 2.69 | 5.8k tok/s (avg 3.1k) | cert 0.31→0.55 | ticks [6.281 5.344] | Δticks -0.938 | pc 0.121 | gate 0.499 | |M| 2.2799 | dist 4.116 | ETA 919.4h
+step   2950 | T=2 | loss 10.7683 | lr 3.00e-04 | grad 2.28 | 2.4k tok/s (avg 3.1k) | cert 0.26→0.54 | ticks [5.938 4.938] | Δticks -1.000 | pc 0.088 | gate 0.499 | |M| 2.1258 | dist 5.842 | ETA 920.4h
+step   2960 | T=2 | loss 7.6353 | lr 3.00e-04 | grad 2.84 | 2.5k tok/s (avg 3.1k) | cert 0.35→0.60 | ticks [4.906 4.125] | Δticks -0.781 | pc 0.073 | gate 0.499 | |M| 2.6556 | dist 3.491 | ETA 921.1h
+step   2970 | T=2 | loss 9.6080 | lr 3.00e-04 | grad 2.84 | 5.8k tok/s (avg 3.1k) | cert 0.36→0.52 | ticks [6.094 5.375] | Δticks -0.719 | pc 0.081 | gate 0.499 | |M| 2.2343 | dist 4.210 | ETA 919.6h
+step   2980 | T=2 | loss 11.0987 | lr 3.00e-04 | grad 2.23 | 2.6k tok/s (avg 3.1k) | cert 0.26→0.47 | ticks [6.375 5.531] | Δticks -0.844 | pc 0.070 | gate 0.499 | |M| 1.9617 | dist 5.542 | ETA 920.2h
+step   2990 | T=2 | loss 11.5574 | lr 3.00e-04 | grad 2.23 | 5.8k tok/s (avg 3.1k) | cert 0.20→0.49 | ticks [7.219 6.281] | Δticks -0.938 | pc 0.118 | gate 0.499 | |M| 1.7103 | dist 5.273 | ETA 918.8h
+step   3000 | T=2 | loss 9.9491 | lr 3.00e-04 | grad 2.25 | 2.6k tok/s (avg 3.1k) | cert 0.20→0.45 | ticks [7.156 6.000] | Δticks -1.156 | pc 0.067 | gate 0.499 | |M| 1.6519 | dist 3.929 | ETA 919.4h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 3000:
+  T=2 | CE=4.9619 | PPL=142.86 | top1=24.6% | top5=44.6% | (25600 tok)
+step   3010 | T=2 | loss 10.3537 | lr 3.00e-04 | grad 3.00 | 1.2k tok/s (avg 3.1k) | cert 0.19→0.48 | ticks [8.250 7.000] | Δticks -1.250 | pc 0.102 | gate 0.499 | |M| 1.7194 | dist 3.445 | ETA 924.5h
+step   3020 | T=2 | loss 11.0282 | lr 3.00e-04 | grad 3.00 | 5.8k tok/s (avg 3.1k) | cert 0.18→0.45 | ticks [7.344 6.375] | Δticks -0.969 | pc 0.063 | gate 0.499 | |M| 1.4091 | dist 4.700 | ETA 923.1h
+step   3030 | T=2 | loss 7.9744 | lr 3.00e-04 | grad 2.50 | 2.3k tok/s (avg 3.1k) | cert 0.34→0.61 | ticks [5.094 4.219] | Δticks -0.875 | pc 0.104 | gate 0.499 | |M| 2.5469 | dist 3.772 | ETA 924.0h
+step   3040 | T=2 | loss 20.5217 | lr 3.00e-04 | grad 2.58 | 2.3k tok/s (avg 3.1k) | cert 0.17→0.45 | ticks [6.875 5.969] | Δticks -0.906 | pc 0.087 | gate 0.499 | |M| 1.5027 | dist 14.570 | ETA 925.1h
+step   3050 | T=2 | loss 11.0540 | lr 3.00e-04 | grad 2.58 | 5.8k tok/s (avg 3.1k) | cert 0.19→0.47 | ticks [6.938 6.031] | Δticks -0.906 | pc 0.081 | gate 0.499 | |M| 1.6731 | dist 5.032 | ETA 923.6h
+step   3060 | T=2 | loss 10.2059 | lr 3.00e-04 | grad 2.08 | 2.2k tok/s (avg 3.1k) | cert 0.39→0.55 | ticks [5.469 4.938] | Δticks -0.531 | pc 0.051 | gate 0.499 | |M| 2.2340 | dist 5.289 | ETA 924.9h
+step   3070 | T=2 | loss 9.3085 | lr 3.00e-04 | grad 2.08 | 5.6k tok/s (avg 3.1k) | cert 0.40→0.58 | ticks [5.281 4.562] | Δticks -0.719 | pc 0.084 | gate 0.499 | |M| 2.5432 | dist 4.735 | ETA 923.5h
+step   3080 | T=2 | loss 8.4299 | lr 3.00e-04 | grad 2.58 | 2.1k tok/s (avg 3.1k) | cert 0.42→0.61 | ticks [4.750 3.891] | Δticks -0.859 | pc 0.096 | gate 0.499 | |M| 3.2941 | dist 4.578 | ETA 924.9h
+step   3090 | T=2 | loss 11.5788 | lr 3.00e-04 | grad 2.14 | 2.3k tok/s (avg 3.1k) | cert 0.44→0.64 | ticks [5.406 4.406] | Δticks -1.000 | pc 0.083 | gate 0.499 | |M| 2.8411 | dist 7.095 | ETA 925.8h
+step   3100 | T=2 | loss 10.2166 | lr 3.00e-04 | grad 2.14 | 5.8k tok/s (avg 3.1k) | cert 0.20→0.46 | ticks [7.781 6.469] | Δticks -1.312 | pc 0.069 | gate 0.499 | |M| 1.4926 | dist 3.739 | ETA 924.4h
+step   3110 | T=2 | loss 10.3721 | lr 3.00e-04 | grad 2.27 | 2.5k tok/s (avg 3.1k) | cert 0.37→0.60 | ticks [5.531 4.875] | Δticks -0.656 | pc 0.072 | gate 0.499 | |M| 2.5056 | dist 5.476 | ETA 925.1h
+step   3120 | T=2 | loss 9.2572 | lr 3.00e-04 | grad 2.48 | 2.5k tok/s (avg 3.1k) | cert 0.36→0.64 | ticks [5.500 4.500] | Δticks -1.000 | pc 0.061 | gate 0.499 | |M| 2.8996 | dist 4.724 | ETA 925.9h
+step   3130 | T=2 | loss 13.5049 | lr 3.00e-04 | grad 2.48 | 5.8k tok/s (avg 3.1k) | cert 0.58→0.65 | ticks [4.656 4.125] | Δticks -0.531 | pc 0.081 | gate 0.499 | |M| 3.9322 | dist 9.402 | ETA 924.5h
+step   3140 | T=2 | loss 10.1128 | lr 3.00e-04 | grad 2.31 | 2.5k tok/s (avg 3.1k) | cert 0.31→0.61 | ticks [5.438 4.594] | Δticks -0.844 | pc 0.068 | gate 0.499 | |M| 2.7442 | dist 5.567 | ETA 925.1h
+step   3150 | T=2 | loss 15.2950 | lr 3.00e-04 | grad 2.31 | 5.8k tok/s (avg 3.1k) | cert 0.14→0.45 | ticks [7.812 6.625] | Δticks -1.188 | pc 0.093 | gate 0.499 | |M| 1.4858 | dist 8.730 | ETA 923.7h
+step   3160 | T=2 | loss 12.7873 | lr 3.00e-04 | grad 2.53 | 2.5k tok/s (avg 3.1k) | cert 0.37→0.57 | ticks [5.812 5.094] | Δticks -0.719 | pc 0.055 | gate 0.499 | |M| 2.3479 | dist 7.703 | ETA 924.4h
+step   3170 | T=2 | loss 9.3513 | lr 3.00e-04 | grad 2.12 | 2.5k tok/s (avg 3.1k) | cert 0.35→0.58 | ticks [5.844 4.844] | Δticks -1.000 | pc 0.101 | gate 0.499 | |M| 2.6274 | dist 4.508 | ETA 925.1h
+step   3180 | T=2 | loss 9.5972 | lr 3.00e-04 | grad 2.12 | 5.8k tok/s (avg 3.1k) | cert 0.23→0.55 | ticks [6.281 5.031] | Δticks -1.250 | pc 0.080 | gate 0.499 | |M| 2.5054 | dist 4.556 | ETA 923.7h
+step   3190 | T=2 | loss 9.4735 | lr 3.00e-04 | grad 1.75 | 2.6k tok/s (avg 3.1k) | cert 0.34→0.52 | ticks [6.062 5.375] | Δticks -0.688 | pc 0.077 | gate 0.499 | |M| 2.1720 | dist 4.118 | ETA 924.2h
+step   3200 | T=2 | loss 9.9899 | lr 3.00e-04 | grad 2.03 | 2.5k tok/s (avg 3.1k) | cert 0.25→0.56 | ticks [6.500 5.562] | Δticks -0.938 | pc 0.138 | gate 0.499 | |M| 2.1635 | dist 4.497 | ETA 924.9h
+step   3210 | T=2 | loss 11.7455 | lr 3.00e-04 | grad 2.03 | 5.8k tok/s (avg 3.1k) | cert 0.24→0.50 | ticks [7.156 6.312] | Δticks -0.844 | pc 0.109 | gate 0.499 | |M| 1.6564 | dist 5.498 | ETA 923.5h
+step   3220 | T=2 | loss 13.5181 | lr 3.00e-04 | grad 2.62 | 2.6k tok/s (avg 3.1k) | cert 0.28→0.53 | ticks [6.188 5.156] | Δticks -1.031 | pc 0.083 | gate 0.499 | |M| 2.2102 | dist 8.329 | ETA 924.1h
+step   3230 | T=2 | loss 9.3954 | lr 3.00e-04 | grad 2.62 | 5.8k tok/s (avg 3.1k) | cert 0.26→0.53 | ticks [6.656 5.688] | Δticks -0.969 | pc 0.151 | gate 0.499 | |M| 2.1719 | dist 3.809 | ETA 922.7h
+step   3240 | T=2 | loss 9.9779 | lr 3.00e-04 | grad 2.56 | 2.5k tok/s (avg 3.1k) | cert 0.30→0.54 | ticks [6.906 6.062] | Δticks -0.844 | pc 0.099 | gate 0.499 | |M| 2.1736 | dist 4.095 | ETA 923.4h
+step   3250 | T=2 | loss 11.4318 | lr 3.00e-04 | grad 2.31 | 2.6k tok/s (avg 3.1k) | cert 0.33→0.60 | ticks [5.406 4.625] | Δticks -0.781 | pc 0.100 | gate 0.499 | |M| 2.6594 | dist 6.831 | ETA 923.9h
+step   3260 | T=2 | loss 11.3412 | lr 3.00e-04 | grad 2.31 | 5.8k tok/s (avg 3.1k) | cert 0.40→0.60 | ticks [5.250 4.500] | Δticks -0.750 | pc 0.099 | gate 0.499 | |M| 2.5496 | dist 6.922 | ETA 922.6h
+step   3270 | T=2 | loss 9.2184 | lr 3.00e-04 | grad 2.73 | 2.6k tok/s (avg 3.1k) | cert 0.32→0.58 | ticks [5.375 4.469] | Δticks -0.906 | pc 0.125 | gate 0.499 | |M| 2.7861 | dist 4.776 | ETA 923.1h
+step   3280 | T=2 | loss 11.2441 | lr 3.00e-04 | grad 3.88 | 2.6k tok/s (avg 3.1k) | cert 0.18→0.46 | ticks [7.312 6.188] | Δticks -1.125 | pc 0.069 | gate 0.499 | |M| 1.5749 | dist 5.066 | ETA 923.7h
+step   3290 | T=2 | loss 9.7655 | lr 3.00e-04 | grad 3.88 | 5.8k tok/s (avg 3.1k) | cert 0.45→0.59 | ticks [5.031 4.312] | Δticks -0.719 | pc 0.092 | gate 0.499 | |M| 2.5874 | dist 5.440 | ETA 922.4h
+step   3300 | T=2 | loss 10.9570 | lr 3.00e-04 | grad 3.23 | 2.4k tok/s (avg 3.1k) | cert 0.45→0.59 | ticks [5.219 4.719] | Δticks -0.500 | pc 0.068 | gate 0.499 | |M| 2.4494 | dist 6.277 | ETA 923.1h
+step   3310 | T=2 | loss 10.3303 | lr 3.00e-04 | grad 3.23 | 5.8k tok/s (avg 3.1k) | cert 0.29→0.60 | ticks [6.062 5.094] | Δticks -0.969 | pc 0.094 | gate 0.499 | |M| 2.6442 | dist 5.268 | ETA 921.8h
+step   3320 | T=2 | loss 11.8766 | lr 3.00e-04 | grad 3.62 | 2.5k tok/s (avg 3.1k) | cert 0.15→0.50 | ticks [6.531 4.719] | Δticks -1.812 | pc 0.173 | gate 0.499 | |M| 2.6108 | dist 7.114 | ETA 922.5h
+step   3330 | T=2 | loss 9.5767 | lr 3.00e-04 | grad 2.56 | 2.4k tok/s (avg 3.1k) | cert 0.25→0.50 | ticks [6.719 5.938] | Δticks -0.781 | pc 0.079 | gate 0.499 | |M| 1.7898 | dist 3.717 | ETA 923.2h
+step   3340 | T=2 | loss 9.5107 | lr 3.00e-04 | grad 2.56 | 5.8k tok/s (avg 3.1k) | cert 0.36→0.59 | ticks [5.281 4.344] | Δticks -0.938 | pc 0.126 | gate 0.499 | |M| 2.6899 | dist 5.190 | ETA 921.9h
+step   3350 | T=2 | loss 9.5706 | lr 3.00e-04 | grad 2.48 | 2.5k tok/s (avg 3.1k) | cert 0.22→0.48 | ticks [6.719 5.750] | Δticks -0.969 | pc 0.079 | gate 0.499 | |M| 1.8360 | dist 3.843 | ETA 922.6h
+step   3360 | T=2 | loss 10.5333 | lr 3.00e-04 | grad 2.38 | 2.3k tok/s (avg 3.1k) | cert 0.39→0.59 | ticks [5.875 5.375] | Δticks -0.500 | pc 0.106 | gate 0.499 | |M| 2.5248 | dist 5.251 | ETA 923.5h
+step   3370 | T=2 | loss 9.6958 | lr 3.00e-04 | grad 2.38 | 5.8k tok/s (avg 3.1k) | cert 0.43→0.63 | ticks [4.938 4.375] | Δticks -0.562 | pc 0.084 | gate 0.499 | |M| 3.0475 | dist 5.278 | ETA 922.2h
+step   3380 | T=2 | loss 10.5846 | lr 3.00e-04 | grad 3.27 | 2.4k tok/s (avg 3.1k) | cert 0.44→0.60 | ticks [5.500 4.594] | Δticks -0.906 | pc 0.115 | gate 0.499 | |M| 3.0397 | dist 6.014 | ETA 922.9h
+step   3390 | T=2 | loss 10.1684 | lr 3.00e-04 | grad 3.27 | 5.8k tok/s (avg 3.1k) | cert 0.36→0.57 | ticks [5.844 5.094] | Δticks -0.750 | pc 0.084 | gate 0.499 | |M| 2.6923 | dist 5.075 | ETA 921.7h
+step   3400 | T=2 | loss 12.5108 | lr 3.00e-04 | grad 2.19 | 2.4k tok/s (avg 3.1k) | cert 0.20→0.46 | ticks [7.500 6.406] | Δticks -1.094 | pc 0.083 | gate 0.499 | |M| 1.7530 | dist 6.130 | ETA 922.4h
+step   3410 | T=2 | loss 11.3662 | lr 3.00e-04 | grad 3.56 | 2.6k tok/s (avg 3.1k) | cert 0.22→0.49 | ticks [7.406 6.344] | Δticks -1.062 | pc 0.086 | gate 0.499 | |M| 1.9244 | dist 5.079 | ETA 923.0h
+step   3420 | T=2 | loss 8.5033 | lr 3.00e-04 | grad 3.56 | 5.8k tok/s (avg 3.1k) | cert 0.30→0.56 | ticks [5.375 4.406] | Δticks -0.969 | pc 0.079 | gate 0.499 | |M| 2.5922 | dist 4.121 | ETA 921.7h
+step   3430 | T=2 | loss 10.2590 | lr 3.00e-04 | grad 3.41 | 2.5k tok/s (avg 3.1k) | cert 0.29→0.57 | ticks [6.906 6.281] | Δticks -0.625 | pc 0.102 | gate 0.499 | |M| 1.9003 | dist 4.101 | ETA 922.3h
+step   3440 | T=2 | loss 11.6978 | lr 3.00e-04 | grad 3.94 | 2.4k tok/s (avg 3.1k) | cert 0.38→0.57 | ticks [6.906 6.000] | Δticks -0.906 | pc 0.100 | gate 0.499 | |M| 2.9190 | dist 5.681 | ETA 923.0h
+step   3450 | T=2 | loss 9.8187 | lr 3.00e-04 | grad 3.94 | 5.8k tok/s (avg 3.1k) | cert 0.45→0.60 | ticks [4.969 4.344] | Δticks -0.625 | pc 0.121 | gate 0.499 | |M| 2.6250 | dist 5.525 | ETA 921.7h
+step   3460 | T=2 | loss 7.5635 | lr 3.00e-04 | grad 3.78 | 2.5k tok/s (avg 3.1k) | cert 0.50→0.62 | ticks [4.625 3.812] | Δticks -0.812 | pc 0.082 | gate 0.499 | |M| 3.3063 | dist 3.721 | ETA 922.4h
+step   3470 | T=2 | loss 10.1445 | lr 3.00e-04 | grad 3.78 | 5.8k tok/s (avg 3.1k) | cert 0.37→0.59 | ticks [5.625 4.500] | Δticks -1.125 | pc 0.121 | gate 0.499 | |M| 2.6750 | dist 5.570 | ETA 921.2h
+step   3480 | T=2 | loss 7.5000 | lr 3.00e-04 | grad 3.22 | 2.5k tok/s (avg 3.1k) | cert 0.39→0.66 | ticks [5.000 4.062] | Δticks -0.938 | pc 0.089 | gate 0.499 | |M| 3.6245 | dist 3.449 | ETA 921.8h
+step   3490 | T=2 | loss 12.9637 | lr 3.00e-04 | grad 3.47 | 2.5k tok/s (avg 3.1k) | cert 0.29→0.55 | ticks [6.219 5.531] | Δticks -0.688 | pc 0.070 | gate 0.499 | |M| 2.3095 | dist 7.411 | ETA 922.4h
+step   3500 | T=2 | loss 8.0150 | lr 3.00e-04 | grad 3.47 | 5.8k tok/s (avg 3.1k) | cert 0.53→0.67 | ticks [4.188 3.703] | Δticks -0.484 | pc 0.076 | gate 0.499 | |M| 3.6126 | dist 4.364 | ETA 921.2h
+step   3510 | T=2 | loss 11.1327 | lr 3.00e-04 | grad 2.02 | 2.5k tok/s (avg 3.1k) | cert 0.21→0.50 | ticks [7.094 5.750] | Δticks -1.344 | pc 0.080 | gate 0.499 | |M| 1.6991 | dist 5.421 | ETA 921.8h
+step   3520 | T=2 | loss 8.5339 | lr 3.00e-04 | grad 2.73 | 2.6k tok/s (avg 3.1k) | cert 0.29→0.58 | ticks [5.625 4.719] | Δticks -0.906 | pc 0.091 | gate 0.499 | |M| 2.7703 | dist 3.823 | ETA 922.2h
+step   3530 | T=2 | loss 8.1580 | lr 3.00e-04 | grad 2.73 | 5.8k tok/s (avg 3.1k) | cert 0.47→0.64 | ticks [4.594 3.859] | Δticks -0.734 | pc 0.104 | gate 0.499 | |M| 2.9230 | dist 4.395 | ETA 921.0h
+step   3540 | T=2 | loss 8.2712 | lr 3.00e-04 | grad 2.66 | 2.6k tok/s (avg 3.1k) | cert 0.37→0.61 | ticks [4.656 3.875] | Δticks -0.781 | pc 0.081 | gate 0.499 | |M| 2.7765 | dist 4.419 | ETA 921.4h
+step   3550 | T=2 | loss 9.6657 | lr 3.00e-04 | grad 2.66 | 5.8k tok/s (avg 3.1k) | cert 0.44→0.61 | ticks [5.156 4.250] | Δticks -0.906 | pc 0.114 | gate 0.499 | |M| 2.9983 | dist 5.374 | ETA 920.2h
+step   3560 | T=2 | loss 10.1101 | lr 3.00e-04 | grad 2.11 | 2.6k tok/s (avg 3.1k) | cert 0.39→0.59 | ticks [5.156 4.562] | Δticks -0.594 | pc 0.102 | gate 0.499 | |M| 2.9759 | dist 5.638 | ETA 920.7h
+step   3570 | T=2 | loss 8.5442 | lr 3.00e-04 | grad 1.98 | 2.7k tok/s (avg 3.1k) | cert 0.37→0.61 | ticks [5.062 4.375] | Δticks -0.688 | pc 0.078 | gate 0.499 | |M| 2.8642 | dist 4.223 | ETA 921.1h
+step   3580 | T=2 | loss 9.3154 | lr 3.00e-04 | grad 1.98 | 5.8k tok/s (avg 3.1k) | cert 0.27→0.55 | ticks [6.094 5.375] | Δticks -0.719 | pc 0.058 | gate 0.499 | |M| 2.2748 | dist 4.031 | ETA 919.9h
+step   3590 | T=2 | loss 7.3630 | lr 3.00e-04 | grad 1.85 | 2.6k tok/s (avg 3.1k) | cert 0.35→0.61 | ticks [4.375 3.391] | Δticks -0.984 | pc 0.068 | gate 0.499 | |M| 3.2533 | dist 3.927 | ETA 920.3h
+step   3600 | T=2 | loss 8.0982 | lr 3.00e-04 | grad 2.53 | 2.5k tok/s (avg 3.1k) | cert 0.17→0.49 | ticks [6.750 4.938] | Δticks -1.812 | pc 0.089 | gate 0.499 | |M| 2.1620 | dist 3.163 | ETA 920.9h
+step   3610 | T=2 | loss 10.5252 | lr 3.00e-04 | grad 2.53 | 5.8k tok/s (avg 3.1k) | cert 0.40→0.59 | ticks [5.719 4.719] | Δticks -1.000 | pc 0.093 | gate 0.499 | |M| 2.8518 | dist 5.794 | ETA 919.7h
+step   3620 | T=2 | loss 8.7497 | lr 3.00e-04 | grad 1.88 | 2.3k tok/s (avg 3.1k) | cert 0.38→0.59 | ticks [5.094 4.281] | Δticks -0.812 | pc 0.110 | gate 0.499 | |M| 3.0054 | dist 4.501 | ETA 920.5h
+step   3630 | T=2 | loss 8.1829 | lr 3.00e-04 | grad 1.88 | 5.8k tok/s (avg 3.1k) | cert 0.35→0.61 | ticks [5.000 4.000] | Δticks -1.000 | pc 0.064 | gate 0.499 | |M| 3.0017 | dist 4.142 | ETA 919.3h
+step   3640 | T=2 | loss 10.0201 | lr 3.00e-04 | grad 2.77 | 2.5k tok/s (avg 3.1k) | cert 0.16→0.50 | ticks [6.969 5.406] | Δticks -1.562 | pc 0.064 | gate 0.499 | |M| 2.1085 | dist 4.699 | ETA 919.9h
+step   3650 | T=2 | loss 8.1492 | lr 3.00e-04 | grad 2.91 | 2.6k tok/s (avg 3.1k) | cert 0.36→0.59 | ticks [5.188 4.250] | Δticks -0.938 | pc 0.091 | gate 0.499 | |M| 2.8926 | dist 3.898 | ETA 920.3h
+step   3660 | T=2 | loss 9.9551 | lr 3.00e-04 | grad 2.91 | 5.8k tok/s (avg 3.1k) | cert 0.22→0.49 | ticks [7.344 6.375] | Δticks -0.969 | pc 0.070 | gate 0.499 | |M| 1.8045 | dist 3.601 | ETA 919.2h
+step   3670 | T=2 | loss 9.9843 | lr 3.00e-04 | grad 1.91 | 2.3k tok/s (avg 3.1k) | cert 0.27→0.50 | ticks [7.375 6.312] | Δticks -1.062 | pc 0.059 | gate 0.499 | |M| 1.9232 | dist 3.670 | ETA 920.0h
+step   3680 | T=2 | loss 14.2513 | lr 3.00e-04 | grad 1.84 | 2.5k tok/s (avg 3.1k) | cert 0.41→0.57 | ticks [5.469 4.656] | Δticks -0.812 | pc 0.103 | gate 0.499 | |M| 3.0462 | dist 9.771 | ETA 920.6h
+step   3690 | T=2 | loss 8.5823 | lr 3.00e-04 | grad 1.84 | 5.8k tok/s (avg 3.1k) | cert 0.26→0.54 | ticks [5.875 4.906] | Δticks -0.969 | pc 0.067 | gate 0.499 | |M| 2.3043 | dist 3.735 | ETA 919.4h
+step   3700 | T=2 | loss 9.7672 | lr 3.00e-04 | grad 2.86 | 2.5k tok/s (avg 3.1k) | cert 0.28→0.50 | ticks [7.281 6.344] | Δticks -0.938 | pc 0.069 | gate 0.499 | |M| 2.1029 | dist 3.430 | ETA 920.0h
+step   3710 | T=2 | loss 7.9794 | lr 3.00e-04 | grad 2.86 | 5.8k tok/s (avg 3.1k) | cert 0.40→0.62 | ticks [5.031 4.250] | Δticks -0.781 | pc 0.098 | gate 0.499 | |M| 2.9854 | dist 3.733 | ETA 918.8h
+step   3720 | T=2 | loss 9.6550 | lr 3.00e-04 | grad 2.36 | 2.5k tok/s (avg 3.1k) | cert 0.28→0.50 | ticks [7.156 6.250] | Δticks -0.906 | pc 0.110 | gate 0.499 | |M| 1.5775 | dist 3.442 | ETA 919.5h
+step   3730 | T=2 | loss 8.7114 | lr 3.00e-04 | grad 2.59 | 2.5k tok/s (avg 3.1k) | cert 0.27→0.48 | ticks [6.219 5.031] | Δticks -1.188 | pc 0.074 | gate 0.499 | |M| 2.5354 | dist 3.672 | ETA 920.0h
+step   3740 | T=2 | loss 7.1271 | lr 3.00e-04 | grad 2.59 | 5.8k tok/s (avg 3.1k) | cert 0.34→0.61 | ticks [4.406 3.422] | Δticks -0.984 | pc 0.076 | gate 0.499 | |M| 3.3871 | dist 3.678 | ETA 918.9h
+step   3750 | T=2 | loss 11.5695 | lr 3.00e-04 | grad 4.75 | 2.3k tok/s (avg 3.1k) | cert 0.18→0.45 | ticks [7.281 6.281] | Δticks -1.000 | pc 0.090 | gate 0.499 | |M| 1.4697 | dist 5.315 | ETA 919.7h
+step   3760 | T=2 | loss 9.4443 | lr 3.00e-04 | grad 2.48 | 2.2k tok/s (avg 3.1k) | cert 0.36→0.59 | ticks [5.781 4.844] | Δticks -0.938 | pc 0.136 | gate 0.499 | |M| 3.1747 | dist 4.608 | ETA 920.8h
+step   3770 | T=2 | loss 8.5172 | lr 3.00e-04 | grad 2.48 | 5.8k tok/s (avg 3.1k) | cert 0.47→0.64 | ticks [4.875 4.219] | Δticks -0.656 | pc 0.083 | gate 0.499 | |M| 3.2006 | dist 4.326 | ETA 919.6h
+step   3780 | T=2 | loss 9.9245 | lr 3.00e-04 | grad 1.95 | 2.5k tok/s (avg 3.1k) | cert 0.45→0.60 | ticks [4.938 4.312] | Δticks -0.625 | pc 0.099 | gate 0.499 | |M| 3.3082 | dist 5.701 | ETA 920.2h
+step   3790 | T=2 | loss 13.4030 | lr 3.00e-04 | grad 1.95 | 5.8k tok/s (avg 3.1k) | cert 0.60→0.62 | ticks [4.344 3.891] | Δticks -0.453 | pc 0.099 | gate 0.499 | |M| 4.2344 | dist 9.566 | ETA 919.1h
+step   3800 | T=2 | loss 10.5287 | lr 3.00e-04 | grad 1.76 | 2.3k tok/s (avg 3.1k) | cert 0.38→0.59 | ticks [5.562 4.719] | Δticks -0.844 | pc 0.081 | gate 0.499 | |M| 3.0994 | dist 5.885 | ETA 919.9h
+step   3810 | T=2 | loss 10.7140 | lr 3.00e-04 | grad 1.95 | 2.5k tok/s (avg 3.1k) | cert 0.29→0.52 | ticks [6.625 5.844] | Δticks -0.781 | pc 0.074 | gate 0.499 | |M| 1.7542 | dist 4.904 | ETA 920.4h
+step   3820 | T=2 | loss 13.6374 | lr 3.00e-04 | grad 1.95 | 5.8k tok/s (avg 3.1k) | cert 0.56→0.61 | ticks [4.781 4.062] | Δticks -0.719 | pc 0.094 | gate 0.499 | |M| 3.6291 | dist 9.565 | ETA 919.3h
+step   3830 | T=2 | loss 10.7952 | lr 3.00e-04 | grad 2.38 | 2.5k tok/s (avg 3.1k) | cert 0.16→0.45 | ticks [7.625 6.438] | Δticks -1.188 | pc 0.100 | gate 0.499 | |M| 1.9238 | dist 4.428 | ETA 919.9h
+step   3840 | T=2 | loss 9.4609 | lr 3.00e-04 | grad 2.05 | 2.4k tok/s (avg 3.1k) | cert 0.52→0.61 | ticks [5.125 4.469] | Δticks -0.656 | pc 0.096 | gate 0.499 | |M| 3.5165 | dist 5.079 | ETA 920.5h
+step   3850 | T=2 | loss 9.2951 | lr 3.00e-04 | grad 2.05 | 5.8k tok/s (avg 3.1k) | cert 0.35→0.51 | ticks [5.969 5.375] | Δticks -0.594 | pc 0.067 | gate 0.499 | |M| 2.5875 | dist 3.998 | ETA 919.4h
+step   3860 | T=2 | loss 9.7029 | lr 3.00e-04 | grad 1.68 | 2.5k tok/s (avg 3.1k) | cert 0.48→0.68 | ticks [4.406 3.406] | Δticks -1.000 | pc 0.073 | gate 0.499 | |M| 4.4453 | dist 6.240 | ETA 920.0h
+step   3870 | T=2 | loss 10.1659 | lr 3.00e-04 | grad 1.68 | 5.8k tok/s (avg 3.1k) | cert 0.43→0.58 | ticks [6.250 5.438] | Δticks -0.812 | pc 0.094 | gate 0.499 | |M| 4.0348 | dist 4.781 | ETA 918.9h
+step   3880 | T=2 | loss 9.3410 | lr 3.00e-04 | grad 3.39 | 2.5k tok/s (avg 3.1k) | cert 0.32→0.61 | ticks [5.312 4.812] | Δticks -0.500 | pc 0.079 | gate 0.499 | |M| 2.8796 | dist 4.658 | ETA 919.4h
+step   3890 | T=2 | loss 12.2490 | lr 3.00e-04 | grad 2.09 | 2.5k tok/s (avg 3.1k) | cert 0.27→0.54 | ticks [6.625 6.000] | Δticks -0.625 | pc 0.061 | gate 0.499 | |M| 2.1820 | dist 6.372 | ETA 920.0h
+step   3900 | T=2 | loss 10.4441 | lr 3.00e-04 | grad 2.09 | 5.8k tok/s (avg 3.1k) | cert 0.48→0.58 | ticks [4.812 4.219] | Δticks -0.594 | pc 0.061 | gate 0.499 | |M| 3.0137 | dist 6.270 | ETA 918.9h
+step   3910 | T=2 | loss 9.2608 | lr 3.00e-04 | grad 3.12 | 2.6k tok/s (avg 3.1k) | cert 0.55→0.68 | ticks [4.594 3.891] | Δticks -0.703 | pc 0.088 | gate 0.499 | |M| 3.3105 | dist 5.352 | ETA 919.3h
+step   3920 | T=2 | loss 9.3926 | lr 3.00e-04 | grad 2.95 | 2.6k tok/s (avg 3.1k) | cert 0.52→0.63 | ticks [4.562 3.812] | Δticks -0.750 | pc 0.090 | gate 0.499 | |M| 3.4238 | dist 5.608 | ETA 919.8h
+step   3930 | T=2 | loss 8.3305 | lr 3.00e-04 | grad 2.95 | 5.8k tok/s (avg 3.1k) | cert 0.56→0.72 | ticks [3.797 3.469] | Δticks -0.328 | pc 0.061 | gate 0.499 | |M| 4.0801 | dist 5.029 | ETA 918.7h
+step   3940 | T=2 | loss 12.6275 | lr 3.00e-04 | grad 1.82 | 2.6k tok/s (avg 3.1k) | cert 0.24→0.51 | ticks [7.000 6.469] | Δticks -0.531 | pc 0.079 | gate 0.499 | |M| 2.2316 | dist 6.292 | ETA 919.1h
+step   3950 | T=2 | loss 12.3288 | lr 3.00e-04 | grad 1.82 | 5.8k tok/s (avg 3.1k) | cert 0.32→0.55 | ticks [5.219 4.656] | Δticks -0.562 | pc 0.086 | gate 0.499 | |M| 2.6500 | dist 7.737 | ETA 918.1h
+step   3960 | T=2 | loss 10.3556 | lr 3.00e-04 | grad 2.55 | 2.6k tok/s (avg 3.1k) | cert 0.56→0.64 | ticks [4.875 4.312] | Δticks -0.562 | pc 0.091 | gate 0.499 | |M| 3.8309 | dist 6.161 | ETA 918.5h
+step   3970 | T=2 | loss 9.6991 | lr 3.00e-04 | grad 1.94 | 2.6k tok/s (avg 3.1k) | cert 0.47→0.62 | ticks [4.281 3.578] | Δticks -0.703 | pc 0.094 | gate 0.499 | |M| 3.0972 | dist 6.181 | ETA 918.9h
+step   3980 | T=2 | loss 10.3755 | lr 3.00e-04 | grad 1.94 | 5.8k tok/s (avg 3.1k) | cert 0.17→0.46 | ticks [8.000 6.375] | Δticks -1.625 | pc 0.080 | gate 0.499 | |M| 2.0811 | dist 4.043 | ETA 917.9h
+step   3990 | T=2 | loss 8.5383 | lr 3.00e-04 | grad 3.77 | 2.6k tok/s (avg 3.1k) | cert 0.49→0.61 | ticks [4.281 3.641] | Δticks -0.641 | pc 0.092 | gate 0.499 | |M| 3.2790 | dist 5.017 | ETA 918.4h
+step   4000 | T=2 | loss 9.6662 | lr 3.00e-04 | grad 2.48 | 2.6k tok/s (avg 3.1k) | cert 0.45→0.66 | ticks [5.062 4.125] | Δticks -0.938 | pc 0.086 | gate 0.499 | |M| 3.4146 | dist 5.574 | ETA 918.8h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 4000:
+  T=2 | CE=4.7645 | PPL=117.27 | top1=24.8% | top5=45.2% | (25600 tok)
+step   4010 | T=2 | loss 12.0654 | lr 3.00e-04 | grad 2.48 | 1.4k tok/s (avg 3.1k) | cert 0.33→0.54 | ticks [6.375 5.781] | Δticks -0.594 | pc 0.052 | gate 0.499 | |M| 1.8389 | dist 6.369 | ETA 921.5h
+step   4020 | T=2 | loss 8.7269 | lr 3.00e-04 | grad 3.06 | 3.0k tok/s (avg 3.1k) | cert 0.54→0.68 | ticks [4.312 3.750] | Δticks -0.562 | pc 0.098 | gate 0.499 | |M| 3.7400 | dist 5.038 | ETA 921.6h
+step   4030 | T=2 | loss 9.4123 | lr 3.00e-04 | grad 3.06 | 5.8k tok/s (avg 3.1k) | cert 0.49→0.62 | ticks [4.625 3.703] | Δticks -0.922 | pc 0.113 | gate 0.499 | |M| 3.8378 | dist 5.706 | ETA 920.5h
+step   4040 | T=2 | loss 14.2134 | lr 3.00e-04 | grad 2.34 | 2.6k tok/s (avg 3.1k) | cert 0.28→0.48 | ticks [6.750 6.125] | Δticks -0.625 | pc 0.096 | gate 0.499 | |M| 2.2272 | dist 8.119 | ETA 920.9h
+step   4050 | T=2 | loss 9.5557 | lr 3.00e-04 | grad 3.05 | 2.6k tok/s (avg 3.1k) | cert 0.26→0.52 | ticks [6.219 5.375] | Δticks -0.844 | pc 0.067 | gate 0.499 | |M| 2.5872 | dist 4.210 | ETA 921.4h
+step   4060 | T=2 | loss 9.1164 | lr 3.00e-04 | grad 3.05 | 5.8k tok/s (avg 3.1k) | cert 0.38→0.59 | ticks [4.812 3.938] | Δticks -0.875 | pc 0.076 | gate 0.499 | |M| 3.2846 | dist 5.213 | ETA 920.3h
+step   4070 | T=2 | loss 9.5788 | lr 3.00e-04 | grad 1.91 | 2.6k tok/s (avg 3.1k) | cert 0.50→0.65 | ticks [4.500 4.062] | Δticks -0.438 | pc 0.090 | gate 0.499 | |M| 3.0922 | dist 5.594 | ETA 920.7h
+step   4080 | T=2 | loss 9.0884 | lr 3.00e-04 | grad 4.22 | 2.6k tok/s (avg 3.1k) | cert 0.29→0.53 | ticks [6.125 5.344] | Δticks -0.781 | pc 0.051 | gate 0.499 | |M| 2.1260 | dist 3.820 | ETA 921.2h
+step   4090 | T=2 | loss 8.2503 | lr 3.00e-04 | grad 4.22 | 5.7k tok/s (avg 3.1k) | cert 0.53→0.63 | ticks [4.188 3.781] | Δticks -0.406 | pc 0.076 | gate 0.499 | |M| 3.4939 | dist 4.569 | ETA 920.1h
+step   4100 | T=2 | loss 10.4312 | lr 3.00e-04 | grad 2.23 | 2.6k tok/s (avg 3.1k) | cert 0.26→0.59 | ticks [6.125 4.719] | Δticks -1.406 | pc 0.118 | gate 0.499 | |M| 3.2857 | dist 5.756 | ETA 920.6h
+step   4110 | T=2 | loss 9.7898 | lr 3.00e-04 | grad 2.23 | 5.8k tok/s (avg 3.1k) | cert 0.25→0.50 | ticks [6.844 5.812] | Δticks -1.031 | pc 0.061 | gate 0.499 | |M| 1.9912 | dist 4.004 | ETA 919.5h
+step   4120 | T=2 | loss 11.3747 | lr 3.00e-04 | grad 5.00 | 2.4k tok/s (avg 3.1k) | cert 0.47→0.59 | ticks [5.219 4.250] | Δticks -0.969 | pc 0.106 | gate 0.499 | |M| 3.4463 | dist 7.092 | ETA 920.1h
+step   4130 | T=2 | loss 10.5916 | lr 3.00e-04 | grad 5.81 | 2.4k tok/s (avg 3.1k) | cert 0.28→0.55 | ticks [6.531 5.406] | Δticks -1.125 | pc 0.128 | gate 0.499 | |M| 2.6904 | dist 5.198 | ETA 920.7h
+step   4140 | T=2 | loss 13.1793 | lr 3.00e-04 | grad 5.81 | 5.8k tok/s (avg 3.1k) | cert 0.66→0.64 | ticks [3.766 3.406] | Δticks -0.359 | pc 0.067 | gate 0.499 | |M| 5.4951 | dist 9.743 | ETA 919.7h
+step   4150 | T=2 | loss 16.0593 | lr 3.00e-04 | grad 2.77 | 2.4k tok/s (avg 3.1k) | cert 0.73→0.68 | ticks [4.156 3.750] | Δticks -0.406 | pc 0.098 | gate 0.499 | |M| 4.4907 | dist 12.258 | ETA 920.3h
+step   4160 | T=2 | loss 9.2964 | lr 3.00e-04 | grad 5.44 | 2.3k tok/s (avg 3.1k) | cert 0.37→0.55 | ticks [6.562 6.062] | Δticks -0.500 | pc 0.065 | gate 0.499 | |M| 2.3662 | dist 3.279 | ETA 921.1h
+step   4170 | T=2 | loss 11.4032 | lr 3.00e-04 | grad 5.44 | 5.8k tok/s (avg 3.1k) | cert 0.35→0.53 | ticks [6.500 6.062] | Δticks -0.438 | pc 0.068 | gate 0.499 | |M| 1.8796 | dist 5.457 | ETA 920.1h
+step   4180 | T=2 | loss 10.0370 | lr 3.00e-04 | grad 7.47 | 2.3k tok/s (avg 3.1k) | cert 0.55→0.66 | ticks [4.719 4.188] | Δticks -0.531 | pc 0.089 | gate 0.499 | |M| 3.7503 | dist 5.864 | ETA 920.8h
+step   4190 | T=2 | loss 9.7661 | lr 3.00e-04 | grad 7.47 | 5.8k tok/s (avg 3.1k) | cert 0.33→0.59 | ticks [5.969 5.375] | Δticks -0.594 | pc 0.091 | gate 0.499 | |M| 2.6568 | dist 4.548 | ETA 919.8h
+step   4200 | T=2 | loss 10.7693 | lr 3.00e-04 | grad 4.62 | 2.6k tok/s (avg 3.1k) | cert 0.26→0.54 | ticks [6.969 5.500] | Δticks -1.469 | pc 0.125 | gate 0.499 | |M| 2.6436 | dist 5.204 | ETA 920.2h
+step   4210 | T=2 | loss 8.9489 | lr 3.00e-04 | grad 5.22 | 2.6k tok/s (avg 3.1k) | cert 0.39→0.63 | ticks [5.562 4.406] | Δticks -1.156 | pc 0.139 | gate 0.499 | |M| 3.3612 | dist 4.607 | ETA 920.6h
+step   4220 | T=2 | loss 10.6211 | lr 3.00e-04 | grad 5.22 | 5.8k tok/s (avg 3.1k) | cert 0.10→0.37 | ticks [9.500 7.969] | Δticks -1.531 | pc 0.145 | gate 0.499 | |M| 1.8663 | dist 2.811 | ETA 919.6h
+step   4230 | T=2 | loss 9.0589 | lr 3.00e-04 | grad 7.31 | 2.6k tok/s (avg 3.1k) | cert 0.44→0.64 | ticks [4.719 3.891] | Δticks -0.828 | pc 0.069 | gate 0.499 | |M| 3.9174 | dist 5.217 | ETA 920.0h
+step   4240 | T=2 | loss 11.1573 | lr 3.00e-04 | grad 2.77 | 2.4k tok/s (avg 3.1k) | cert 0.50→0.60 | ticks [5.219 4.500] | Δticks -0.719 | pc 0.094 | gate 0.499 | |M| 3.1740 | dist 6.657 | ETA 920.6h
+step   4250 | T=2 | loss 8.1462 | lr 3.00e-04 | grad 2.77 | 5.8k tok/s (avg 3.1k) | cert 0.50→0.65 | ticks [4.719 4.094] | Δticks -0.625 | pc 0.065 | gate 0.499 | |M| 3.4131 | dist 4.090 | ETA 919.6h
+step   4260 | T=2 | loss 7.7768 | lr 3.00e-04 | grad 3.73 | 2.6k tok/s (avg 3.1k) | cert 0.29→0.58 | ticks [5.438 4.500] | Δticks -0.938 | pc 0.083 | gate 0.499 | |M| 2.8480 | dist 3.353 | ETA 920.0h
+step   4270 | T=2 | loss 10.4144 | lr 3.00e-04 | grad 3.73 | 5.8k tok/s (avg 3.1k) | cert 0.23→0.50 | ticks [7.531 6.594] | Δticks -0.938 | pc 0.068 | gate 0.499 | |M| 2.0812 | dist 3.985 | ETA 919.0h
+step   4280 | T=2 | loss 10.9947 | lr 3.00e-04 | grad 5.16 | 2.5k tok/s (avg 3.1k) | cert 0.25→0.51 | ticks [7.188 6.312] | Δticks -0.875 | pc 0.109 | gate 0.499 | |M| 2.1589 | dist 4.817 | ETA 919.6h
+step   4290 | T=2 | loss 13.4565 | lr 3.00e-04 | grad 2.39 | 2.5k tok/s (avg 3.1k) | cert 0.66→0.67 | ticks [4.094 3.719] | Δticks -0.375 | pc 0.089 | gate 0.499 | |M| 5.7455 | dist 9.847 | ETA 920.1h
+step   4300 | T=2 | loss 9.1247 | lr 3.00e-04 | grad 2.39 | 5.8k tok/s (avg 3.1k) | cert 0.29→0.55 | ticks [6.312 5.000] | Δticks -1.312 | pc 0.110 | gate 0.499 | |M| 3.0791 | dist 4.108 | ETA 919.1h
+step   4310 | T=2 | loss 12.2476 | lr 3.00e-04 | grad 4.25 | 2.6k tok/s (avg 3.1k) | cert 0.33→0.55 | ticks [6.781 5.875] | Δticks -0.906 | pc 0.108 | gate 0.499 | |M| 3.1244 | dist 6.387 | ETA 919.5h
+step   4320 | T=2 | loss 11.7588 | lr 3.00e-04 | grad 3.09 | 2.6k tok/s (avg 3.1k) | cert 0.31→0.53 | ticks [6.562 5.781] | Δticks -0.781 | pc 0.091 | gate 0.499 | |M| 2.2492 | dist 6.087 | ETA 920.0h
+step   4330 | T=2 | loss 10.2438 | lr 3.00e-04 | grad 3.09 | 5.8k tok/s (avg 3.1k) | cert 0.49→0.63 | ticks [4.750 4.188] | Δticks -0.562 | pc 0.054 | gate 0.499 | |M| 3.6128 | dist 6.102 | ETA 919.0h
+step   4340 | T=2 | loss 9.2384 | lr 3.00e-04 | grad 2.83 | 2.4k tok/s (avg 3.1k) | cert 0.52→0.62 | ticks [4.812 4.406] | Δticks -0.406 | pc 0.100 | gate 0.499 | |M| 2.8489 | dist 4.960 | ETA 919.5h
+step   4350 | T=2 | loss 17.7222 | lr 3.00e-04 | grad 2.83 | 5.8k tok/s (avg 3.1k) | cert 0.31→0.52 | ticks [6.812 6.625] | Δticks -0.188 | pc 0.065 | gate 0.499 | |M| 1.9716 | dist 11.249 | ETA 918.5h
+step   4360 | T=2 | loss 11.5160 | lr 3.00e-04 | grad 4.34 | 2.6k tok/s (avg 3.1k) | cert 0.36→0.57 | ticks [6.375 5.812] | Δticks -0.562 | pc 0.095 | gate 0.499 | |M| 2.1377 | dist 5.833 | ETA 919.0h
+step   4370 | T=2 | loss 10.9210 | lr 3.00e-04 | grad 2.95 | 2.6k tok/s (avg 3.1k) | cert 0.20→0.45 | ticks [7.750 6.594] | Δticks -1.156 | pc 0.085 | gate 0.499 | |M| 2.4340 | dist 4.425 | ETA 919.4h
+step   4380 | T=2 | loss 10.9129 | lr 3.00e-04 | grad 2.95 | 5.8k tok/s (avg 3.1k) | cert 0.26→0.49 | ticks [7.469 6.344] | Δticks -1.125 | pc 0.100 | gate 0.499 | |M| 2.0566 | dist 4.705 | ETA 918.5h
+step   4390 | T=2 | loss 9.9043 | lr 3.00e-04 | grad 4.25 | 2.6k tok/s (avg 3.1k) | cert 0.22→0.46 | ticks [7.344 5.969] | Δticks -1.375 | pc 0.061 | gate 0.499 | |M| 2.5773 | dist 4.002 | ETA 918.8h
+step   4400 | T=2 | loss 13.1254 | lr 3.00e-04 | grad 4.06 | 2.6k tok/s (avg 3.1k) | cert 0.34→0.57 | ticks [6.719 5.438] | Δticks -1.281 | pc 0.093 | gate 0.499 | |M| 3.0320 | dist 7.612 | ETA 919.3h
+step   4410 | T=2 | loss 9.3674 | lr 3.00e-04 | grad 4.06 | 5.8k tok/s (avg 3.1k) | cert 0.40→0.63 | ticks [5.094 4.312] | Δticks -0.781 | pc 0.074 | gate 0.499 | |M| 3.5423 | dist 5.131 | ETA 918.3h
+step   4420 | T=2 | loss 12.3498 | lr 3.00e-04 | grad 2.47 | 2.5k tok/s (avg 3.1k) | cert 0.45→0.60 | ticks [5.500 5.000] | Δticks -0.500 | pc 0.052 | gate 0.499 | |M| 2.7462 | dist 7.377 | ETA 918.7h
+step   4430 | T=2 | loss 8.4181 | lr 3.00e-04 | grad 2.47 | 5.8k tok/s (avg 3.1k) | cert 0.42→0.57 | ticks [5.219 4.562] | Δticks -0.656 | pc 0.088 | gate 0.499 | |M| 3.7854 | dist 3.920 | ETA 917.8h
+step   4440 | T=2 | loss 10.9401 | lr 3.00e-04 | grad 3.78 | 2.6k tok/s (avg 3.1k) | cert 0.43→0.61 | ticks [5.344 4.656] | Δticks -0.688 | pc 0.067 | gate 0.499 | |M| 3.3785 | dist 6.388 | ETA 918.2h
+step   4450 | T=2 | loss 9.9272 | lr 3.00e-04 | grad 3.52 | 2.5k tok/s (avg 3.1k) | cert 0.42→0.59 | ticks [4.875 4.000] | Δticks -0.875 | pc 0.060 | gate 0.499 | |M| 3.5048 | dist 5.932 | ETA 918.7h
+step   4460 | T=2 | loss 9.5093 | lr 3.00e-04 | grad 3.52 | 5.8k tok/s (avg 3.1k) | cert 0.46→0.61 | ticks [5.312 4.750] | Δticks -0.562 | pc 0.098 | gate 0.499 | |M| 3.3792 | dist 4.979 | ETA 917.8h
+step   4470 | T=2 | loss 7.7317 | lr 3.00e-04 | grad 2.06 | 2.5k tok/s (avg 3.1k) | cert 0.45→0.63 | ticks [5.062 4.094] | Δticks -0.969 | pc 0.051 | gate 0.499 | |M| 3.8272 | dist 3.634 | ETA 918.3h
+step   4480 | T=2 | loss 7.7885 | lr 3.00e-04 | grad 3.86 | 2.5k tok/s (avg 3.1k) | cert 0.25→0.52 | ticks [5.750 4.625] | Δticks -1.125 | pc 0.063 | gate 0.499 | |M| 2.3985 | dist 3.200 | ETA 918.7h
+step   4490 | T=2 | loss 8.5892 | lr 3.00e-04 | grad 3.86 | 5.7k tok/s (avg 3.1k) | cert 0.43→0.60 | ticks [5.156 4.344] | Δticks -0.812 | pc 0.081 | gate 0.499 | |M| 4.2811 | dist 4.276 | ETA 917.8h
+step   4500 | T=2 | loss 11.5374 | lr 3.00e-04 | grad 2.19 | 2.5k tok/s (avg 3.1k) | cert 0.28→0.52 | ticks [6.469 5.875] | Δticks -0.594 | pc 0.074 | gate 0.499 | |M| 2.1336 | dist 5.801 | ETA 918.3h
+step   4510 | T=2 | loss 8.9032 | lr 3.00e-04 | grad 2.19 | 5.8k tok/s (avg 3.1k) | cert 0.27→0.54 | ticks [5.812 5.062] | Δticks -0.750 | pc 0.057 | gate 0.499 | |M| 2.2625 | dist 3.981 | ETA 917.3h
+step   4520 | T=2 | loss 9.0215 | lr 3.00e-04 | grad 2.05 | 2.5k tok/s (avg 3.1k) | cert 0.38→0.56 | ticks [6.312 5.438] | Δticks -0.875 | pc 0.094 | gate 0.499 | |M| 3.6196 | dist 3.646 | ETA 917.9h
+step   4530 | T=2 | loss 8.4925 | lr 3.00e-04 | grad 2.92 | 2.6k tok/s (avg 3.1k) | cert 0.48→0.63 | ticks [4.469 3.734] | Δticks -0.734 | pc 0.066 | gate 0.499 | |M| 3.5678 | dist 4.785 | ETA 918.2h
+step   4540 | T=2 | loss 11.6190 | lr 3.00e-04 | grad 2.92 | 5.8k tok/s (avg 3.1k) | cert 0.50→0.64 | ticks [5.094 4.406] | Δticks -0.688 | pc 0.098 | gate 0.499 | |M| 3.8689 | dist 7.246 | ETA 917.3h
+step   4550 | T=2 | loss 10.8092 | lr 3.00e-04 | grad 2.75 | 2.6k tok/s (avg 3.1k) | cert 0.21→0.49 | ticks [7.594 6.250] | Δticks -1.344 | pc 0.185 | gate 0.499 | |M| 1.9982 | dist 4.658 | ETA 917.7h
+step   4560 | T=2 | loss 9.1678 | lr 3.00e-04 | grad 3.22 | 2.3k tok/s (avg 3.1k) | cert 0.27→0.54 | ticks [6.312 5.156] | Δticks -1.156 | pc 0.058 | gate 0.499 | |M| 2.9016 | dist 4.048 | ETA 918.4h
+step   4570 | T=2 | loss 10.9010 | lr 3.00e-04 | grad 3.22 | 5.8k tok/s (avg 3.1k) | cert 0.37→0.55 | ticks [5.719 5.062] | Δticks -0.656 | pc 0.092 | gate 0.499 | |M| 2.3954 | dist 5.907 | ETA 917.5h
+step   4580 | T=2 | loss 9.1117 | lr 3.00e-04 | grad 1.96 | 2.3k tok/s (avg 3.1k) | cert 0.49→0.61 | ticks [4.938 4.625] | Δticks -0.312 | pc 0.070 | gate 0.499 | |M| 2.7314 | dist 4.651 | ETA 918.2h
+step   4590 | T=2 | loss 8.6336 | lr 3.00e-04 | grad 1.96 | 5.8k tok/s (avg 3.1k) | cert 0.32→0.53 | ticks [6.031 5.094] | Δticks -0.938 | pc 0.049 | gate 0.499 | |M| 2.4944 | dist 3.552 | ETA 917.2h
+step   4600 | T=2 | loss 8.9426 | lr 3.00e-04 | grad 2.61 | 2.6k tok/s (avg 3.1k) | cert 0.49→0.59 | ticks [5.344 4.438] | Δticks -0.906 | pc 0.099 | gate 0.499 | |M| 3.6259 | dist 4.476 | ETA 917.6h
+step   4610 | T=2 | loss 8.9471 | lr 3.00e-04 | grad 2.22 | 2.6k tok/s (avg 3.1k) | cert 0.26→0.59 | ticks [5.906 4.719] | Δticks -1.188 | pc 0.082 | gate 0.499 | |M| 3.8086 | dist 4.300 | ETA 918.0h
+step   4620 | T=2 | loss 9.8992 | lr 3.00e-04 | grad 2.22 | 5.8k tok/s (avg 3.1k) | cert 0.23→0.51 | ticks [6.688 5.688] | Δticks -1.000 | pc 0.046 | gate 0.499 | |M| 2.6768 | dist 4.271 | ETA 917.1h
+step   4630 | T=2 | loss 11.7819 | lr 3.00e-04 | grad 4.59 | 2.6k tok/s (avg 3.1k) | cert 0.27→0.53 | ticks [6.344 5.094] | Δticks -1.250 | pc 0.125 | gate 0.499 | |M| 2.6766 | dist 6.759 | ETA 917.4h
+step   4640 | T=2 | loss 7.6325 | lr 3.00e-04 | grad 4.06 | 2.6k tok/s (avg 3.1k) | cert 0.40→0.63 | ticks [5.312 4.125] | Δticks -1.188 | pc 0.073 | gate 0.499 | |M| 3.8149 | dist 3.525 | ETA 917.8h
+step   4650 | T=2 | loss 8.3126 | lr 3.00e-04 | grad 4.06 | 5.8k tok/s (avg 3.1k) | cert 0.32→0.55 | ticks [5.938 5.156] | Δticks -0.781 | pc 0.072 | gate 0.499 | |M| 2.2945 | dist 3.216 | ETA 916.9h
+step   4660 | T=2 | loss 11.2908 | lr 3.00e-04 | grad 1.92 | 2.5k tok/s (avg 3.1k) | cert 0.61→0.62 | ticks [4.344 4.031] | Δticks -0.312 | pc 0.066 | gate 0.499 | |M| 4.9530 | dist 7.390 | ETA 917.3h
+step   4670 | T=2 | loss 10.2744 | lr 3.00e-04 | grad 1.92 | 5.7k tok/s (avg 3.1k) | cert 0.48→0.62 | ticks [4.250 3.688] | Δticks -0.562 | pc 0.079 | gate 0.499 | |M| 3.6769 | dist 6.625 | ETA 916.4h
+step   4680 | T=2 | loss 9.9847 | lr 3.00e-04 | grad 2.58 | 2.2k tok/s (avg 3.1k) | cert 0.44→0.62 | ticks [4.812 4.250] | Δticks -0.562 | pc 0.096 | gate 0.499 | |M| 3.6623 | dist 5.808 | ETA 917.2h
+step   4690 | T=2 | loss 10.2679 | lr 3.00e-04 | grad 2.48 | 2.6k tok/s (avg 3.1k) | cert 0.35→0.55 | ticks [5.688 5.062] | Δticks -0.625 | pc 0.060 | gate 0.499 | |M| 2.9924 | dist 5.243 | ETA 917.6h
+step   4700 | T=2 | loss 10.1291 | lr 3.00e-04 | grad 2.48 | 5.7k tok/s (avg 3.1k) | cert 0.26→0.48 | ticks [7.156 5.906] | Δticks -1.250 | pc 0.063 | gate 0.499 | |M| 2.0160 | dist 4.183 | ETA 916.8h
+step   4710 | T=2 | loss 7.4301 | lr 3.00e-04 | grad 1.94 | 2.6k tok/s (avg 3.1k) | cert 0.46→0.64 | ticks [4.781 3.922] | Δticks -0.859 | pc 0.079 | gate 0.499 | |M| 4.1669 | dist 3.494 | ETA 917.1h
+step   4720 | T=2 | loss 9.2556 | lr 3.00e-04 | grad 2.19 | 2.5k tok/s (avg 3.1k) | cert 0.24→0.48 | ticks [7.438 6.688] | Δticks -0.750 | pc 0.095 | gate 0.499 | |M| 2.6283 | dist 2.810 | ETA 917.6h
+step   4730 | T=2 | loss 7.7803 | lr 3.00e-04 | grad 2.19 | 5.8k tok/s (avg 3.1k) | cert 0.32→0.61 | ticks [5.500 4.406] | Δticks -1.094 | pc 0.107 | gate 0.499 | |M| 3.7193 | dist 3.450 | ETA 916.7h
+step   4740 | T=2 | loss 8.0651 | lr 3.00e-04 | grad 1.84 | 2.6k tok/s (avg 3.1k) | cert 0.41→0.64 | ticks [5.031 4.312] | Δticks -0.719 | pc 0.077 | gate 0.499 | |M| 3.8769 | dist 3.815 | ETA 917.1h
+step   4750 | T=2 | loss 10.8080 | lr 3.00e-04 | grad 1.84 | 5.8k tok/s (avg 3.1k) | cert 0.42→0.56 | ticks [5.594 5.000] | Δticks -0.594 | pc 0.065 | gate 0.499 | |M| 2.9160 | dist 5.868 | ETA 916.2h
+step   4760 | T=2 | loss 9.6000 | lr 3.00e-04 | grad 2.27 | 2.6k tok/s (avg 3.1k) | cert 0.27→0.56 | ticks [6.000 4.781] | Δticks -1.219 | pc 0.084 | gate 0.499 | |M| 3.3530 | dist 4.864 | ETA 916.6h
+step   4770 | T=2 | loss 17.7013 | lr 3.00e-04 | grad 1.80 | 2.6k tok/s (avg 3.1k) | cert 0.45→0.58 | ticks [5.594 5.000] | Δticks -0.594 | pc 0.069 | gate 0.499 | |M| 2.9898 | dist 12.703 | ETA 916.9h
+step   4780 | T=2 | loss 13.4294 | lr 3.00e-04 | grad 1.80 | 5.7k tok/s (avg 3.1k) | cert 0.50→0.62 | ticks [4.750 4.062] | Δticks -0.688 | pc 0.065 | gate 0.499 | |M| 3.3616 | dist 9.335 | ETA 916.0h
+step   4790 | T=2 | loss 7.1817 | lr 3.00e-04 | grad 1.98 | 2.3k tok/s (avg 3.1k) | cert 0.46→0.64 | ticks [4.375 3.609] | Δticks -0.766 | pc 0.067 | gate 0.499 | |M| 4.5102 | dist 3.603 | ETA 916.7h
+step   4800 | T=2 | loss 10.7167 | lr 3.00e-04 | grad 1.79 | 2.4k tok/s (avg 3.1k) | cert 0.36→0.60 | ticks [5.312 4.344] | Δticks -0.969 | pc 0.091 | gate 0.499 | |M| 3.9053 | dist 6.359 | ETA 917.3h
+step   4810 | T=2 | loss 7.7256 | lr 3.00e-04 | grad 1.79 | 5.8k tok/s (avg 3.1k) | cert 0.38→0.61 | ticks [4.969 3.922] | Δticks -1.047 | pc 0.098 | gate 0.499 | |M| 3.7841 | dist 3.814 | ETA 916.4h
+step   4820 | T=2 | loss 9.0953 | lr 3.00e-04 | grad 1.70 | 2.0k tok/s (avg 3.1k) | cert 0.45→0.64 | ticks [4.750 3.891] | Δticks -0.859 | pc 0.066 | gate 0.499 | |M| 4.1165 | dist 5.159 | ETA 917.4h
+step   4830 | T=2 | loss 9.3790 | lr 3.00e-04 | grad 1.70 | 5.8k tok/s (avg 3.1k) | cert 0.24→0.52 | ticks [7.312 6.375] | Δticks -0.938 | pc 0.100 | gate 0.499 | |M| 2.6446 | dist 3.180 | ETA 916.5h
+step   4840 | T=2 | loss 8.7134 | lr 3.00e-04 | grad 2.30 | 2.1k tok/s (avg 3.1k) | cert 0.51→0.64 | ticks [4.938 4.250] | Δticks -0.688 | pc 0.095 | gate 0.499 | |M| 3.7212 | dist 4.560 | ETA 917.5h
+step   4850 | T=2 | loss 12.3582 | lr 3.00e-04 | grad 1.99 | 2.1k tok/s (avg 3.1k) | cert 0.25→0.56 | ticks [6.750 6.188] | Δticks -0.562 | pc 0.061 | gate 0.499 | |M| 2.8294 | dist 6.355 | ETA 918.3h
+step   4860 | T=2 | loss 9.6695 | lr 3.00e-04 | grad 1.99 | 5.8k tok/s (avg 3.1k) | cert 0.19→0.48 | ticks [7.281 6.062] | Δticks -1.219 | pc 0.072 | gate 0.499 | |M| 2.3029 | dist 3.698 | ETA 917.4h
+step   4870 | T=2 | loss 7.9922 | lr 3.00e-04 | grad 2.94 | 2.1k tok/s (avg 3.1k) | cert 0.32→0.58 | ticks [5.438 4.375] | Δticks -1.062 | pc 0.112 | gate 0.499 | |M| 3.3605 | dist 3.693 | ETA 918.3h
+step   4880 | T=2 | loss 9.4390 | lr 3.00e-04 | grad 1.73 | 2.1k tok/s (avg 3.1k) | cert 0.55→0.66 | ticks [3.844 3.234] | Δticks -0.609 | pc 0.062 | gate 0.499 | |M| 4.8556 | dist 6.222 | ETA 919.2h
+step   4890 | T=2 | loss 9.6764 | lr 3.00e-04 | grad 1.73 | 5.8k tok/s (avg 3.1k) | cert 0.26→0.49 | ticks [7.219 6.312] | Δticks -0.906 | pc 0.074 | gate 0.499 | |M| 1.9058 | dist 3.495 | ETA 918.3h
+step   4900 | T=2 | loss 10.0207 | lr 3.00e-04 | grad 2.12 | 2.1k tok/s (avg 3.1k) | cert 0.29→0.51 | ticks [6.406 5.656] | Δticks -0.750 | pc 0.078 | gate 0.499 | |M| 2.4607 | dist 4.467 | ETA 919.2h
+step   4910 | T=2 | loss 8.8978 | lr 3.00e-04 | grad 2.12 | 5.8k tok/s (avg 3.1k) | cert 0.46→0.63 | ticks [5.312 4.594] | Δticks -0.719 | pc 0.094 | gate 0.499 | |M| 3.4944 | dist 4.342 | ETA 918.3h
+step   4920 | T=2 | loss 9.1044 | lr 3.00e-04 | grad 3.38 | 2.1k tok/s (avg 3.1k) | cert 0.44→0.62 | ticks [5.125 4.250] | Δticks -0.875 | pc 0.101 | gate 0.499 | |M| 3.7953 | dist 4.864 | ETA 919.2h
+step   4930 | T=2 | loss 8.9045 | lr 3.00e-04 | grad 4.09 | 2.1k tok/s (avg 3.1k) | cert 0.30→0.52 | ticks [6.312 5.406] | Δticks -0.906 | pc 0.064 | gate 0.499 | |M| 2.6127 | dist 3.522 | ETA 920.0h
+step   4940 | T=2 | loss 11.3367 | lr 3.00e-04 | grad 4.09 | 5.8k tok/s (avg 3.1k) | cert 0.24→0.50 | ticks [6.562 5.719] | Δticks -0.844 | pc 0.089 | gate 0.499 | |M| 2.4890 | dist 5.713 | ETA 919.1h
+step   4950 | T=2 | loss 10.4929 | lr 3.00e-04 | grad 2.31 | 2.1k tok/s (avg 3.1k) | cert 0.52→0.61 | ticks [4.969 4.281] | Δticks -0.688 | pc 0.071 | gate 0.499 | |M| 3.2065 | dist 6.203 | ETA 920.0h
+step   4960 | T=2 | loss 9.6837 | lr 3.00e-04 | grad 4.50 | 2.0k tok/s (avg 3.1k) | cert 0.38→0.55 | ticks [5.969 5.469] | Δticks -0.500 | pc 0.085 | gate 0.499 | |M| 2.1690 | dist 4.277 | ETA 921.0h
+step   4970 | T=2 | loss 11.4740 | lr 3.00e-04 | grad 4.50 | 5.8k tok/s (avg 3.1k) | cert 0.53→0.66 | ticks [4.188 3.594] | Δticks -0.594 | pc 0.066 | gate 0.499 | |M| 4.0764 | dist 7.910 | ETA 920.1h
+step   4980 | T=2 | loss 10.7064 | lr 3.00e-04 | grad 4.16 | 2.1k tok/s (avg 3.1k) | cert 0.33→0.57 | ticks [5.531 5.000] | Δticks -0.531 | pc 0.088 | gate 0.499 | |M| 2.9921 | dist 5.812 | ETA 921.0h
+step   4990 | T=2 | loss 8.3564 | lr 3.00e-04 | grad 4.16 | 5.8k tok/s (avg 3.1k) | cert 0.34→0.59 | ticks [5.375 4.469] | Δticks -0.906 | pc 0.126 | gate 0.499 | |M| 3.5257 | dist 3.969 | ETA 920.1h
+step   5000 | T=2 | loss 8.0697 | lr 3.00e-04 | grad 2.69 | 2.1k tok/s (avg 3.1k) | cert 0.28→0.56 | ticks [5.500 4.156] | Δticks -1.344 | pc 0.103 | gate 0.499 | |M| 3.1214 | dist 3.928 | ETA 921.0h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 5000:
+  T=2 | CE=4.6268 | PPL=102.19 | top1=25.4% | top5=45.3% | (25600 tok)
+  Saved checkpoint at step 5000
+step   5010 | T=2 | loss 9.2851 | lr 3.00e-04 | grad 5.41 | 0.9k tok/s (avg 3.1k) | cert 0.28→0.50 | ticks [6.250 5.156] | Δticks -1.094 | pc 0.064 | gate 0.499 | |M| 2.3459 | dist 4.128 | ETA 925.3h
+step   5020 | T=2 | loss 11.3734 | lr 3.00e-04 | grad 5.41 | 5.8k tok/s (avg 3.1k) | cert 0.28→0.47 | ticks [7.438 6.406] | Δticks -1.031 | pc 0.126 | gate 0.499 | |M| 1.9173 | dist 5.047 | ETA 924.5h
+step   5030 | T=2 | loss 10.3091 | lr 3.00e-04 | grad 4.38 | 2.1k tok/s (avg 3.1k) | cert 0.55→0.62 | ticks [4.562 4.312] | Δticks -0.250 | pc 0.068 | gate 0.499 | |M| 4.5597 | dist 6.204 | ETA 925.3h
+step   5040 | T=2 | loss 8.0243 | lr 3.00e-04 | grad 2.55 | 2.1k tok/s (avg 3.1k) | cert 0.58→0.67 | ticks [4.062 3.516] | Δticks -0.547 | pc 0.058 | gate 0.499 | |M| 4.2264 | dist 4.513 | ETA 926.2h
+step   5050 | T=2 | loss 6.8029 | lr 3.00e-04 | grad 2.55 | 5.8k tok/s (avg 3.1k) | cert 0.50→0.68 | ticks [4.062 3.625] | Δticks -0.438 | pc 0.070 | gate 0.499 | |M| 4.1057 | dist 3.329 | ETA 925.3h
+step   5060 | T=2 | loss 11.0137 | lr 3.00e-04 | grad 4.38 | 2.1k tok/s (avg 3.1k) | cert 0.45→0.61 | ticks [5.844 5.062] | Δticks -0.781 | pc 0.103 | gate 0.499 | |M| 3.0822 | dist 5.993 | ETA 926.1h
+step   5070 | T=2 | loss 8.4306 | lr 3.00e-04 | grad 4.38 | 5.8k tok/s (avg 3.1k) | cert 0.40→0.55 | ticks [5.625 4.875] | Δticks -0.750 | pc 0.051 | gate 0.499 | |M| 3.4704 | dist 3.611 | ETA 925.2h
+step   5080 | T=2 | loss 8.4583 | lr 3.00e-04 | grad 2.84 | 1.9k tok/s (avg 3.1k) | cert 0.41→0.62 | ticks [5.000 4.000] | Δticks -1.000 | pc 0.112 | gate 0.499 | |M| 3.1083 | dist 4.546 | ETA 926.4h
+step   5090 | T=2 | loss 13.2415 | lr 3.00e-04 | grad 3.64 | 1.9k tok/s (avg 3.1k) | cert 0.37→0.55 | ticks [6.031 5.281] | Δticks -0.750 | pc 0.063 | gate 0.499 | |M| 2.5730 | dist 8.005 | ETA 927.5h
+step   5100 | T=2 | loss 10.2235 | lr 3.00e-04 | grad 3.64 | 5.8k tok/s (avg 3.1k) | cert 0.38→0.56 | ticks [6.062 5.219] | Δticks -0.844 | pc 0.087 | gate 0.499 | |M| 3.2271 | dist 5.044 | ETA 926.6h
+step   5110 | T=2 | loss 9.9713 | lr 3.00e-04 | grad 4.38 | 1.9k tok/s (avg 3.1k) | cert 0.28→0.53 | ticks [6.250 5.406] | Δticks -0.844 | pc 0.080 | gate 0.499 | |M| 2.9830 | dist 4.615 | ETA 927.8h
+step   5120 | T=2 | loss 10.1619 | lr 3.00e-04 | grad 2.50 | 2.0k tok/s (avg 3.1k) | cert 0.37→0.62 | ticks [5.906 5.281] | Δticks -0.625 | pc 0.084 | gate 0.499 | |M| 3.3550 | dist 5.051 | ETA 928.8h
+step   5130 | T=2 | loss 10.3710 | lr 3.00e-04 | grad 2.50 | 5.8k tok/s (avg 3.1k) | cert 0.36→0.52 | ticks [6.969 6.000] | Δticks -0.969 | pc 0.064 | gate 0.499 | |M| 2.5446 | dist 4.336 | ETA 927.9h
+step   5140 | T=2 | loss 9.6829 | lr 3.00e-04 | grad 2.09 | 1.9k tok/s (avg 3.1k) | cert 0.38→0.55 | ticks [6.188 5.594] | Δticks -0.594 | pc 0.046 | gate 0.499 | |M| 2.2621 | dist 4.118 | ETA 929.0h
+step   5150 | T=2 | loss 10.7369 | lr 3.00e-04 | grad 2.09 | 5.8k tok/s (avg 3.1k) | cert 0.46→0.69 | ticks [5.219 4.875] | Δticks -0.344 | pc 0.066 | gate 0.499 | |M| 4.0325 | dist 5.978 | ETA 928.2h
+step   5160 | T=2 | loss 8.4064 | lr 3.00e-04 | grad 3.69 | 1.9k tok/s (avg 3.1k) | cert 0.41→0.64 | ticks [5.000 4.312] | Δticks -0.688 | pc 0.066 | gate 0.499 | |M| 3.7787 | dist 4.164 | ETA 929.3h
+step   5170 | T=2 | loss 9.5674 | lr 3.00e-04 | grad 1.80 | 1.9k tok/s (avg 3.1k) | cert 0.39→0.55 | ticks [6.562 5.625] | Δticks -0.938 | pc 0.096 | gate 0.499 | |M| 2.9032 | dist 4.043 | ETA 930.3h
+step   5180 | T=2 | loss 10.2713 | lr 3.00e-04 | grad 1.80 | 5.9k tok/s (avg 3.1k) | cert 0.51→0.64 | ticks [5.312 4.438] | Δticks -0.875 | pc 0.087 | gate 0.499 | |M| 3.6285 | dist 5.772 | ETA 929.5h
+step   5190 | T=2 | loss 8.1546 | lr 3.00e-04 | grad 3.19 | 1.8k tok/s (avg 3.1k) | cert 0.49→0.66 | ticks [4.438 3.688] | Δticks -0.750 | pc 0.063 | gate 0.499 | |M| 4.1915 | dist 4.569 | ETA 930.7h
+step   5200 | T=2 | loss 9.5199 | lr 3.00e-04 | grad 1.61 | 2.0k tok/s (avg 3.1k) | cert 0.31→0.55 | ticks [6.531 5.844] | Δticks -0.688 | pc 0.061 | gate 0.499 | |M| 2.6346 | dist 3.812 | ETA 931.6h
+step   5210 | T=2 | loss 9.7817 | lr 3.00e-04 | grad 1.61 | 5.8k tok/s (avg 3.1k) | cert 0.58→0.62 | ticks [5.312 5.000] | Δticks -0.312 | pc 0.093 | gate 0.499 | |M| 4.9303 | dist 5.023 | ETA 930.8h
+step   5220 | T=2 | loss 10.3725 | lr 3.00e-04 | grad 2.61 | 1.9k tok/s (avg 3.1k) | cert 0.21→0.49 | ticks [7.938 6.969] | Δticks -0.969 | pc 0.123 | gate 0.499 | |M| 2.3556 | dist 3.633 | ETA 931.9h
+step   5230 | T=2 | loss 12.2643 | lr 3.00e-04 | grad 2.61 | 5.8k tok/s (avg 3.1k) | cert 0.25→0.50 | ticks [6.812 5.812] | Δticks -1.000 | pc 0.072 | gate 0.499 | |M| 2.5121 | dist 6.523 | ETA 931.0h
+step   5240 | T=2 | loss 11.4334 | lr 3.00e-04 | grad 2.11 | 1.9k tok/s (avg 3.0k) | cert 0.33→0.54 | ticks [7.219 6.062] | Δticks -1.156 | pc 0.080 | gate 0.499 | |M| 3.1819 | dist 5.401 | ETA 932.1h
+step   5250 | T=2 | loss 12.7206 | lr 3.00e-04 | grad 2.50 | 2.0k tok/s (avg 3.0k) | cert 0.61→0.64 | ticks [4.844 4.156] | Δticks -0.688 | pc 0.099 | gate 0.499 | |M| 6.1597 | dist 8.548 | ETA 933.1h
+step   5260 | T=2 | loss 10.3134 | lr 3.00e-04 | grad 2.50 | 5.8k tok/s (avg 3.0k) | cert 0.44→0.56 | ticks [5.188 4.531] | Δticks -0.656 | pc 0.062 | gate 0.499 | |M| 4.1331 | dist 5.862 | ETA 932.2h
+step   5270 | T=2 | loss 13.4062 | lr 3.00e-04 | grad 2.52 | 1.8k tok/s (avg 3.0k) | cert 0.39→0.58 | ticks [5.438 4.531] | Δticks -0.906 | pc 0.071 | gate 0.499 | |M| 3.0551 | dist 8.877 | ETA 933.4h

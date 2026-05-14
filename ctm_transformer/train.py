@@ -305,6 +305,17 @@ class CachedTeacherDataset(IterableDataset):
                     top_values = z["top_values"]            # f16   [N, S, K]
                     residual = z["residual_log_mass"]       # f16   [N, S]
 
+                    # Optional teacher hidden states for Predictive Coding.
+                    # Older shards won't have this key — we substitute a
+                    # 1-D placeholder so collate doesn't have to special-
+                    # case. The model side detects the empty-shape case
+                    # and skips the PC loss accordingly.
+                    has_teacher_z = "teacher_z" in z.files
+                    if has_teacher_z:
+                        teacher_z = z["teacher_z"]          # f16 [N, S, D_t]
+                    else:
+                        teacher_z = None
+
                     N = input_ids.shape[0]
                     # Optional in-shard shuffle so consecutive samples
                     # don't all come from the same parquet file ordering.
@@ -316,12 +327,20 @@ class CachedTeacherDataset(IterableDataset):
                         perm = np.arange(N)
 
                     for i in perm:
+                        # 6-tuple: always include teacher_z slot. Empty
+                        # tensor (numel=0) when the shard didn't store
+                        # hidden states. Consumers detect via .numel().
+                        if has_teacher_z:
+                            tz = torch.from_numpy(teacher_z[i].astype(np.float32))
+                        else:
+                            tz = torch.empty(0, dtype=torch.float32)
                         yield (
                             torch.from_numpy(input_ids[i].astype(np.int64)),
                             torch.from_numpy(targets[i].astype(np.int64)),
                             torch.from_numpy(top_indices[i].astype(np.int64)),
                             torch.from_numpy(top_values[i].astype(np.float32)),
                             torch.from_numpy(residual[i].astype(np.float32)),
+                            tz,
                         )
 
             if not self.loop:
@@ -332,14 +351,28 @@ class CachedTeacherDataset(IterableDataset):
 def cached_teacher_collate(batch):
     """Default collate_fn works fine, but defining it explicitly here lets
     train.py be unambiguous about the order it expects.
-    Each element of `batch` is a 5-tuple from CachedTeacherDataset.__iter__.
+    Each element of `batch` is a 6-tuple from CachedTeacherDataset.__iter__:
+        (input_ids, targets, top_indices, top_values, residual, teacher_z)
+    `teacher_z` may be an empty tensor (numel=0) if the shard didn't
+    cache hidden states; collated result is still well-defined as a
+    [B, 0]-shaped tensor in that case, which consumers detect via
+    .numel() == 0.
     """
     input_ids = torch.stack([b[0] for b in batch], dim=0)
     targets = torch.stack([b[1] for b in batch], dim=0)
     top_indices = torch.stack([b[2] for b in batch], dim=0)
     top_values = torch.stack([b[3] for b in batch], dim=0)
     residual = torch.stack([b[4] for b in batch], dim=0)
-    return input_ids, targets, top_indices, top_values, residual
+    # teacher_z: only stack if all entries have matching nonzero shape;
+    # otherwise return a single empty placeholder. Mixing PC-enabled
+    # and PC-absent shards within one batch is not supported (would
+    # require padding semantics for nonexistent hidden states).
+    tz_list = [b[5] for b in batch]
+    if all(t.numel() > 0 for t in tz_list):
+        teacher_z = torch.stack(tz_list, dim=0)
+    else:
+        teacher_z = torch.empty(0, dtype=torch.float32)
+    return input_ids, targets, top_indices, top_values, residual, teacher_z
 
 # ═════════════════════════════════════════════════════════════════════════
 # train_clean.py
@@ -1737,15 +1770,22 @@ def train(
 
                     # Two batch shapes are supported:
                     #   (x, y)                                          — live-teacher / no-distill path
-                    #   (x, y, top_indices, top_values, residual)       — cached-teacher path
+                    #   (x, y, top_indices, top_values, residual, teacher_z) — cached-teacher path
                     cached_top_indices = None
                     cached_top_values = None
+                    cached_teacher_z = None
                     if config.use_cached_teacher:
-                        x, y, cached_top_indices, cached_top_values, _residual = batch
+                        x, y, cached_top_indices, cached_top_values, _residual, cached_teacher_z = batch
                         x = x.to(device, non_blocking=True)
                         y = y.to(device, non_blocking=True)
                         cached_top_indices = cached_top_indices.to(device, non_blocking=True)
                         cached_top_values = cached_top_values.to(device, non_blocking=True)
+                        # teacher_z is only meaningful when the shard
+                        # actually stored hidden states (numel > 0).
+                        if cached_teacher_z.numel() > 0:
+                            cached_teacher_z = cached_teacher_z.to(device, non_blocking=True)
+                        else:
+                            cached_teacher_z = None
                     else:
                         x, y = batch
                         x = x.to(device)
@@ -1825,12 +1865,17 @@ def train(
                 with timer("student_fwd"):
                     with torch.amp.autocast(device_type=device_type,
                                             dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
+                        # Prefer live-teacher hidden states if we have
+                        # them; fall back to the cached value (only
+                        # populated when the shards include teacher_z
+                        # and use_cached_teacher is on).
+                        effective_teacher_z = t_z if t_z is not None else cached_teacher_z
                         result = model(
                             x,
                             targets=y,
                             max_thought_steps=current_T,
                             teacher_logits=t_logits,
-                            teacher_z=t_z,
+                            teacher_z=effective_teacher_z,
                             cached_top_indices=cached_top_indices,
                             cached_top_values=cached_top_values,
                         )
@@ -1902,6 +1947,39 @@ def train(
             # info — and adds visual noise to the log.
             t_field = f"T={current_T} | " if config.t_curriculum else ""
 
+            # ── Biological diagnostics (mirrors multi-GPU block) ─────
+            bio_str = ""
+            if "pc_loss" in result:
+                pc_val = result["pc_loss"]
+                pc_v = pc_val.item() if hasattr(pc_val, "item") else float(pc_val)
+                bio_str += f" | pc {pc_v:.3f}"
+                ptpc = result.get("per_tick_pc_loss")
+                if ptpc is not None and ptpc.numel() > 1:
+                    bio_str += f" (Δ{ptpc[-1].item() - ptpc[0].item():+.3f})"
+            if "hebbian_gate" in result:
+                bio_str += f" | gate {result['hebbian_gate']:.3f}"
+            if "hebbian_M_norm" in result:
+                bio_str += f" | |M| {result['hebbian_M_norm']:.4f}"
+            if "hebbian_lr_eff" in result:
+                # Effective Hebbian learning rate after certainty modulation.
+                # Equals base lr (sigmoid(lr_logit)≈0.1) when alpha=0.
+                # Higher → model is encoding uncertain positions more
+                # aggressively. Watch for it diverging from base lr.
+                bio_str += f" | lr_eff {result['hebbian_lr_eff']:.3f}"
+            if "stability_w_min" in result:
+                # Prospective Configuration: how much the least-settled
+                # tick was downweighted. 1.0 = no downweighting (ticks
+                # are all equally settled). <0.5 = at least one tick
+                # was strongly suppressed. Watch this as a "is the
+                # mechanism doing anything?" signal — if always 1.0,
+                # the loop settles in tick 0 (probably fine, but means
+                # PC is inactive).
+                bio_str += f" | w_min {result['stability_w_min']:.2f}"
+            if "distill_loss" in result:
+                dl = result["distill_loss"]
+                dl_v = dl.item() if hasattr(dl, "item") else float(dl)
+                bio_str += f" | dist {dl_v:.3f}"
+
             print(
                 f"Step {step:6d} | loss {avg_loss:.4f} | "
                 f"lr {lr:.2e} | grad {grad_norm:.2f} | "
@@ -1909,7 +1987,8 @@ def train(
                 f"{t_field}"
                 f"cert {cert_first:.2f}→{cert_last:.2f} | "
                 f"ticks [{' '.join(f'{l:.3f}' for l in tick_losses)}] | "
-                f"Δticks {tick_delta:+.3f} | "
+                f"Δticks {tick_delta:+.3f}"
+                f"{bio_str} | "
                 f"{tokens_seen/1e6:.0f}M tok | "
                 f"ETA {eta_sec/3600:.1f}h"
             )
@@ -2362,6 +2441,102 @@ def parse_args():
     train_group.add_argument("--compile", action="store_true",
                              help="Use torch.compile to optimize the model.")
 
+    # ── Biological Learning Extensions ──────────────────────────────────
+    bio_group = parser.add_argument_group("Biological Learning")
+    bio_group.add_argument("--use_hebbian_synapse", action="store_true",
+                           help="Augment the synapse with a per-(B, S) fast-weight "
+                                "matrix updated by outer products during the thought "
+                                "loop. Encodes within-sequence working memory in "
+                                "activation state.")
+    bio_group.add_argument("--hebbian_bottleneck_dim", type=int, default=64,
+                           help="Bottleneck dim for the Hebbian fast-weight matrix. "
+                                "0 disables the bottleneck (uses full d_latent×d_model — "
+                                "expensive). 64 is a good default.")
+    bio_group.add_argument("--hebbian_decay_init", type=float, default=0.9,
+                           help="Initial decay coefficient (post-sigmoid) for the "
+                                "fast-weight matrix.")
+    bio_group.add_argument("--hebbian_lr_init", type=float, default=0.1,
+                           help="Initial outer-product update magnitude (post-sigmoid).")
+    bio_group.add_argument("--hebbian_gate_init", type=float, default=-3.0,
+                           help="Initial logit for the readout gate. Negative values "
+                                "keep the Hebbian contribution near zero at init.")
+    bio_group.add_argument("--hebbian_cert_lr_alpha", type=float, default=0.0,
+                           help="Certainty-modulated Hebbian learning rate "
+                                "('neurochemical modulation'). When > 0, the "
+                                "Hebbian outer-product update is scaled per-"
+                                "position by (1 + alpha * uncertainty), where "
+                                "uncertainty = 1 - prev-tick certainty. Lets "
+                                "the fast-weight matrix preferentially encode "
+                                "surprising contexts rather than every position "
+                                "equally. 0 → uniform lr (default). 2 → up to "
+                                "3x lr boost on highly-uncertain positions.")
+    bio_group.add_argument("--hebbian_force_gate", type=float, default=None,
+                           help="DIAGNOSTIC: force the Hebbian readout gate "
+                                "to a fixed value (e.g. 0.9), bypassing the "
+                                "learned gate_logit. Used to isolate whether "
+                                "the gate gradient or the readout content is "
+                                "the bottleneck. Three outcomes vs baseline: "
+                                "(no change → readout useless), "
+                                "(worse → readout actively noisy), "
+                                "(better → gate gradient was the blocker). "
+                                "Not for production — purely diagnostic.")
+    bio_group.add_argument("--hebbian_update_rule", type=str, default="outer_product",
+                           choices=["outer_product", "delta"],
+                           help="Hebbian fast-weight update rule. "
+                                "'outer_product' (default): classic Hebbian, "
+                                "M ← decay·M + lr·(z⊗a). Saturates because "
+                                "every co-occurrence is accumulated. "
+                                "'delta': error-correcting (Widrow-Hoff / "
+                                "Nested Learning), M ← decay·M + lr·(z - M·a)⊗a. "
+                                "Reaches steady-state M·a≈z and stops growing "
+                                "rather than saturating. Better if |M| growth "
+                                "correlates with degraded readout at scale.")
+
+    bio_group.add_argument("--use_prospective_config", action="store_true",
+                           help="Prospective Configuration: weight each tick's "
+                                "loss contribution by its FEEC-energy stability. "
+                                "Ticks where energy is still changing fast "
+                                "(unsettled) contribute less; settled ticks "
+                                "contribute more. Multiplies the loss, not the "
+                                "gradient — autograd and all training infrastructure "
+                                "work unchanged. Requires --use_feec.")
+    bio_group.add_argument("--prospective_beta", type=float, default=2.0,
+                           help="Aggressiveness of stability weighting. "
+                                "Weight = exp(-beta * relative_energy_change). "
+                                "0 disables (uniform). 2 means a 50%% energy "
+                                "change gives weight 0.37. Higher = more "
+                                "aggressive downweighting of unsettled ticks.")
+
+    bio_group.add_argument("--use_predictive_coding", action="store_true",
+                           help="Attach a per-tick 'cerebellar' readout that predicts "
+                                "the teacher hidden state. Adds a local PC auxiliary "
+                                "loss at every tick. Requires teacher_z to be supplied "
+                                "(distillation must be on).")
+    bio_group.add_argument("--pc_loss_weight", type=float, default=0.05,
+                           help="Weight of the PC auxiliary loss in the total objective.")
+    bio_group.add_argument("--pc_hidden_dim", type=int, default=0,
+                           help="Hidden dim of the cerebellar predictor MLP. 0 → auto.")
+    bio_group.add_argument("--pc_normalize", type=str, default="layernorm",
+                           choices=["layernorm", "none"],
+                           help="LayerNorm both sides before computing PC error.")
+    bio_group.add_argument("--pc_loss_type", type=str, default="cosine",
+                           choices=["cosine", "mse"],
+                           help="Cosine recommended for cross-architecture distillation.")
+    bio_group.add_argument("--pc_dropout", type=float, default=0.0,
+                           help="Dropout in the cerebellar predictor.")
+    bio_group.add_argument("--pc_tick_aggregation", type=str, default="all",
+                           choices=["all", "early", "last"],
+                           help="Which ticks the PC loss is applied to.")
+    bio_group.add_argument("--pc_target", type=str, default="teacher",
+                           choices=["teacher", "next_tick", "final_tick"],
+                           help="What the cerebellar readout predicts. "
+                                "'teacher' needs teacher_z (requires extending "
+                                "the cache). 'next_tick' and 'final_tick' use "
+                                "the student's own future latents — no teacher "
+                                "data needed. 'next_tick' is the most direct "
+                                "Predictive Coding analogue and is recommended "
+                                "when teacher_z is unavailable.")
+
     return parser.parse_args()
 
 
@@ -2491,6 +2666,25 @@ def main():
         use_triton_attention=args.use_triton_attention,
         use_cuda_graphs=args.use_cuda_graphs,
         tiled_schedule=args.tiled_schedule,
+        # Biological learning extensions
+        use_hebbian_synapse=args.use_hebbian_synapse,
+        hebbian_bottleneck_dim=args.hebbian_bottleneck_dim,
+        hebbian_decay_init=args.hebbian_decay_init,
+        hebbian_lr_init=args.hebbian_lr_init,
+        hebbian_gate_init=args.hebbian_gate_init,
+        hebbian_cert_lr_alpha=args.hebbian_cert_lr_alpha,
+        hebbian_force_gate=args.hebbian_force_gate,
+        hebbian_update_rule=args.hebbian_update_rule,
+        use_prospective_config=args.use_prospective_config,
+        prospective_beta=args.prospective_beta,
+        use_predictive_coding=args.use_predictive_coding,
+        pc_loss_weight=args.pc_loss_weight,
+        pc_hidden_dim=args.pc_hidden_dim,
+        pc_normalize=args.pc_normalize,
+        pc_loss_type=args.pc_loss_type,
+        pc_dropout=args.pc_dropout,
+        pc_tick_aggregation=args.pc_tick_aggregation,
+        pc_target=args.pc_target,
     )
 
     try:
@@ -2705,11 +2899,18 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
 
             with timer("data"):
                 batch = get_batch()
-                ids, tgt, top_idx, top_val, _res = batch
+                ids, tgt, top_idx, top_val, _res, tz = batch
                 ids = ids.to(device)
                 tgt = tgt.to(device)
                 top_idx = top_idx.to(device)
                 top_val = top_val.to(device)
+                # teacher_z is only present when the cache was built
+                # with --include_hidden_states (see scripts/extend_teacher_cache_with_z.py).
+                # Empty tensor → no PC signal this batch.
+                if tz.numel() > 0:
+                    tz = tz.to(device)
+                else:
+                    tz = None
 
             lr = get_lr(step, config)
             for pg in optimizer.param_groups:
@@ -2721,6 +2922,7 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                     ids, targets=tgt,
                     cached_top_indices=top_idx,
                     cached_top_values=top_val,
+                    teacher_z=tz,
                     max_thought_steps=current_T,
                 )
                 # Scale loss so the gradients accumulate correctly
@@ -2805,12 +3007,53 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 cert_last = cert[-1].mean().item()
                 cert_str = f" | cert {cert_first:.2f}→{cert_last:.2f}"
 
+            # ── Biological diagnostics (only printed when active) ─────
+            # We surface four signals so the training log shows whether
+            # PC and Hebbian are doing anything. If pc_loss isn't moving
+            # or hebbian_gate stays at its init (~0.05), the bio paths
+            # aren't being used and the extra compute is wasted.
+            bio_str = ""
+            if "pc_loss" in result:
+                pc_val = result["pc_loss"]
+                pc_v = pc_val.item() if hasattr(pc_val, "item") else float(pc_val)
+                bio_str += f" | pc {pc_v:.3f}"
+                # Per-tick delta tells us if PC is converging across the
+                # thought loop — we expect the loss to drop on later
+                # ticks (the predictor gets a better view of where it's
+                # going). Flat = predictor not learning the trajectory.
+                ptpc = result.get("per_tick_pc_loss")
+                if ptpc is not None and ptpc.numel() > 1:
+                    bio_str += f" (Δ{ptpc[-1].item() - ptpc[0].item():+.3f})"
+            if "hebbian_gate" in result:
+                bio_str += f" | gate {result['hebbian_gate']:.3f}"
+            if "hebbian_M_norm" in result:
+                bio_str += f" | |M| {result['hebbian_M_norm']:.4f}"
+            if "hebbian_lr_eff" in result:
+                # Effective Hebbian learning rate after certainty modulation.
+                # Equals base lr (sigmoid(lr_logit)≈0.1) when alpha=0.
+                # Higher → model is encoding uncertain positions more
+                # aggressively. Watch for it diverging from base lr.
+                bio_str += f" | lr_eff {result['hebbian_lr_eff']:.3f}"
+            if "stability_w_min" in result:
+                # Prospective Configuration: how much the least-settled
+                # tick was downweighted. 1.0 = no downweighting (ticks
+                # are all equally settled). <0.5 = at least one tick
+                # was strongly suppressed. Watch this as a "is the
+                # mechanism doing anything?" signal — if always 1.0,
+                # the loop settles in tick 0 (probably fine, but means
+                # PC is inactive).
+                bio_str += f" | w_min {result['stability_w_min']:.2f}"
+            if "distill_loss" in result:
+                dl = result["distill_loss"]
+                dl_v = dl.item() if hasattr(dl, "item") else float(dl)
+                bio_str += f" | dist {dl_v:.3f}"
+
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
                 f"step {step:>6d} | {t_field}loss {loss.item() * config.gradient_accumulation_steps:.4f} | "
                 f"lr {lr:.2e} | grad {last_grad_norm:.2f} | "
                 f"{tps/1000:.1f}k tok/s (avg {avg_tps/1000:.1f}k)"
-                f"{cert_str}{tick_str} | "
+                f"{cert_str}{tick_str}{bio_str} | "
                 f"ETA {eta_sec/3600:.1f}h"
             )
 
@@ -2969,6 +3212,25 @@ def main_multi_gpu():
         use_triton_attention=args.use_triton_attention,
         use_cuda_graphs=args.use_cuda_graphs,
         tiled_schedule=args.tiled_schedule,
+        # Biological learning extensions
+        use_hebbian_synapse=args.use_hebbian_synapse,
+        hebbian_bottleneck_dim=args.hebbian_bottleneck_dim,
+        hebbian_decay_init=args.hebbian_decay_init,
+        hebbian_lr_init=args.hebbian_lr_init,
+        hebbian_gate_init=args.hebbian_gate_init,
+        hebbian_cert_lr_alpha=args.hebbian_cert_lr_alpha,
+        hebbian_force_gate=args.hebbian_force_gate,
+        hebbian_update_rule=args.hebbian_update_rule,
+        use_prospective_config=args.use_prospective_config,
+        prospective_beta=args.prospective_beta,
+        use_predictive_coding=args.use_predictive_coding,
+        pc_loss_weight=args.pc_loss_weight,
+        pc_hidden_dim=args.pc_hidden_dim,
+        pc_normalize=args.pc_normalize,
+        pc_loss_type=args.pc_loss_type,
+        pc_dropout=args.pc_dropout,
+        pc_tick_aggregation=args.pc_tick_aggregation,
+        pc_target=args.pc_target,
     )
 
     # Serialize config to dict for multiprocessing

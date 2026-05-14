@@ -671,4 +671,3 @@ class CTMCPUOffloadEngine:
         """Restore original model state."""
         if hasattr(self, '_original_get_layers'):
             self.model._get_layers_sequence = self._original_get_layers
-

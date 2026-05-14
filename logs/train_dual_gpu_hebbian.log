@@ -1,0 +1,220 @@
+Spawning 2 workers...
+archlinux:856175:856175 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:856175:856175 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:856175:856175 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:856175:856175 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:856176:856176 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:856176:856176 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:856176:856176 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:856176:856176 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:856175:856175 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:856176:856176 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:856175:856175 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:856175:856175 [0] NCCL INFO NET/IB : No device found.
+archlinux:856175:856175 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:856175:856175 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:856175:856175 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:856175:856175 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:856175:856175 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:856175:856175 [0] NCCL INFO Using network Socket
+archlinux:856175:856175 [0] NCCL INFO ncclCommInitRankConfig comm 0x555778ae2380 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x7742b778eea36d37 - Init START
+archlinux:856176:856176 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:856176:856176 [1] NCCL INFO NET/IB : No device found.
+archlinux:856176:856176 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:856176:856176 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:856176:856176 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:856176:856176 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:856176:856176 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:856176:856176 [1] NCCL INFO Using network Socket
+archlinux:856176:856176 [1] NCCL INFO ncclCommInitRankConfig comm 0x55958cbf3f00 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x7742b778eea36d37 - Init START
+archlinux:856176:856176 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:856175:856175 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:856176:856176 [1] NCCL INFO Bootstrap timings total 0.000597 (create 0.000015, send 0.000087, recv 0.000076, ring 0.000012, delay 0.000000)
+archlinux:856175:856175 [0] NCCL INFO Bootstrap timings total 0.087150 (create 0.000015, send 0.000077, recv 0.086634, ring 0.000011, delay 0.000000)
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:856176:856176 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:856175:856175 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:856176:856176 [1] NCCL INFO comm 0x55958cbf3f00 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:856175:856175 [0] NCCL INFO comm 0x555778ae2380 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:856175:856175 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:856176:856176 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:856175:856175 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:856176:856176 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:856175:856175 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:856175:856175 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:856176:856176 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:856175:856175 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:856175:856175 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:856176:856291 [0] NCCL INFO [Proxy Service] Device 1 CPU core 6
+archlinux:856176:856294 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 4
+archlinux:856175:856293 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 20
+archlinux:856175:856292 [0] NCCL INFO [Proxy Service] Device 0 CPU core 6
+archlinux:856175:856175 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:856175:856175 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:856175:856175 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:856175:856175 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:856176:856176 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:856176:856176 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:856176:856176 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:856175:856175 [0] NCCL INFO ncclCommInitRankConfig comm 0x555778ae2380 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x7742b778eea36d37 - Init COMPLETE
+archlinux:856176:856176 [1] NCCL INFO ncclCommInitRankConfig comm 0x55958cbf3f00 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x7742b778eea36d37 - Init COMPLETE
+archlinux:856175:856175 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.16 (kernels 0.06, alloc 0.00, bootstrap 0.09, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+archlinux:856176:856176 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.16 (kernels 0.15, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+[worker 0] Building model on cuda:0...
+Model: 497.6M params × 2 workers
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:856175:856175 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856175:856175 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:856176:856176 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:856176:856176 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:856176:856176 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:856175:856175 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments)
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 0 → 10000000
+  Batch: 2 × 512 tokens
+  Thought ticks: 8
+  Gradient checkpointing: True
+============================================================
+
+step      0 | T=2 | loss 20.5362 | lr 0.00e+00 | grad 0.00 | 0.7k tok/s (avg 0.7k) | cert 0.02→0.02 | ticks [11.938 11.938] | Δticks +0.000 | ETA 3930.8h
+step     10 | T=2 | loss 17.2444 | lr 1.50e-06 | grad 0.00 | 6.3k tok/s (avg 3.4k) | cert 0.02→0.02 | ticks [12.000 12.000] | Δticks +0.000 | ETA 845.5h
+step     20 | T=2 | loss 20.0690 | lr 3.00e-06 | grad 42.25 | 1.9k tok/s (avg 2.4k) | cert 0.02→0.02 | ticks [12.000 12.062] | Δticks +0.062 | ETA 1188.6h
+step     30 | T=2 | loss 26.4784 | lr 4.50e-06 | grad 42.25 | 6.1k tok/s (avg 3.0k) | cert 0.02→0.02 | ticks [11.938 11.938] | Δticks +0.000 | ETA 948.8h
+step     40 | T=2 | loss 21.8462 | lr 6.00e-06 | grad 38.25 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [12.125 12.125] | Δticks +0.000 | ETA 1088.3h
+step     50 | T=2 | loss 22.0267 | lr 7.50e-06 | grad 34.25 | 1.9k tok/s (avg 2.4k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1164.5h
+step     60 | T=2 | loss 24.8347 | lr 9.00e-06 | grad 34.25 | 6.1k tok/s (avg 2.7k) | cert 0.02→0.02 | ticks [12.000 12.000] | Δticks +0.000 | ETA 1047.6h
+step     70 | T=2 | loss 30.4599 | lr 1.05e-05 | grad 30.12 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1113.2h
+step     80 | T=2 | loss 23.0088 | lr 1.20e-05 | grad 24.62 | 1.9k tok/s (avg 2.5k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1157.4h
+step     90 | T=2 | loss 20.1623 | lr 1.35e-05 | grad 24.62 | 6.2k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1080.1h
+step    100 | T=2 | loss 18.9547 | lr 1.50e-05 | grad 20.25 | 1.9k tok/s (avg 2.5k) | cert 0.02→0.02 | ticks [12.000 11.938] | Δticks -0.062 | ETA 1124.3h
+step    110 | T=2 | loss 22.2938 | lr 1.65e-05 | grad 20.25 | 6.2k tok/s (avg 2.7k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1064.0h
+step    120 | T=2 | loss 16.8734 | lr 1.80e-05 | grad 17.75 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [12.000 11.938] | Δticks -0.062 | ETA 1100.8h
+step    130 | T=2 | loss 18.4005 | lr 1.95e-05 | grad 16.38 | 2.0k tok/s (avg 2.5k) | cert 0.02→0.02 | ticks [11.875 11.812] | Δticks -0.062 | ETA 1127.3h
+step    140 | T=2 | loss 20.6793 | lr 2.10e-05 | grad 16.38 | 6.2k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1079.7h
+step    150 | T=2 | loss 21.4440 | lr 2.25e-05 | grad 19.00 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.875 11.750] | Δticks -0.125 | ETA 1108.2h
+step    160 | T=2 | loss 15.1553 | lr 2.40e-05 | grad 18.25 | 1.9k tok/s (avg 2.5k) | cert 0.02→0.02 | ticks [11.938 11.812] | Δticks -0.125 | ETA 1130.4h
+step    170 | T=2 | loss 25.1108 | lr 2.55e-05 | grad 18.25 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.750 11.562] | Δticks -0.188 | ETA 1091.2h
+step    180 | T=2 | loss 21.3814 | lr 2.70e-05 | grad 15.69 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.812 11.688] | Δticks -0.125 | ETA 1114.2h
+step    190 | T=2 | loss 18.5414 | lr 2.85e-05 | grad 15.69 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.812 11.688] | Δticks -0.125 | ETA 1080.1h
+step    200 | T=2 | loss 20.2467 | lr 3.00e-05 | grad 14.81 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.875 11.750] | Δticks -0.125 | ETA 1101.1h
+step    210 | T=2 | loss 18.2868 | lr 3.15e-05 | grad 15.00 | 2.0k tok/s (avg 2.5k) | cert 0.02→0.02 | ticks [11.875 11.750] | Δticks -0.125 | ETA 1117.3h
+step    220 | T=2 | loss 21.8291 | lr 3.30e-05 | grad 15.00 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.875 11.812] | Δticks -0.062 | ETA 1087.7h
+step    230 | T=2 | loss 17.2545 | lr 3.45e-05 | grad 11.06 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1105.1h
+step    240 | T=2 | loss 20.2885 | lr 3.60e-05 | grad 10.31 | 2.0k tok/s (avg 2.5k) | cert 0.02→0.02 | ticks [11.750 11.625] | Δticks -0.125 | ETA 1118.5h
+step    250 | T=2 | loss 19.5386 | lr 3.75e-05 | grad 10.31 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.938 11.875] | Δticks -0.062 | ETA 1092.5h
+step    260 | T=2 | loss 19.5474 | lr 3.90e-05 | grad 9.06 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.750 11.562] | Δticks -0.188 | ETA 1107.9h
+step    270 | T=2 | loss 18.0443 | lr 4.05e-05 | grad 9.06 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.812 11.750] | Δticks -0.062 | ETA 1084.3h
+step    280 | T=2 | loss 18.0694 | lr 4.20e-05 | grad 7.53 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.812 11.688] | Δticks -0.125 | ETA 1098.7h
+step    290 | T=2 | loss 16.4851 | lr 4.35e-05 | grad 7.91 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.688 11.562] | Δticks -0.125 | ETA 1110.5h
+step    300 | T=2 | loss 29.9909 | lr 4.50e-05 | grad 7.91 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.750 11.562] | Δticks -0.188 | ETA 1089.0h
+step    310 | T=2 | loss 22.2427 | lr 4.65e-05 | grad 6.66 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.812 11.750] | Δticks -0.062 | ETA 1101.3h
+step    320 | T=2 | loss 21.0697 | lr 4.80e-05 | grad 7.72 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.625 11.438] | Δticks -0.188 | ETA 1111.1h
+step    330 | T=2 | loss 24.3316 | lr 4.95e-05 | grad 7.72 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.562 11.375] | Δticks -0.188 | ETA 1091.6h
+step    340 | T=2 | loss 17.9366 | lr 5.10e-05 | grad 5.56 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.750 11.625] | Δticks -0.125 | ETA 1102.9h
+step    350 | T=2 | loss 28.9738 | lr 5.25e-05 | grad 5.56 | 6.1k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.562 11.188] | Δticks -0.375 | ETA 1084.7h
+step    360 | T=2 | loss 17.5348 | lr 5.40e-05 | grad 5.69 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.750 11.625] | Δticks -0.125 | ETA 1095.4h
+step    370 | T=2 | loss 16.5709 | lr 5.55e-05 | grad 4.62 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.750 11.562] | Δticks -0.188 | ETA 1104.8h
+step    380 | T=2 | loss 20.7198 | lr 5.70e-05 | grad 4.62 | 6.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.125 10.812] | Δticks -0.312 | ETA 1088.1h
+step    390 | T=2 | loss 18.3908 | lr 5.85e-05 | grad 4.47 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.500 11.312] | Δticks -0.188 | ETA 1097.8h
+step    400 | T=2 | loss 21.4203 | lr 6.00e-05 | grad 5.59 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.500 11.312] | Δticks -0.188 | ETA 1105.8h
+step    410 | T=2 | loss 16.4133 | lr 6.15e-05 | grad 5.59 | 6.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.625 11.438] | Δticks -0.188 | ETA 1090.3h
+step    420 | T=2 | loss 18.5287 | lr 6.30e-05 | grad 5.09 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.312 11.062] | Δticks -0.250 | ETA 1099.8h
+step    430 | T=2 | loss 14.9870 | lr 6.45e-05 | grad 5.09 | 5.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.750 11.625] | Δticks -0.125 | ETA 1085.5h
+step    440 | T=2 | loss 20.9065 | lr 6.60e-05 | grad 4.25 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.125 10.875] | Δticks -0.250 | ETA 1094.7h
+step    450 | T=2 | loss 18.3919 | lr 6.75e-05 | grad 4.12 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.250 11.000] | Δticks -0.250 | ETA 1102.4h
+step    460 | T=2 | loss 17.3475 | lr 6.90e-05 | grad 4.12 | 6.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.625 11.500] | Δticks -0.125 | ETA 1088.8h
+step    470 | T=2 | loss 21.9223 | lr 7.05e-05 | grad 3.48 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.438 9.875] | Δticks -0.562 | ETA 1097.1h
+step    480 | T=2 | loss 18.3348 | lr 7.20e-05 | grad 3.69 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.438 11.250] | Δticks -0.188 | ETA 1103.7h
+step    490 | T=2 | loss 17.7602 | lr 7.35e-05 | grad 3.69 | 5.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.812 10.500] | Δticks -0.312 | ETA 1090.9h
+step    500 | T=2 | loss 18.1642 | lr 7.50e-05 | grad 3.78 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.812 10.500] | Δticks -0.312 | ETA 1099.1h
+step    510 | T=2 | loss 21.2531 | lr 7.65e-05 | grad 3.78 | 5.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.875 10.562] | Δticks -0.312 | ETA 1086.9h
+step    520 | T=2 | loss 16.4036 | lr 7.80e-05 | grad 3.28 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.312 11.000] | Δticks -0.312 | ETA 1094.8h
+step    530 | T=2 | loss 18.3783 | lr 7.95e-05 | grad 4.19 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.375 11.125] | Δticks -0.250 | ETA 1101.4h
+step    540 | T=2 | loss 18.5925 | lr 8.10e-05 | grad 4.19 | 5.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.812 10.500] | Δticks -0.312 | ETA 1090.0h
+step    550 | T=2 | loss 15.3718 | lr 8.25e-05 | grad 3.44 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [9.938 9.375] | Δticks -0.562 | ETA 1097.5h
+step    560 | T=2 | loss 15.5914 | lr 8.40e-05 | grad 3.34 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.250 11.000] | Δticks -0.250 | ETA 1103.8h
+step    570 | T=2 | loss 17.3460 | lr 8.55e-05 | grad 3.34 | 5.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.375 10.000] | Δticks -0.375 | ETA 1093.0h
+step    580 | T=2 | loss 22.7818 | lr 8.70e-05 | grad 3.19 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.938 10.688] | Δticks -0.250 | ETA 1099.9h
+step    590 | T=2 | loss 16.6414 | lr 8.85e-05 | grad 3.19 | 5.8k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.188 9.875] | Δticks -0.312 | ETA 1089.5h
+step    600 | T=2 | loss 19.7256 | lr 9.00e-05 | grad 3.86 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [11.062 10.750] | Δticks -0.312 | ETA 1095.8h
+step    610 | T=2 | loss 18.4199 | lr 9.15e-05 | grad 3.02 | 2.0k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.562 10.250] | Δticks -0.312 | ETA 1101.1h
+step    620 | T=2 | loss 16.2677 | lr 9.30e-05 | grad 3.02 | 5.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.438 10.125] | Δticks -0.312 | ETA 1091.1h
+step    630 | T=2 | loss 18.8025 | lr 9.45e-05 | grad 3.02 | 1.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.812 10.562] | Δticks -0.250 | ETA 1097.6h
+step    640 | T=2 | loss 15.9340 | lr 9.60e-05 | grad 3.06 | 1.7k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.000 9.688] | Δticks -0.312 | ETA 1107.0h
+step    650 | T=2 | loss 17.5295 | lr 9.75e-05 | grad 3.06 | 5.9k tok/s (avg 2.6k) | cert 0.02→0.02 | ticks [10.062 9.750] | Δticks -0.312 | ETA 1097.5h
+step    660 | T=2 | loss 18.4941 | lr 9.90e-05 | grad 3.59 | 1.8k tok/s (avg 2.6k) | cert 0.03→0.03 | ticks [9.125 8.812] | Δticks -0.312 | ETA 1104.3h
+step    670 | T=2 | loss 17.2514 | lr 1.00e-04 | grad 3.59 | 5.8k tok/s (avg 2.6k) | cert 0.03→0.03 | ticks [9.750 9.438] | Δticks -0.312 | ETA 1095.1h
+step    680 | T=2 | loss 15.2088 | lr 1.02e-04 | grad 3.56 | 1.8k tok/s (avg 2.6k) | cert 0.02→0.03 | ticks [9.875 9.562] | Δticks -0.312 | ETA 1101.9h
+step    690 | T=2 | loss 14.1548 | lr 1.03e-04 | grad 2.80 | 1.9k tok/s (avg 2.6k) | cert 0.03→0.04 | ticks [8.812 8.500] | Δticks -0.312 | ETA 1107.8h
+step    700 | T=2 | loss 17.6246 | lr 1.05e-04 | grad 2.80 | 5.8k tok/s (avg 2.6k) | cert 0.02→0.03 | ticks [10.625 10.375] | Δticks -0.250 | ETA 1098.9h
+step    710 | T=2 | loss 14.2774 | lr 1.07e-04 | grad 2.94 | 1.8k tok/s (avg 2.6k) | cert 0.02→0.03 | ticks [10.438 10.188] | Δticks -0.250 | ETA 1105.3h
+step    720 | T=2 | loss 19.0789 | lr 1.08e-04 | grad 2.84 | 2.0k tok/s (avg 2.6k) | cert 0.03→0.04 | ticks [10.062 9.812] | Δticks -0.250 | ETA 1110.2h
+step    730 | T=2 | loss 17.1118 | lr 1.09e-04 | grad 2.84 | 5.8k tok/s (avg 2.6k) | cert 0.03→0.04 | ticks [10.000 9.750] | Δticks -0.250 | ETA 1101.7h
+step    740 | T=2 | loss 17.2966 | lr 1.11e-04 | grad 2.58 | 1.9k tok/s (avg 2.6k) | cert 0.05→0.05 | ticks [8.688 8.375] | Δticks -0.312 | ETA 1107.4h
+step    750 | T=2 | loss 16.0446 | lr 1.12e-04 | grad 2.58 | 5.8k tok/s (avg 2.6k) | cert 0.03→0.04 | ticks [9.375 9.062] | Δticks -0.312 | ETA 1099.2h
+step    760 | T=2 | loss 15.6695 | lr 1.14e-04 | grad 3.34 | 1.9k tok/s (avg 2.6k) | cert 0.03→0.04 | ticks [10.125 9.875] | Δticks -0.250 | ETA 1104.8h
+step    770 | T=2 | loss 14.8837 | lr 1.15e-04 | grad 2.50 | 2.0k tok/s (avg 2.6k) | cert 0.04→0.05 | ticks [9.250 9.000] | Δticks -0.250 | ETA 1109.2h
+step    780 | T=2 | loss 17.6148 | lr 1.17e-04 | grad 2.50 | 5.8k tok/s (avg 2.6k) | cert 0.03→0.05 | ticks [9.250 9.000] | Δticks -0.250 | ETA 1101.2h
+step    790 | T=2 | loss 11.8051 | lr 1.18e-04 | grad 2.88 | 1.9k tok/s (avg 2.6k) | cert 0.07→0.08 | ticks [7.969 7.719] | Δticks -0.250 | ETA 1106.3h
+step    800 | T=2 | loss 17.3748 | lr 1.20e-04 | grad 2.78 | 1.9k tok/s (avg 2.6k) | cert 0.04→0.05 | ticks [9.625 9.375] | Δticks -0.250 | ETA 1111.4h
+step    810 | T=2 | loss 18.4666 | lr 1.21e-04 | grad 2.78 | 5.8k tok/s (avg 2.6k) | cert 0.05→0.07 | ticks [9.062 8.812] | Δticks -0.250 | ETA 1103.7h
+step    820 | T=2 | loss 15.4593 | lr 1.23e-04 | grad 2.36 | 1.8k tok/s (avg 2.6k) | cert 0.05→0.06 | ticks [9.625 9.375] | Δticks -0.250 | ETA 1109.2h
+step    830 | T=2 | loss 15.0194 | lr 1.24e-04 | grad 2.36 | 5.8k tok/s (avg 2.6k) | cert 0.04→0.06 | ticks [9.625 9.375] | Δticks -0.250 | ETA 1101.7h
+step    840 | T=2 | loss 15.0084 | lr 1.26e-04 | grad 2.12 | 1.8k tok/s (avg 2.6k) | cert 0.07→0.08 | ticks [8.438 8.250] | Δticks -0.188 | ETA 1107.4h
+step    850 | T=2 | loss 21.2064 | lr 1.28e-04 | grad 2.41 | 1.9k tok/s (avg 2.6k) | cert 0.08→0.10 | ticks [8.312 8.062] | Δticks -0.250 | ETA 1111.6h
+step    860 | T=2 | loss 18.7750 | lr 1.29e-04 | grad 2.41 | 5.8k tok/s (avg 2.6k) | cert 0.05→0.08 | ticks [8.875 8.562] | Δticks -0.312 | ETA 1104.4h
+step    870 | T=2 | loss 15.5974 | lr 1.30e-04 | grad 2.23 | 1.9k tok/s (avg 2.6k) | cert 0.05→0.08 | ticks [9.438 9.188] | Δticks -0.250 | ETA 1109.0h
+step    880 | T=2 | loss 12.4926 | lr 1.32e-04 | grad 2.12 | 2.0k tok/s (avg 2.6k) | cert 0.07→0.10 | ticks [8.875 8.625] | Δticks -0.250 | ETA 1112.8h
+step    890 | T=2 | loss 14.1391 | lr 1.33e-04 | grad 2.12 | 5.8k tok/s (avg 2.6k) | cert 0.09→0.12 | ticks [7.844 7.625] | Δticks -0.219 | ETA 1105.8h
+step    900 | T=2 | loss 12.7979 | lr 1.35e-04 | grad 2.58 | 1.9k tok/s (avg 2.6k) | cert 0.07→0.11 | ticks [9.000 8.750] | Δticks -0.250 | ETA 1110.2h
+step    910 | T=2 | loss 15.0466 | lr 1.36e-04 | grad 2.58 | 5.8k tok/s (avg 2.6k) | cert 0.08→0.12 | ticks [8.375 8.125] | Δticks -0.250 | ETA 1103.3h
+step    920 | T=2 | loss 15.8521 | lr 1.38e-04 | grad 2.00 | 1.9k tok/s (avg 2.6k) | cert 0.12→0.17 | ticks [7.312 7.031] | Δticks -0.281 | ETA 1107.8h
+step    930 | T=2 | loss 13.7083 | lr 1.39e-04 | grad 1.91 | 1.9k tok/s (avg 2.6k) | cert 0.10→0.15 | ticks [7.688 7.375] | Δticks -0.312 | ETA 1111.6h
+step    940 | T=2 | loss 14.7025 | lr 1.41e-04 | grad 1.91 | 5.8k tok/s (avg 2.6k) | cert 0.10→0.16 | ticks [7.375 7.062] | Δticks -0.312 | ETA 1105.0h
+step    950 | T=2 | loss 14.6725 | lr 1.42e-04 | grad 2.48 | 1.8k tok/s (avg 2.6k) | cert 0.12→0.17 | ticks [8.062 7.812] | Δticks -0.250 | ETA 1109.6h
+step    960 | T=2 | loss 12.6561 | lr 1.44e-04 | grad 1.85 | 1.9k tok/s (avg 2.6k) | cert 0.09→0.16 | ticks [8.938 8.688] | Δticks -0.250 | ETA 1113.5h
+step    970 | T=2 | loss 13.4440 | lr 1.45e-04 | grad 1.85 | 5.8k tok/s (avg 2.6k) | cert 0.10→0.17 | ticks [8.500 8.188] | Δticks -0.312 | ETA 1107.0h
+step    980 | T=2 | loss 13.3236 | lr 1.47e-04 | grad 1.93 | 1.8k tok/s (avg 2.6k) | cert 0.22→0.28 | ticks [6.219 5.875] | Δticks -0.344 | ETA 1111.4h
+step    990 | T=2 | loss 14.3943 | lr 1.49e-04 | grad 1.93 | 5.8k tok/s (avg 2.6k) | cert 0.12→0.18 | ticks [7.594 7.312] | Δticks -0.281 | ETA 1105.1h
+step   1000 | T=2 | loss 12.8563 | lr 1.50e-04 | grad 2.27 | 1.9k tok/s (avg 2.6k) | cert 0.14→0.21 | ticks [8.375 7.906] | Δticks -0.469 | ETA 1108.8h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 1000:
+  T=2 | CE=7.0012 | PPL=1097.95 | top1=12.8% | top5=28.5% | (25600 tok)
+step   1010 | T=2 | loss 14.0468 | lr 1.51e-04 | grad 2.12 | 1.1k tok/s (avg 2.5k) | cert 0.10→0.16 | ticks [8.188 7.656] | Δticks -0.531 | ETA 1123.6h
+step   1020 | T=2 | loss 13.3840 | lr 1.53e-04 | grad 2.12 | 5.8k tok/s (avg 2.5k) | cert 0.09→0.18 | ticks [8.750 8.312] | Δticks -0.438 | ETA 1117.3h
+step   1030 | T=2 | loss 14.5567 | lr 1.54e-04 | grad 1.78 | 1.8k tok/s (avg 2.5k) | cert 0.12→0.24 | ticks [7.938 7.438] | Δticks -0.500 | ETA 1121.9h
+step   1040 | T=2 | loss 14.1180 | lr 1.56e-04 | grad 1.85 | 1.8k tok/s (avg 2.5k) | cert 0.09→0.21 | ticks [8.875 8.375] | Δticks -0.500 | ETA 1126.0h
+step   1050 | T=2 | loss 12.3839 | lr 1.57e-04 | grad 1.85 | 5.8k tok/s (avg 2.5k) | cert 0.13→0.26 | ticks [7.219 6.688] | Δticks -0.531 | ETA 1120.0h
+

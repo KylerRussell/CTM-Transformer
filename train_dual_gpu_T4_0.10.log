@@ -1,0 +1,133 @@
+Spawning 2 workers...
+archlinux:1535463:1535463 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1535463:1535463 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1535463:1535463 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:1535463:1535463 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1535464:1535464 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1535464:1535464 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:1535464:1535464 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1535464:1535464 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1535463:1535463 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:1535464:1535464 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:1535463:1535463 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1535463:1535463 [0] NCCL INFO NET/IB : No device found.
+archlinux:1535463:1535463 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1535463:1535463 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1535463:1535463 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1535463:1535463 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:1535463:1535463 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1535463:1535463 [0] NCCL INFO Using network Socket
+archlinux:1535463:1535463 [0] NCCL INFO ncclCommInitRankConfig comm 0x562ffb01c120 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x6a92640861b5a080 - Init START
+archlinux:1535464:1535464 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1535464:1535464 [1] NCCL INFO NET/IB : No device found.
+archlinux:1535464:1535464 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1535464:1535464 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1535464:1535464 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1535464:1535464 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:1535464:1535464 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1535464:1535464 [1] NCCL INFO Using network Socket
+archlinux:1535464:1535464 [1] NCCL INFO ncclCommInitRankConfig comm 0x5560a1b4eb10 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x6a92640861b5a080 - Init START
+archlinux:1535464:1535464 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1535463:1535463 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1535464:1535464 [1] NCCL INFO Bootstrap timings total 0.000584 (create 0.000015, send 0.000080, recv 0.000074, ring 0.000014, delay 0.000000)
+archlinux:1535463:1535463 [0] NCCL INFO Bootstrap timings total 0.045480 (create 0.000015, send 0.000078, recv 0.044959, ring 0.000014, delay 0.000000)
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1535464:1535464 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1535463:1535463 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:1535464:1535464 [1] NCCL INFO comm 0x5560a1b4eb10 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:1535463:1535463 [0] NCCL INFO comm 0x562ffb01c120 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:1535463:1535463 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:1535464:1535464 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:1535463:1535463 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:1535464:1535464 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:1535463:1535463 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:1535463:1535463 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:1535464:1535464 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1535463:1535463 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1535463:1535555 [0] NCCL INFO [Proxy Service] Device 0 CPU core 22
+archlinux:1535464:1535556 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 1
+archlinux:1535463:1535557 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 1
+archlinux:1535464:1535554 [0] NCCL INFO [Proxy Service] Device 1 CPU core 13
+archlinux:1535463:1535463 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1535464:1535464 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1535464:1535464 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1535464:1535464 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1535463:1535463 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1535463:1535463 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1535463:1535463 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:1535463:1535463 [0] NCCL INFO ncclCommInitRankConfig comm 0x562ffb01c120 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x6a92640861b5a080 - Init COMPLETE
+archlinux:1535464:1535464 [1] NCCL INFO ncclCommInitRankConfig comm 0x5560a1b4eb10 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x6a92640861b5a080 - Init COMPLETE
+archlinux:1535463:1535463 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.12 (kernels 0.06, alloc 0.00, bootstrap 0.05, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+archlinux:1535464:1535464 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.12 (kernels 0.11, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+[worker 0] Building model on cuda:0...
+Model: 501.8M params × 2 workers
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1535463:1535463 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535463:1535463 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1535464:1535464 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1535464:1535464 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1535464:1535464 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:1535463:1535463 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments)
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 0 → 10000000
+  Batch: 2 × 512 tokens
+  Thought ticks: 8
+  Gradient checkpointing: True
+============================================================
+
+step      0 | T=4 | loss 20.2625 | lr 0.00e+00 | grad 0.00 | 0.6k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.938] | Δticks +0.000 | pc 1.065 (Δ+0.021) | gate 0.900 | |M| 0.3340 | lr_eff 0.100 | w_min 0.77 | dist 7.861 | ETA 4908.9h
+step     10 | T=4 | loss 18.1972 | lr 1.50e-06 | grad 0.00 | 2.9k tok/s (avg 1.9k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.998 (Δ+0.031) | gate 0.900 | |M| 0.3243 | lr_eff 0.100 | w_min 0.79 | dist 5.742 | ETA 1469.7h
+step     20 | T=4 | loss 20.8170 | lr 3.00e-06 | grad 28.00 | 1.4k tok/s (avg 1.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 1.057 (Δ-0.002) | gate 0.900 | |M| 0.4203 | lr_eff 0.100 | w_min 0.72 | dist 8.366 | ETA 1750.6h
+step     30 | T=4 | loss 21.8638 | lr 4.50e-06 | grad 28.00 | 2.9k tok/s (avg 1.9k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 11.938] | Δticks -0.062 | pc 0.998 (Δ-0.001) | gate 0.900 | |M| 0.3420 | lr_eff 0.100 | w_min 0.80 | dist 9.428 | ETA 1491.9h
+step     40 | T=4 | loss 19.5629 | lr 6.00e-06 | grad 28.62 | 1.5k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.875 11.875 11.875 11.875] | Δticks +0.000 | pc 1.020 (Δ-0.004) | gate 0.900 | |M| 0.3719 | lr_eff 0.100 | w_min 0.78 | dist 7.285 | ETA 1598.7h
+step     50 | T=4 | loss 17.2094 | lr 7.50e-06 | grad 24.12 | 1.5k tok/s (avg 1.7k) | cert 0.02→0.02 | ticks [12.062 12.000 12.000 12.000] | Δticks -0.062 | pc 0.993 (Δ+0.006) | gate 0.900 | |M| 0.3270 | lr_eff 0.100 | w_min 0.81 | dist 4.761 | ETA 1661.0h
+step     60 | T=4 | loss 20.3685 | lr 9.00e-06 | grad 24.12 | 2.9k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.938] | Δticks +0.000 | pc 1.019 (Δ-0.007) | gate 0.900 | |M| 0.3608 | lr_eff 0.100 | w_min 0.80 | dist 8.036 | ETA 1548.8h
+step     70 | T=4 | loss 22.2963 | lr 1.05e-05 | grad 21.00 | 1.5k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.938 11.875 11.875 11.875] | Δticks -0.062 | pc 1.002 (Δ-0.021) | gate 0.900 | |M| 0.3514 | lr_eff 0.100 | w_min 0.78 | dist 9.985 | ETA 1601.1h
+step     80 | T=4 | loss 17.8954 | lr 1.20e-05 | grad 17.62 | 1.6k tok/s (avg 1.7k) | cert 0.02→0.02 | ticks [11.938 11.875 11.875 11.938] | Δticks +0.000 | pc 0.970 (Δ+0.001) | gate 0.900 | |M| 0.3584 | lr_eff 0.100 | w_min 0.80 | dist 5.583 | ETA 1628.9h
+step     90 | T=4 | loss 17.7491 | lr 1.35e-05 | grad 17.62 | 2.8k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [12.000 11.938 11.938 12.000] | Δticks +0.000 | pc 0.991 (Δ-0.014) | gate 0.900 | |M| 0.3921 | lr_eff 0.100 | w_min 0.76 | dist 5.343 | ETA 1559.1h
+step    100 | T=4 | loss 22.2942 | lr 1.50e-05 | grad 14.25 | 1.5k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.938 11.875 11.812 11.875] | Δticks -0.062 | pc 0.975 (Δ+0.013) | gate 0.900 | |M| 0.4697 | lr_eff 0.100 | w_min 0.82 | dist 9.971 | ETA 1594.9h
+step    110 | T=4 | loss 24.6728 | lr 1.65e-05 | grad 14.25 | 2.8k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.875 11.812 11.750 11.812] | Δticks -0.062 | pc 0.968 (Δ-0.001) | gate 0.900 | |M| 0.4809 | lr_eff 0.100 | w_min 0.79 | dist 12.415 | ETA 1542.3h
+step    120 | T=4 | loss 20.4026 | lr 1.80e-05 | grad 14.00 | 1.5k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.875 11.812 11.812 11.812] | Δticks -0.062 | pc 0.949 (Δ-0.024) | gate 0.900 | |M| 0.3844 | lr_eff 0.100 | w_min 0.74 | dist 8.144 | ETA 1574.1h
+step    130 | T=4 | loss 22.8608 | lr 1.95e-05 | grad 14.62 | 1.4k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.938 11.812 11.812 11.875] | Δticks -0.062 | pc 0.939 (Δ-0.010) | gate 0.900 | |M| 0.3568 | lr_eff 0.100 | w_min 0.71 | dist 10.483 | ETA 1604.3h
+step    140 | T=4 | loss 21.0462 | lr 2.10e-05 | grad 14.62 | 2.8k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.875 11.750 11.750 11.812] | Δticks -0.062 | pc 0.939 (Δ-0.006) | gate 0.900 | |M| 0.3684 | lr_eff 0.100 | w_min 0.70 | dist 8.825 | ETA 1562.5h
+step    150 | T=4 | loss 20.2798 | lr 2.25e-05 | grad 14.38 | 1.5k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.812 11.688 11.688 11.750] | Δticks -0.062 | pc 0.941 (Δ+0.007) | gate 0.900 | |M| 0.3572 | lr_eff 0.100 | w_min 0.73 | dist 8.039 | ETA 1586.6h
+step    160 | T=4 | loss 19.4993 | lr 2.40e-05 | grad 14.56 | 1.4k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.938 11.875 11.812 11.875] | Δticks -0.062 | pc 0.921 (Δ-0.006) | gate 0.900 | |M| 0.3829 | lr_eff 0.100 | w_min 0.74 | dist 7.147 | ETA 1611.6h
+step    170 | T=4 | loss 17.2755 | lr 2.55e-05 | grad 14.56 | 2.8k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.812 11.688 11.625 11.750] | Δticks -0.062 | pc 0.853 (Δ-0.021) | gate 0.900 | |M| 0.4057 | lr_eff 0.100 | w_min 0.77 | dist 5.167 | ETA 1576.8h
+step    180 | T=4 | loss 22.2743 | lr 2.70e-05 | grad 12.62 | 1.4k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.938 11.812 11.750 11.812] | Δticks -0.125 | pc 0.904 (Δ-0.004) | gate 0.900 | |M| 0.4247 | lr_eff 0.100 | w_min 0.72 | dist 10.011 | ETA 1606.1h
+step    190 | T=4 | loss 23.4098 | lr 2.85e-05 | grad 12.62 | 2.8k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.812 11.688 11.625 11.688] | Δticks -0.125 | pc 0.874 (Δ+0.025) | gate 0.900 | |M| 0.4176 | lr_eff 0.100 | w_min 0.76 | dist 11.316 | ETA 1575.4h
+step    200 | T=4 | loss 21.7094 | lr 3.00e-05 | grad 12.00 | 1.6k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.812 11.625 11.562 11.625] | Δticks -0.188 | pc 0.857 (Δ-0.000) | gate 0.900 | |M| 0.4871 | lr_eff 0.100 | w_min 0.79 | dist 9.684 | ETA 1588.1h
+step    210 | T=4 | loss 24.5084 | lr 3.15e-05 | grad 9.38 | 1.5k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.750 11.562 11.500 11.625] | Δticks -0.125 | pc 0.932 (Δ-0.013) | gate 0.900 | |M| 0.6900 | lr_eff 0.100 | w_min 0.82 | dist 12.361 | ETA 1601.4h
+step    220 | T=4 | loss 18.2132 | lr 3.30e-05 | grad 9.38 | 2.8k tok/s (avg 1.8k) | cert 0.02→0.02 | ticks [11.938 11.938 11.875 11.938] | Δticks +0.000 | pc 0.852 (Δ+0.003) | gate 0.900 | |M| 0.3606 | lr_eff 0.100 | w_min 0.89 | dist 6.000 | ETA 1575.6h
