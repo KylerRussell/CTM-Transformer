@@ -29,11 +29,10 @@ from pathlib import Path
 import numpy as np
 from torch.utils.data import IterableDataset, get_worker_info
 
-# After consolidation, the model components and the AdaMuon optimizer live
-# in sibling modules. CTMConfig stays in config.py (unchanged).
+# After consolidation, the model components live in sibling modules.
+# CTMConfig stays in config.py (unchanged).
 from ctm_transformer.config import CTMConfig
-from ctm_transformer.model import CTMTransformer, EngramTable
-from ctm_transformer.extras import AdaMuon, build_param_groups
+from ctm_transformer.model import CTMTransformer
 from ctm_transformer.validation import (
     compute_validation_metrics,
     compute_validation_metrics_t_sweep,
@@ -584,34 +583,16 @@ def _parse_curriculum_stages(spec: str) -> list[tuple[int, float]]:
     return stages
 
 
-def _engram_table_param_ids(model: torch.nn.Module) -> set[int]:
-    """Return IDs of parameters owned (directly) by EngramTable modules.
-
-    These are the giant lookup tables that get the 5× LR / no-weight-decay
-    treatment per the Engram paper. Using id() identity rather than name
-    matching so wrapping/renaming the engram_table attribute doesn't break.
-    """
-    ids: set[int] = set()
-    for m in model.modules():
-        if isinstance(m, EngramTable):
-            for p in m.parameters(recurse=True):
-                ids.add(id(p))
-    return ids
-
-
 def _make_adamw(config: CTMConfig, params, **overrides):
     """Create an AdamW optimizer (or its 8-bit equivalent) from config.
 
     When `config.use_8bit_adam` is True, uses bitsandbytes' AdamW8bit
     (block-wise 8-bit quantization of the m and v moment buffers).
     Memory: ~1 byte per param vs 8 bytes for fp32 m+v. On a 200M model
-    that's ~2.8 GB of VRAM recovered. Per the bitsandbytes paper and
-    follow-up LLaMA-scale training work, no measurable accuracy
-    degradation when used as a drop-in replacement.
+    that's ~2.8 GB of VRAM recovered.
 
     Falls back to torch.optim.AdamW if bitsandbytes is requested but
-    not importable, with a loud warning — better to train at full
-    precision than to silently fail.
+    not importable, with a loud warning.
 
     Args:
         config: CTMConfig (reads use_8bit_adam, betas, lr, wd defaults).
@@ -635,8 +616,6 @@ def _make_adamw(config: CTMConfig, params, **overrides):
     try:
         import bitsandbytes as bnb
     except ImportError:
-        # Warn once per process — calling build_optimizers multiple times
-        # (e.g. in test loops or interactive sessions) shouldn't spam.
         if not getattr(_make_adamw, "_bnb_warned", False):
             print(
                 "WARNING: --use_8bit_adam set but `bitsandbytes` is not installed. "
@@ -647,9 +626,6 @@ def _make_adamw(config: CTMConfig, params, **overrides):
             _make_adamw._bnb_warned = True
         return torch.optim.AdamW(params, **kwargs)
 
-    # bitsandbytes' AdamW8bit signature matches torch.optim.AdamW exactly,
-    # so the same kwargs flow through. The block-wise quantization is
-    # automatic; no extra config needed.
     return bnb.optim.AdamW8bit(params, **kwargs)
 
 
@@ -657,98 +633,13 @@ def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.op
     """
     Build the optimizer list for training.
 
-    Returns a list of one or two optimizers:
-      * "adamw"   → [AdamW] over all parameters. When Engram is on, the
-                    Engram tables get their own param group with 5× LR
-                    (`engram_lr_mult`) and no weight decay.
-      * "adamuon" → [AdaMuon, AdamW] split via adamuon.build_param_groups
-                    (2D hidden weights to AdaMuon; 1D / embeddings / LM-head
-                    / >2D NLM stacks / Engram tables to AdamW). The AdamW
-                    optimizer holds two internal param groups when Engram
-                    is on: a "general" group at base LR, and an "engram"
-                    group at base LR × engram_lr_mult with weight_decay=0.
+    Returns a single-element list: [AdamW] over all trainable parameters.
 
-    Per-group LR scheduling: each param_group carries a custom `lr_mult`
-    field. The training loop multiplies the base LR by this when applying
-    the schedule (see train()).
-
-    When `config.use_8bit_adam` is True, the AdamW path(s) above use
-    bitsandbytes' AdamW8bit. AdaMuon stays in fp32 — it's already cheap
-    on memory (its V_t buffer mirrors the param shape only, no fp32 Adam
-    moments to compress) and bitsandbytes doesn't ship a Muon-shaped
-    8-bit variant.
+    When `config.use_8bit_adam` is True, uses bitsandbytes' AdamW8bit.
     """
-    engram_ids = _engram_table_param_ids(model) if config.use_engram else set()
+    opt = _make_adamw(config, model.parameters())
+    return [opt]
 
-    if config.optimizer == "adamw":
-        if engram_ids:
-            general_p = []
-            engram_p = []
-            for p in model.parameters():
-                if not p.requires_grad:
-                    continue
-                (engram_p if id(p) in engram_ids else general_p).append(p)
-            groups: list[dict] = [
-                {"params": general_p, "lr_mult": 1.0},
-            ]
-            if engram_p:
-                groups.append({
-                    "params": engram_p,
-                    "lr_mult": config.engram_lr_mult,
-                    "weight_decay": config.engram_weight_decay,
-                })
-            opt = _make_adamw(config, groups)
-        else:
-            opt = _make_adamw(config, model.parameters())
-        return [opt]
-
-    if config.optimizer == "adamuon":
-        muon_params, adamw_params = build_param_groups(model, verbose=False)
-
-        # Split the AdamW pool into general + engram-table groups so we can
-        # apply the paper's 5× LR / no-WD rule to the lookup tables only.
-        if engram_ids:
-            general_p = [p for p in adamw_params if id(p) not in engram_ids]
-            engram_p = [p for p in adamw_params if id(p) in engram_ids]
-        else:
-            general_p, engram_p = adamw_params, []
-
-        opts: list[torch.optim.Optimizer] = []
-        if muon_params:
-            opts.append(AdaMuon(
-                muon_params,
-                lr=config.learning_rate,
-                weight_decay=config.adamuon_weight_decay,
-                beta=config.adamuon_beta,
-                eps=config.adamuon_eps,
-                ns_steps=config.adamuon_ns_steps,
-                rms_target=config.adamuon_rms_target,
-            ))
-            # AdaMuon's single param-group wants an lr_mult so the scheduler
-            # treats it uniformly with everything else.
-            opts[-1].param_groups[0]["lr_mult"] = 1.0
-
-        adamw_groups: list[dict] = []
-        if general_p:
-            adamw_groups.append({"params": general_p, "lr_mult": 1.0})
-        if engram_p:
-            adamw_groups.append({
-                "params": engram_p,
-                "lr_mult": config.engram_lr_mult,
-                "weight_decay": config.engram_weight_decay,
-            })
-        if adamw_groups:
-            # Note the weight_decay override: when running with --optimizer adamuon,
-            # the global default WD comes from `adamuon_weight_decay` (paper-spec
-            # 0.1), not the standalone-AdamW `weight_decay` field.
-            opts.append(_make_adamw(config, adamw_groups,
-                                    weight_decay=config.adamuon_weight_decay))
-
-        if not opts:
-            raise RuntimeError("build_param_groups returned no parameters.")
-        return opts
-
-    raise ValueError(f"Unknown optimizer: {config.optimizer!r} (use 'adamw' or 'adamuon')")
 
 
 # ── Tokenizer ───────────────────────────────────────────────────────────
@@ -973,8 +864,8 @@ def save_checkpoint(model, optimizers, step, config, path, keep_last=3):
     """
     Save model checkpoint with rotation.
 
-    `optimizers` is a list — supports both single-optimizer (AdamW) and
-    dual-optimizer (AdaMuon + AdamW) setups. State dicts are stored under
+    `optimizers` is a list — supports single-optimizer (AdamW) setups.
+    State dicts are stored under
     `optimizer_state_dicts` (a list); the legacy single-optimizer key
     `optimizer_state_dict` is also written for backward-compatibility with
     older checkpoints loaded by external scripts.
@@ -1055,8 +946,8 @@ def load_checkpoint(model, optimizers, path, device):
             # Legacy single-optimizer checkpoint
             if len(optimizers) != 1:
                 raise RuntimeError(
-                    "Legacy single-optimizer checkpoint cannot be loaded "
-                    "into a multi-optimizer (AdaMuon) run."
+                "Legacy single-optimizer checkpoint cannot be loaded "
+                    "into a multi-optimizer run."
                 )
             optimizers[0].load_state_dict(ckpt["optimizer_state_dict"])
 
@@ -1607,8 +1498,7 @@ def train(
             return "AdamW (fp32)"
         # Detect whether the requested 8-bit version actually loaded
         # (could have fallen back to fp32 in _make_adamw on ImportError).
-        # opts[-1] is the AdamW companion when present, opts[0] otherwise.
-        last = optimizers[-1] if config.optimizer == "adamuon" else optimizers[0]
+        last = optimizers[0]
         cls = type(last).__name__
         return "AdamW8bit (bnb)" if cls == "AdamW8bit" else "AdamW (fp32, 8bit fallback)"
 
@@ -1617,17 +1507,12 @@ def train(
               f"({len(optimizers[0].param_groups)} param group(s))")
         for i, g in enumerate(optimizers[0].param_groups):
             mult = g.get("lr_mult", 1.0)
-            tag = "engram" if mult != 1.0 else "general"
-            print(f"  [{tag}] {_count_group(g)/1e6:.1f}M params, lr_mult={mult}")
+            print(f"  [{i}] {_count_group(g)/1e6:.1f}M params, lr_mult={mult}")
     else:
-        muon_n = sum(_count_group(g) for g in optimizers[0].param_groups)
-        adam_n = sum(_count_group(g) for g in optimizers[1].param_groups)
-        print(f"Optimizer: adamuon — {muon_n/1e6:.1f}M params on AdaMuon, "
-              f"{adam_n/1e6:.1f}M params on {_adam_label()} (embeddings/LM-head/1D/Engram)")
-        for i, g in enumerate(optimizers[1].param_groups):
-            mult = g.get("lr_mult", 1.0)
-            tag = "engram" if mult != 1.0 else "general"
-            print(f"  AdamW[{tag}] {_count_group(g)/1e6:.1f}M params, lr_mult={mult}")
+        print(f"Optimizer: multi-optimizer — {len(optimizers)} optimizers")
+        for oi, opt in enumerate(optimizers):
+            opt_n = sum(_count_group(g) for g in opt.param_groups)
+            print(f"  Optimizer[{oi}] ({type(opt).__name__}): {opt_n/1e6:.1f}M params")
 
     # ── Resume from checkpoint ──────────────────────────────────────────
     ckpt_dir = Path(config.checkpoint_dir)
@@ -2319,65 +2204,15 @@ def parse_args():
     # Optimizer
     opt_group = parser.add_argument_group("Optimizer")
     opt_group.add_argument("--optimizer", type=str, default="adamw",
-                           choices=["adamw", "adamuon"],
-                           help="Optimizer: 'adamw' (default) or 'adamuon' (sign-stabilized "
-                                "Muon with element-wise V_t and RMS alignment).")
-    opt_group.add_argument("--adamuon_beta", type=float, default=0.95,
-                           help="Shared β for AdaMuon's first/second momentum (paper default 0.95).")
-    opt_group.add_argument("--adamuon_eps", type=float, default=1e-8)
-    opt_group.add_argument("--adamuon_ns_steps", type=int, default=5,
-                           help="Newton-Schulz iterations for the polar factor.")
-    opt_group.add_argument("--adamuon_rms_target", type=float, default=0.2,
-                           help="Target update RMS after alignment (matches Adam's empirical norm).")
-    opt_group.add_argument("--adamuon_weight_decay", type=float, default=0.1,
-                           help="Weight decay for both AdaMuon and its AdamW companion (paper uses 0.1).")
+                           help="Optimizer: 'adamw' (default).")
     opt_group.add_argument("--weight_decay", type=float, default=0.01,
-                           help="Weight decay for plain --optimizer adamw (unused under adamuon).")
+                           help="Weight decay for AdamW.")
     opt_group.add_argument("--use_8bit_adam", action="store_true",
-                           help="Use bitsandbytes' AdamW8bit for the AdamW optimizer(s). "
+                           help="Use bitsandbytes' AdamW8bit for the AdamW optimizer. "
                                 "Cuts optimizer state memory ~8x with no measurable accuracy "
-                                "loss. Affects AdamW only; AdaMuon stays fp32. Requires "
-                                "`pip install bitsandbytes`.")
+                                "loss. Requires `pip install bitsandbytes`.")
 
-    # Engram (conditional memory)
-    engram_group = parser.add_argument_group("Engram")
-    engram_group.add_argument("--use_engram", action="store_true",
-                              help="Enable Engram conditional memory (hashed N-gram lookup).")
-    engram_group.add_argument("--engram_ngram_orders", type=int, nargs="+", default=[2, 3],
-                              help="N-gram orders to track (paper recommends [2, 3]).")
-    engram_group.add_argument("--engram_n_heads", type=int, default=8,
-                              help="K independent hash heads per order.")
-    engram_group.add_argument("--engram_slots_per_table", type=int, default=65521,
-                              help="M, slots per (order, head) table. Prime preferred. "
-                                   "Default 65521 = largest prime ≤ 2^16. "
-                                   "Total table params = len(orders) × n_heads × slots × d_head.")
-    engram_group.add_argument("--engram_d_head", type=int, default=64,
-                              help="Embedding dim per head (d_mem = orders × heads × d_head).")
-    engram_group.add_argument("--engram_layers", type=int, nargs="*", default=[],
-                              help="Layer indices where Engram fuses. Empty = auto: "
-                                   "{1, n_layers // 2} for n_layers ≥ 4, else {0}.")
-    engram_group.add_argument("--engram_no_conv", action="store_true",
-                              help="Skip the depthwise causal conv refinement (slight loss "
-                                   "per Fig 5 ablation; ~30%% fewer Engram fusion params).")
-    engram_group.add_argument("--engram_conv_kernel", type=int, default=4)
-    engram_group.add_argument("--engram_conv_dilation", type=int, default=3)
-    engram_group.add_argument("--engram_lr_mult", type=float, default=5.0,
-                              help="LR multiplier for Engram embedding tables (paper: 5×).")
-    engram_group.add_argument("--engram_weight_decay", type=float, default=0.0,
-                              help="Weight decay for Engram tables (paper: 0).")
 
-    # Ternary weight quantization (TWN)
-    tern_group = parser.add_argument_group("Ternary")
-    tern_group.add_argument("--use_ternary", action="store_true",
-                            help="Replace backbone nn.Linears with TernaryLinear "
-                                 "(weights ∈ {-α, 0, +α} during forward, fp32 latent "
-                                 "weight + STE backward). Excludes token_embedding, "
-                                 "LM head, NLM stacks. Training is ~10-30%% slower; "
-                                 "inference can pack to 2-bit for ~8× weight memory cut.")
-    tern_group.add_argument("--ternary_only_modules", type=str, nargs="*", default=[],
-                            help="Optional whitelist of subtree names to quantize "
-                                 "(e.g. 'synapse' or 'k_proj v_proj attn_out_proj'). "
-                                 "Empty = all eligible Linears.")
 
     # ── CTM-v2 Features ─────────────────────────────────────────────────
     v2_group = parser.add_argument_group("CTM-v2 Features")
@@ -2625,24 +2460,6 @@ def main():
         adam_beta1=args.adam_beta1 if hasattr(args, 'adam_beta1') else 0.9,
         adam_beta2=args.adam_beta2 if hasattr(args, 'adam_beta2') else 0.95,
         use_8bit_adam=args.use_8bit_adam,
-        adamuon_beta=args.adamuon_beta,
-        adamuon_eps=args.adamuon_eps,
-        adamuon_ns_steps=args.adamuon_ns_steps,
-        adamuon_rms_target=args.adamuon_rms_target,
-        adamuon_weight_decay=args.adamuon_weight_decay,
-        use_engram=args.use_engram,
-        engram_ngram_orders=args.engram_ngram_orders,
-        engram_n_heads=args.engram_n_heads,
-        engram_slots_per_table=args.engram_slots_per_table,
-        engram_d_head=args.engram_d_head,
-        engram_layers=args.engram_layers,
-        engram_use_conv=not args.engram_no_conv,
-        engram_conv_kernel=args.engram_conv_kernel,
-        engram_conv_dilation=args.engram_conv_dilation,
-        engram_lr_mult=args.engram_lr_mult,
-        engram_weight_decay=args.engram_weight_decay,
-        use_ternary=args.use_ternary,
-        ternary_only_modules=args.ternary_only_modules,
         # CTM-v2 features
         use_feec=args.use_feec,
         feec_dt_init=args.feec_dt_init,
@@ -3174,23 +2991,6 @@ def main_multi_gpu():
         adam_beta1=getattr(args, 'adam_beta1', 0.9),
         adam_beta2=getattr(args, 'adam_beta2', 0.95),
         use_8bit_adam=args.use_8bit_adam,
-        adamuon_beta=args.adamuon_beta, adamuon_eps=args.adamuon_eps,
-        adamuon_ns_steps=args.adamuon_ns_steps,
-        adamuon_rms_target=args.adamuon_rms_target,
-        adamuon_weight_decay=args.adamuon_weight_decay,
-        use_engram=args.use_engram,
-        engram_ngram_orders=args.engram_ngram_orders,
-        engram_n_heads=args.engram_n_heads,
-        engram_slots_per_table=args.engram_slots_per_table,
-        engram_d_head=args.engram_d_head,
-        engram_layers=args.engram_layers,
-        engram_use_conv=not args.engram_no_conv,
-        engram_conv_kernel=args.engram_conv_kernel,
-        engram_conv_dilation=args.engram_conv_dilation,
-        engram_lr_mult=args.engram_lr_mult,
-        engram_weight_decay=args.engram_weight_decay,
-        use_ternary=args.use_ternary,
-        ternary_only_modules=args.ternary_only_modules,
         use_feec=args.use_feec,
         feec_dt_init=args.feec_dt_init,
         feec_damping_init=args.feec_damping_init,

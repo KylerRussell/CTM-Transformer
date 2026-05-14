@@ -90,9 +90,9 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --hebbian_force_gate 0.9 \
     --use_predictive_coding \
     --pc_target next_tick \
-    --pc_loss_weight 0.10 \
+    --pc_loss_weight 0.05 \
     --pc_tick_aggregation all \
     --use_prospective_config \
     --prospective_beta 2.0 \
-    > train_dual_gpu_T4_0.10.log 2>&1 &
+    > train_dual_gpu_T4_test.log 2>&1 &
 echo "Dual-GPU Training PID: $!"

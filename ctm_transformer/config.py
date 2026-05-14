@@ -143,49 +143,7 @@ class CTMConfig:
     # ── Synapse ─────────────────────────────────────────────────────────
     synapse_type: str = "mlp"          # "mlp" or "unet"
 
-    # ── Ternary Weight Quantization (optional, paper-faithful TWN) ──────
-    # Master switch. When False, all backbone Linears are standard nn.Linear.
-    use_ternary: bool = False
-    # Which subtrees to quantize. Only Linears under these module names are
-    # eligible (after the never-quantize skip list of token_embedding /
-    # output_proj / nlm). Empty = no whitelist; quantize everything eligible.
-    # Recommended default: leave empty so all backbone projections are
-    # quantized but the small / boundary-precision-critical layers are skipped.
-    ternary_only_modules: list[str] = field(default_factory=list)
 
-
-    # Master switch. When False, all Engram fields below are ignored and
-    # the model is identical to the original CTM-Transformer.
-    use_engram: bool = False
-    # N-gram orders to track. Paper recommends [2, 3]; ablation in Fig 5
-    # shows 4-grams hurt at fixed memory budget (capacity dilution).
-    engram_ngram_orders: list[int] = field(default_factory=lambda: [2, 3])
-    # K independent hash heads per order. Mitigates collision bias.
-    engram_n_heads: int = 8
-    # M, slots per (order, head) table. Prime preferred. Defaults give a
-    # ~64K-slot table (16-bit indexing space), which keeps the total table
-    # small enough to fit on a consumer GPU even with d_head=64. Scale up
-    # via --engram_slots_per_table for larger memory budgets.
-    engram_slots_per_table: int = 65521         # largest prime ≤ 2^16
-    # Per-head embedding dim. Concatenated d_mem = len(orders)·n_heads·d_head.
-    # Default: matches d_model/n_heads to keep the projection matrix square-ish.
-    engram_d_head: int = 64
-    # ID used to left-pad short suffixes at sequence start.
-    engram_bos_id: int = 0
-    # Layer indices where Engram fuses into the thought loop. Empty = auto:
-    # for n_layers ≥ 4, picks {1, n_layers // 2} (paper-style early + mid),
-    # else just {0} (single early injection).
-    engram_layers: list[int] = field(default_factory=list)
-    # Depthwise causal conv: kernel size and dilation (paper Eq. 5).
-    # Set use_conv=False to skip it (slight loss per Fig 5 ablation, ~30% fewer engram params).
-    engram_use_conv: bool = True
-    engram_conv_kernel: int = 4
-    engram_conv_dilation: int = 3               # = max N-gram order
-    # Engram embedding LR multiplier. Paper uses 5× the backbone LR with no
-    # weight decay — the lookup tables are sparsely-updated and benefit from
-    # a more aggressive step on the rows that actually receive gradient.
-    engram_lr_mult: float = 5.0
-    engram_weight_decay: float = 0.0
 
     # ── Training ────────────────────────────────────────────────────────
     batch_size: int = 4
@@ -212,24 +170,14 @@ class CTMConfig:
     log_interval: int = 50            # Steps between logging
 
     # ── Optimizer ───────────────────────────────────────────────────────
-    optimizer: str = "adamw"           # "adamw" or "adamuon"
-    # AdamW betas (used as the AdamW group when optimizer="adamuon" too).
+    optimizer: str = "adamw"
+    # AdamW betas.
     adam_beta1: float = 0.9
     adam_beta2: float = 0.95
     # 8-bit AdamW via bitsandbytes. Cuts AdamW state memory ~8× (fp32 m+v
     # → quantized 8-bit blocks) with no measurable accuracy loss on
     # transformer-shaped models. On a 200M model that's ~2.8 GB recovered.
-    # Affects the AdamW path(s) in build_optimizers; AdaMuon stays in fp32.
     use_8bit_adam: bool = False
-    # AdaMuon hyperparameters (paper defaults).
-    adamuon_beta: float = 0.95         # shared β for first/second momentum
-    adamuon_eps: float = 1e-8          # variance denominator floor
-    adamuon_ns_steps: int = 5          # Newton-Schulz iterations
-    adamuon_rms_target: float = 0.2    # target update RMS (matches Adam)
-    # Per-paper, AdaMuon and its AdamW companion both use wd=0.1. Keeping
-    # this as a separate knob since the user's existing AdamW default is
-    # 0.01 and we don't want to silently change AdamW-only behavior.
-    adamuon_weight_decay: float = 0.1
 
     # ── Temporal Loss ───────────────────────────────────────────────────
     temporal_loss_type: str = "ramp_mono" # "ramp_mono" or "dynamic_aggregate"
@@ -652,29 +600,7 @@ class CTMConfig:
             return "cuda"
         return "cpu"
 
-    @property
-    def engram_d_mem(self) -> int:
-        """Total Engram lookup output dim: len(orders) × n_heads × d_head."""
-        return len(self.engram_ngram_orders) * self.engram_n_heads * self.engram_d_head
 
-    def resolve_engram_layers(self) -> list[int]:
-        """Resolve `engram_layers`: explicit list or auto-pick {1, n_layers//2}.
-
-        Auto rule: paper places Engram at layers [2, 15] of a 30-layer model
-        — early + mid. We map this to {1, n_layers // 2} for any n_layers ≥ 4
-        (the smallest depth where mid is meaningfully different from early).
-        For shallower models we collapse to a single early layer.
-        """
-        if self.engram_layers:
-            for l in self.engram_layers:
-                if l < 0 or l >= self.n_layers:
-                    raise ValueError(
-                        f"engram_layers contains {l}, outside [0, n_layers={self.n_layers})"
-                    )
-            return sorted(set(self.engram_layers))
-        if self.n_layers >= 4:
-            return [1, self.n_layers // 2]
-        return [0]
 
     def resolve_thought_steps(self, step: int) -> int:
         """Return the T value for the current training step under curriculum.

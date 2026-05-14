@@ -13,7 +13,7 @@ top-level modules:
     train.py    — training script (single-GPU, torchrun-DDP, and dual-GPU
                   mp.spawn modes); also bundles PhaseTimer and
                   CachedTeacherDataset since they're training-side tools
-    extras.py   — opt-in helpers: AdaMuon optimizer + CTMCPUOffloadEngine
+    extras.py   — opt-in helpers: CTMCPUOffloadEngine
 
 Public re-exports below mirror the old per-file imports so existing
 external code that did `from ctm_transformer import CTMTransformer` keeps
@@ -22,7 +22,6 @@ modules directly:
 
     from ctm_transformer.model import CTMTransformer, ThoughtLayer
     from ctm_transformer.config import CTMConfig
-    from ctm_transformer.extras import AdaMuon
 """
 
 from ctm_transformer.config import CTMConfig
@@ -43,11 +42,6 @@ from ctm_transformer.model import (
     MatrixResidualStream,
     # FEEC integrator
     FEECIntegrator,
-    # Engram conditional memory
-    EngramTable,
-    EngramProjection,
-    EngramGate,
-    compute_ngram_indices,
     # Dual-Space Sparse Attention
     SparseStateExpansion,
     MixtureOfBlockAttention,
@@ -58,18 +52,9 @@ from ctm_transformer.model import (
     triton_causal_attention,
     CUDAGraphThoughtLoop,
     compute_tiled_schedule,
-    # Ternary weight quantization
-    TernaryLinear,
-    ternarize,
-    pack_ternary,
-    unpack_ternary,
-    replace_linears_with_ternary,
 )
 
 from ctm_transformer.extras import (
-    AdaMuon,
-    build_param_groups,
-    newton_schulz5,
     CTMCPUOffloadEngine,
 )
 
@@ -98,10 +83,6 @@ __all__ = [
     "NeuronLevelModels",
     "MatrixResidualStream",
     "FEECIntegrator",
-    "EngramTable",
-    "EngramProjection",
-    "EngramGate",
-    "compute_ngram_indices",
     "SparseStateExpansion",
     "MixtureOfBlockAttention",
     "DualSpaceSparseAttention",
@@ -110,15 +91,7 @@ __all__ = [
     "triton_causal_attention",
     "CUDAGraphThoughtLoop",
     "compute_tiled_schedule",
-    "TernaryLinear",
-    "ternarize",
-    "pack_ternary",
-    "unpack_ternary",
-    "replace_linears_with_ternary",
     # Extras
-    "AdaMuon",
-    "build_param_groups",
-    "newton_schulz5",
     "CTMCPUOffloadEngine",
     # Biological
     "HebbianSynapse",
