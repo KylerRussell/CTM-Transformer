@@ -345,118 +345,59 @@ def _logit(p: float) -> float:
 
 class CerebellarReadout(nn.Module):
     """
-    Per-tick "cerebellar" predictor of the teacher's hidden state.
+    Per-tick "cerebellar" projector of the target into latent space.
 
-    At thought tick t, this module takes the student's current latent z_t
-    and produces a prediction zhat_{t+1} of what z_{t+1} *should* look
-    like in the teacher's representation space. The prediction error
-    between zhat and the actual teacher hidden state (supplied via
-    teacher_z) becomes a local auxiliary loss. Crucially, this gradient
-    short-circuits BPTT: it flows into the layer parameters that produced
-    z_t directly, rather than only via the final-tick LM loss.
-
-    This is "Predictive Coding" in the Rao-Ballard / Friston sense, but
-    along the *temporal* axis of the CTM's thought loop rather than the
-    *spatial* axis of cortical layers. The CTM's recurrence makes this
-    swap natural: each tick is an opportunity to refine the prediction.
-
-    Predictor architecture: a small MLP, kept intentionally cheap (this
-    is anatomically "cerebellar" — a thin pattern-completing feedforward
-    path, not a deep recurrent module).
+    Under Prospective Configuration, this module is repurposed. Instead of
+    predicting the teacher from the student, it projects the target token
+    (or teacher state) into the latent space. This projected representation
+    acts as the top-down prior (mu_L) that clamps the highest predictive
+    coding layer during the inference phase, driving the network toward a
+    prospective configuration.
 
     Args:
-        d_latent: Student latent width (input to the predictor).
-        target_dim: Dimension of the target. Equal to `teacher_d_model`
-            when predicting teacher hidden states; equal to `d_latent`
-            when predicting the student's own future latents (intrinsic
-            PC, no teacher needed).
-        hidden_dim: Predictor hidden width (default 2× d_latent).
-        normalize: If "layernorm", LayerNorm both sides before computing
-            error (recommended for cross-architecture distillation).
-            If "none", use raw MSE.
-        loss_type: "mse" or "cosine".
+        target_dim: Dimension of the target.
+        d_latent: Student latent width (output of the projector).
+        hidden_dim: Predictor hidden width (default 2× target_dim).
         dropout: Predictor dropout.
     """
 
     def __init__(
         self,
-        d_latent: int,
         target_dim: int,
+        d_latent: int,
         hidden_dim: Optional[int] = None,
-        normalize: str = "layernorm",
-        loss_type: str = "cosine",
         dropout: float = 0.0,
     ):
         super().__init__()
         self.d_latent = d_latent
         self.target_dim = target_dim
-        # Back-compat alias: legacy code/tests check for `teacher_d_model`.
-        # The semantic role of target_dim is "whatever the predictor
-        # outputs"; for the teacher-target mode it's literally
-        # teacher_d_model. Exposing both names costs nothing.
         self.teacher_d_model = target_dim
-        self.loss_type = loss_type
-        self.normalize = normalize
 
         if hidden_dim is None:
-            hidden_dim = max(2 * d_latent, target_dim)
+            hidden_dim = max(2 * target_dim, d_latent)
 
-        # Predictor: maps current student z_t into the target space.
-        # Two layers with GELU + dropout — cheap, single hidden.
+        # Predictor: maps target into the latent space.
         self.predictor = nn.Sequential(
-            nn.Linear(d_latent, hidden_dim),
+            nn.Linear(target_dim, hidden_dim),
             nn.GELU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, target_dim),
+            nn.Linear(hidden_dim, d_latent),
         )
 
-        if normalize == "layernorm":
-            self.student_norm = nn.LayerNorm(target_dim, elementwise_affine=False)
-            self.teacher_norm = nn.LayerNorm(target_dim, elementwise_affine=False)
-        else:
-            self.student_norm = None
-            self.teacher_norm = None
-
-        # Init the final layer to small weights so the predictor starts
-        # near zero — the auxiliary loss is then dominated by the
-        # teacher_norm output until the predictor learns. Prevents the
-        # PC term from drowning the LM loss at init.
         nn.init.normal_(self.predictor[-1].weight, std=0.01)
         nn.init.zeros_(self.predictor[-1].bias)
 
     def forward(
         self,
-        z_t: torch.Tensor,
         target: torch.Tensor,
     ) -> torch.Tensor:
         """
-        Compute the prediction error for one tick.
+        Project target into the latent space.
 
         Args:
-            z_t: [B, S, d_latent] — student latent at current tick.
-            target: [B, S, target_dim] — the thing to be predicted.
-                Caller decides the semantics: teacher hidden state, the
-                student's own next-tick latent (detached), etc.
+            target: [B, S, target_dim]
 
         Returns:
-            Scalar tensor: per-tick prediction error (mean over B, S).
+            Projected state: [B, S, d_latent]
         """
-        zhat = self.predictor(z_t)  # [B, S, target_dim]
-
-        if self.student_norm is not None:
-            zhat_n = self.student_norm(zhat.float())
-            tgt_n = self.teacher_norm(target.float())
-        else:
-            zhat_n = zhat.float()
-            tgt_n = target.float()
-
-        if self.loss_type == "cosine":
-            # 1 - cos_sim. Magnitude-invariant; the right default when
-            # student and teacher come from different architectures, same
-            # logic as distill_feature_method="cosine".
-            cos = F.cosine_similarity(zhat_n, tgt_n, dim=-1)
-            err = (1.0 - cos).mean()
-        else:
-            err = F.mse_loss(zhat_n, tgt_n)
-
-        return err
+        return self.predictor(target)

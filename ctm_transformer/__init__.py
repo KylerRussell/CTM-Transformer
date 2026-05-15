@@ -63,6 +63,11 @@ from ctm_transformer.biological import (
     CerebellarReadout,
 )
 
+from ctm_transformer.predictive_coding import (
+    PCLayer,
+    PCStateManager,
+)
+
 from ctm_transformer.validation import (
     compute_validation_metrics,
     compute_validation_metrics_t_sweep,
@@ -96,6 +101,9 @@ __all__ = [
     # Biological
     "HebbianSynapse",
     "CerebellarReadout",
+    # Predictive Coding
+    "PCLayer",
+    "PCStateManager",
     # Validation
     "compute_validation_metrics",
     "compute_validation_metrics_t_sweep",

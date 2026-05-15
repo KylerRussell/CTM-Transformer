@@ -80,14 +80,21 @@ def compute_validation_metrics(
     model.eval()
 
     # ── Resolve T ──────────────────────────────────────────────────
+    prospective_active = getattr(config, "use_prospective_config", False)
     if max_thought_steps is None:
-        unwrapped = _unwrap_model(model)
-        if hasattr(unwrapped, "_train_step") and hasattr(config, "resolve_thought_steps"):
-            T = config.resolve_thought_steps(int(unwrapped._train_step.item()))
+        if prospective_active:
+            T = None
+            T_label = "dyn"
         else:
-            T = config.max_thought_steps
+            unwrapped = _unwrap_model(model)
+            if hasattr(unwrapped, "_train_step") and hasattr(config, "resolve_thought_steps"):
+                T = config.resolve_thought_steps(int(unwrapped._train_step.item()))
+            else:
+                T = config.max_thought_steps
+            T_label = str(T)
     else:
         T = max_thought_steps
+        T_label = str(T)
 
     device_type = (
         device.type if isinstance(device, torch.device)
@@ -168,7 +175,7 @@ def compute_validation_metrics(
         "ppl": ppl,
         "n_tokens": total_tokens_for_ce,
         "n_batches": n_batches,
-        "T": T,
+        "T": T_label,
     }
     if total_tokens_for_align > 0:
         out["top1_agree"] = total_top1_correct / total_tokens_for_align
@@ -239,7 +246,7 @@ def format_t_sweep_report(t_sweep: dict, prefix: str = "  ") -> str:
         top1 = f"{m['top1_agree']*100:.1f}%" if not math.isnan(m["top1_agree"]) else "  n/a"
         top5 = f"{m['topk_agree']*100:.1f}%" if not math.isnan(m["topk_agree"]) else "  n/a"
         lines.append(
-            prefix + f"{T:>4d}  {m['ce_loss']:>8.4f}  {m['ppl']:>8.2f}  "
+            prefix + f"{str(T):>4s}  {m['ce_loss']:>8.4f}  {m['ppl']:>8.2f}  "
             f"{top1:>7s}  {top5:>7s}"
         )
     return "\n".join(lines)

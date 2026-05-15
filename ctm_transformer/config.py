@@ -179,39 +179,14 @@ class CTMConfig:
     # transformer-shaped models. On a 200M model that's ~2.8 GB recovered.
     use_8bit_adam: bool = False
 
-    # ── Temporal Loss ───────────────────────────────────────────────────
-    temporal_loss_type: str = "ramp_mono" # "ramp_mono" or "dynamic_aggregate"
-    # Linear ramp weights across thought ticks. ramp_start < ramp_end means
-    # later ticks contribute more to the gradient — pressures the model to
-    # prioritize getting later ticks right, breaking the symmetry that
-    # otherwise lets "produce identical output at every tick" win.
-    # Defaults give a 3x ramp (last tick weighted 3x more than first).
-    tick_ramp_start: float = 0.5
-    tick_ramp_end: float = 1.5
-    # Monotonicity penalty: ReLU(loss[t+1] - loss[t]) — punishes ticks that
-    # are *worse* than their predecessor. One-sided, so improvements are
-    # free. 0.5 is a moderate setting; raise to 1.0+ to enforce strict
-    # monotonic refinement, lower to 0.1 to merely discourage regression.
-    mono_penalty_weight: float = 0.5
-    # Mono-penalty decay schedule. The penalty is helpful early in training
-    # (when the model could otherwise collapse to "all ticks identical")
-    # but becomes counterproductive at steady state — it forces the model
-    # to maintain strict no-regression on every batch, including noise-
-    # induced single-tick wobbles, making the model conservative ("better
-    # to pin all later ticks to step 1's output than risk a tiny
-    # regression"). Decaying the penalty lets the model explore more
-    # aggressive refinement once basic differentiation is established.
-    #
-    # Schedule: linear decay from `mono_penalty_weight` to
-    # `mono_penalty_weight * mono_penalty_min_frac` over the first
-    # `mono_penalty_decay_until_frac` of max_steps, then constant at the
-    # floor. Set decay_until_frac=0 to disable decay (penalty stays at
-    # the full weight forever).
-    mono_penalty_min_frac: float = 0.1     # floor as fraction of base weight
-    mono_penalty_decay_until_frac: float = 0.3   # decay over first 30% of max_steps
-
     # Legacy fields kept for backward compatibility with old checkpoints
     # that may reference them. Not used by the new temporal loss.
+    temporal_loss_type: str = "ramp_mono" # [DEPRECATED]
+    tick_ramp_start: float = 0.5       # [DEPRECATED]
+    tick_ramp_end: float = 1.5         # [DEPRECATED]
+    mono_penalty_weight: float = 0.5   # [DEPRECATED]
+    mono_penalty_min_frac: float = 0.1 # [DEPRECATED]
+    mono_penalty_decay_until_frac: float = 0.3 # [DEPRECATED]
     aux_loss_weight: float = 0.1       # [DEPRECATED]
     min_loss_weight: float = 0.5       # [DEPRECATED]
     max_cert_weight: float = 0.5       # [DEPRECATED]
@@ -483,40 +458,30 @@ class CTMConfig:
     hebbian_update_rule: str = "outer_product"
 
     # ── Prospective Configuration ───────────────────────────────────────
-    # Biologically motivated: in real neural circuits, learning is gated
-    # by stability — synapses update strongly only when the recurrent
-    # activity has settled into a steady state, not while it's still
-    # transitioning. This prevents the network from learning transient
-    # noise.
+    # Biologically motivated Expectation-Maximization (EM) training.
+    # 
+    # Replaces Backpropagation Through Time (BPTT). When enabled:
+    # 1. Inference Phase: The neural activities relax into an equilibrium
+    #    state that accounts for the target outcome (clamped top layer).
+    #    Weights are frozen during this phase. Loop terminates when energy
+    #    stabilizes (rel_delta < inference_energy_tol).
+    # 2. Learning Phase: Synaptic weights are updated to consolidate the
+    #    new activity pattern using purely local gradients evaluated at
+    #    the steady-state prospective configuration.
     #
-    # Implementation: we use FEEC energy as a settling signal. At each
-    # tick t > 0, compute relative energy change |E_t - E_{t-1}| / E_t.
-    # Map this to a per-tick stability weight w_t = exp(-beta * rel_delta).
-    # When energy is changing fast (loop not settled), w_t is small and
-    # that tick's loss contribution is downweighted. When energy is
-    # stable, w_t ≈ 1 and the loss flows normally.
-    #
-    # Crucially this multiplies the LOSS, not the gradient — autograd
-    # still works end-to-end, gradient checkpointing still applies,
-    # multi-GPU allreduce still applies. No `.backward()` inside the
-    # loop, no detach, no broken BPTT. The weight is a coefficient
-    # applied to each per-tick CE loss before temporal aggregation.
-    #
-    # Requires use_feec=True (we need per-tick energy values). When
-    # use_feec=False, the flag has no effect.
-    #
-    # Composes orthogonally with temporal_loss_type:
-    #   - dynamic_aggregate: stability-weights are applied to per-tick
-    #     losses before the lowest-loss / highest-certainty selection,
-    #     so unsettled ticks are less likely to be chosen as the
-    #     "best tick" for the model to learn from.
-    #   - ramp: stability-weights multiply the existing linear ramp.
+    # Requires use_feec=True.
     use_prospective_config: bool = False
-    prospective_beta: float = 2.0           # Higher = more aggressive
-                                            # downweighting of unsettled ticks.
-                                            # 0 disables (uniform weights).
-                                            # 2.0 means a 50% energy change
-                                            # gives weight exp(-1) ≈ 0.37.
+    
+    # Maximum steps allowed in the inference loop. Should be set very high
+    # (e.g. 1000) as inference relies on energy stabilization to terminate,
+    # but provides a safety bound against floating point divergence.
+    max_inference_steps: int = 1000
+    
+    # Threshold for energy stabilization (tau). The inference loop terminates
+    # when the relative change in FEEC energy drops below this value.
+    inference_energy_tol: float = 1e-4
+    
+    prospective_beta: float = 2.0           # [DEPRECATED]
     # Certainty-modulated learning rate ("neurochemical modulation"):
     # When > 0, the Hebbian outer-product update is scaled per-position
     # by (1 + alpha * uncertainty), where uncertainty = 1 - certainty at
@@ -568,6 +533,31 @@ class CTMConfig:
     #   "early" — first floor(T/2) ticks (focus the predictor on early refinement)
     #   "last"  — final tick only (equivalent to feature-distillation, mostly here for ablation)
     pc_tick_aggregation: str = "all"
+
+    # ── Hierarchical Predictive Coding (Mechanism 1) ─────────────────────
+    # Formalizes the thought loop as iterative free-energy minimization
+    # over a deep generative hierarchy. T thought ticks become T inference
+    # iterations of a predictive coding network where each layer predicts
+    # the layer below, and only prediction errors propagate upward.
+    #
+    # Requires use_matrix_streams=True. When enabled, n_streams is
+    # automatically doubled (half value μ, half error ε channels).
+    #
+    # Gradient locality: all weight updates use fully local rules with
+    # .detach() at layer boundaries. At the PC fixed point, these local
+    # gradients equal backprop (Millidge et al., Neural Computation 2022).
+    #
+    # The existing CerebellarReadout (use_predictive_coding) is subsumed:
+    # the top-layer PC error against teacher_z IS the predictive-coding
+    # signal. Both can coexist but are redundant.
+    pure_pc_mode: bool = False                  # Detach z between thought ticks to disable BPTT
+    use_hierarchical_pc: bool = False           # Master switch
+    hpc_inference_lr: float = 0.1               # η in μ ← μ − η·(ε − Wᵀε)
+    hpc_generative_type: str = "mlp"            # "mlp" or "unet"
+    hpc_generative_hidden_dim: int = 0          # 0 → auto (2 × d_latent)
+    hpc_error_as_loss_weight: bool = True        # Weight per-tick CE by mean precision
+    hpc_local_loss_weight: float = 0.1           # Weight of local PC losses in total
+    hpc_pc_n_streams: int = 8                    # Streams when PC enabled (4μ + 4ε)
 
     @property
     def sync_dim(self) -> int:

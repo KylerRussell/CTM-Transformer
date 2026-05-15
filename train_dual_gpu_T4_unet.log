@@ -1,0 +1,264 @@
+Spawning 2 workers...
+archlinux:1591304:1591304 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1591304:1591304 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1591304:1591304 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:1591304:1591304 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1591305:1591305 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1591305:1591305 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:1591305:1591305 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1591305:1591305 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1591304:1591304 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:1591305:1591305 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:1591304:1591304 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1591304:1591304 [0] NCCL INFO NET/IB : No device found.
+archlinux:1591304:1591304 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1591304:1591304 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1591304:1591304 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1591304:1591304 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:1591304:1591304 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1591304:1591304 [0] NCCL INFO Using network Socket
+archlinux:1591304:1591304 [0] NCCL INFO ncclCommInitRankConfig comm 0x5578785b1060 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x707509673e25a8ee - Init START
+archlinux:1591305:1591305 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1591305:1591305 [1] NCCL INFO NET/IB : No device found.
+archlinux:1591305:1591305 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1591305:1591305 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1591305:1591305 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1591305:1591305 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:1591305:1591305 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1591305:1591305 [1] NCCL INFO Using network Socket
+archlinux:1591305:1591305 [1] NCCL INFO ncclCommInitRankConfig comm 0x55d1b21a3600 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x707509673e25a8ee - Init START
+archlinux:1591305:1591305 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1591304:1591304 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1591305:1591305 [1] NCCL INFO Bootstrap timings total 0.000591 (create 0.000013, send 0.000078, recv 0.000091, ring 0.000022, delay 0.000000)
+archlinux:1591304:1591304 [0] NCCL INFO Bootstrap timings total 0.053823 (create 0.000018, send 0.000071, recv 0.053319, ring 0.000015, delay 0.000000)
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1591305:1591305 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1591304:1591304 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:1591305:1591305 [1] NCCL INFO comm 0x55d1b21a3600 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:1591304:1591304 [0] NCCL INFO comm 0x5578785b1060 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:1591304:1591304 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:1591305:1591305 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:1591304:1591304 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:1591305:1591305 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:1591304:1591304 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:1591304:1591304 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:1591305:1591305 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1591304:1591304 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1591305:1591403 [0] NCCL INFO [Proxy Service] Device 1 CPU core 5
+archlinux:1591304:1591404 [0] NCCL INFO [Proxy Service] Device 0 CPU core 16
+archlinux:1591304:1591406 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 14
+archlinux:1591305:1591405 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 24
+archlinux:1591304:1591304 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1591304:1591304 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1591304:1591304 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1591305:1591305 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1591305:1591305 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1591305:1591305 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1591304:1591304 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:1591305:1591305 [1] NCCL INFO ncclCommInitRankConfig comm 0x55d1b21a3600 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x707509673e25a8ee - Init COMPLETE
+archlinux:1591304:1591304 [0] NCCL INFO ncclCommInitRankConfig comm 0x5578785b1060 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x707509673e25a8ee - Init COMPLETE
+archlinux:1591305:1591305 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.12 (kernels 0.11, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+archlinux:1591304:1591304 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.12 (kernels 0.06, alloc 0.00, bootstrap 0.05, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+[worker 0] Building model on cuda:0...
+Model: 559.4M params × 2 workers
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1591304:1591304 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591304:1591304 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1591305:1591305 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1591305:1591305 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1591304:1591304 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:1591305:1591305 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments)
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 0 → 10000000
+  Batch: 2 × 512 tokens
+  Thought ticks: 8
+  Gradient checkpointing: True
+============================================================
+
+step      0 | T=4 | loss 21.1179 | lr 0.00e+00 | grad 0.00 | 0.3k tok/s (avg 0.3k) | cert 0.02→0.02 | ticks [12.000 11.938 11.938 12.000] | Δticks +0.000 | pc 0.976 (Δ+0.034) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.4589 | lr_eff 0.100 | w_min 0.75 | dist 8.156 | ETA 8257.8h
+step     10 | T=4 | loss 21.2205 | lr 1.50e-06 | grad 0.00 | 0.8k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.062 12.062 12.062 12.062] | Δticks +0.000 | pc 0.989 (Δ+0.005) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.4071 | lr_eff 0.100 | w_min 0.80 | dist 8.236 | ETA 4401.0h
+step     20 | T=4 | loss 20.0221 | lr 3.00e-06 | grad 9.38 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.062 12.125 12.125 12.062] | Δticks +0.000 | pc 1.002 (Δ-0.027) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.3749 | lr_eff 0.100 | w_min 0.84 | dist 7.016 | ETA 5072.6h
+step     30 | T=4 | loss 21.2812 | lr 4.50e-06 | grad 9.38 | 0.8k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.983 (Δ-0.006) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.3975 | lr_eff 0.100 | w_min 0.80 | dist 8.343 | ETA 4593.0h
+step     40 | T=4 | loss 17.7081 | lr 6.00e-06 | grad 8.94 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 12.000 12.000 11.938] | Δticks +0.000 | pc 0.980 (Δ-0.006) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.3080 | lr_eff 0.100 | w_min 0.80 | dist 4.879 | ETA 4830.9h
+step     50 | T=4 | loss 20.1974 | lr 7.50e-06 | grad 8.88 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.984 (Δ-0.020) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.3979 | lr_eff 0.100 | w_min 0.80 | dist 7.291 | ETA 4977.9h
+step     60 | T=4 | loss 22.8674 | lr 9.00e-06 | grad 8.88 | 0.8k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 11.938] | Δticks -0.062 | pc 0.972 (Δ+0.013) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.4660 | lr_eff 0.100 | w_min 0.79 | dist 9.956 | ETA 4762.0h
+step     70 | T=4 | loss 21.4818 | lr 1.05e-05 | grad 7.78 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.930 (Δ-0.001) | hpc_loss 5.375 | F 5.375 | gate 0.900 | |M| 0.4300 | lr_eff 0.100 | w_min 0.78 | dist 8.607 | ETA 4883.8h
+step     80 | T=4 | loss 23.7714 | lr 1.20e-05 | grad 7.66 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.947 (Δ+0.019) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.4519 | lr_eff 0.100 | w_min 0.78 | dist 10.923 | ETA 5006.2h
+step     90 | T=4 | loss 21.5823 | lr 1.35e-05 | grad 7.66 | 0.8k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.938] | Δticks +0.000 | pc 0.989 (Δ-0.035) | hpc_loss 5.375 | F 5.375 | gate 0.900 | |M| 0.3652 | lr_eff 0.100 | w_min 0.81 | dist 8.783 | ETA 4867.8h
+step    100 | T=4 | loss 19.0497 | lr 1.50e-05 | grad 9.81 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.962 (Δ+0.009) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.4831 | lr_eff 0.100 | w_min 0.78 | dist 6.154 | ETA 4940.0h
+step    110 | T=4 | loss 20.0298 | lr 1.65e-05 | grad 9.81 | 0.8k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.062 12.062 12.062 12.062] | Δticks +0.000 | pc 0.991 (Δ-0.010) | hpc_loss 5.375 | F 5.375 | gate 0.900 | |M| 0.3661 | lr_eff 0.100 | w_min 0.83 | dist 7.099 | ETA 4835.3h
+step    120 | T=4 | loss 21.6640 | lr 1.80e-05 | grad 11.94 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.932 (Δ-0.065) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.3735 | lr_eff 0.100 | w_min 0.81 | dist 8.787 | ETA 4882.0h
+step    130 | T=4 | loss 20.9672 | lr 1.95e-05 | grad 10.81 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 11.938 11.938 11.938] | Δticks -0.062 | pc 0.934 (Δ-0.029) | hpc_loss 5.500 | F 5.469 | gate 0.900 | |M| 0.4263 | lr_eff 0.100 | w_min 0.79 | dist 8.063 | ETA 4920.8h
+step    140 | T=4 | loss 19.6453 | lr 2.10e-05 | grad 10.81 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.945 (Δ-0.066) | hpc_loss 5.625 | F 5.625 | gate 0.900 | |M| 0.3132 | lr_eff 0.100 | w_min 0.83 | dist 6.659 | ETA 4841.5h
+step    150 | T=4 | loss 18.1394 | lr 2.25e-05 | grad 8.19 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.962 (Δ-0.055) | hpc_loss 5.625 | F 5.625 | gate 0.900 | |M| 0.3382 | lr_eff 0.100 | w_min 0.84 | dist 5.128 | ETA 4878.1h
+step    160 | T=4 | loss 21.7506 | lr 2.40e-05 | grad 8.56 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.938] | Δticks +0.000 | pc 0.891 (Δ-0.057) | hpc_loss 5.625 | F 5.625 | gate 0.900 | |M| 0.4283 | lr_eff 0.100 | w_min 0.80 | dist 8.847 | ETA 4913.1h
+step    170 | T=4 | loss 20.4609 | lr 2.55e-05 | grad 8.56 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.938] | Δticks +0.000 | pc 0.897 (Δ-0.044) | hpc_loss 5.656 | F 5.656 | gate 0.900 | |M| 0.4128 | lr_eff 0.100 | w_min 0.84 | dist 7.529 | ETA 4849.5h
+step    180 | T=4 | loss 20.2473 | lr 2.70e-05 | grad 8.56 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.875 11.875] | Δticks -0.062 | pc 0.902 (Δ-0.042) | hpc_loss 5.719 | F 5.719 | gate 0.900 | |M| 0.4222 | lr_eff 0.100 | w_min 0.73 | dist 7.312 | ETA 4878.6h
+step    190 | T=4 | loss 21.8645 | lr 2.85e-05 | grad 8.56 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.875 11.875 11.875] | Δticks -0.062 | pc 0.933 (Δ-0.044) | hpc_loss 5.688 | F 5.688 | gate 0.900 | |M| 0.4407 | lr_eff 0.100 | w_min 0.77 | dist 8.917 | ETA 4823.7h
+step    200 | T=4 | loss 21.8491 | lr 3.00e-05 | grad 8.06 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.875 11.875] | Δticks -0.062 | pc 0.888 (Δ-0.036) | hpc_loss 5.688 | F 5.688 | gate 0.900 | |M| 0.4589 | lr_eff 0.100 | w_min 0.67 | dist 9.004 | ETA 4851.7h
+step    210 | T=4 | loss 20.8501 | lr 3.15e-05 | grad 7.47 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.000 12.000 12.000 12.000] | Δticks +0.000 | pc 0.887 (Δ-0.064) | hpc_loss 5.719 | F 5.688 | gate 0.900 | |M| 0.4295 | lr_eff 0.100 | w_min 0.67 | dist 7.860 | ETA 4881.9h
+step    220 | T=4 | loss 22.4355 | lr 3.30e-05 | grad 7.47 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.938] | Δticks +0.000 | pc 0.873 (Δ-0.049) | hpc_loss 5.688 | F 5.688 | gate 0.900 | |M| 0.4670 | lr_eff 0.100 | w_min 0.64 | dist 9.515 | ETA 4833.7h
+step    230 | T=4 | loss 21.8961 | lr 3.45e-05 | grad 9.50 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.875 11.812 11.812 11.750] | Δticks -0.125 | pc 0.840 (Δ-0.057) | hpc_loss 5.750 | F 5.719 | gate 0.900 | |M| 0.4440 | lr_eff 0.100 | w_min 0.63 | dist 9.032 | ETA 4862.1h
+step    240 | T=4 | loss 20.3697 | lr 3.60e-05 | grad 10.81 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [12.062 12.062 12.000 12.000] | Δticks -0.062 | pc 0.852 (Δ-0.062) | hpc_loss 5.750 | F 5.750 | gate 0.900 | |M| 0.4891 | lr_eff 0.100 | w_min 0.68 | dist 7.292 | ETA 4889.6h
+step    250 | T=4 | loss 25.1816 | lr 3.75e-05 | grad 10.81 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.875 11.875 11.812 11.812] | Δticks -0.062 | pc 0.825 (Δ-0.080) | hpc_loss 5.625 | F 5.656 | gate 0.900 | |M| 0.6324 | lr_eff 0.100 | w_min 0.63 | dist 12.334 | ETA 4846.4h
+step    260 | T=4 | loss 20.9063 | lr 3.90e-05 | grad 8.81 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.875] | Δticks -0.062 | pc 0.866 (Δ-0.088) | hpc_loss 5.875 | F 5.875 | gate 0.900 | |M| 0.3994 | lr_eff 0.100 | w_min 0.73 | dist 7.896 | ETA 4871.4h
+step    270 | T=4 | loss 19.8200 | lr 4.05e-05 | grad 8.81 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.875 11.812 11.812 11.750] | Δticks -0.125 | pc 0.822 (Δ-0.076) | hpc_loss 5.844 | F 5.875 | gate 0.900 | |M| 0.4937 | lr_eff 0.100 | w_min 0.67 | dist 6.949 | ETA 4832.4h
+step    280 | T=4 | loss 23.2663 | lr 4.20e-05 | grad 7.19 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.875 11.875 11.875 11.812] | Δticks -0.062 | pc 0.824 (Δ-0.098) | hpc_loss 5.875 | F 5.906 | gate 0.900 | |M| 0.4951 | lr_eff 0.100 | w_min 0.61 | dist 10.321 | ETA 4850.7h
+step    290 | T=4 | loss 18.1052 | lr 4.35e-05 | grad 7.28 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.875 11.875] | Δticks -0.062 | pc 0.847 (Δ-0.091) | hpc_loss 5.938 | F 5.938 | gate 0.900 | |M| 0.4274 | lr_eff 0.100 | w_min 0.64 | dist 5.071 | ETA 4868.0h
+step    300 | T=4 | loss 26.6388 | lr 4.50e-05 | grad 7.28 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.812 11.812 11.812 11.812] | Δticks +0.000 | pc 0.783 (Δ-0.087) | hpc_loss 6.000 | F 6.000 | gate 0.900 | |M| 0.4358 | lr_eff 0.100 | w_min 0.62 | dist 13.715 | ETA 4832.9h
+step    310 | T=4 | loss 27.8143 | lr 4.65e-05 | grad 7.09 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.875 11.875 11.875 11.875] | Δticks +0.000 | pc 0.794 (Δ-0.072) | hpc_loss 5.938 | F 5.938 | gate 0.900 | |M| 0.4426 | lr_eff 0.100 | w_min 0.57 | dist 14.943 | ETA 4847.6h
+step    320 | T=4 | loss 19.4166 | lr 4.80e-05 | grad 6.59 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.688 11.688 11.688 11.625] | Δticks -0.062 | pc 0.749 (Δ-0.074) | hpc_loss 5.969 | F 6.000 | gate 0.900 | |M| 0.4897 | lr_eff 0.100 | w_min 0.55 | dist 6.707 | ETA 4862.0h
+step    330 | T=4 | loss 21.2509 | lr 4.95e-05 | grad 6.59 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.688 11.688 11.625 11.562] | Δticks -0.125 | pc 0.740 (Δ-0.086) | hpc_loss 5.969 | F 6.000 | gate 0.900 | |M| 0.5324 | lr_eff 0.100 | w_min 0.54 | dist 8.538 | ETA 4830.0h
+step    340 | T=4 | loss 19.5921 | lr 5.10e-05 | grad 9.00 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.750 11.750 11.750 11.688] | Δticks -0.062 | pc 0.752 (Δ-0.088) | hpc_loss 5.938 | F 5.969 | gate 0.900 | |M| 0.4702 | lr_eff 0.100 | w_min 0.59 | dist 6.750 | ETA 4843.7h
+step    350 | T=4 | loss 19.5968 | lr 5.25e-05 | grad 9.00 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.875 11.938 11.938 11.938] | Δticks +0.062 | pc 0.748 (Δ-0.078) | hpc_loss 5.938 | F 5.938 | gate 0.900 | |M| 0.4436 | lr_eff 0.100 | w_min 0.59 | dist 6.635 | ETA 4814.9h
+step    360 | T=4 | loss 21.9344 | lr 5.40e-05 | grad 8.88 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.875] | Δticks -0.062 | pc 0.759 (Δ-0.072) | hpc_loss 5.969 | F 5.969 | gate 0.900 | |M| 0.4405 | lr_eff 0.100 | w_min 0.62 | dist 8.953 | ETA 4829.4h
+step    370 | T=4 | loss 19.4851 | lr 5.55e-05 | grad 9.00 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.875 11.938 11.938 11.875] | Δticks +0.000 | pc 0.726 (Δ-0.065) | hpc_loss 6.062 | F 6.062 | gate 0.900 | |M| 0.4961 | lr_eff 0.100 | w_min 0.68 | dist 6.419 | ETA 4844.3h
+step    380 | T=4 | loss 21.9837 | lr 5.70e-05 | grad 9.00 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.938 11.875] | Δticks -0.062 | pc 0.736 (Δ-0.079) | hpc_loss 6.062 | F 6.062 | gate 0.900 | |M| 0.5445 | lr_eff 0.100 | w_min 0.68 | dist 8.857 | ETA 4817.7h
+step    390 | T=4 | loss 25.7865 | lr 5.85e-05 | grad 6.38 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.625 11.688 11.688 11.688] | Δticks +0.062 | pc 0.715 (Δ-0.054) | hpc_loss 6.219 | F 6.188 | gate 0.900 | |M| 0.4558 | lr_eff 0.100 | w_min 0.70 | dist 12.889 | ETA 4829.3h
+step    400 | T=4 | loss 21.2386 | lr 6.00e-05 | grad 6.16 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.812 11.812 11.812 11.812] | Δticks +0.000 | pc 0.685 (Δ-0.038) | hpc_loss 6.250 | F 6.219 | gate 0.900 | |M| 0.4093 | lr_eff 0.100 | w_min 0.67 | dist 8.181 | ETA 4840.8h
+step    410 | T=4 | loss 18.6227 | lr 6.15e-05 | grad 6.16 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.812 11.875 11.812 11.812] | Δticks +0.000 | pc 0.685 (Δ-0.049) | hpc_loss 6.219 | F 6.219 | gate 0.900 | |M| 0.4908 | lr_eff 0.100 | w_min 0.65 | dist 5.547 | ETA 4816.0h
+step    420 | T=4 | loss 24.6898 | lr 6.30e-05 | grad 6.09 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.625 11.688 11.688 11.625] | Δticks +0.000 | pc 0.652 (Δ-0.044) | hpc_loss 6.219 | F 6.219 | gate 0.900 | |M| 0.4454 | lr_eff 0.100 | w_min 0.60 | dist 11.780 | ETA 4827.3h
+step    430 | T=4 | loss 19.2726 | lr 6.45e-05 | grad 6.09 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.500 11.562 11.562 11.500] | Δticks +0.000 | pc 0.660 (Δ-0.041) | hpc_loss 6.219 | F 6.219 | gate 0.900 | |M| 0.4968 | lr_eff 0.100 | w_min 0.58 | dist 6.549 | ETA 4804.3h
+step    440 | T=4 | loss 19.4034 | lr 6.60e-05 | grad 5.91 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.750 11.812 11.812 11.750] | Δticks +0.000 | pc 0.617 (Δ-0.052) | hpc_loss 6.156 | F 6.156 | gate 0.900 | |M| 0.5175 | lr_eff 0.100 | w_min 0.52 | dist 6.542 | ETA 4816.7h
+step    450 | T=4 | loss 18.0318 | lr 6.75e-05 | grad 7.22 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.938 11.938 11.875 11.875] | Δticks -0.062 | pc 0.582 (Δ-0.067) | hpc_loss 6.000 | F 6.000 | gate 0.900 | |M| 0.5369 | lr_eff 0.100 | w_min 0.55 | dist 5.026 | ETA 4827.3h
+step    460 | T=4 | loss 28.3668 | lr 6.90e-05 | grad 7.22 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.438 11.500 11.500 11.438] | Δticks +0.000 | pc 0.581 (Δ-0.071) | hpc_loss 6.000 | F 6.000 | gate 0.900 | |M| 0.5352 | lr_eff 0.100 | w_min 0.55 | dist 15.788 | ETA 4805.9h
+step    470 | T=4 | loss 21.7200 | lr 7.05e-05 | grad 6.88 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.750 11.750 11.750 11.688] | Δticks -0.062 | pc 0.544 (Δ-0.075) | hpc_loss 6.000 | F 6.000 | gate 0.900 | |M| 0.4811 | lr_eff 0.100 | w_min 0.62 | dist 8.851 | ETA 4819.8h
+step    480 | T=4 | loss 21.4153 | lr 7.20e-05 | grad 7.25 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.375 11.375 11.438 11.375] | Δticks +0.000 | pc 0.526 (Δ-0.093) | hpc_loss 6.062 | F 6.062 | gate 0.900 | |M| 0.5778 | lr_eff 0.100 | w_min 0.64 | dist 8.859 | ETA 4830.0h
+step    490 | T=4 | loss 22.7405 | lr 7.35e-05 | grad 7.25 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.562 11.625 11.625 11.562] | Δticks +0.000 | pc 0.518 (Δ-0.089) | hpc_loss 6.062 | F 6.062 | gate 0.900 | |M| 0.5344 | lr_eff 0.100 | w_min 0.66 | dist 9.997 | ETA 4809.7h
+step    500 | T=4 | loss 19.0539 | lr 7.50e-05 | grad 4.72 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.625 11.688 11.688 11.688] | Δticks +0.062 | pc 0.499 (Δ-0.061) | hpc_loss 6.219 | F 6.219 | gate 0.900 | |M| 0.4704 | lr_eff 0.100 | w_min 0.73 | dist 6.151 | ETA 4819.5h
+step    510 | T=4 | loss 18.0947 | lr 7.65e-05 | grad 4.72 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.625 11.688 11.688 11.625] | Δticks +0.000 | pc 0.497 (Δ-0.067) | hpc_loss 6.250 | F 6.219 | gate 0.900 | |M| 0.4752 | lr_eff 0.100 | w_min 0.72 | dist 5.188 | ETA 4800.3h
+step    520 | T=4 | loss 22.5683 | lr 7.80e-05 | grad 4.34 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.312 11.438 11.438 11.375] | Δticks +0.062 | pc 0.472 (Δ-0.063) | hpc_loss 6.250 | F 6.250 | gate 0.900 | |M| 0.6469 | lr_eff 0.100 | w_min 0.70 | dist 9.914 | ETA 4809.5h
+step    530 | T=4 | loss 22.1696 | lr 7.95e-05 | grad 4.62 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.625 11.688 11.750 11.688] | Δticks +0.062 | pc 0.420 (Δ-0.040) | hpc_loss 6.438 | F 6.438 | gate 0.900 | |M| 0.5097 | lr_eff 0.100 | w_min 0.60 | dist 9.186 | ETA 4818.3h
+step    540 | T=4 | loss 20.0094 | lr 8.10e-05 | grad 4.62 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.250 11.375 11.375 11.312] | Δticks +0.062 | pc 0.417 (Δ-0.040) | hpc_loss 6.406 | F 6.406 | gate 0.900 | |M| 0.5674 | lr_eff 0.100 | w_min 0.60 | dist 7.401 | ETA 4799.7h
+step    550 | T=4 | loss 22.8175 | lr 8.25e-05 | grad 4.12 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.375 11.438 11.500 11.438] | Δticks +0.062 | pc 0.377 (Δ-0.029) | hpc_loss 6.438 | F 6.438 | gate 0.900 | |M| 0.4906 | lr_eff 0.100 | w_min 0.52 | dist 10.125 | ETA 4808.9h
+step    560 | T=4 | loss 17.9547 | lr 8.40e-05 | grad 7.03 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.750 10.875 10.938 10.875] | Δticks +0.125 | pc 0.339 (Δ-0.039) | hpc_loss 6.250 | F 6.250 | gate 0.900 | |M| 0.4786 | lr_eff 0.100 | w_min 0.49 | dist 5.981 | ETA 4818.0h
+step    570 | T=4 | loss 32.6003 | lr 8.55e-05 | grad 7.03 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.375 11.500 11.500 11.500] | Δticks +0.125 | pc 0.340 (Δ-0.053) | hpc_loss 6.250 | F 6.250 | gate 0.900 | |M| 0.5509 | lr_eff 0.100 | w_min 0.49 | dist 19.996 | ETA 4800.3h
+step    580 | T=4 | loss 24.3108 | lr 8.70e-05 | grad 5.72 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.438 11.500 11.562 11.500] | Δticks +0.062 | pc 0.315 (Δ-0.065) | hpc_loss 6.031 | F 6.062 | gate 0.900 | |M| 0.5070 | lr_eff 0.100 | w_min 0.55 | dist 11.731 | ETA 4809.0h
+step    590 | T=4 | loss 21.5550 | lr 8.85e-05 | grad 5.72 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.312 11.375 11.375 11.312] | Δticks +0.000 | pc 0.310 (Δ-0.065) | hpc_loss 6.062 | F 6.062 | gate 0.900 | |M| 0.4922 | lr_eff 0.100 | w_min 0.55 | dist 9.099 | ETA 4792.3h
+step    600 | T=4 | loss 18.0327 | lr 9.00e-05 | grad 4.75 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.750 11.812 11.812 11.750] | Δticks +0.000 | pc 0.306 (Δ-0.080) | hpc_loss 5.938 | F 5.938 | gate 0.900 | |M| 0.5059 | lr_eff 0.100 | w_min 0.66 | dist 5.169 | ETA 4800.6h
+step    610 | T=4 | loss 19.5550 | lr 9.15e-05 | grad 4.81 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.250 11.375 11.438 11.375] | Δticks +0.125 | pc 0.301 (Δ-0.064) | hpc_loss 6.000 | F 6.000 | gate 0.900 | |M| 0.4606 | lr_eff 0.100 | w_min 0.77 | dist 7.145 | ETA 4808.8h
+step    620 | T=4 | loss 19.1820 | lr 9.30e-05 | grad 4.81 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.562 11.688 11.688 11.625] | Δticks +0.062 | pc 0.299 (Δ-0.065) | hpc_loss 6.000 | F 6.000 | gate 0.900 | |M| 0.4897 | lr_eff 0.100 | w_min 0.74 | dist 6.470 | ETA 4792.9h
+step    630 | T=4 | loss 20.2458 | lr 9.45e-05 | grad 3.06 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.625 11.688 11.750 11.688] | Δticks +0.062 | pc 0.280 (Δ-0.042) | hpc_loss 6.125 | F 6.125 | gate 0.900 | |M| 0.5139 | lr_eff 0.100 | w_min 0.80 | dist 7.387 | ETA 4800.9h
+step    640 | T=4 | loss 18.9826 | lr 9.60e-05 | grad 3.39 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.688 10.875 10.938 10.875] | Δticks +0.188 | pc 0.263 (Δ-0.022) | hpc_loss 6.250 | F 6.250 | gate 0.900 | |M| 0.4832 | lr_eff 0.100 | w_min 0.76 | dist 7.002 | ETA 4808.9h
+step    650 | T=4 | loss 18.5755 | lr 9.75e-05 | grad 3.39 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.500 11.625 11.688 11.625] | Δticks +0.125 | pc 0.262 (Δ-0.021) | hpc_loss 6.250 | F 6.250 | gate 0.900 | |M| 0.4336 | lr_eff 0.100 | w_min 0.74 | dist 5.801 | ETA 4793.5h
+step    660 | T=4 | loss 18.3472 | lr 9.90e-05 | grad 3.44 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.500 10.688 10.750 10.750] | Δticks +0.250 | pc 0.231 (Δ-0.009) | hpc_loss 6.375 | F 6.375 | gate 0.900 | |M| 0.4429 | lr_eff 0.100 | w_min 0.62 | dist 6.544 | ETA 4801.0h
+step    670 | T=4 | loss 19.4876 | lr 1.00e-04 | grad 3.44 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.312 11.500 11.562 11.500] | Δticks +0.188 | pc 0.230 (Δ-0.008) | hpc_loss 6.344 | F 6.344 | gate 0.900 | |M| 0.4754 | lr_eff 0.100 | w_min 0.63 | dist 6.813 | ETA 4786.7h
+step    680 | T=4 | loss 25.8919 | lr 1.02e-04 | grad 3.33 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.875 11.000 11.125 11.125] | Δticks +0.250 | pc 0.197 (Δ-0.004) | hpc_loss 6.406 | F 6.406 | gate 0.900 | |M| 0.5167 | lr_eff 0.100 | w_min 0.53 | dist 13.715 | ETA 4793.9h
+step    690 | T=4 | loss 18.0866 | lr 1.03e-04 | grad 5.06 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.000 11.125 11.250 11.250] | Δticks +0.250 | pc 0.177 (Δ-0.016) | hpc_loss 6.281 | F 6.250 | gate 0.900 | |M| 0.4676 | lr_eff 0.100 | w_min 0.47 | dist 5.813 | ETA 4801.0h
+step    700 | T=4 | loss 18.1270 | lr 1.05e-04 | grad 5.06 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.625 11.688 11.688 11.688] | Δticks +0.062 | pc 0.177 (Δ-0.018) | hpc_loss 6.281 | F 6.281 | gate 0.900 | |M| 0.4783 | lr_eff 0.100 | w_min 0.47 | dist 5.319 | ETA 4787.3h
+step    710 | T=4 | loss 18.2273 | lr 1.07e-04 | grad 4.50 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.438 11.500 11.562 11.562] | Δticks +0.125 | pc 0.168 (Δ-0.051) | hpc_loss 6.031 | F 6.031 | gate 0.900 | |M| 0.5277 | lr_eff 0.100 | w_min 0.48 | dist 5.692 | ETA 4795.5h
+step    720 | T=4 | loss 20.6956 | lr 1.08e-04 | grad 3.59 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.438 11.500 11.500 11.500] | Δticks +0.062 | pc 0.185 (Δ-0.108) | hpc_loss 5.781 | F 5.781 | gate 0.900 | |M| 0.6029 | lr_eff 0.100 | w_min 0.60 | dist 8.231 | ETA 4803.9h
+step    730 | T=4 | loss 18.3453 | lr 1.09e-04 | grad 3.59 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.500 10.562 10.562 10.562] | Δticks +0.062 | pc 0.189 (Δ-0.109) | hpc_loss 5.750 | F 5.781 | gate 0.900 | |M| 0.5440 | lr_eff 0.100 | w_min 0.61 | dist 6.825 | ETA 4790.4h
+step    740 | T=4 | loss 25.8463 | lr 1.11e-04 | grad 3.38 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.062 11.125 11.125 11.125] | Δticks +0.062 | pc 0.232 (Δ-0.150) | hpc_loss 5.656 | F 5.656 | gate 0.900 | |M| 0.6593 | lr_eff 0.100 | w_min 0.79 | dist 13.770 | ETA 4797.6h
+step    750 | T=4 | loss 19.2862 | lr 1.12e-04 | grad 3.38 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.688 10.750 10.812 10.750] | Δticks +0.062 | pc 0.241 (Δ-0.126) | hpc_loss 5.625 | F 5.656 | gate 0.900 | |M| 0.4957 | lr_eff 0.100 | w_min 0.84 | dist 7.613 | ETA 4784.8h
+step    760 | T=4 | loss 19.4327 | lr 1.14e-04 | grad 3.23 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.375 10.500 10.562 10.500] | Δticks +0.125 | pc 0.290 (Δ-0.079) | hpc_loss 5.688 | F 5.688 | gate 0.900 | |M| 0.5234 | lr_eff 0.100 | w_min 0.66 | dist 8.033 | ETA 4791.5h
+step    770 | T=4 | loss 19.7718 | lr 1.15e-04 | grad 2.55 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.875 11.000 11.062 11.000] | Δticks +0.125 | pc 0.292 (Δ-0.008) | hpc_loss 5.875 | F 5.875 | gate 0.900 | |M| 0.5165 | lr_eff 0.100 | w_min 0.75 | dist 7.765 | ETA 4797.8h
+step    780 | T=4 | loss 22.5733 | lr 1.17e-04 | grad 2.55 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.125 11.188 11.250 11.188] | Δticks +0.062 | pc 0.292 (Δ-0.009) | hpc_loss 5.906 | F 5.875 | gate 0.900 | |M| 0.5101 | lr_eff 0.100 | w_min 0.76 | dist 10.323 | ETA 4785.4h
+step    790 | T=4 | loss 25.0343 | lr 1.18e-04 | grad 3.12 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.312 11.375 11.438 11.438] | Δticks +0.125 | pc 0.262 (Δ+0.029) | hpc_loss 6.125 | F 6.125 | gate 0.900 | |M| 0.4930 | lr_eff 0.100 | w_min 0.60 | dist 12.500 | ETA 4791.5h
+step    800 | T=4 | loss 18.0711 | lr 1.20e-04 | grad 2.62 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.062 11.250 11.312 11.312] | Δticks +0.250 | pc 0.218 (Δ+0.037) | hpc_loss 6.312 | F 6.312 | gate 0.900 | |M| 0.5812 | lr_eff 0.100 | w_min 0.63 | dist 5.694 | ETA 4797.7h
+step    810 | T=4 | loss 18.6938 | lr 1.21e-04 | grad 2.62 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.125 10.250 10.375 10.375] | Δticks +0.250 | pc 0.220 (Δ+0.038) | hpc_loss 6.312 | F 6.312 | gate 0.900 | |M| 0.5065 | lr_eff 0.100 | w_min 0.62 | dist 7.266 | ETA 4785.7h
+step    820 | T=4 | loss 19.0956 | lr 1.23e-04 | grad 3.56 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.625 10.750 10.875 10.875] | Δticks +0.250 | pc 0.176 (Δ+0.036) | hpc_loss 6.438 | F 6.469 | gate 0.900 | |M| 0.5165 | lr_eff 0.100 | w_min 0.55 | dist 7.127 | ETA 4791.9h
+step    830 | T=4 | loss 18.7712 | lr 1.24e-04 | grad 3.56 | 0.7k tok/s (avg 0.6k) | cert 0.04→0.03 | ticks [9.312 9.438 9.625 9.625] | Δticks +0.312 | pc 0.175 (Δ+0.037) | hpc_loss 6.438 | F 6.438 | gate 0.900 | |M| 0.5807 | lr_eff 0.100 | w_min 0.54 | dist 8.109 | ETA 4780.2h
+step    840 | T=4 | loss 20.1335 | lr 1.26e-04 | grad 3.69 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.312 10.375 10.500 10.562] | Δticks +0.250 | pc 0.141 (Δ+0.020) | hpc_loss 6.375 | F 6.375 | gate 0.900 | |M| 0.5905 | lr_eff 0.100 | w_min 0.49 | dist 8.530 | ETA 4786.6h
+step    850 | T=4 | loss 16.8984 | lr 1.28e-04 | grad 3.64 | 0.5k tok/s (avg 0.6k) | cert 0.03→0.02 | ticks [9.500 9.562 9.688 9.750] | Δticks +0.250 | pc 0.121 (Δ-0.012) | hpc_loss 6.125 | F 6.125 | gate 0.900 | |M| 0.6069 | lr_eff 0.100 | w_min 0.43 | dist 6.249 | ETA 4792.3h
+step    860 | T=4 | loss 16.9884 | lr 1.29e-04 | grad 3.64 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.500 10.562 10.625 10.688] | Δticks +0.188 | pc 0.122 (Δ-0.013) | hpc_loss 6.125 | F 6.125 | gate 0.900 | |M| 0.5990 | lr_eff 0.100 | w_min 0.43 | dist 5.346 | ETA 4780.9h
+step    870 | T=4 | loss 18.1023 | lr 1.30e-04 | grad 3.45 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.312 10.375 10.375 10.375] | Δticks +0.062 | pc 0.123 (Δ-0.068) | hpc_loss 5.875 | F 5.875 | gate 0.900 | |M| 0.6321 | lr_eff 0.100 | w_min 0.44 | dist 6.765 | ETA 4786.9h
+step    880 | T=4 | loss 18.1335 | lr 1.32e-04 | grad 2.66 | 0.5k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [10.250 10.250 10.250 10.250] | Δticks +0.000 | pc 0.162 (Δ-0.164) | hpc_loss 5.625 | F 5.625 | gate 0.900 | |M| 0.6765 | lr_eff 0.100 | w_min 0.50 | dist 6.957 | ETA 4792.5h
+step    890 | T=4 | loss 19.1318 | lr 1.33e-04 | grad 2.66 | 0.7k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [10.062 10.062 10.125 10.062] | Δticks +0.000 | pc 0.166 (Δ-0.174) | hpc_loss 5.625 | F 5.625 | gate 0.900 | |M| 0.7246 | lr_eff 0.100 | w_min 0.52 | dist 8.123 | ETA 4781.4h
+step    900 | T=4 | loss 16.6253 | lr 1.35e-04 | grad 2.56 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.312 11.312 11.312 11.250] | Δticks -0.062 | pc 0.261 (Δ-0.263) | hpc_loss 5.469 | F 5.469 | gate 0.900 | |M| 0.6037 | lr_eff 0.100 | w_min 0.71 | dist 4.440 | ETA 4787.2h
+step    910 | T=4 | loss 17.2817 | lr 1.36e-04 | grad 2.56 | 0.7k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [9.812 9.812 9.812 9.750] | Δticks -0.062 | pc 0.269 (Δ-0.271) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.6955 | lr_eff 0.100 | w_min 0.75 | dist 6.585 | ETA 4776.6h
+step    920 | T=4 | loss 18.3492 | lr 1.38e-04 | grad 2.19 | 0.5k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [11.188 11.188 11.188 11.125] | Δticks -0.062 | pc 0.361 (Δ-0.227) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.6545 | lr_eff 0.100 | w_min 0.78 | dist 6.300 | ETA 4782.1h
+step    930 | T=4 | loss 16.0834 | lr 1.39e-04 | grad 2.31 | 0.5k tok/s (avg 0.6k) | cert 0.04→0.03 | ticks [10.438 10.438 10.438 10.375] | Δticks -0.062 | pc 0.415 (Δ-0.039) | hpc_loss 5.562 | F 5.562 | gate 0.900 | |M| 0.6220 | lr_eff 0.100 | w_min 0.75 | dist 4.725 | ETA 4787.7h
+step    940 | T=4 | loss 16.8339 | lr 1.41e-04 | grad 2.31 | 0.7k tok/s (avg 0.6k) | cert 0.04→0.04 | ticks [10.375 10.438 10.438 10.375] | Δticks +0.000 | pc 0.420 (Δ-0.031) | hpc_loss 5.562 | F 5.562 | gate 0.900 | |M| 0.6521 | lr_eff 0.100 | w_min 0.74 | dist 5.527 | ETA 4777.4h
+step    950 | T=4 | loss 16.7761 | lr 1.42e-04 | grad 2.33 | 0.5k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [10.875 10.875 10.875 10.812] | Δticks -0.062 | pc 0.367 (Δ+0.049) | hpc_loss 5.750 | F 5.750 | gate 0.900 | |M| 0.7171 | lr_eff 0.100 | w_min 0.68 | dist 4.881 | ETA 4782.7h
+step    960 | T=4 | loss 28.2254 | lr 1.44e-04 | grad 2.31 | 0.5k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [10.250 10.250 10.312 10.250] | Δticks +0.000 | pc 0.287 (Δ+0.076) | hpc_loss 5.969 | F 5.938 | gate 0.900 | |M| 0.6941 | lr_eff 0.100 | w_min 0.61 | dist 16.869 | ETA 4788.0h
+step    970 | T=4 | loss 15.6226 | lr 1.45e-04 | grad 2.31 | 0.7k tok/s (avg 0.6k) | cert 0.02→0.02 | ticks [10.125 10.188 10.250 10.188] | Δticks +0.062 | pc 0.286 (Δ+0.078) | hpc_loss 5.969 | F 5.938 | gate 0.900 | |M| 0.6352 | lr_eff 0.100 | w_min 0.60 | dist 4.390 | ETA 4777.9h
+step    980 | T=4 | loss 19.4868 | lr 1.47e-04 | grad 2.58 | 0.5k tok/s (avg 0.6k) | cert 0.06→0.05 | ticks [10.375 10.438 10.438 10.375] | Δticks +0.000 | pc 0.214 (Δ+0.071) | hpc_loss 6.125 | F 6.125 | gate 0.900 | |M| 0.9197 | lr_eff 0.100 | w_min 0.61 | dist 7.942 | ETA 4783.1h
+step    990 | T=4 | loss 16.6974 | lr 1.49e-04 | grad 2.58 | 0.7k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [9.750 9.812 9.875 9.812] | Δticks +0.062 | pc 0.211 (Δ+0.073) | hpc_loss 6.125 | F 6.125 | gate 0.900 | |M| 0.6842 | lr_eff 0.100 | w_min 0.57 | dist 5.795 | ETA 4773.6h
+step   1000 | T=4 | loss 16.1008 | lr 1.50e-04 | grad 2.75 | 0.5k tok/s (avg 0.6k) | cert 0.04→0.03 | ticks [9.500 9.562 9.625 9.625] | Δticks +0.125 | pc 0.153 (Δ+0.055) | hpc_loss 6.219 | F 6.219 | gate 0.900 | |M| 0.6509 | lr_eff 0.100 | w_min 0.52 | dist 5.342 | ETA 4778.6h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 1000:
+  T=4 | CE=9.7168 | PPL=16594.46 | top1=14.0% | top5=27.4% | (25600 tok)
+step   1010 | T=4 | loss 16.6234 | lr 1.51e-04 | grad 3.27 | 0.3k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [10.312 10.312 10.375 10.312] | Δticks +0.000 | pc 0.115 (Δ+0.025) | hpc_loss 6.156 | F 6.156 | gate 0.900 | |M| 0.6532 | lr_eff 0.100 | w_min 0.46 | dist 5.162 | ETA 4831.8h
+step   1020 | T=4 | loss 15.2673 | lr 1.53e-04 | grad 3.27 | 0.7k tok/s (avg 0.6k) | cert 0.06→0.05 | ticks [8.250 8.250 8.312 8.312] | Δticks +0.062 | pc 0.119 (Δ+0.026) | hpc_loss 6.125 | F 6.094 | gate 0.900 | |M| 0.7099 | lr_eff 0.100 | w_min 0.46 | dist 5.895 | ETA 4822.0h
+step   1030 | T=4 | loss 19.6734 | lr 1.54e-04 | grad 2.88 | 0.5k tok/s (avg 0.6k) | cert 0.04→0.04 | ticks [10.562 10.500 10.438 10.375] | Δticks -0.188 | pc 0.097 (Δ-0.023) | hpc_loss 6.000 | F 6.000 | gate 0.900 | |M| 0.8919 | lr_eff 0.100 | w_min 0.40 | dist 8.044 | ETA 4826.1h
+step   1040 | T=4 | loss 15.9422 | lr 1.56e-04 | grad 2.70 | 0.5k tok/s (avg 0.6k) | cert 0.05→0.04 | ticks [10.125 10.125 10.062 9.938] | Δticks -0.188 | pc 0.114 (Δ-0.091) | hpc_loss 5.750 | F 5.750 | gate 0.900 | |M| 0.7947 | lr_eff 0.100 | w_min 0.43 | dist 4.854 | ETA 4831.1h
+step   1050 | T=4 | loss 19.8676 | lr 1.57e-04 | grad 2.70 | 0.7k tok/s (avg 0.6k) | cert 0.04→0.04 | ticks [10.312 10.250 10.188 10.125] | Δticks -0.188 | pc 0.106 (Δ-0.090) | hpc_loss 5.812 | F 5.812 | gate 0.900 | |M| 0.8526 | lr_eff 0.100 | w_min 0.42 | dist 8.556 | ETA 4821.3h
+step   1060 | T=4 | loss 21.0216 | lr 1.59e-04 | grad 2.09 | 0.5k tok/s (avg 0.6k) | cert 0.06→0.06 | ticks [9.500 9.500 9.375 9.312] | Δticks -0.188 | pc 0.167 (Δ-0.182) | hpc_loss 5.531 | F 5.531 | gate 0.900 | |M| 0.7889 | lr_eff 0.100 | w_min 0.52 | dist 10.638 | ETA 4826.3h
+step   1070 | T=4 | loss 14.7776 | lr 1.60e-04 | grad 2.09 | 0.7k tok/s (avg 0.6k) | cert 0.05→0.04 | ticks [10.625 10.562 10.500 10.375] | Δticks -0.250 | pc 0.153 (Δ-0.182) | hpc_loss 5.594 | F 5.594 | gate 0.900 | |M| 0.8410 | lr_eff 0.100 | w_min 0.47 | dist 3.381 | ETA 4816.8h
+step   1080 | T=4 | loss 17.8422 | lr 1.62e-04 | grad 2.25 | 0.5k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [11.000 10.938 10.875 10.750] | Δticks -0.250 | pc 0.223 (Δ-0.250) | hpc_loss 5.500 | F 5.500 | gate 0.900 | |M| 0.7630 | lr_eff 0.100 | w_min 0.61 | dist 5.991 | ETA 4821.5h
+step   1090 | T=4 | loss 16.0375 | lr 1.63e-04 | grad 2.09 | 0.5k tok/s (avg 0.6k) | cert 0.03→0.03 | ticks [10.125 10.125 10.062 9.875] | Δticks -0.250 | pc 0.338 (Δ-0.226) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.8131 | lr_eff 0.100 | w_min 0.79 | dist 5.087 | ETA 4825.9h
+step   1100 | T=4 | loss 20.9123 | lr 1.65e-04 | grad 2.09 | 0.7k tok/s (avg 0.6k) | cert 0.04→0.04 | ticks [10.438 10.438 10.375 10.250] | Δticks -0.188 | pc 0.332 (Δ-0.229) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 0.7398 | lr_eff 0.100 | w_min 0.78 | dist 9.652 | ETA 4816.9h
+step   1110 | T=4 | loss 15.9060 | lr 1.66e-04 | grad 2.30 | 0.5k tok/s (avg 0.6k) | cert 0.06→0.06 | ticks [9.875 9.938 9.875 9.750] | Δticks -0.125 | pc 0.394 (Δ-0.103) | hpc_loss 5.562 | F 5.562 | gate 0.900 | |M| 0.7656 | lr_eff 0.100 | w_min 0.85 | dist 5.157 | ETA 4821.1h
+step   1120 | T=4 | loss 19.3701 | lr 1.68e-04 | grad 2.30 | 0.5k tok/s (avg 0.6k) | cert 0.05→0.05 | ticks [9.375 9.500 9.562 9.375] | Δticks +0.000 | pc 0.378 (Δ+0.019) | hpc_loss 5.688 | F 5.688 | gate 0.900 | |M| 0.8350 | lr_eff 0.100 | w_min 0.76 | dist 9.029 | ETA 4825.3h
+step   1130 | T=4 | loss 15.4866 | lr 1.69e-04 | grad 2.30 | 0.7k tok/s (avg 0.6k) | cert 0.09→0.08 | ticks [9.125 9.188 9.188 9.000] | Δticks -0.125 | pc 0.370 (Δ+0.007) | hpc_loss 5.688 | F 5.656 | gate 0.900 | |M| 0.9409 | lr_eff 0.100 | w_min 0.80 | dist 5.479 | ETA 4816.5h
+step   1140 | T=4 | loss 18.9994 | lr 1.71e-04 | grad 2.20 | 0.5k tok/s (avg 0.6k) | cert 0.19→0.17 | ticks [5.656 5.750 5.812 5.688] | Δticks +0.031 | pc 0.326 (Δ+0.088) | hpc_loss 5.875 | F 5.844 | gate 0.900 | |M| 1.2211 | lr_eff 0.100 | w_min 0.75 | dist 12.303 | ETA 4820.6h
+step   1150 | T=4 | loss 15.2184 | lr 1.72e-04 | grad 2.20 | 0.7k tok/s (avg 0.6k) | cert 0.14→0.12 | ticks [8.188 8.312 8.375 8.250] | Δticks +0.062 | pc 0.318 (Δ+0.092) | hpc_loss 5.844 | F 5.812 | gate 0.900 | |M| 0.9049 | lr_eff 0.100 | w_min 0.68 | dist 6.013 | ETA 4811.9h
+step   1160 | T=4 | loss 15.9647 | lr 1.74e-04 | grad 2.66 | 0.5k tok/s (avg 0.6k) | cert 0.12→0.09 | ticks [8.000 8.125 8.250 8.125] | Δticks +0.125 | pc 0.245 (Δ+0.113) | hpc_loss 5.969 | F 5.969 | gate 0.900 | |M| 0.9893 | lr_eff 0.100 | w_min 0.64 | dist 6.899 | ETA 4816.1h
+step   1170 | T=4 | loss 16.7846 | lr 1.75e-04 | grad 2.22 | 0.5k tok/s (avg 0.6k) | cert 0.07→0.06 | ticks [10.125 10.250 10.250 10.188] | Δticks +0.062 | pc 0.167 (Δ+0.085) | hpc_loss 6.094 | F 6.094 | gate 0.900 | |M| 0.8410 | lr_eff 0.100 | w_min 0.56 | dist 5.560 | ETA 4819.9h
+step   1180 | T=4 | loss 24.0334 | lr 1.77e-04 | grad 2.22 | 0.7k tok/s (avg 0.6k) | cert 0.06→0.05 | ticks [9.812 9.938 9.938 9.812] | Δticks +0.000 | pc 0.167 (Δ+0.084) | hpc_loss 6.094 | F 6.094 | gate 0.900 | |M| 0.9594 | lr_eff 0.100 | w_min 0.56 | dist 13.127 | ETA 4811.5h
+step   1190 | T=4 | loss 15.5583 | lr 1.79e-04 | grad 2.66 | 0.5k tok/s (avg 0.6k) | cert 0.09→0.08 | ticks [9.250 9.312 9.375 9.312] | Δticks +0.062 | pc 0.124 (Δ+0.066) | hpc_loss 5.969 | F 5.969 | gate 0.900 | |M| 1.0584 | lr_eff 0.100 | w_min 0.53 | dist 5.289 | ETA 4815.7h
+step   1200 | T=4 | loss 15.6472 | lr 1.80e-04 | grad 2.36 | 0.5k tok/s (avg 0.6k) | cert 0.09→0.08 | ticks [9.438 9.438 9.438 9.375] | Δticks -0.062 | pc 0.095 (Δ-0.001) | hpc_loss 5.844 | F 5.844 | gate 0.900 | |M| 0.9672 | lr_eff 0.100 | w_min 0.51 | dist 5.279 | ETA 4819.6h
+step   1210 | T=4 | loss 15.4962 | lr 1.81e-04 | grad 2.36 | 0.7k tok/s (avg 0.6k) | cert 0.06→0.06 | ticks [10.500 10.500 10.500 10.438] | Δticks -0.062 | pc 0.093 (Δ-0.005) | hpc_loss 5.844 | F 5.812 | gate 0.900 | |M| 0.9961 | lr_eff 0.100 | w_min 0.51 | dist 4.066 | ETA 4811.3h
+step   1220 | T=4 | loss 15.5528 | lr 1.83e-04 | grad 2.02 | 0.5k tok/s (avg 0.6k) | cert 0.10→0.09 | ticks [8.688 8.688 8.688 8.625] | Δticks -0.062 | pc 0.097 (Δ-0.067) | hpc_loss 5.625 | F 5.656 | gate 0.900 | |M| 1.1904 | lr_eff 0.100 | w_min 0.57 | dist 6.054 | ETA 4815.4h
+step   1230 | T=4 | loss 16.0668 | lr 1.84e-04 | grad 2.02 | 0.7k tok/s (avg 0.6k) | cert 0.13→0.12 | ticks [7.594 7.594 7.625 7.562] | Δticks -0.031 | pc 0.105 (Δ-0.068) | hpc_loss 5.594 | F 5.562 | gate 0.900 | |M| 1.2856 | lr_eff 0.100 | w_min 0.62 | dist 7.648 | ETA 4807.4h
+step   1240 | T=4 | loss 16.9680 | lr 1.86e-04 | grad 2.22 | 0.5k tok/s (avg 0.6k) | cert 0.12→0.11 | ticks [8.062 8.000 8.000 7.906] | Δticks -0.156 | pc 0.132 (Δ-0.116) | hpc_loss 5.469 | F 5.469 | gate 0.900 | |M| 1.3922 | lr_eff 0.100 | w_min 0.78 | dist 8.145 | ETA 4815.1h
+step   1250 | T=4 | loss 13.9664 | lr 1.87e-04 | grad 2.02 | 0.5k tok/s (avg 0.6k) | cert 0.20→0.19 | ticks [7.531 7.531 7.531 7.469] | Δticks -0.062 | pc 0.192 (Δ-0.114) | hpc_loss 5.344 | F 5.344 | gate 0.900 | |M| 1.4365 | lr_eff 0.100 | w_min 0.89 | dist 5.702 | ETA 4822.3h
+step   1260 | T=4 | loss 14.1825 | lr 1.89e-04 | grad 2.02 | 0.7k tok/s (avg 0.6k) | cert 0.06→0.07 | ticks [9.312 9.250 9.188 9.062] | Δticks -0.250 | pc 0.143 (Δ-0.157) | hpc_loss 5.469 | F 5.469 | gate 0.900 | |M| 1.1036 | lr_eff 0.100 | w_min 0.69 | dist 4.204 | ETA 4814.5h
+step   1270 | T=4 | loss 12.5053 | lr 1.90e-04 | grad 1.87 | 0.5k tok/s (avg 0.6k) | cert 0.15→0.15 | ticks [7.438 7.406 7.344 7.250] | Δticks -0.188 | pc 0.219 (Δ-0.144) | hpc_loss 5.375 | F 5.375 | gate 0.900 | |M| 1.7111 | lr_eff 0.100 | w_min 0.85 | dist 4.403 | ETA 4821.2h
+step   1280 | T=4 | loss 11.9936 | lr 1.92e-04 | grad 1.95 | 0.5k tok/s (avg 0.6k) | cert 0.26→0.26 | ticks [5.750 5.750 5.750 5.656] | Δticks -0.094 | pc 0.258 (Δ-0.100) | hpc_loss 5.438 | F 5.438 | gate 0.900 | |M| 1.7843 | lr_eff 0.100 | w_min 0.81 | dist 5.501 | ETA 4826.7h
+step   1290 | T=4 | loss 13.8941 | lr 1.93e-04 | grad 1.95 | 0.7k tok/s (avg 0.6k) | cert 0.11→0.11 | ticks [8.938 8.812 8.688 8.562] | Δticks -0.375 | pc 0.236 (Δ-0.119) | hpc_loss 5.438 | F 5.469 | gate 0.900 | |M| 1.3187 | lr_eff 0.100 | w_min 0.79 | dist 4.376 | ETA 4818.9h
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 3128, in <module>
+    main_multi_gpu()
+    ~~~~~~~~~~~~~~^^
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 3106, in main_multi_gpu
+    mp.spawn(worker_multi_gpu, args=(world_size, config_dict, runtime_kwargs),
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             nprocs=world_size, join=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 340, in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 296, in start_processes
+    while not context.join():
+              ~~~~~~~~~~~~^^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 192, in join
+    raise ProcessExitedException(
+    ...<5 lines>...
+    )
+torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with signal SIGKILL

@@ -28,6 +28,7 @@ import torch.utils.checkpoint as torch_checkpoint
 from contextlib import nullcontext
 
 from ctm_transformer.biological import HebbianSynapse, CerebellarReadout
+from ctm_transformer.predictive_coding import PCLayer, PCStateManager
 
 
 
@@ -2167,7 +2168,7 @@ class CTMTransformer(nn.Module):
 
                 # v2 features
                 use_matrix_streams=config.use_matrix_streams,
-                n_streams=config.n_streams,
+                n_streams=config.hpc_pc_n_streams if getattr(config, "use_hierarchical_pc", False) else config.n_streams,
                 stream_gating=config.stream_gating,
                 use_dssa=config.use_dssa,
                 dssa_n_partitions=config.dssa_n_partitions,
@@ -2230,6 +2231,35 @@ class CTMTransformer(nn.Module):
             )
         else:
             self.feec = None
+
+        # ── Hierarchical Predictive Coding (Mechanism 1) ────────────────
+        if config.use_hierarchical_pc:
+            gen_hidden = config.hpc_generative_hidden_dim or (2 * config.d_latent)
+            self.pc_layers = nn.ModuleList([
+                PCLayer(
+                    d_latent=config.d_latent,
+                    layer_idx=i,
+                    n_layers=self._effective_n_layers,
+                    generative_type=config.hpc_generative_type,
+                    generative_hidden_dim=gen_hidden,
+                    dropout=config.dropout,
+                )
+                for i in range(self._effective_n_layers)
+            ])
+            pc_n_streams = config.hpc_pc_n_streams
+            self.pc_state_mgr = PCStateManager(
+                n_streams=pc_n_streams,
+                d_latent=config.d_latent,
+            )
+            # Learnable top-level prior μ_top for the highest layer.
+            # In the PC hierarchy, the topmost generative model predicts
+            # from this prior. When teacher_z is available it replaces
+            # this prior at runtime.
+            self.pc_top_prior = nn.Parameter(torch.zeros(config.d_latent))
+        else:
+            self.pc_layers = None
+            self.pc_state_mgr = None
+            self.pc_top_prior = None
 
         # ── Loop Position Embeddings (v2) ───────────────────────────────
         if config.use_loop_pos_emb:
@@ -2378,11 +2408,9 @@ class CTMTransformer(nn.Module):
                     f"'teacher', 'next_tick', 'final_tick'."
                 )
             self.cerebellar_readout = CerebellarReadout(
-                d_latent=config.d_latent,
                 target_dim=target_dim,
+                d_latent=config.d_latent,
                 hidden_dim=pc_hidden,
-                normalize=config.pc_normalize,
-                loss_type=config.pc_loss_type,
                 dropout=config.pc_dropout,
             )
         else:
@@ -2487,13 +2515,18 @@ class CTMTransformer(nn.Module):
             x = self.shared_adapter(combined)
             # FiLM: y = gamma_t * x + beta_t. Per-tick scalars broadcast
             # over the [B, S] dimensions.
-            gamma = self.film_gamma[tick]   # [d_model]
-            beta = self.film_beta[tick]     # [d_model]
+            # Clamp tick index: under prospective config, inference may
+            # exceed the original max_thought_steps allocation. Ticks
+            # beyond the table reuse the last (most refined) entry.
+            film_tick = min(tick, self.film_gamma.shape[0] - 1)
+            gamma = self.film_gamma[film_tick]   # [d_model]
+            beta = self.film_beta[film_tick]     # [d_model]
             x = x * gamma + beta
             return self.lm_head(x)
 
         if self.tick_adapters is not None:
-            adapted = self.tick_adapters[tick](combined)
+            adapter_tick = min(tick, len(self.tick_adapters) - 1)
+            adapted = self.tick_adapters[adapter_tick](combined)
             return self.lm_head(adapted)
 
         return self.output_proj(combined)
@@ -2529,6 +2562,7 @@ class CTMTransformer(nn.Module):
         teacher_z_for_pc: torch.Tensor | None = None,
         T_total: int = 1,
         prev_certainty: torch.Tensor | None = None,
+        compute_logits: bool = True,
     ) -> tuple[torch.Tensor, torch.Tensor | None, list[torch.Tensor], list[torch.Tensor], torch.Tensor | None, list[torch.Tensor], torch.Tensor | None, torch.Tensor | None, torch.Tensor | None, list[torch.Tensor], torch.Tensor | None, torch.Tensor | None]:
         """
         Execute all layers in the sequence for one thought tick.
@@ -2574,10 +2608,8 @@ class CTMTransformer(nn.Module):
                 and prev_certainty is not None
                 and self.config.use_hebbian_synapse):
             with torch.no_grad():
-                # certainty is in [0, 1] for dynamic_aggregate; we use
-                # uncertainty = clamp(1 - certainty, 0, 1) to be safe
-                # against non-aggregate temporal_loss_types where
-                # certainty may be negative (entropy).
+                # certainty is in [0, 1]; we use
+                # uncertainty = clamp(1 - certainty, 0, 1) to be safe.
                 uncertainty = (1.0 - prev_certainty).clamp(min=0.0, max=1.0)
                 hebbian_lr_modulator = 1.0 + alpha * uncertainty
                 hebbian_lr_modulator = hebbian_lr_modulator.to(z.dtype)
@@ -2636,55 +2668,149 @@ class CTMTransformer(nn.Module):
             layer_outputs.append(z_out)
 
         z_new = layer_outputs[-1]
-        
+
+        # ── Hierarchical PC Inference Step ───────────────────────────────
+        # After the standard forward pass produces per-layer μ values
+        # (layer_outputs), run one PC inference iteration:
+        #   1. Top-down error sweep: ε_ℓ = μ_ℓ − f_ℓ(μ_{ℓ+1})
+        #   2. Precision estimation: π_ℓ from local stats
+        #   3. Bottom-up μ update: μ_ℓ -= η·(π_ℓ·ε_ℓ − Wᵀ·π_{ℓ-1}·ε_{ℓ-1})
+        #   4. Local loss: Σ π_ℓ·‖ε_ℓ‖² for each generative function
+        # All cross-layer deps are .detach()ed — gradients are fully local.
+        hpc_local_loss_t = None
+        hpc_free_energy_t = None
+        hpc_mean_precision_t = None
+        hpc_mean_error_norm_t = None
+        if self.pc_layers is not None and len(layer_outputs) > 1:
+            n_pc = min(len(self.pc_layers), len(layer_outputs))
+            pc_errors = []
+            pc_precisions = []
+            pc_predictions = []
+            pc_local_losses = []
+
+            # Get top-level prior (teacher_z if available, else learnable)
+            if teacher_z_for_pc is not None and teacher_z_for_pc.shape[-1] == self.config.d_latent:
+                mu_top = teacher_z_for_pc.detach()
+            else:
+                mu_top = self.pc_top_prior.unsqueeze(0).unsqueeze(0).expand(
+                    B, S, -1
+                )
+
+            # Top-down error sweep (from highest layer down)
+            for l_idx in range(n_pc - 1, -1, -1):
+                mu_current = layer_outputs[l_idx]
+                if l_idx == n_pc - 1:
+                    mu_above = mu_top
+                else:
+                    mu_above = layer_outputs[l_idx + 1]
+
+                prediction, error, precision = self.pc_layers[l_idx].compute_error(
+                    mu_current, mu_above
+                )
+                pc_errors.insert(0, error)
+                pc_precisions.insert(0, precision)
+                pc_predictions.insert(0, prediction)
+
+                # Local loss for this layer's generative function
+                local_l = self.pc_layers[l_idx].local_loss(
+                    prediction, mu_current, precision
+                )
+                pc_local_losses.append(local_l)
+
+            # Bottom-up μ update (from lowest layer up)
+            for l_idx in range(n_pc):
+                error_below = pc_errors[l_idx - 1] if l_idx > 0 else None
+                prec_below = pc_precisions[l_idx - 1] if l_idx > 0 else None
+
+                delta_mu = self.pc_layers[l_idx].compute_mu_update(
+                    error=pc_errors[l_idx],
+                    precision=pc_precisions[l_idx],
+                    error_below=error_below,
+                    precision_below=prec_below,
+                    inference_lr=self.config.hpc_inference_lr,
+                )
+
+                # When FEEC is active, use δμ as the force vector for
+                # the symplectic integrator. This routes the PC inference
+                # dynamics through the Hamiltonian stepper, which:
+                #   1. Maintains energy conservation during long inference
+                #   2. Provides natural momentum for faster convergence
+                #   3. Prevents oscillation via the built-in damping
+                if self.feec is not None and velocity_new is not None:
+                    mu_updated, velocity_new = self.feec.step(
+                        layer_outputs[l_idx], velocity_new,
+                        force=delta_mu, layer_idx=l_idx,
+                    )
+                    layer_outputs[l_idx] = mu_updated
+                else:
+                    # Fallback: direct additive update
+                    layer_outputs[l_idx] = layer_outputs[l_idx] + delta_mu
+
+            z_new = layer_outputs[-1]
+
+            # Diagnostics
+            if pc_local_losses:
+                hpc_local_loss_t = torch.stack(pc_local_losses).sum()
+            with torch.no_grad():
+                err_norms = [e.norm(dim=-1).mean() for e in pc_errors]
+                hpc_mean_error_norm_t = torch.stack(err_norms).mean()
+                prec_vals = [p.mean() for p in pc_precisions]
+                hpc_mean_precision_t = torch.stack(prec_vals).mean()
+                hpc_free_energy_t = self.pc_state_mgr.free_energy(
+                    pc_errors, pc_precisions
+                )
+
         # ── Output + Loss + Certainty (In-Loop) ─────────────────────────
-        logits_t = self._output_logits(z_new, text_emb, tick=t)
-        
+        # In pure_pc_mode, we detach z_new before producing logits. This allows the 
+        # LM head to be trained by the Cross Entropy and Distillation losses without 
+        # allowing those global gradients to backpropagate into the encoder weights, 
+        # preserving the purely local PC learning for the transformer layers.
+        logits_t = None
         ce_loss_t = None
         kl_loss_t = None
         certainty_t = None
-        
-        # Certainty (entropy-based)
-        with torch.no_grad():
-            probs_t = F.softmax(logits_t, dim=-1)
-            entropy_t = -(probs_t * (probs_t + 1e-10).log()).sum(dim=-1)
-            if self.config.temporal_loss_type == "dynamic_aggregate":
+
+        if compute_logits:
+            z_out = z_new.detach() if getattr(self.config, "pure_pc_mode", False) else z_new
+            logits_t = self._output_logits(z_out, text_emb, tick=t)
+            
+            # Certainty (entropy-based, always normalized to [0, 1])
+            with torch.no_grad():
+                probs_t = F.softmax(logits_t, dim=-1)
+                entropy_t = -(probs_t * (probs_t + 1e-10).log()).sum(dim=-1)
                 max_entropy = math.log(self.config.vocab_size)
                 certainty_t = 1.0 - (entropy_t / max_entropy)
-            else:
-                certainty_t = -entropy_t
-        
-        if targets is not None:
-            V_size = self.config.vocab_size
-            logits_flat = logits_t.reshape(-1, V_size)
-            targets_flat = targets.reshape(-1)
             
-            # CE Loss
-            if self.config.temporal_loss_type == "dynamic_aggregate":
-                ce_loss_t = F.cross_entropy(logits_flat, targets_flat, reduction="none")
-            else:
+            if targets is not None:
+                V_size = self.config.vocab_size
+                logits_flat = logits_t.reshape(-1, V_size)
+                targets_flat = targets.reshape(-1)
+                
+                # CE Loss (always mean reduction — per-tick aggregation
+                # is handled in forward() for legacy BPTT; under prospective
+                # config only the single consolidation pass matters)
                 ce_loss_t = F.cross_entropy(logits_flat, targets_flat, reduction="mean")
+                    
+                # KL Distillation
+                if teacher_log_probs is not None:
+                    student_logits_flat = logits_flat.float()
+                    if teacher_top_indices is not None:
+                        student_top_logits = student_logits_flat.gather(-1, teacher_top_indices)
+                        student_log_probs = F.log_softmax(student_top_logits / distill_temp, dim=-1)
+                    else:
+                        student_log_probs = F.log_softmax(student_logits_flat / distill_temp, dim=-1)
+                    
+                    kl_t = F.kl_div(
+                        student_log_probs,
+                        teacher_log_probs,
+                        reduction="batchmean",
+                        log_target=True,
+                    ) * (distill_temp * distill_temp)
+                    kl_loss_t = kl_t
                 
-            # KL Distillation
-            if teacher_log_probs is not None:
-                student_logits_flat = logits_flat.float()
-                if teacher_top_indices is not None:
-                    student_top_logits = student_logits_flat.gather(-1, teacher_top_indices)
-                    student_log_probs = F.log_softmax(student_top_logits / distill_temp, dim=-1)
-                else:
-                    student_log_probs = F.log_softmax(student_logits_flat / distill_temp, dim=-1)
-                
-                kl_t = F.kl_div(
-                    student_log_probs,
-                    teacher_log_probs,
-                    reduction="batchmean",
-                    log_target=True,
-                ) * (distill_temp * distill_temp)
-                kl_loss_t = kl_t
-            
-            # If we are training and computed losses, we can drop logits_t to save memory.
-            if self.training:
-                logits_t = None
+                # If we are training and computed losses, we can drop logits_t to save memory.
+                if self.training:
+                    logits_t = None
 
         # Read out v1 memory state
         new_pre_states = []
@@ -2695,34 +2821,13 @@ class CTMTransformer(nn.Module):
                     new_pre_states.append(layer.memory.pre_history)
                     new_post_states.append(layer.memory.post_history)
 
-        # ── Predictive-Coding auxiliary loss (per-tick) ─────────────────
-        # The cerebellar readout predicts the teacher hidden state from
-        # the current student latent. The error is a local, per-tick
-        # signal that gives gradient at every tick rather than only at
-        # the final-tick LM head. See biological.CerebellarReadout for
-        # detail. Gated by pc_tick_aggregation: "all" applies at every
-        # tick, "early" only for the first half, "last" only at the end.
+        # ── Predictive-Coding / Prospective-Clamping ──────────────────────
+        # The CerebellarReadout is now a target projector (single-arg) for
+        # Prospective Configuration. Under EM mode, it projects the target
+        # into d_latent for HPC clamping. Under legacy BPTT, the HPC
+        # local losses provide the PC gradient signal. The old two-arg
+        # cerebellar prediction pathway has been deprecated.
         pc_loss_t = None
-        if (
-            self.cerebellar_readout is not None
-            and teacher_z_for_pc is not None
-        ):
-            agg = getattr(self.config, "pc_tick_aggregation", "all")
-            apply_pc = (
-                agg == "all"
-                or (agg == "early" and t < max(T_total // 2, 1))
-                or (agg == "last" and t == T_total - 1)
-            )
-            if apply_pc:
-                # z_new and teacher_z_for_pc should both be [B, S, *].
-                # If teacher_z_for_pc is in d_latent space (because the
-                # cache was projected upstream), we still try the predict
-                # — the predictor maps d_latent → teacher_d_model, so the
-                # shapes must match teacher_d_model on the target side.
-                # If they don't, the user has misconfigured the cache;
-                # skip silently to avoid crashing in-loop.
-                if teacher_z_for_pc.shape[-1] == self.cerebellar_readout.teacher_d_model:
-                    pc_loss_t = self.cerebellar_readout(z_new, teacher_z_for_pc)
 
         # Mean effective Hebbian lr for diagnostics (across all layers
         # with an active Hebbian module). None when Hebbian is off.
@@ -2730,7 +2835,7 @@ class CTMTransformer(nn.Module):
         if hebbian_lr_effs:
             hebbian_lr_eff_t = torch.stack(hebbian_lr_effs).mean()
 
-        return z_new, logits_t, new_pre_states, new_post_states, velocity_new, new_stream_states, ce_loss_t, kl_loss_t, certainty_t, new_hebbian_states, pc_loss_t, hebbian_lr_eff_t
+        return z_new, logits_t, new_pre_states, new_post_states, velocity_new, new_stream_states, ce_loss_t, kl_loss_t, certainty_t, new_hebbian_states, pc_loss_t, hebbian_lr_eff_t, hpc_local_loss_t, hpc_free_energy_t, hpc_mean_precision_t, hpc_mean_error_norm_t
 
     def forward(
         self,
@@ -2839,439 +2944,186 @@ class CTMTransformer(nn.Module):
                     else:
                         teacher_log_probs = F.log_softmax(teacher_logits_flat / distill_temp, dim=-1)
 
-        # ── Thought Loop ────────────────────────────────────────────────
-        all_logits = []
-        all_certainties = []
-        energy_penalties = []
-        per_tick_ce_losses = []
-        per_tick_kl_losses = []
-        per_tick_pc_losses = []
+        # ── Expectation-Maximization (EM) Training Loop ─────────────────
+        prospective_active = getattr(self.config, "use_prospective_config", False)
+
+        result = {
+            "logits": None,
+            "certainties": None,
+            "all_logits": [],
+            "loss": torch.tensor(0.0, device=device, dtype=dtype),
+        }
 
         use_per_step_ckpt = (
             self.training
             and self.config.gradient_checkpointing
-            and T >= self.config.gradient_checkpointing_min_T
+            and T >= getattr(self.config, "gradient_checkpointing_min_T", 5)
         )
 
-        # Initialize v1 memory state lists
+        # Base loop setup
+        z_curr = z
+        velocity_curr = velocity
+        stream_states_curr = stream_states
+        hebbian_states_curr = hebbian_states
+
+        # v1 Memory initial states
         pre_states = []
         post_states = []
         if not self.config.use_matrix_streams:
             pre_states = [layer.memory.pre_history for layer in layers if layer.memory is not None]
             post_states = [layer.memory.post_history for layer in layers if layer.memory is not None]
 
-        # Teacher z to pass into the per-tick PC predictor (teacher mode
-        # only). For intrinsic PC targets (next_tick / final_tick), the
-        # cerebellar loss is computed AFTER the thought loop ends — see
-        # below — because we need future z's that aren't available yet
-        # at tick t. Setting this to None for intrinsic modes also makes
-        # the in-`_thought_step` PC branch a no-op there.
-        pc_target_mode = getattr(self.config, "pc_target", "teacher")
-        teacher_z_for_pc = (
-            teacher_z if (self.cerebellar_readout is not None
-                          and pc_target_mode == "teacher")
-            else None
-        )
+        # Target clamping for Prospective Configuration
+        clamped_target = None
+        if prospective_active and self.cerebellar_readout is not None and targets is not None:
+            # Targets are [B, S] tokens. Embed them to get [B, S, d_model]
+            target_emb = self._embed_text(targets)
+            clamped_target = self.cerebellar_readout(target_emb) # [B, S, d_latent]
 
-        # For intrinsic-PC modes we cache every tick's z (detached for
-        # the target side, kept attached for the predictor side). One
-        # B·S·d_latent float32 tensor per tick — ~4 MB at B=1, S=512,
-        # d_latent=1024, T=8. Negligible vs. activation memory for the
-        # main loop.
-        intrinsic_pc_active = (
-            self.cerebellar_readout is not None
-            and pc_target_mode in ("next_tick", "final_tick")
-        )
-        intrinsic_pc_z_history: list[torch.Tensor] = []
-
-        z_prev = z
-        velocity_prev = velocity
-        # prev_certainty carries last tick's per-position certainty into
-        # the next tick's _thought_step so the Hebbian path can compute
-        # a per-position lr modulator. Starts as None at tick 0.
-        prev_certainty: torch.Tensor | None = None
-        per_tick_hebbian_lr: list[torch.Tensor] = []
-        # Per-tick FEEC energy (scalar tensors) for Prospective Configuration.
-        # Computed under no_grad — energy is a stability *signal* for
-        # weighting the per-tick loss, not a learnable quantity itself.
-        # Letting gradient flow through the weight would couple the loss
-        # weight to whatever made z and velocity small, which is the
-        # opposite of what we want.
-        prospective_active = (
-            getattr(self.config, "use_prospective_config", False)
-            and self.feec is not None
-        )
-        per_tick_energy: list[torch.Tensor] = []
-
-        for t in range(T):
-            if use_per_step_ckpt:
-                result = torch_checkpoint.checkpoint(
-                    self._thought_step,
-                    z, t, text_emb, key_padding_mask,
-                    pre_states, post_states, velocity, stream_states,
-                    targets, teacher_log_probs, teacher_top_indices, distill_temp,
-                    hebbian_states, teacher_z_for_pc, T, prev_certainty,
-                    use_reentrant=False,
-                )
+        # ── Phase 1: Inference (Relaxation) ─────────────────────────────
+        # If Prospective Configuration is active, we run the thought loop
+        # purely as an inference process to find the equilibrium state \mu^*.
+        # We wrap this in torch.no_grad() to save massive amounts of VRAM.
+        if prospective_active:
+            if max_thought_steps is not None:
+                max_inference_steps = max_thought_steps
             else:
-                result = self._thought_step(
-                    z, t, text_emb, key_padding_mask,
-                    pre_states, post_states, velocity, stream_states,
-                    targets, teacher_log_probs, teacher_top_indices, distill_temp,
-                    hebbian_states, teacher_z_for_pc, T, prev_certainty,
-                )
+                max_inference_steps = getattr(self.config, "max_inference_steps", 1000)
+            energy_tol = getattr(self.config, "inference_energy_tol", 1e-4)
 
-            (z, logits_t, pre_states, post_states, velocity, stream_states,
-             ce_loss_t, kl_loss_t, certainty_t, new_hebbian_states, pc_loss_t,
-             hebbian_lr_eff_t) = result
-
-            # Per-tick FEEC energy capture for Prospective Configuration.
-            # We compute after this tick's state update — so per_tick_energy[t]
-            # = E(z_after_tick_t). ΔE_t is then |E_t - E_{t-1}|.
-            if prospective_active and velocity is not None:
-                with torch.no_grad():
-                    per_tick_energy.append(self.feec.energy(z, velocity))
-
-            # Carry certainty forward to next tick's Hebbian lr modulator.
-            # We carry it OUTSIDE the checkpointed region (this var lives
-            # in the Python loop scope) so it doesn't bloat the saved
-            # activations of the checkpointed function.
-            if certainty_t is not None:
-                prev_certainty = certainty_t
-
-            # Collect z for intrinsic PC. We keep the live tensor (not
-            # detached) so gradients flow into the layers that produced
-            # it. The *target* side is what gets detached, applied later.
-            if intrinsic_pc_active:
-                intrinsic_pc_z_history.append(z)
-
-            # Carry forward Hebbian state if any layer updated it.
-            if new_hebbian_states and any(h is not None for h in new_hebbian_states):
-                hebbian_states = new_hebbian_states
-
-            # Track effective Hebbian lr for logging diagnostics.
-            if hebbian_lr_eff_t is not None:
-                per_tick_hebbian_lr.append(hebbian_lr_eff_t.detach())
-
-            if ce_loss_t is not None:
-                per_tick_ce_losses.append(ce_loss_t)
-            if kl_loss_t is not None:
-                per_tick_kl_losses.append(kl_loss_t)
-            if pc_loss_t is not None:
-                per_tick_pc_losses.append(pc_loss_t)
-            if certainty_t is not None:
-                all_certainties.append(certainty_t)
-
-            # ── FEEC energy penalty ─────────────────────────────────────
-            if self.feec is not None and velocity is not None:
-                ep = self.feec.energy_penalty(z, velocity, z_prev, velocity_prev)
-                energy_penalties.append(ep)
-                z_prev = z
-                velocity_prev = velocity
-
-            # ── Collect logits for return (if not dropped) ──────────────
-            if logits_t is not None:
-                all_logits.append(logits_t)
-
-        # Restore v1 memory state
-        if not self.config.use_matrix_streams:
-            for l_idx, layer in enumerate(layers):
-                if layer.memory is not None and l_idx < len(pre_states):
-                    layer.memory.pre_history = pre_states[l_idx]
-                    layer.memory.post_history = post_states[l_idx]
-
-        # ── Intrinsic Predictive Coding (post-loop computation) ─────────
-        # For pc_target in {"next_tick", "final_tick"} the target only
-        # exists once the loop has produced future z's. Compute the PC
-        # loss here against detached targets (so the gradient flows only
-        # through the predictor input, not through the target — this is
-        # the standard PC formulation: the prediction error trains the
-        # predictor, not the thing being predicted).
-        if intrinsic_pc_active and intrinsic_pc_z_history:
-            agg = getattr(self.config, "pc_tick_aggregation", "all")
-            if pc_target_mode == "next_tick":
-                # At tick t (input z_t), target = z_{t+1} (detached).
-                # Last tick has no successor so we skip it.
-                pairs = [
-                    (t, intrinsic_pc_z_history[t], intrinsic_pc_z_history[t + 1].detach())
-                    for t in range(len(intrinsic_pc_z_history) - 1)
-                ]
-            else:  # "final_tick"
-                # At tick t (input z_t), target = z_{T-1} (detached).
-                # The final tick predicts itself → trivially zero, so skip.
-                z_final = intrinsic_pc_z_history[-1].detach()
-                pairs = [
-                    (t, intrinsic_pc_z_history[t], z_final)
-                    for t in range(len(intrinsic_pc_z_history) - 1)
-                ]
-
-            for t, z_in_t, z_tgt in pairs:
-                apply_pc = (
-                    agg == "all"
-                    or (agg == "early" and t < max(T // 2, 1))
-                    or (agg == "last" and t == T - 2)   # second-to-last is the "last" predicting tick here
-                )
-                if apply_pc:
-                    pc_t = self.cerebellar_readout(z_in_t, z_tgt)
-                    per_tick_pc_losses.append(pc_t)
-
-        all_certainties_tensor = torch.stack(all_certainties, dim=0)
-
-        # Restore v1 memory state
-        if not self.config.use_matrix_streams:
-            for l_idx, layer in enumerate(layers):
-                if layer.memory is not None and l_idx < len(pre_states):
-                    layer.memory.pre_history = pre_states[l_idx]
-                    layer.memory.post_history = post_states[l_idx]
-
-        result = {
-            "logits": all_logits[-1] if all_logits else None,
-            "certainties": all_certainties_tensor,
-            "all_logits": all_logits,
-        }
-
-        # FEEC energy diagnostics
-        if self.feec is not None and velocity is not None:
-            with torch.no_grad():
-                result["feec_energy"] = self.feec.energy(z, velocity)
-
-        # ── Hebbian diagnostics ─────────────────────────────────────────
-        # Expose two scalars per forward pass so the training log can show
-        # whether the fast-weight path is actually being used:
-        #   hebbian_gate — mean sigmoid(gate_logit) across all layers.
-        #                  At init this is ~sigmoid(-3) ≈ 0.047. If
-        #                  training opens the gate (>0.1), the model is
-        #                  actively using the Hebbian readout. If it
-        #                  stays near init, the LM loss isn't finding
-        #                  the fast-weights useful — treat that as a
-        #                  signal to either remove the mechanism or
-        #                  rethink how it's wired in.
-        #   hebbian_M_norm — mean L2 norm of the final-tick fast-weight
-        #                  matrix M, averaged over layers and the (B, S)
-        #                  positions. Quantifies how much working memory
-        #                  is being written. Should grow above zero
-        #                  once the loop runs even one tick (M_0 was
-        #                  zero, and one outer-product update suffices).
-        if self.config.use_hebbian_synapse and hebbian_states is not None:
-            with torch.no_grad():
-                gate_vals = []
-                m_norms = []
-                for l_idx, layer in enumerate(layers):
-                    if layer.hebbian is None:
-                        continue
-                    # Report the EFFECTIVE gate value (what actually gets
-                    # multiplied into the readout). When force_gate is
-                    # set, this is the forced value, not sigmoid(gate_logit).
-                    # That keeps the log honest about what the model
-                    # is actually doing — the learned gate logit may
-                    # diverge from the effective gate in diagnostic mode.
-                    if layer.hebbian.force_gate is not None:
-                        gate_vals.append(float(layer.hebbian.force_gate))
-                    else:
-                        gate_vals.append(torch.sigmoid(layer.hebbian.gate_logit).item())
-                    M_final = hebbian_states[l_idx]
-                    if M_final is not None:
-                        # mean Frobenius norm across (B, S) positions
-                        # Per-position norm: sqrt(sum of squares of M[b,s])
-                        # We mean over positions then over the batch.
-                        per_pos_norm = M_final.float().pow(2).sum(dim=(-2, -1)).sqrt()
-                        m_norms.append(per_pos_norm.mean().item())
-                if gate_vals:
-                    result["hebbian_gate"] = sum(gate_vals) / len(gate_vals)
-                if m_norms:
-                    result["hebbian_M_norm"] = sum(m_norms) / len(m_norms)
-                # Effective Hebbian lr (post-modulation). With
-                # hebbian_cert_lr_alpha=0 this equals the base lr
-                # sigmoid(lr_logit) — useful as a sanity check. With
-                # alpha>0 it shows the actual average lr being applied,
-                # which should be > base lr (because uncertainty
-                # multiplier is >= 1). The ratio of effective_lr to
-                # base lr is how much "neurochemical boost" the model
-                # is currently receiving.
-                if per_tick_hebbian_lr:
-                    mean_eff_lr = torch.stack(per_tick_hebbian_lr).mean()
-                    result["hebbian_lr_eff"] = mean_eff_lr.item()
-
-        if targets is not None:
-            # ── Prospective Configuration: per-tick stability weights ─
-            # When use_prospective_config is on and FEEC is active,
-            # compute a per-tick weight that downweights ticks where
-            # the dynamical system was still in transit. Tick 0 has no
-            # predecessor so its weight is 1 (no penalty). Computed
-            # under no_grad — see comment in the loop above for why.
-            stability_weights = None
-            if (getattr(self.config, "use_prospective_config", False)
-                    and per_tick_energy
-                    and len(per_tick_energy) == T):
-                with torch.no_grad():
-                    energies = torch.stack(per_tick_energy)  # [T]
-                    beta = float(getattr(self.config, "prospective_beta", 2.0))
-                    if T > 1 and beta > 0:
-                        # relative change: |E_t - E_{t-1}| / (|E_t| + eps)
-                        # Using current E as denominator (rather than max
-                        # or running mean) so the weight is a property
-                        # of "how much did this tick change things,
-                        # relative to where we ended up." More invariant
-                        # to overall energy scale.
-                        e_curr = energies
-                        e_prev = torch.cat([energies[:1], energies[:-1]])
-                        rel_delta = (e_curr - e_prev).abs() / (e_curr.abs() + 1e-6)
-                        # Tick 0: rel_delta is 0 (e_prev == e_curr) → weight = 1.
-                        stability_weights = torch.exp(-beta * rel_delta)
-                        # Normalize so the weights average to 1 — this
-                        # keeps the overall loss scale unchanged, only
-                        # redistributing emphasis across ticks. Without
-                        # this normalization, large beta would shrink
-                        # the loss globally and effectively lower the
-                        # learning rate, which is a confound.
-                        stability_weights = stability_weights * (T / stability_weights.sum())
-                    else:
-                        stability_weights = torch.ones_like(energies)
-
-                    # Diagnostics
-                    result["stability_w_first"] = float(stability_weights[0].item())
-                    result["stability_w_last"] = float(stability_weights[-1].item())
-                    result["stability_w_min"] = float(stability_weights.min().item())
-
-            # ── Cross-Entropy Loss ──────────────────────────────────────
-            if self.config.temporal_loss_type == "dynamic_aggregate":
-                # [B, S, T] unreduced losses (raw, unmodified)
-                losses_unreduced = torch.stack(per_tick_ce_losses, dim=1)
-                per_tick_loss_tensor = losses_unreduced.mean(dim=0) # [T]
-
-                cert = all_certainties_tensor.view(T, -1).transpose(0, 1) # [BS, T]
-                losses_flat = losses_unreduced.reshape(-1, T)
-
-                # Prospective Configuration: stability-weight is used as
-                # a SELECTION bias only. We compute argmin/argmax on the
-                # weighted losses (so unsettled ticks are less likely to
-                # be picked as "best tick" — their weighted loss is
-                # larger relative to settled ticks). But the *value*
-                # gathered for the final loss is the raw, unweighted
-                # CE — we don't want to optimize a rescaled loss that
-                # has no calibration meaning. This keeps loss values
-                # comparable to runs without PC.
-                if stability_weights is not None:
-                    # Weighted view for selection. Recall stability_weights
-                    # is mean-normalized to 1, so multiplying flips
-                    # "less settled = larger loss" — the argmin will then
-                    # prefer settled ticks. Wait: we want settled ticks
-                    # to win argmin, but multiplying by a weight in [0, T]
-                    # where high = settled would make settled ticks have
-                    # LARGER weighted loss. So we should INVERT for the
-                    # argmin: divide losses by stability (settled →
-                    # smaller loss → wins argmin). For consistency with
-                    # the ramp path (where multiplying weight*loss
-                    # naturally upweights settled ticks in the mean),
-                    # think of it as: high weight = "this tick counts
-                    # more." For argmin/argmax selection of "best tick",
-                    # high-weight ticks should be preferred when the
-                    # underlying loss is competitive. The clean way:
-                    # divide loss by weight for the selection criterion.
-                    eps = 1e-6
-                    losses_weighted_for_argmin = losses_flat / (stability_weights.to(losses_flat.dtype) + eps)
-                    lowest_idx = losses_weighted_for_argmin.argmin(dim=-1)
-                else:
-                    lowest_idx = losses_flat.argmin(dim=-1)
-
-                certain_idx = cert.argmax(dim=-1)
-
-                # Gather RAW (unweighted) losses for the actual loss value.
-                loss_t1 = losses_flat.gather(1, lowest_idx.unsqueeze(1)).squeeze(1)
-                loss_t2 = losses_flat.gather(1, certain_idx.unsqueeze(1)).squeeze(1)
-                base_loss = ((loss_t1 + loss_t2) / 2.0).mean()
-                per_tick_loss = per_tick_loss_tensor
-            else:
-                per_tick_loss_tensor = torch.stack(per_tick_ce_losses) # [T]
-                ramp = torch.linspace(
-                    self.config.tick_ramp_start, self.config.tick_ramp_end, T,
-                    device=device, dtype=dtype,
-                )
-                ramp = ramp * (T / ramp.sum())
-                # Prospective Configuration: multiply the ramp by the
-                # stability weights. Both vectors are length T and both
-                # are normalized to mean 1, so the product is also a
-                # length-T weight vector with mean ≈ 1.
-                if stability_weights is not None:
-                    combined = ramp * stability_weights.to(ramp.dtype)
-                    combined = combined * (T / combined.sum())  # re-normalize
-                    base_loss = (combined * per_tick_loss_tensor).mean()
-                else:
-                    base_loss = (ramp * per_tick_loss_tensor).mean()
-                per_tick_loss = per_tick_loss_tensor
-
-            # ── Monotonicity Penalty ────────────────────────────────────
-            mono_penalty = torch.tensor(0.0, device=device, dtype=dtype)
-            if T > 1:
-                diffs = per_tick_loss_tensor[1:] - per_tick_loss_tensor[:-1]
-                mono_penalty = F.relu(diffs).mean()
-                
-            decay_until_frac = self.config.mono_penalty_decay_until_frac
-            if decay_until_frac > 0 and self.config.max_steps > 0:
-                decay_until_step = decay_until_frac * self.config.max_steps
-                progress = torch.clamp(self._train_step.float() / max(decay_until_step, 1.0), max=1.0)
-                decay_factor = 1.0 - progress * (1.0 - self.config.mono_penalty_min_frac)
-            else:
-                decay_factor = 1.0
+            prev_certainty = None
+            prev_energy = None
             
-            loss = base_loss + (self.config.mono_penalty_weight * decay_factor) * mono_penalty
+            with torch.no_grad():
+                actual_inference_steps = 0
+                for t in range(max_inference_steps):
+                    actual_inference_steps = t + 1
+                    step_res = self._thought_step(
+                        z_curr, t, text_emb, key_padding_mask,
+                        pre_states, post_states, velocity_curr, stream_states_curr,
+                        targets, teacher_log_probs, teacher_top_indices, distill_temp,
+                        None, clamped_target, max_inference_steps, prev_certainty,
+                        compute_logits=False
+                    )
 
-            # ── FEEC energy penalty ─────────────────────────────────────
-            if energy_penalties and self.config.feec_energy_penalty_weight > 0:
-                energy_pen = torch.stack(energy_penalties).mean()
-                loss = loss + self.config.feec_energy_penalty_weight * energy_pen
-                result["feec_energy_penalty"] = energy_pen
+                    (z_curr, logits_t, pre_states, post_states, velocity_curr, stream_states_curr,
+                     ce_loss_t, kl_loss_t, certainty_t, _new_hebbian_states, pc_loss_t,
+                     hebbian_lr_eff_t, hpc_local_loss_t, hpc_free_energy_t,
+                     hpc_mean_precision_t, hpc_mean_error_norm_t) = step_res
+                    
+                    if certainty_t is not None:
+                        prev_certainty = certainty_t
+                    
 
-            # ── Distillation Loss ───────────────────────────────────────
-            distill_loss = torch.tensor(0.0, device=device, dtype=dtype)
-            if per_tick_kl_losses:
-                per_tick_kl_tensor = torch.stack(per_tick_kl_losses)
-                agg = self.config.distill_tick_aggregation
-                if agg == "all":
-                    distill_loss = per_tick_kl_tensor.mean()
-                elif agg == "first":
-                    distill_loss = per_tick_kl_tensor[0]
-                elif agg == "last":
-                    distill_loss = per_tick_kl_tensor[-1]
-                elif agg == "decay_ramp":
-                    T_local = per_tick_kl_tensor.shape[0]
-                    weights = torch.linspace(1.0, 0.1, T_local, device=device, dtype=dtype)
-                    weights = weights * (T_local / weights.sum())
-                    distill_loss = (weights * per_tick_kl_tensor).mean()
-                else:
-                    distill_loss = per_tick_kl_tensor.mean()
+                    # Dynamic termination based on energy stabilization
+                    if self.feec is not None and velocity_curr is not None:
+                        curr_energy = self.feec.energy(z_curr, velocity_curr)
+                        if prev_energy is not None:
+                            rel_delta = (curr_energy - prev_energy).abs() / (curr_energy.abs() + 1e-6)
+                            if rel_delta < energy_tol:
+                                break
+                        prev_energy = curr_energy
 
-            # ── Feature Alignment ───────────────────────────────────────
-            if self.config.distill_feature_weight > 0 and teacher_z is not None:
-                z_aligned = self.distill_proj(z) if hasattr(self, "distill_proj") else z
-                method = self.config.distill_feature_method
-                if method == "cosine":
-                    cos = F.cosine_similarity(z_aligned.float(), teacher_z.float(), dim=-1)
-                    f_loss = (1.0 - cos).mean()
-                else:
-                    f_loss = F.mse_loss(z_aligned, teacher_z)
-                distill_loss = distill_loss + self.config.distill_feature_weight * f_loss
+            result["inference_steps"] = actual_inference_steps
 
-            loss = loss + self.config.distill_logit_weight * distill_loss
+            # ── Phase 2: Learning (Consolidation) ───────────────────────
+            # Execute a single forward pass with gradients enabled.
+            # We set the "target" of the predictive coding layers to the
+            # detached \mu^* discovered in Phase 1.
+            
+            # Re-initialize states for the single gradient-tracked pass
+            z_learn = z.clone()
+            velocity_learn = velocity.clone() if velocity is not None else None
+            
+            # v1 Memory initial states
+            pre_states_learn = []
+            post_states_learn = []
+            if not self.config.use_matrix_streams:
+                pre_states_learn = [layer.memory.pre_history for layer in layers if layer.memory is not None]
+                post_states_learn = [layer.memory.post_history for layer in layers if layer.memory is not None]
+            
+            # Hebbian fast-weights are updated at equilibrium only.
+            # Pass the original (freshly-initialised) hebbian_states so
+            # the single outer-product captures z* ⊗ a*.
+            
+            step_res_learn = self._thought_step(
+                z_learn, 0, text_emb, key_padding_mask,
+                pre_states_learn, post_states_learn, velocity_learn, stream_states,
+                targets, teacher_log_probs, teacher_top_indices, distill_temp,
+                hebbian_states, clamped_target, 1, None
+            )
 
-            # ── Predictive-Coding (Cerebellar) Auxiliary Loss ───────────
-            # Per-tick error from the cerebellar readout against the
-            # teacher hidden state. Adds a local gradient at every tick.
-            # The mean across ticks is taken (matching "all" aggregation
-            # in spirit — each tick contributes equally). If
-            # pc_tick_aggregation skipped ticks, the mean is over fewer
-            # entries, which keeps the per-loss magnitude stable.
-            pc_loss = torch.tensor(0.0, device=device, dtype=dtype)
-            if per_tick_pc_losses:
-                pc_stack = torch.stack(per_tick_pc_losses)
-                pc_loss = pc_stack.mean()
-                loss = loss + self.config.pc_loss_weight * pc_loss
-                result["pc_loss"] = pc_loss.detach()
-                result["per_tick_pc_loss"] = pc_stack.detach()
-
+            (z_learn, logits_t, _, _, velocity_learn, _,
+             ce_loss_t, kl_loss_t, certainty_t, new_hebbian_states, pc_loss_t,
+             _, hpc_local_loss_t, hpc_free_energy_t,
+             _, _) = step_res_learn
+            
+            loss = torch.tensor(0.0, device=device, dtype=dtype)
+            
+            # The local loss from the HPC layers represents the true prospective configuration gradient
+            if hpc_local_loss_t is not None:
+                loss = loss + getattr(self.config, "hpc_local_loss_weight", 1.0) * hpc_local_loss_t
+                result["hpc_local_loss"] = hpc_local_loss_t.detach()
+            
+            # We can also add the cross-entropy of the single consolidated pass
+            if ce_loss_t is not None:
+                loss = loss + ce_loss_t.mean()
+            
             result["loss"] = loss
-            result["per_tick_loss"] = per_tick_loss.detach()
-            result["distill_loss"] = distill_loss.detach()
+            if logits_t is not None:
+                result["logits"] = logits_t
+
+        else:
+            # ── Legacy BPTT Thought Loop (Fallback) ─────────────────────
+            all_logits = []
+            all_certainties = []
+            per_tick_ce_losses = []
+            
+            prev_certainty = None
+            
+            for t in range(T):
+                if use_per_step_ckpt:
+                    step_res = torch_checkpoint.checkpoint(
+                        self._thought_step,
+                        z_curr, t, text_emb, key_padding_mask,
+                        pre_states, post_states, velocity_curr, stream_states_curr,
+                        targets, teacher_log_probs, teacher_top_indices, distill_temp,
+                        hebbian_states_curr, None, T, prev_certainty,
+                        use_reentrant=False,
+                    )
+                else:
+                    step_res = self._thought_step(
+                        z_curr, t, text_emb, key_padding_mask,
+                        pre_states, post_states, velocity_curr, stream_states_curr,
+                        targets, teacher_log_probs, teacher_top_indices, distill_temp,
+                        hebbian_states_curr, None, T, prev_certainty
+                    )
+
+                (z_curr, logits_t, pre_states, post_states, velocity_curr, stream_states_curr,
+                 ce_loss_t, kl_loss_t, certainty_t, new_hebbian_states, pc_loss_t,
+                 hebbian_lr_eff_t, hpc_local_loss_t, hpc_free_energy_t,
+                 hpc_mean_precision_t, hpc_mean_error_norm_t) = step_res
+
+                if certainty_t is not None:
+                    prev_certainty = certainty_t
+                if ce_loss_t is not None:
+                    per_tick_ce_losses.append(ce_loss_t)
+                if logits_t is not None:
+                    all_logits.append(logits_t)
+                if certainty_t is not None:
+                    all_certainties.append(certainty_t)
+                
+                if new_hebbian_states and any(h is not None for h in new_hebbian_states):
+                    hebbian_states_curr = new_hebbian_states
+
+            if per_tick_ce_losses:
+                per_tick_loss_tensor = torch.stack(per_tick_ce_losses)
+                result["loss"] = per_tick_loss_tensor.mean()
+            if all_logits:
+                result["logits"] = all_logits[-1]
+                result["all_logits"] = all_logits
+            if all_certainties:
+                result["certainties"] = torch.stack(all_certainties, dim=0)
 
         return result
 

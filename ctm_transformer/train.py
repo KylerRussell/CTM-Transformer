@@ -1435,18 +1435,6 @@ def train(
             teacher_model = None
             teacher_device = None
 
-    # Temporal-loss schedule summary. Helps verify the decay plan matches
-    # expectations before kicking off a multi-day run.
-    base_mono = config.mono_penalty_weight
-    if config.mono_penalty_decay_until_frac > 0 and base_mono > 0:
-        decay_step = int(config.mono_penalty_decay_until_frac * config.max_steps)
-        floor_mono = base_mono * config.mono_penalty_min_frac
-        print(f"Temporal loss: ramp[{config.tick_ramp_start}→{config.tick_ramp_end}], "
-              f"mono_penalty {base_mono} → {floor_mono:.3f} over first "
-              f"{decay_step:,} steps ({config.mono_penalty_decay_until_frac:.0%} of training)")
-    else:
-        print(f"Temporal loss: ramp[{config.tick_ramp_start}→{config.tick_ramp_end}], "
-              f"mono_penalty {base_mono} (no decay)")
 
     # Curriculum schedule summary. Catches misconfiguration before launch.
     if config.t_curriculum:
@@ -1592,7 +1580,7 @@ def train(
                 except StopIteration:
                     print(" FAILED: Phase 2 dataset is empty!")
                     sys.exit(1)
-                config.temporal_loss_type = "dynamic_aggregate"
+
 
         # Learning rate schedule — applied once per OPTIMIZER step (not per
         # micro-batch). Each param_group carries an `lr_mult` (default 1.0)
@@ -1805,78 +1793,80 @@ def train(
         if step % config.log_interval == 0 and is_main_process():
             window = log_losses[-config.log_interval:]
             avg_loss = sum(window) / len(window)
-            tick_losses = result["per_tick_loss"].tolist()
-
-            # Δticks = last_tick_loss - first_tick_loss
-            # Negative = the model improves across thought steps (good — iterative
-            #            refinement is working). Magnitude is the per-token CE
-            #            improvement from spending more thought.
-            # ~0      = thought loop produces identical output at every step
-            #            (degenerate — architecture isn't using its iterative
-            #            capacity).
-            # Positive = later ticks are WORSE than earlier ticks (regression —
-            #            either training instability or model is "thinking
-            #            itself wrong" past some optimal step).
-            tick_delta = tick_losses[-1] - tick_losses[0] if len(tick_losses) > 1 else 0.0
-
-            cert = result["certainties"]
-            cert_first = cert[0].mean().item()
-            cert_last = cert[-1].mean().item()
             tok_per_sec = batch_tokens / max(dt, 1e-6)
 
             elapsed = time.time() - t_start
             eta_sec = (config.max_steps - step) * (elapsed / max(step - start_step, 1))
 
-            # T= field is only useful when curriculum is varying it.
-            # Otherwise it's redundant — the ticks list length is the same
-            # info — and adds visual noise to the log.
-            t_field = f"T={current_T} | " if config.t_curriculum else ""
-
-            # ── Biological diagnostics (mirrors multi-GPU block) ─────
+            # ── Biological diagnostics ───────────────────────────────
             bio_str = ""
+            if "hpc_local_loss" in result:
+                hpc_v = result["hpc_local_loss"].item()
+                bio_str += f" | hpc_loss {hpc_v:.3f}"
+            if "hpc_free_energy" in result:
+                hpc_fe = result["hpc_free_energy"].item()
+                bio_str += f" | F {hpc_fe:.3f}"
             if "pc_loss" in result:
                 pc_val = result["pc_loss"]
                 pc_v = pc_val.item() if hasattr(pc_val, "item") else float(pc_val)
                 bio_str += f" | pc {pc_v:.3f}"
-                ptpc = result.get("per_tick_pc_loss")
-                if ptpc is not None and ptpc.numel() > 1:
-                    bio_str += f" (Δ{ptpc[-1].item() - ptpc[0].item():+.3f})"
             if "hebbian_gate" in result:
                 bio_str += f" | gate {result['hebbian_gate']:.3f}"
             if "hebbian_M_norm" in result:
                 bio_str += f" | |M| {result['hebbian_M_norm']:.4f}"
             if "hebbian_lr_eff" in result:
-                # Effective Hebbian learning rate after certainty modulation.
-                # Equals base lr (sigmoid(lr_logit)≈0.1) when alpha=0.
-                # Higher → model is encoding uncertain positions more
-                # aggressively. Watch for it diverging from base lr.
                 bio_str += f" | lr_eff {result['hebbian_lr_eff']:.3f}"
-            if "stability_w_min" in result:
-                # Prospective Configuration: how much the least-settled
-                # tick was downweighted. 1.0 = no downweighting (ticks
-                # are all equally settled). <0.5 = at least one tick
-                # was strongly suppressed. Watch this as a "is the
-                # mechanism doing anything?" signal — if always 1.0,
-                # the loop settles in tick 0 (probably fine, but means
-                # PC is inactive).
-                bio_str += f" | w_min {result['stability_w_min']:.2f}"
             if "distill_loss" in result:
                 dl = result["distill_loss"]
                 dl_v = dl.item() if hasattr(dl, "item") else float(dl)
                 bio_str += f" | dist {dl_v:.3f}"
+            if "inference_steps" in result:
+                bio_str += f" | inf_steps {result['inference_steps']}"
 
-            print(
-                f"Step {step:6d} | loss {avg_loss:.4f} | "
-                f"lr {lr:.2e} | grad {grad_norm:.2f} | "
-                f"{tok_per_sec/1e3:.1f}k tok/s | "
-                f"{t_field}"
-                f"cert {cert_first:.2f}→{cert_last:.2f} | "
-                f"ticks [{' '.join(f'{l:.3f}' for l in tick_losses)}] | "
-                f"Δticks {tick_delta:+.3f}"
-                f"{bio_str} | "
-                f"{tokens_seen/1e6:.0f}M tok | "
-                f"ETA {eta_sec/3600:.1f}h"
-            )
+            # Prospective Configuration uses a simplified log format
+            # (no per-tick breakdown since the inference loop runs
+            # under no_grad and only a single consolidation pass
+            # produces the loss).
+            is_prospective = getattr(config, "use_prospective_config", False)
+
+            if is_prospective:
+                print(
+                    f"Step {step:6d} | loss {avg_loss:.4f} | "
+                    f"lr {lr:.2e} | grad {grad_norm:.2f} | "
+                    f"{tok_per_sec/1e3:.1f}k tok/s | "
+                    f"EM"
+                    f"{bio_str} | "
+                    f"{tokens_seen/1e6:.0f}M tok | "
+                    f"ETA {eta_sec/3600:.1f}h"
+                )
+            else:
+                # Legacy BPTT path — full per-tick diagnostics
+                per_tick = result.get("per_tick_loss")
+                tick_losses = per_tick.tolist() if per_tick is not None else [avg_loss]
+                tick_delta = tick_losses[-1] - tick_losses[0] if len(tick_losses) > 1 else 0.0
+
+                cert = result.get("certainties")
+                if cert is not None and cert.dim() > 0:
+                    cert_first = cert[0].mean().item()
+                    cert_last = cert[-1].mean().item()
+                    cert_str = f"cert {cert_first:.2f}→{cert_last:.2f} | "
+                else:
+                    cert_str = ""
+
+                t_field = f"T={current_T} | " if config.t_curriculum else ""
+
+                print(
+                    f"Step {step:6d} | loss {avg_loss:.4f} | "
+                    f"lr {lr:.2e} | grad {grad_norm:.2f} | "
+                    f"{tok_per_sec/1e3:.1f}k tok/s | "
+                    f"{t_field}"
+                    f"{cert_str}"
+                    f"ticks [{' '.join(f'{l:.3f}' for l in tick_losses)}] | "
+                    f"Δticks {tick_delta:+.3f}"
+                    f"{bio_str} | "
+                    f"{tokens_seen/1e6:.0f}M tok | "
+                    f"ETA {eta_sec/3600:.1f}h"
+                )
 
         # ── Phase Profiler Report ────────────────────────────────────────
         # Independent of the main log cadence so the report can be denser
@@ -2110,7 +2100,7 @@ def parse_args():
                             choices=["full", "diag_summary", "low_rank", "sparse_decay"])
     model_group.add_argument("--sync_sparse_pairs", type=int, default=256)
     model_group.add_argument("--synapse_type", type=str, default="mlp", choices=["mlp", "unet"])
-    model_group.add_argument("--temporal_loss_type", type=str, default="ramp_mono", choices=["ramp_mono", "dynamic_aggregate"])
+
     model_group.add_argument("--use_feature_encoder", action="store_true")
     model_group.add_argument("--per_tick_heads", action="store_true",
                             help="Give each thought tick its own output adapter feeding into a "
@@ -2328,19 +2318,14 @@ def parse_args():
                                 "correlates with degraded readout at scale.")
 
     bio_group.add_argument("--use_prospective_config", action="store_true",
-                           help="Prospective Configuration: weight each tick's "
-                                "loss contribution by its FEEC-energy stability. "
-                                "Ticks where energy is still changing fast "
-                                "(unsettled) contribute less; settled ticks "
-                                "contribute more. Multiplies the loss, not the "
-                                "gradient — autograd and all training infrastructure "
-                                "work unchanged. Requires --use_feec.")
-    bio_group.add_argument("--prospective_beta", type=float, default=2.0,
-                           help="Aggressiveness of stability weighting. "
-                                "Weight = exp(-beta * relative_energy_change). "
-                                "0 disables (uniform). 2 means a 50%% energy "
-                                "change gives weight 0.37. Higher = more "
-                                "aggressive downweighting of unsettled ticks.")
+                           help="Prospective Configuration: Expectation-Maximization "
+                                "training separating inference and learning phases. "
+                                "Replaces BPTT. Requires --use_feec.")
+    bio_group.add_argument("--max_inference_steps", type=int, default=1000,
+                           help="Maximum steps allowed in the inference loop.")
+    bio_group.add_argument("--inference_energy_tol", type=float, default=1e-4,
+                           help="Threshold for energy stabilization (tau) to terminate "
+                                "the inference loop.")
 
     bio_group.add_argument("--use_predictive_coding", action="store_true",
                            help="Attach a per-tick 'cerebellar' readout that predicts "
@@ -2351,12 +2336,7 @@ def parse_args():
                            help="Weight of the PC auxiliary loss in the total objective.")
     bio_group.add_argument("--pc_hidden_dim", type=int, default=0,
                            help="Hidden dim of the cerebellar predictor MLP. 0 → auto.")
-    bio_group.add_argument("--pc_normalize", type=str, default="layernorm",
-                           choices=["layernorm", "none"],
-                           help="LayerNorm both sides before computing PC error.")
-    bio_group.add_argument("--pc_loss_type", type=str, default="cosine",
-                           choices=["cosine", "mse"],
-                           help="Cosine recommended for cross-architecture distillation.")
+
     bio_group.add_argument("--pc_dropout", type=float, default=0.0,
                            help="Dropout in the cerebellar predictor.")
     bio_group.add_argument("--pc_tick_aggregation", type=str, default="all",
@@ -2367,10 +2347,31 @@ def parse_args():
                            help="What the cerebellar readout predicts. "
                                 "'teacher' needs teacher_z (requires extending "
                                 "the cache). 'next_tick' and 'final_tick' use "
-                                "the student's own future latents — no teacher "
+                            "the student's own future latents — no teacher "
                                 "data needed. 'next_tick' is the most direct "
                                 "Predictive Coding analogue and is recommended "
                                 "when teacher_z is unavailable.")
+
+    # Hierarchical Predictive Coding
+    hpc_group = parser.add_argument_group("Hierarchical Predictive Coding")
+    hpc_group.add_argument("--pure_pc_mode", action="store_true",
+                           help="Detach z between thought ticks to disable BPTT.")
+    hpc_group.add_argument("--use_hierarchical_pc", action="store_true",
+                           help="Enable iterative free-energy minimization inference "
+                                "across the thought layers.")
+    hpc_group.add_argument("--hpc_inference_lr", type=float, default=0.1,
+                           help="Learning rate for the inference update step.")
+    hpc_group.add_argument("--hpc_generative_type", type=str, default="mlp",
+                           choices=["mlp", "unet"],
+                           help="Type of generative network inside the PC layers.")
+    hpc_group.add_argument("--hpc_generative_hidden_dim", type=int, default=0,
+                           help="Hidden dim of the generative network. 0 -> auto.")
+    hpc_group.add_argument("--hpc_error_as_loss_weight", action="store_true",
+                           help="Weight the per-tick cross-entropy loss by PC precision.")
+    hpc_group.add_argument("--hpc_local_loss_weight", type=float, default=0.1,
+                           help="Weight of the HPC local loss in total objective.")
+    hpc_group.add_argument("--hpc_pc_n_streams", type=int, default=8,
+                           help="Number of streams to allocate when PC is enabled.")
 
     return parser.parse_args()
 
@@ -2441,7 +2442,7 @@ def main():
         sync_method=args.sync_method,
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
-        temporal_loss_type=args.temporal_loss_type,
+
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
@@ -2493,15 +2494,24 @@ def main():
         hebbian_force_gate=args.hebbian_force_gate,
         hebbian_update_rule=args.hebbian_update_rule,
         use_prospective_config=args.use_prospective_config,
-        prospective_beta=args.prospective_beta,
+        max_inference_steps=args.max_inference_steps,
+        inference_energy_tol=args.inference_energy_tol,
         use_predictive_coding=args.use_predictive_coding,
         pc_loss_weight=args.pc_loss_weight,
         pc_hidden_dim=args.pc_hidden_dim,
-        pc_normalize=args.pc_normalize,
-        pc_loss_type=args.pc_loss_type,
+
         pc_dropout=args.pc_dropout,
         pc_tick_aggregation=args.pc_tick_aggregation,
         pc_target=args.pc_target,
+        # Hierarchical Predictive Coding
+        pure_pc_mode=args.pure_pc_mode,
+        use_hierarchical_pc=args.use_hierarchical_pc,
+        hpc_inference_lr=args.hpc_inference_lr,
+        hpc_generative_type=args.hpc_generative_type,
+        hpc_generative_hidden_dim=args.hpc_generative_hidden_dim,
+        hpc_error_as_loss_weight=args.hpc_error_as_loss_weight,
+        hpc_local_loss_weight=args.hpc_local_loss_weight,
+        hpc_pc_n_streams=args.hpc_pc_n_streams,
     )
 
     try:
@@ -2818,8 +2828,8 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 )
 
             cert_str = ""
-            if "certainties" in result:
-                cert = result["certainties"]
+            cert = result.get("certainties")
+            if cert is not None and cert.dim() > 0:
                 cert_first = cert[0].mean().item()
                 cert_last = cert[-1].mean().item()
                 cert_str = f" | cert {cert_first:.2f}→{cert_last:.2f}"
@@ -2841,6 +2851,12 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 ptpc = result.get("per_tick_pc_loss")
                 if ptpc is not None and ptpc.numel() > 1:
                     bio_str += f" (Δ{ptpc[-1].item() - ptpc[0].item():+.3f})"
+            if "hpc_local_loss" in result:
+                hpc_v = result["hpc_local_loss"].item()
+                bio_str += f" | hpc_loss {hpc_v:.3f}"
+            if "hpc_free_energy" in result:
+                hpc_fe = result["hpc_free_energy"].item()
+                bio_str += f" | F {hpc_fe:.3f}"
             if "hebbian_gate" in result:
                 bio_str += f" | gate {result['hebbian_gate']:.3f}"
             if "hebbian_M_norm" in result:
@@ -2851,19 +2867,12 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 # Higher → model is encoding uncertain positions more
                 # aggressively. Watch for it diverging from base lr.
                 bio_str += f" | lr_eff {result['hebbian_lr_eff']:.3f}"
-            if "stability_w_min" in result:
-                # Prospective Configuration: how much the least-settled
-                # tick was downweighted. 1.0 = no downweighting (ticks
-                # are all equally settled). <0.5 = at least one tick
-                # was strongly suppressed. Watch this as a "is the
-                # mechanism doing anything?" signal — if always 1.0,
-                # the loop settles in tick 0 (probably fine, but means
-                # PC is inactive).
-                bio_str += f" | w_min {result['stability_w_min']:.2f}"
             if "distill_loss" in result:
                 dl = result["distill_loss"]
                 dl_v = dl.item() if hasattr(dl, "item") else float(dl)
                 bio_str += f" | dist {dl_v:.3f}"
+            if "inference_steps" in result:
+                bio_str += f" | inf_steps {result['inference_steps']}"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -2912,7 +2921,7 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                     eval_loader_factory=eval_loader_factory,
                     device=device, config=config,
                     amp_dtype=dtype,
-                    T_values=(1, 4, 8),
+                    T_values=(1, 4, 8, 16),
                     max_batches=30,
                 )
                 print(f"  >>> T-ablation @ step {step}:")
@@ -2975,7 +2984,7 @@ def main_multi_gpu():
         sync_method=args.sync_method,
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
-        temporal_loss_type=args.temporal_loss_type,
+
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
@@ -3022,15 +3031,24 @@ def main_multi_gpu():
         hebbian_force_gate=args.hebbian_force_gate,
         hebbian_update_rule=args.hebbian_update_rule,
         use_prospective_config=args.use_prospective_config,
-        prospective_beta=args.prospective_beta,
+        max_inference_steps=args.max_inference_steps,
+        inference_energy_tol=args.inference_energy_tol,
         use_predictive_coding=args.use_predictive_coding,
         pc_loss_weight=args.pc_loss_weight,
         pc_hidden_dim=args.pc_hidden_dim,
-        pc_normalize=args.pc_normalize,
-        pc_loss_type=args.pc_loss_type,
+
         pc_dropout=args.pc_dropout,
         pc_tick_aggregation=args.pc_tick_aggregation,
         pc_target=args.pc_target,
+        # Hierarchical Predictive Coding
+        pure_pc_mode=args.pure_pc_mode,
+        use_hierarchical_pc=args.use_hierarchical_pc,
+        hpc_inference_lr=args.hpc_inference_lr,
+        hpc_generative_type=args.hpc_generative_type,
+        hpc_generative_hidden_dim=args.hpc_generative_hidden_dim,
+        hpc_error_as_loss_weight=args.hpc_error_as_loss_weight,
+        hpc_local_loss_weight=args.hpc_local_loss_weight,
+        hpc_pc_n_streams=args.hpc_pc_n_streams,
     )
 
     # Serialize config to dict for multiprocessing
