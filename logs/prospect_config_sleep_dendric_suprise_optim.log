@@ -1,0 +1,1167 @@
+Spawning 2 workers...
+archlinux:1955886:1955886 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1955886:1955886 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1955886:1955886 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:1955886:1955886 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1955887:1955887 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1955887:1955887 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:1955887:1955887 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1955887:1955887 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1955886:1955886 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:1955887:1955887 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:1955886:1955886 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1955886:1955886 [0] NCCL INFO NET/IB : No device found.
+archlinux:1955886:1955886 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1955886:1955886 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1955886:1955886 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1955886:1955886 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:1955886:1955886 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1955886:1955886 [0] NCCL INFO Using network Socket
+archlinux:1955886:1955886 [0] NCCL INFO ncclCommInitRankConfig comm 0x55e89da2aab0 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x485623d54fff1102 - Init START
+archlinux:1955887:1955887 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1955887:1955887 [1] NCCL INFO NET/IB : No device found.
+archlinux:1955887:1955887 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1955887:1955887 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1955887:1955887 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1955887:1955887 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:1955887:1955887 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1955887:1955887 [1] NCCL INFO Using network Socket
+archlinux:1955887:1955887 [1] NCCL INFO ncclCommInitRankConfig comm 0x563c3fc20530 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x485623d54fff1102 - Init START
+archlinux:1955887:1955887 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1955886:1955886 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1955887:1955887 [1] NCCL INFO Bootstrap timings total 0.000628 (create 0.000014, send 0.000072, recv 0.000077, ring 0.000017, delay 0.000000)
+archlinux:1955886:1955886 [0] NCCL INFO Bootstrap timings total 0.087377 (create 0.000014, send 0.000071, recv 0.086834, ring 0.000014, delay 0.000000)
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1955887:1955887 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1955886:1955886 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:1955887:1955887 [1] NCCL INFO comm 0x563c3fc20530 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:1955886:1955886 [0] NCCL INFO comm 0x55e89da2aab0 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:1955886:1955886 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:1955887:1955887 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:1955886:1955886 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:1955887:1955887 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:1955886:1955886 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:1955886:1955886 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:1955887:1955887 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1955886:1955886 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1955887:1955982 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 4
+archlinux:1955886:1955979 [0] NCCL INFO [Proxy Service] Device 0 CPU core 18
+archlinux:1955886:1955981 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 7
+archlinux:1955887:1955980 [0] NCCL INFO [Proxy Service] Device 1 CPU core 18
+archlinux:1955886:1955886 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1955886:1955886 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1955886:1955886 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1955887:1955887 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1955887:1955887 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1955887:1955887 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1955886:1955886 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:1955886:1955886 [0] NCCL INFO ncclCommInitRankConfig comm 0x55e89da2aab0 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0x485623d54fff1102 - Init COMPLETE
+archlinux:1955887:1955887 [1] NCCL INFO ncclCommInitRankConfig comm 0x563c3fc20530 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0x485623d54fff1102 - Init COMPLETE
+archlinux:1955886:1955886 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.17 (kernels 0.06, alloc 0.00, bootstrap 0.09, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.01)
+archlinux:1955887:1955887 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.17 (kernels 0.15, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.01)
+[worker 0] Building model on cuda:0...
+Model: 641.8M params × 2 workers
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1955886:1955886 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955886:1955886 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1955887:1955887 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1955887:1955887 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1955886:1955886 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:1955887:1955887 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments) + NeuroPlasticOptimizer
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 0 → 10000000
+  Batch: 2 × 512 tokens
+  Thought ticks: 100
+  Gradient checkpointing: True
+============================================================
+
+step      0 | loss 12.5000 | lr 0.00e+00 | grad 0.00 | 0.6k tok/s (avg 0.6k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 16 | NE 1.000 | ETA 4737.2h
+step     10 | loss 12.5625 | lr 1.50e-06 | grad 0.00 | 1.9k tok/s (avg 1.4k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 17 | NE 1.000 | ETA 1999.1h
+step     20 | loss 12.5625 | lr 3.00e-06 | grad 1.20 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 9 | NE 1.980 | ETA 2482.1h
+step     30 | loss 12.5000 | lr 4.50e-06 | grad 1.20 | 1.9k tok/s (avg 1.3k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2155.8h
+step     40 | loss 12.4375 | lr 6.00e-06 | grad 1.43 | 0.9k tok/s (avg 1.2k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2395.1h
+step     50 | loss 12.4375 | lr 7.50e-06 | grad 1.30 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 9 | NE 1.980 | ETA 2524.9h
+step     60 | loss 12.5000 | lr 9.00e-06 | grad 1.30 | 1.7k tok/s (avg 1.2k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 15 | NE 1.980 | ETA 2383.9h
+step     70 | loss 12.5000 | lr 1.05e-05 | grad 1.46 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2505.9h
+step     80 | loss 12.5000 | lr 1.20e-05 | grad 1.28 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2576.8h
+step     90 | loss 12.5000 | lr 1.35e-05 | grad 1.28 | 1.7k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2473.9h
+step    100 | loss 12.4375 | lr 1.50e-05 | grad 1.20 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 9 | NE 1.980 | ETA 2536.8h
+step    110 | loss 12.4375 | lr 1.65e-05 | grad 1.20 | 1.9k tok/s (avg 1.2k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2440.9h
+step    120 | loss 12.4375 | lr 1.80e-05 | grad 1.25 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2513.7h
+step    130 | loss 12.4375 | lr 1.95e-05 | grad 1.22 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 14 | NE 1.980 | ETA 2552.7h
+step    140 | loss 12.3750 | lr 2.10e-05 | grad 1.22 | 2.0k tok/s (avg 1.2k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 9 | NE 1.980 | ETA 2470.8h
+step    150 | loss 12.5000 | lr 2.25e-05 | grad 1.34 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 17 | NE 1.980 | ETA 2527.7h
+step    160 | loss 12.4375 | lr 2.40e-05 | grad 1.24 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 15 | NE 1.980 | ETA 2551.2h
+step    170 | loss 12.3750 | lr 2.55e-05 | grad 1.24 | 1.7k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 15 | NE 1.980 | ETA 2497.6h
+step    180 | loss 12.3125 | lr 2.70e-05 | grad 1.38 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 15 | NE 1.980 | ETA 2524.0h
+step    190 | loss 12.3125 | lr 2.85e-05 | grad 1.38 | 1.7k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 15 | NE 1.980 | ETA 2479.0h
+step    200 | loss 12.3750 | lr 3.00e-05 | grad 1.23 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 9 | NE 1.980 | ETA 2503.4h
+step    210 | loss 12.1250 | lr 3.15e-05 | grad 1.25 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 17 | NE 1.980 | ETA 2526.6h
+step    220 | loss 12.1875 | lr 3.30e-05 | grad 1.25 | 1.7k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 5.000 | inf_steps 15 | NE 1.980 | ETA 2487.0h
+step    230 | loss 12.3750 | lr 3.45e-05 | grad 1.26 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.980 | ETA 2509.6h
+step    240 | loss 12.3125 | lr 3.60e-05 | grad 1.21 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2524.3h
+step    250 | loss 12.0625 | lr 3.75e-05 | grad 1.21 | 1.5k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2497.3h
+step    260 | loss 12.2500 | lr 3.90e-05 | grad 1.16 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2513.6h
+step    270 | loss 12.2500 | lr 4.05e-05 | grad 1.16 | 1.6k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 16 | NE 1.981 | ETA 2484.4h
+step    280 | loss 12.1250 | lr 4.20e-05 | grad 1.19 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 20 | NE 1.981 | ETA 2501.6h
+step    290 | loss 12.2500 | lr 4.35e-05 | grad 1.25 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2511.8h
+step    300 | loss 12.1875 | lr 4.50e-05 | grad 1.25 | 1.7k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 19 | NE 1.981 | ETA 2485.3h
+step    310 | loss 12.3750 | lr 4.65e-05 | grad 1.49 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2494.1h
+step    320 | loss 11.8125 | lr 4.80e-05 | grad 1.20 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2515.8h
+step    330 | loss 11.6250 | lr 4.95e-05 | grad 1.20 | 1.6k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2492.9h
+step    340 | loss 12.0000 | lr 5.10e-05 | grad 1.09 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2506.9h
+step    350 | loss 12.0000 | lr 5.25e-05 | grad 1.09 | 1.7k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2483.7h
+step    360 | loss 11.5000 | lr 5.40e-05 | grad 1.28 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 15 | NE 1.981 | ETA 2495.7h
+step    370 | loss 11.4375 | lr 5.55e-05 | grad 1.25 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 17 | NE 1.981 | ETA 2515.2h
+step    380 | loss 11.0625 | lr 5.70e-05 | grad 1.25 | 1.8k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 18 | NE 1.981 | ETA 2491.5h
+step    390 | loss 11.8125 | lr 5.85e-05 | grad 1.36 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 15 | NE 1.981 | ETA 2503.8h
+step    400 | loss 11.8750 | lr 6.00e-05 | grad 1.28 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2510.2h
+step    410 | loss 11.8750 | lr 6.15e-05 | grad 1.28 | 1.6k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2491.4h
+step    420 | loss 11.0625 | lr 6.30e-05 | grad 1.16 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 9 | NE 1.981 | ETA 2503.8h
+step    430 | loss 11.6875 | lr 6.45e-05 | grad 1.16 | 1.6k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.969 | inf_steps 14 | NE 1.981 | ETA 2486.5h
+step    440 | loss 11.8125 | lr 6.60e-05 | grad 1.24 | 1.1k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 15 | NE 1.981 | ETA 2491.1h
+step    450 | loss 11.5000 | lr 6.75e-05 | grad 1.13 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 14 | NE 1.982 | ETA 2505.0h
+step    460 | loss 11.4375 | lr 6.90e-05 | grad 1.13 | 1.6k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.906 | inf_steps 17 | NE 1.982 | ETA 2490.4h
+step    470 | loss 11.0000 | lr 7.05e-05 | grad 1.27 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.906 | inf_steps 15 | NE 1.982 | ETA 2496.1h
+step    480 | loss 10.9375 | lr 7.20e-05 | grad 1.28 | 1.1k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.906 | inf_steps 16 | NE 1.982 | ETA 2500.1h
+step    490 | loss 11.8750 | lr 7.35e-05 | grad 1.28 | 1.7k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 15 | NE 1.982 | ETA 2482.8h
+step    500 | loss 11.6875 | lr 7.50e-05 | grad 1.20 | 0.9k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 13 | NE 1.982 | ETA 2494.9h
+step    510 | loss 11.9375 | lr 7.65e-05 | grad 1.20 | 1.6k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 17 | NE 1.982 | ETA 2480.2h
+step    520 | loss 11.7500 | lr 7.80e-05 | grad 1.39 | 1.1k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 14 | NE 1.982 | ETA 2482.1h
+step    530 | loss 11.6250 | lr 7.95e-05 | grad 1.45 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 13 | NE 1.981 | ETA 2487.1h
+step    540 | loss 10.9375 | lr 8.10e-05 | grad 1.45 | 1.7k tok/s (avg 1.2k) | cert 0.02→0.02 | hpc_loss 4.906 | inf_steps 16 | NE 1.981 | ETA 2472.2h
+step    550 | loss 11.0000 | lr 8.25e-05 | grad 1.31 | 1.0k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 17 | NE 1.981 | ETA 2481.0h
+step    560 | loss 11.1875 | lr 8.40e-05 | grad 1.40 | 1.1k tok/s (avg 1.1k) | cert 0.02→0.02 | hpc_loss 4.938 | inf_steps 15 | NE 1.981 | ETA 2482.8h
+step    570 | loss 10.7500 | lr 8.55e-05 | grad 1.40 | 1.6k tok/s (avg 1.2k) | cert 0.03→0.03 | hpc_loss 4.906 | inf_steps 16 | NE 1.981 | ETA 2470.0h
+step    580 | loss 10.1875 | lr 8.70e-05 | grad 1.19 | 1.1k tok/s (avg 1.2k) | cert 0.03→0.03 | hpc_loss 4.906 | inf_steps 14 | NE 1.981 | ETA 2472.5h
+step    590 | loss 10.9375 | lr 8.85e-05 | grad 1.19 | 1.6k tok/s (avg 1.2k) | cert 0.03→0.03 | hpc_loss 4.906 | inf_steps 15 | NE 1.981 | ETA 2460.1h
+step    600 | loss 10.1250 | lr 9.00e-05 | grad 1.45 | 1.0k tok/s (avg 1.2k) | cert 0.03→0.03 | hpc_loss 4.906 | inf_steps 15 | NE 1.980 | ETA 2465.4h
+step    610 | loss 10.5000 | lr 9.15e-05 | grad 1.25 | 1.2k tok/s (avg 1.2k) | cert 0.04→0.04 | hpc_loss 4.938 | inf_steps 16 | NE 1.980 | ETA 2465.5h
+step    620 | loss 11.0625 | lr 9.30e-05 | grad 1.25 | 1.7k tok/s (avg 1.2k) | cert 0.03→0.03 | hpc_loss 4.906 | inf_steps 15 | NE 1.980 | ETA 2452.4h
+step    630 | loss 9.3750 | lr 9.45e-05 | grad 1.29 | 1.0k tok/s (avg 1.2k) | cert 0.05→0.05 | hpc_loss 4.906 | inf_steps 16 | NE 1.979 | ETA 2458.5h
+step    640 | loss 9.3125 | lr 9.60e-05 | grad 1.31 | 0.9k tok/s (avg 1.2k) | cert 0.06→0.06 | hpc_loss 4.906 | inf_steps 14 | NE 1.978 | ETA 2467.7h
+step    650 | loss 10.6250 | lr 9.75e-05 | grad 1.31 | 1.5k tok/s (avg 1.2k) | cert 0.03→0.03 | hpc_loss 4.906 | inf_steps 19 | NE 1.978 | ETA 2459.2h
+step    660 | loss 9.1250 | lr 9.90e-05 | grad 1.38 | 0.9k tok/s (avg 1.2k) | cert 0.05→0.05 | hpc_loss 4.906 | inf_steps 19 | NE 1.977 | ETA 2469.1h
+step    670 | loss 9.2500 | lr 1.00e-04 | grad 1.38 | 1.6k tok/s (avg 1.2k) | cert 0.05→0.05 | hpc_loss 4.906 | inf_steps 15 | NE 1.977 | ETA 2458.0h
+step    680 | loss 9.6250 | lr 1.02e-04 | grad 1.45 | 0.9k tok/s (avg 1.2k) | cert 0.06→0.06 | hpc_loss 4.906 | inf_steps 14 | NE 1.975 | ETA 2466.9h
+step    690 | loss 10.3750 | lr 1.03e-04 | grad 1.47 | 0.9k tok/s (avg 1.1k) | cert 0.05→0.05 | hpc_loss 4.906 | inf_steps 13 | NE 1.974 | ETA 2475.0h
+step    700 | loss 8.8750 | lr 1.05e-04 | grad 1.47 | 1.6k tok/s (avg 1.2k) | cert 0.07→0.07 | hpc_loss 4.906 | inf_steps 16 | NE 1.974 | ETA 2465.3h
+step    710 | loss 9.1250 | lr 1.07e-04 | grad 1.30 | 0.9k tok/s (avg 1.1k) | cert 0.05→0.05 | hpc_loss 4.906 | inf_steps 19 | NE 1.973 | ETA 2475.3h
+step    720 | loss 8.7500 | lr 1.08e-04 | grad 1.42 | 1.0k tok/s (avg 1.1k) | cert 0.08→0.08 | hpc_loss 4.906 | inf_steps 14 | NE 1.969 | ETA 2481.1h
+step    730 | loss 9.7500 | lr 1.09e-04 | grad 1.42 | 1.6k tok/s (avg 1.2k) | cert 0.06→0.06 | hpc_loss 4.906 | inf_steps 18 | NE 1.969 | ETA 2471.8h
+step    740 | loss 9.8750 | lr 1.11e-04 | grad 1.39 | 1.0k tok/s (avg 1.1k) | cert 0.05→0.05 | hpc_loss 4.906 | inf_steps 14 | NE 1.968 | ETA 2477.8h
+step    750 | loss 9.0625 | lr 1.12e-04 | grad 1.39 | 1.7k tok/s (avg 1.2k) | cert 0.09→0.09 | hpc_loss 4.875 | inf_steps 14 | NE 1.968 | ETA 2467.6h
+step    760 | loss 6.9688 | lr 1.14e-04 | grad 1.29 | 0.9k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.875 | inf_steps 18 | NE 1.965 | ETA 2475.2h
+step    770 | loss 7.5938 | lr 1.15e-04 | grad 1.35 | 1.0k tok/s (avg 1.1k) | cert 0.11→0.11 | hpc_loss 4.875 | inf_steps 14 | NE 1.962 | ETA 2480.6h
+step    780 | loss 9.0000 | lr 1.17e-04 | grad 1.35 | 1.7k tok/s (avg 1.2k) | cert 0.08→0.08 | hpc_loss 4.875 | inf_steps 15 | NE 1.962 | ETA 2470.9h
+step    790 | loss 9.0000 | lr 1.18e-04 | grad 1.40 | 0.9k tok/s (avg 1.1k) | cert 0.07→0.07 | hpc_loss 4.875 | inf_steps 14 | NE 1.958 | ETA 2481.7h
+step    800 | loss 9.1250 | lr 1.20e-04 | grad 1.26 | 0.9k tok/s (avg 1.1k) | cert 0.08→0.08 | hpc_loss 4.875 | inf_steps 14 | NE 1.954 | ETA 2488.3h
+step    810 | loss 7.6562 | lr 1.21e-04 | grad 1.26 | 1.5k tok/s (avg 1.1k) | cert 0.12→0.12 | hpc_loss 4.875 | inf_steps 18 | NE 1.954 | ETA 2481.0h
+step    820 | loss 7.4062 | lr 1.23e-04 | grad 1.19 | 0.9k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.875 | inf_steps 15 | NE 1.950 | ETA 2487.6h
+step    830 | loss 8.0625 | lr 1.24e-04 | grad 1.19 | 1.7k tok/s (avg 1.1k) | cert 0.04→0.04 | hpc_loss 4.875 | inf_steps 14 | NE 1.950 | ETA 2478.1h
+step    840 | loss 8.5625 | lr 1.26e-04 | grad 1.19 | 0.8k tok/s (avg 1.1k) | cert 0.09→0.09 | hpc_loss 4.875 | inf_steps 14 | NE 1.944 | ETA 2488.7h
+step    850 | loss 6.9375 | lr 1.28e-04 | grad 1.29 | 1.0k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.875 | inf_steps 16 | NE 1.940 | ETA 2494.1h
+step    860 | loss 8.3125 | lr 1.29e-04 | grad 1.29 | 1.6k tok/s (avg 1.1k) | cert 0.09→0.09 | hpc_loss 4.875 | inf_steps 13 | NE 1.940 | ETA 2485.8h
+step    870 | loss 7.8438 | lr 1.30e-04 | grad 1.21 | 1.0k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.875 | inf_steps 14 | NE 1.931 | ETA 2490.9h
+step    880 | loss 6.9688 | lr 1.32e-04 | grad 1.06 | 0.8k tok/s (avg 1.1k) | cert 0.22→0.22 | hpc_loss 4.875 | inf_steps 9 | NE 1.926 | ETA 2500.9h
+step    890 | loss 6.9375 | lr 1.33e-04 | grad 1.06 | 1.7k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.875 | inf_steps 15 | NE 1.926 | ETA 2491.8h
+step    900 | loss 8.8125 | lr 1.35e-04 | grad 1.16 | 0.8k tok/s (avg 1.1k) | cert 0.14→0.14 | hpc_loss 4.875 | inf_steps 16 | NE 1.918 | ETA 2503.6h
+step    910 | loss 7.8750 | lr 1.36e-04 | grad 1.16 | 1.6k tok/s (avg 1.1k) | cert 0.14→0.14 | hpc_loss 4.844 | inf_steps 16 | NE 1.918 | ETA 2495.7h
+step    920 | loss 8.1875 | lr 1.38e-04 | grad 0.98 | 0.9k tok/s (avg 1.1k) | cert 0.14→0.14 | hpc_loss 4.844 | inf_steps 15 | NE 1.910 | ETA 2501.3h
+step    930 | loss 8.3125 | lr 1.39e-04 | grad 1.00 | 1.0k tok/s (avg 1.1k) | cert 0.14→0.14 | hpc_loss 4.844 | inf_steps 15 | NE 1.902 | ETA 2503.9h
+step    940 | loss 8.4375 | lr 1.41e-04 | grad 1.00 | 1.8k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.844 | inf_steps 9 | NE 1.902 | ETA 2494.3h
+step    950 | loss 7.0625 | lr 1.42e-04 | grad 1.03 | 0.9k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.844 | inf_steps 19 | NE 1.892 | ETA 2501.5h
+step    960 | loss 6.1875 | lr 1.44e-04 | grad 0.96 | 1.0k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 4.844 | inf_steps 15 | NE 1.883 | ETA 2506.3h
+step    970 | loss 7.5000 | lr 1.45e-04 | grad 0.96 | 1.6k tok/s (avg 1.1k) | cert 0.23→0.23 | hpc_loss 4.844 | inf_steps 19 | NE 1.883 | ETA 2498.5h
+step    980 | loss 6.0625 | lr 1.47e-04 | grad 0.84 | 0.9k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.844 | inf_steps 15 | NE 1.879 | ETA 2504.5h
+step    990 | loss 7.0625 | lr 1.49e-04 | grad 0.84 | 1.7k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.844 | inf_steps 14 | NE 1.879 | ETA 2495.7h
+step   1000 | loss 7.0000 | lr 1.50e-04 | grad 0.86 | 0.9k tok/s (avg 1.1k) | cert 0.23→0.23 | hpc_loss 4.812 | inf_steps 19 | NE 1.875 | ETA 2503.9h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 1000:
+  T=dyn | CE=6.1569 | PPL=471.98 | top1=17.6% | top5=34.8% | (25600 tok)
+step   1010 | loss 8.2500 | lr 1.51e-04 | grad 0.89 | 0.3k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.812 | inf_steps 9 | NE 1.873 | ETA 2589.9h
+step   1020 | loss 7.4062 | lr 1.53e-04 | grad 0.89 | 1.7k tok/s (avg 1.1k) | cert 0.24→0.24 | hpc_loss 4.812 | inf_steps 14 | NE 1.873 | ETA 2580.5h
+step   1030 | loss 8.4375 | lr 1.54e-04 | grad 0.86 | 0.8k tok/s (avg 1.1k) | cert 0.20→0.20 | hpc_loss 4.812 | inf_steps 19 | NE 1.864 | ETA 2588.2h
+step   1040 | loss 6.3125 | lr 1.56e-04 | grad 0.91 | 1.0k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 4.812 | inf_steps 15 | NE 1.855 | ETA 2591.9h
+step   1050 | loss 6.1250 | lr 1.57e-04 | grad 0.91 | 1.7k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 4.812 | inf_steps 14 | NE 1.855 | ETA 2583.2h
+step   1060 | loss 6.5938 | lr 1.59e-04 | grad 1.08 | 0.9k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 4.812 | inf_steps 14 | NE 1.845 | ETA 2589.9h
+step   1070 | loss 5.3125 | lr 1.60e-04 | grad 1.08 | 1.7k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 4.812 | inf_steps 14 | NE 1.845 | ETA 2581.5h
+step   1080 | loss 5.8125 | lr 1.62e-04 | grad 0.92 | 0.9k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 4.812 | inf_steps 14 | NE 1.839 | ETA 2588.0h
+step   1090 | loss 7.2188 | lr 1.63e-04 | grad 0.97 | 0.9k tok/s (avg 1.1k) | cert 0.27→0.27 | hpc_loss 4.812 | inf_steps 15 | NE 1.833 | ETA 2592.0h
+step   1100 | loss 7.4375 | lr 1.65e-04 | grad 0.97 | 1.7k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.812 | inf_steps 16 | NE 1.833 | ETA 2584.0h
+step   1110 | loss 7.3750 | lr 1.66e-04 | grad 0.89 | 0.9k tok/s (avg 1.1k) | cert 0.22→0.22 | hpc_loss 4.812 | inf_steps 14 | NE 1.829 | ETA 2590.2h
+step   1120 | loss 6.7500 | lr 1.68e-04 | grad 0.88 | 0.9k tok/s (avg 1.1k) | cert 0.31→0.31 | hpc_loss 4.781 | inf_steps 15 | NE 1.828 | ETA 2594.3h
+step   1130 | loss 5.3438 | lr 1.69e-04 | grad 0.88 | 1.6k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 4.781 | inf_steps 13 | NE 1.828 | ETA 2586.7h
+step   1140 | loss 5.2188 | lr 1.71e-04 | grad 0.81 | 0.9k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 4.781 | inf_steps 14 | NE 1.821 | ETA 2592.3h
+step   1150 | loss 7.6250 | lr 1.72e-04 | grad 0.81 | 1.6k tok/s (avg 1.1k) | cert 0.23→0.23 | hpc_loss 4.781 | inf_steps 15 | NE 1.821 | ETA 2585.1h
+step   1160 | loss 6.5938 | lr 1.74e-04 | grad 0.83 | 0.9k tok/s (avg 1.1k) | cert 0.27→0.27 | hpc_loss 4.781 | inf_steps 14 | NE 1.813 | ETA 2591.0h
+step   1170 | loss 5.3125 | lr 1.75e-04 | grad 0.89 | 0.9k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 4.781 | inf_steps 15 | NE 1.808 | ETA 2594.8h
+step   1180 | loss 5.5938 | lr 1.77e-04 | grad 0.89 | 1.7k tok/s (avg 1.1k) | cert 0.32→0.32 | hpc_loss 4.781 | inf_steps 15 | NE 1.808 | ETA 2587.0h
+step   1190 | loss 5.1875 | lr 1.79e-04 | grad 0.89 | 0.9k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 4.781 | inf_steps 14 | NE 1.806 | ETA 2591.9h
+step   1200 | loss 5.6875 | lr 1.80e-04 | grad 0.87 | 0.9k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.781 | inf_steps 14 | NE 1.802 | ETA 2596.5h
+step   1210 | loss 6.6562 | lr 1.81e-04 | grad 0.87 | 1.6k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 4.781 | inf_steps 16 | NE 1.802 | ETA 2589.8h
+step   1220 | loss 5.4688 | lr 1.83e-04 | grad 0.82 | 0.9k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 4.781 | inf_steps 14 | NE 1.801 | ETA 2594.3h
+step   1230 | loss 5.2500 | lr 1.84e-04 | grad 0.82 | 1.6k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 4.781 | inf_steps 14 | NE 1.801 | ETA 2587.3h
+step   1240 | loss 7.6875 | lr 1.86e-04 | grad 0.83 | 0.9k tok/s (avg 1.1k) | cert 0.19→0.19 | hpc_loss 4.781 | inf_steps 15 | NE 1.800 | ETA 2592.7h
+step   1250 | loss 6.5312 | lr 1.87e-04 | grad 0.92 | 0.9k tok/s (avg 1.1k) | cert 0.24→0.24 | hpc_loss 4.750 | inf_steps 15 | NE 1.795 | ETA 2596.4h
+step   1260 | loss 6.4688 | lr 1.89e-04 | grad 0.92 | 1.5k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.750 | inf_steps 15 | NE 1.795 | ETA 2590.5h
+step   1270 | loss 5.3438 | lr 1.90e-04 | grad 0.74 | 1.0k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 4.750 | inf_steps 14 | NE 1.797 | ETA 2592.7h
+step   1280 | loss 5.1250 | lr 1.92e-04 | grad 0.77 | 1.0k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 4.750 | inf_steps 15 | NE 1.789 | ETA 2594.9h
+step   1290 | loss 5.1875 | lr 1.93e-04 | grad 0.77 | 1.7k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 4.750 | inf_steps 15 | NE 1.789 | ETA 2587.6h
+step   1300 | loss 6.0625 | lr 1.95e-04 | grad 1.02 | 0.9k tok/s (avg 1.1k) | cert 0.21→0.21 | hpc_loss 4.750 | inf_steps 15 | NE 1.788 | ETA 2593.0h
+step   1310 | loss 6.4062 | lr 1.96e-04 | grad 1.02 | 1.6k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.750 | inf_steps 15 | NE 1.788 | ETA 2586.8h
+step   1320 | loss 5.9375 | lr 1.98e-04 | grad 0.72 | 0.9k tok/s (avg 1.1k) | cert 0.22→0.22 | hpc_loss 4.750 | inf_steps 17 | NE 1.789 | ETA 2590.7h
+step   1330 | loss 4.5312 | lr 1.99e-04 | grad 0.75 | 0.9k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 4.719 | inf_steps 17 | NE 1.788 | ETA 2594.6h
+step   1340 | loss 7.3438 | lr 2.01e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.719 | inf_steps 14 | NE 1.788 | ETA 2588.1h
+step   1350 | loss 5.3438 | lr 2.02e-04 | grad 0.75 | 0.9k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.719 | inf_steps 14 | NE 1.788 | ETA 2593.1h
+step   1360 | loss 7.8750 | lr 2.04e-04 | grad 0.68 | 0.9k tok/s (avg 1.1k) | cert 0.08→0.08 | hpc_loss 4.719 | inf_steps 17 | NE 1.789 | ETA 2596.4h
+step   1370 | loss 7.1875 | lr 2.05e-04 | grad 0.68 | 1.5k tok/s (avg 1.1k) | cert 0.08→0.08 | hpc_loss 4.719 | inf_steps 21 | NE 1.789 | ETA 2591.2h
+step   1380 | loss 5.8438 | lr 2.07e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.719 | inf_steps 16 | NE 1.794 | ETA 2594.3h
+step   1390 | loss 4.6250 | lr 2.08e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.28→0.28 | hpc_loss 4.719 | inf_steps 14 | NE 1.794 | ETA 2588.7h
+step   1400 | loss 5.4062 | lr 2.10e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.719 | inf_steps 15 | NE 1.794 | ETA 2592.1h
+step   1410 | loss 6.4688 | lr 2.11e-04 | grad 0.75 | 0.9k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.688 | inf_steps 14 | NE 1.799 | ETA 2595.0h
+step   1420 | loss 5.5938 | lr 2.13e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.688 | inf_steps 14 | NE 1.799 | ETA 2589.4h
+step   1430 | loss 5.1250 | lr 2.14e-04 | grad 0.74 | 0.9k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 4.688 | inf_steps 13 | NE 1.802 | ETA 2593.8h
+step   1440 | loss 7.5625 | lr 2.16e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.08→0.08 | hpc_loss 4.688 | inf_steps 18 | NE 1.801 | ETA 2598.4h
+step   1450 | loss 7.2500 | lr 2.17e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.11→0.11 | hpc_loss 4.688 | inf_steps 14 | NE 1.801 | ETA 2593.0h
+step   1460 | loss 5.6562 | lr 2.19e-04 | grad 0.68 | 0.9k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.688 | inf_steps 14 | NE 1.802 | ETA 2596.5h
+step   1470 | loss 5.5000 | lr 2.20e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.688 | inf_steps 15 | NE 1.802 | ETA 2591.0h
+step   1480 | loss 5.6562 | lr 2.22e-04 | grad 0.68 | 0.9k tok/s (avg 1.1k) | cert 0.14→0.14 | hpc_loss 4.688 | inf_steps 15 | NE 1.808 | ETA 2594.7h
+step   1490 | loss 6.9375 | lr 2.23e-04 | grad 0.70 | 0.9k tok/s (avg 1.1k) | cert 0.05→0.05 | hpc_loss 4.688 | inf_steps 15 | NE 1.810 | ETA 2597.4h
+step   1500 | loss 5.4688 | lr 2.25e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.688 | inf_steps 14 | NE 1.810 | ETA 2592.2h
+step   1510 | loss 5.2500 | lr 2.26e-04 | grad 0.74 | 0.9k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.656 | inf_steps 15 | NE 1.811 | ETA 2594.8h
+step   1520 | loss 5.0312 | lr 2.28e-04 | grad 0.69 | 0.9k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.656 | inf_steps 14 | NE 1.810 | ETA 2597.9h
+step   1530 | loss 5.3750 | lr 2.29e-04 | grad 0.69 | 1.6k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.656 | inf_steps 13 | NE 1.810 | ETA 2592.6h
+step   1540 | loss 5.6250 | lr 2.31e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.656 | inf_steps 15 | NE 1.813 | ETA 2595.8h
+step   1550 | loss 4.9062 | lr 2.32e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.656 | inf_steps 15 | NE 1.813 | ETA 2590.3h
+step   1560 | loss 6.3125 | lr 2.34e-04 | grad 0.75 | 0.9k tok/s (avg 1.1k) | cert 0.14→0.14 | hpc_loss 4.656 | inf_steps 17 | NE 1.814 | ETA 2593.1h
+step   1570 | loss 5.3125 | lr 2.35e-04 | grad 0.74 | 0.9k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.625 | inf_steps 16 | NE 1.815 | ETA 2597.8h
+step   1580 | loss 5.5938 | lr 2.37e-04 | grad 0.74 | 1.7k tok/s (avg 1.1k) | cert 0.17→0.17 | hpc_loss 4.625 | inf_steps 14 | NE 1.815 | ETA 2591.9h
+step   1590 | loss 5.5000 | lr 2.38e-04 | grad 0.74 | 0.9k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.625 | inf_steps 14 | NE 1.816 | ETA 2595.7h
+step   1600 | loss 5.6250 | lr 2.40e-04 | grad 0.75 | 0.9k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.625 | inf_steps 15 | NE 1.817 | ETA 2599.4h
+step   1610 | loss 5.1250 | lr 2.41e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.17→0.17 | hpc_loss 4.625 | inf_steps 14 | NE 1.817 | ETA 2594.4h
+step   1620 | loss 7.0000 | lr 2.43e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.625 | inf_steps 20 | NE 1.818 | ETA 2597.5h
+step   1630 | loss 5.8125 | lr 2.44e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.23→0.23 | hpc_loss 4.625 | inf_steps 13 | NE 1.818 | ETA 2592.3h
+step   1640 | loss 4.4688 | lr 2.46e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.17→0.17 | hpc_loss 4.594 | inf_steps 14 | NE 1.819 | ETA 2595.4h
+step   1650 | loss 4.8438 | lr 2.47e-04 | grad 0.68 | 1.0k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 4.594 | inf_steps 17 | NE 1.820 | ETA 2596.4h
+step   1660 | loss 4.5938 | lr 2.49e-04 | grad 0.68 | 1.7k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.594 | inf_steps 14 | NE 1.820 | ETA 2591.0h
+step   1670 | loss 5.6562 | lr 2.51e-04 | grad 0.77 | 0.9k tok/s (avg 1.1k) | cert 0.23→0.23 | hpc_loss 4.594 | inf_steps 14 | NE 1.815 | ETA 2594.9h
+step   1680 | loss 5.9375 | lr 2.52e-04 | grad 0.73 | 0.9k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.594 | inf_steps 14 | NE 1.818 | ETA 2597.3h
+step   1690 | loss 4.8438 | lr 2.53e-04 | grad 0.73 | 1.5k tok/s (avg 1.1k) | cert 0.20→0.20 | hpc_loss 4.594 | inf_steps 15 | NE 1.818 | ETA 2592.8h
+step   1700 | loss 6.7188 | lr 2.55e-04 | grad 0.67 | 0.9k tok/s (avg 1.1k) | cert 0.17→0.17 | hpc_loss 4.562 | inf_steps 14 | NE 1.814 | ETA 2596.5h
+step   1710 | loss 6.3750 | lr 2.56e-04 | grad 0.67 | 1.7k tok/s (avg 1.1k) | cert 0.21→0.21 | hpc_loss 4.562 | inf_steps 14 | NE 1.814 | ETA 2591.3h
+step   1720 | loss 5.1250 | lr 2.58e-04 | grad 0.72 | 0.9k tok/s (avg 1.1k) | cert 0.27→0.27 | hpc_loss 4.562 | inf_steps 15 | NE 1.809 | ETA 2595.2h
+step   1730 | loss 6.6875 | lr 2.59e-04 | grad 0.73 | 0.9k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.562 | inf_steps 19 | NE 1.806 | ETA 2597.7h
+step   1740 | loss 5.4688 | lr 2.61e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.562 | inf_steps 16 | NE 1.806 | ETA 2593.3h
+step   1750 | loss 4.8750 | lr 2.62e-04 | grad 0.67 | 1.0k tok/s (avg 1.1k) | cert 0.19→0.19 | hpc_loss 4.531 | inf_steps 14 | NE 1.801 | ETA 2595.1h
+step   1760 | loss 5.3750 | lr 2.64e-04 | grad 0.72 | 0.9k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.531 | inf_steps 14 | NE 1.802 | ETA 2597.6h
+step   1770 | loss 5.8750 | lr 2.65e-04 | grad 0.72 | 1.5k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.531 | inf_steps 15 | NE 1.802 | ETA 2593.3h
+step   1780 | loss 7.2500 | lr 2.67e-04 | grad 0.78 | 0.9k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.531 | inf_steps 15 | NE 1.799 | ETA 2595.8h
+step   1790 | loss 6.3125 | lr 2.68e-04 | grad 0.78 | 1.7k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.531 | inf_steps 15 | NE 1.799 | ETA 2590.9h
+step   1800 | loss 5.0000 | lr 2.70e-04 | grad 0.70 | 0.9k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.531 | inf_steps 14 | NE 1.801 | ETA 2594.8h
+step   1810 | loss 4.5000 | lr 2.71e-04 | grad 0.76 | 1.0k tok/s (avg 1.1k) | cert 0.24→0.24 | hpc_loss 4.531 | inf_steps 19 | NE 1.803 | ETA 2596.9h
+step   1820 | loss 7.7500 | lr 2.73e-04 | grad 0.76 | 1.6k tok/s (avg 1.1k) | cert 0.13→0.13 | hpc_loss 4.531 | inf_steps 14 | NE 1.803 | ETA 2592.3h
+step   1830 | loss 4.4062 | lr 2.74e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 4.500 | inf_steps 15 | NE 1.802 | ETA 2595.3h
+step   1840 | loss 6.7812 | lr 2.76e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.500 | inf_steps 14 | NE 1.799 | ETA 2597.9h
+step   1850 | loss 4.5938 | lr 2.77e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 4.500 | inf_steps 15 | NE 1.799 | ETA 2593.3h
+step   1860 | loss 4.5312 | lr 2.79e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.22→0.22 | hpc_loss 4.500 | inf_steps 15 | NE 1.797 | ETA 2596.2h
+step   1870 | loss 5.3438 | lr 2.80e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.20→0.20 | hpc_loss 4.500 | inf_steps 18 | NE 1.797 | ETA 2591.6h
+step   1880 | loss 6.6250 | lr 2.82e-04 | grad 0.76 | 0.9k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.469 | inf_steps 16 | NE 1.795 | ETA 2594.2h
+step   1890 | loss 4.1250 | lr 2.83e-04 | grad 0.70 | 0.9k tok/s (avg 1.1k) | cert 0.24→0.24 | hpc_loss 4.469 | inf_steps 18 | NE 1.799 | ETA 2596.9h
+step   1900 | loss 4.6875 | lr 2.85e-04 | grad 0.70 | 1.5k tok/s (avg 1.1k) | cert 0.26→0.26 | hpc_loss 4.469 | inf_steps 14 | NE 1.799 | ETA 2593.0h
+step   1910 | loss 5.0938 | lr 2.86e-04 | grad 0.73 | 0.9k tok/s (avg 1.1k) | cert 0.19→0.19 | hpc_loss 4.469 | inf_steps 15 | NE 1.797 | ETA 2595.6h
+step   1920 | loss 5.1875 | lr 2.88e-04 | grad 0.78 | 1.0k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.438 | inf_steps 14 | NE 1.800 | ETA 2597.2h
+step   1930 | loss 5.2812 | lr 2.89e-04 | grad 0.78 | 1.6k tok/s (avg 1.1k) | cert 0.20→0.20 | hpc_loss 4.438 | inf_steps 14 | NE 1.800 | ETA 2593.0h
+step   1940 | loss 4.6562 | lr 2.91e-04 | grad 0.73 | 0.9k tok/s (avg 1.1k) | cert 0.31→0.31 | hpc_loss 4.438 | inf_steps 14 | NE 1.799 | ETA 2595.5h
+step   1950 | loss 4.1875 | lr 2.93e-04 | grad 0.73 | 1.5k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.438 | inf_steps 14 | NE 1.799 | ETA 2591.7h
+step   1960 | loss 4.4688 | lr 2.94e-04 | grad 0.76 | 1.0k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 4.406 | inf_steps 14 | NE 1.787 | ETA 2593.6h
+step   1970 | loss 4.6562 | lr 2.95e-04 | grad 0.73 | 1.0k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 4.406 | inf_steps 14 | NE 1.786 | ETA 2595.6h
+step   1980 | loss 5.8125 | lr 2.97e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.21→0.21 | hpc_loss 4.406 | inf_steps 15 | NE 1.786 | ETA 2591.7h
+step   1990 | loss 4.9688 | lr 2.98e-04 | grad 0.85 | 0.9k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 4.406 | inf_steps 15 | NE 1.779 | ETA 2594.0h
+step   2000 | loss 4.3438 | lr 3.00e-04 | grad 0.76 | 0.9k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 4.375 | inf_steps 14 | NE 1.780 | ETA 2596.9h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 2000:
+  T=dyn | CE=5.1041 | PPL=164.70 | top1=20.6% | top5=41.9% | (25600 tok)
+step   2010 | loss 5.2500 | lr 3.00e-04 | grad 0.76 | 0.3k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.406 | inf_steps 16 | NE 1.780 | ETA 2640.3h
+step   2020 | loss 4.6875 | lr 3.00e-04 | grad 0.73 | 1.3k tok/s (avg 1.1k) | cert 0.28→0.28 | hpc_loss 4.375 | inf_steps 14 | NE 1.782 | ETA 2638.1h
+step   2030 | loss 4.1250 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 4.375 | inf_steps 15 | NE 1.782 | ETA 2634.1h
+step   2040 | loss 4.2500 | lr 3.00e-04 | grad 0.74 | 1.0k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 4.375 | inf_steps 15 | NE 1.779 | ETA 2635.3h
+step   2050 | loss 6.6875 | lr 3.00e-04 | grad 0.73 | 0.9k tok/s (avg 1.1k) | cert 0.21→0.21 | hpc_loss 4.375 | inf_steps 14 | NE 1.780 | ETA 2638.3h
+step   2060 | loss 4.7500 | lr 3.00e-04 | grad 0.73 | 1.7k tok/s (avg 1.1k) | cert 0.32→0.32 | hpc_loss 4.375 | inf_steps 14 | NE 1.780 | ETA 2633.8h
+step   2070 | loss 7.3750 | lr 3.00e-04 | grad 0.77 | 1.0k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.375 | inf_steps 14 | NE 1.777 | ETA 2634.8h
+step   2080 | loss 5.8438 | lr 3.00e-04 | grad 0.75 | 0.9k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 4.344 | inf_steps 14 | NE 1.780 | ETA 2637.4h
+step   2090 | loss 4.7500 | lr 3.00e-04 | grad 0.75 | 1.7k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 4.344 | inf_steps 13 | NE 1.780 | ETA 2632.7h
+step   2100 | loss 6.7188 | lr 3.00e-04 | grad 0.82 | 0.9k tok/s (avg 1.1k) | cert 0.20→0.20 | hpc_loss 4.344 | inf_steps 14 | NE 1.766 | ETA 2635.0h
+step   2110 | loss 5.4375 | lr 3.00e-04 | grad 0.82 | 1.5k tok/s (avg 1.1k) | cert 0.27→0.27 | hpc_loss 4.344 | inf_steps 16 | NE 1.766 | ETA 2631.4h
+step   2120 | loss 5.6562 | lr 3.00e-04 | grad 0.82 | 1.2k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.312 | inf_steps 15 | NE 1.764 | ETA 2630.1h
+step   2130 | loss 7.3438 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.312 | inf_steps 18 | NE 1.767 | ETA 2630.4h
+step   2140 | loss 5.6250 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 4.312 | inf_steps 16 | NE 1.767 | ETA 2626.6h
+step   2150 | loss 7.5625 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.1k) | cert 0.17→0.17 | hpc_loss 4.312 | inf_steps 19 | NE 1.756 | ETA 2626.5h
+step   2160 | loss 5.0312 | lr 3.00e-04 | grad 0.74 | 1.2k tok/s (avg 1.1k) | cert 0.21→0.21 | hpc_loss 4.281 | inf_steps 17 | NE 1.755 | ETA 2625.7h
+step   2170 | loss 6.5938 | lr 3.00e-04 | grad 0.74 | 1.7k tok/s (avg 1.1k) | cert 0.16→0.16 | hpc_loss 4.281 | inf_steps 14 | NE 1.755 | ETA 2621.4h
+step   2180 | loss 5.2500 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.281 | inf_steps 14 | NE 1.755 | ETA 2621.5h
+step   2190 | loss 7.4062 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.15→0.15 | hpc_loss 4.281 | inf_steps 20 | NE 1.755 | ETA 2617.6h
+step   2200 | loss 7.0312 | lr 3.00e-04 | grad 0.87 | 1.1k tok/s (avg 1.1k) | cert 0.18→0.18 | hpc_loss 4.281 | inf_steps 19 | NE 1.757 | ETA 2617.5h
+step   2210 | loss 6.8750 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.26→0.26 | hpc_loss 4.250 | inf_steps 9 | NE 1.756 | ETA 2617.1h
+step   2220 | loss 4.8438 | lr 3.00e-04 | grad 0.72 | 1.5k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 4.250 | inf_steps 16 | NE 1.756 | ETA 2613.6h
+step   2230 | loss 5.5312 | lr 3.00e-04 | grad 0.68 | 1.0k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.250 | inf_steps 15 | NE 1.754 | ETA 2614.4h
+step   2240 | loss 5.8438 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.23→0.23 | hpc_loss 4.250 | inf_steps 19 | NE 1.755 | ETA 2614.1h
+step   2250 | loss 4.7812 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 4.250 | inf_steps 17 | NE 1.755 | ETA 2610.1h
+step   2260 | loss 6.4688 | lr 3.00e-04 | grad 0.88 | 1.0k tok/s (avg 1.1k) | cert 0.22→0.22 | hpc_loss 4.250 | inf_steps 14 | NE 1.760 | ETA 2611.3h
+step   2270 | loss 5.4062 | lr 3.00e-04 | grad 0.88 | 1.5k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.250 | inf_steps 14 | NE 1.760 | ETA 2608.1h
+step   2280 | loss 6.2500 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.21→0.21 | hpc_loss 4.219 | inf_steps 16 | NE 1.756 | ETA 2607.8h
+step   2290 | loss 6.6250 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.17→0.17 | hpc_loss 4.219 | inf_steps 15 | NE 1.762 | ETA 2607.9h
+step   2300 | loss 5.8750 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.219 | inf_steps 18 | NE 1.762 | ETA 2604.6h
+step   2310 | loss 4.6875 | lr 3.00e-04 | grad 0.78 | 1.1k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.188 | inf_steps 13 | NE 1.760 | ETA 2604.3h
+step   2320 | loss 4.7500 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.1k) | cert 0.26→0.26 | hpc_loss 4.188 | inf_steps 15 | NE 1.758 | ETA 2603.2h
+step   2330 | loss 6.2812 | lr 3.00e-04 | grad 0.75 | 1.7k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 4.188 | inf_steps 13 | NE 1.758 | ETA 2599.4h
+step   2340 | loss 5.5000 | lr 3.00e-04 | grad 0.81 | 1.0k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.156 | inf_steps 15 | NE 1.758 | ETA 2600.0h
+step   2350 | loss 5.2500 | lr 3.00e-04 | grad 0.81 | 1.6k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 4.188 | inf_steps 14 | NE 1.758 | ETA 2596.6h
+step   2360 | loss 5.0312 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.156 | inf_steps 15 | NE 1.759 | ETA 2596.3h
+step   2370 | loss 4.2812 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 4.156 | inf_steps 14 | NE 1.755 | ETA 2596.4h
+step   2380 | loss 4.6250 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 4.156 | inf_steps 13 | NE 1.755 | ETA 2592.8h
+step   2390 | loss 4.7188 | lr 3.00e-04 | grad 0.70 | 0.9k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 4.156 | inf_steps 15 | NE 1.752 | ETA 2595.9h
+step   2400 | loss 6.2500 | lr 3.00e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.125 | inf_steps 18 | NE 1.755 | ETA 2597.9h
+step   2410 | loss 6.2188 | lr 3.00e-04 | grad 0.71 | 1.5k tok/s (avg 1.1k) | cert 0.22→0.22 | hpc_loss 4.125 | inf_steps 20 | NE 1.755 | ETA 2595.0h
+step   2420 | loss 5.2188 | lr 3.00e-04 | grad 0.68 | 1.0k tok/s (avg 1.1k) | cert 0.25→0.25 | hpc_loss 4.125 | inf_steps 16 | NE 1.750 | ETA 2596.6h
+step   2430 | loss 4.5625 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.125 | inf_steps 16 | NE 1.750 | ETA 2593.4h
+step   2440 | loss 6.2500 | lr 3.00e-04 | grad 0.65 | 0.9k tok/s (avg 1.1k) | cert 0.24→0.24 | hpc_loss 4.125 | inf_steps 15 | NE 1.749 | ETA 2595.2h
+step   2450 | loss 5.1250 | lr 3.00e-04 | grad 0.75 | 0.9k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 4.094 | inf_steps 15 | NE 1.746 | ETA 2596.9h
+step   2460 | loss 5.4688 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.32→0.32 | hpc_loss 4.094 | inf_steps 15 | NE 1.746 | ETA 2593.6h
+step   2470 | loss 5.3750 | lr 3.00e-04 | grad 0.68 | 0.9k tok/s (avg 1.1k) | cert 0.28→0.28 | hpc_loss 4.094 | inf_steps 15 | NE 1.742 | ETA 2595.3h
+step   2480 | loss 5.8438 | lr 3.00e-04 | grad 0.66 | 1.0k tok/s (avg 1.1k) | cert 0.31→0.31 | hpc_loss 4.094 | inf_steps 13 | NE 1.736 | ETA 2596.8h
+step   2490 | loss 7.3438 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.1k) | cert 0.22→0.22 | hpc_loss 4.094 | inf_steps 15 | NE 1.736 | ETA 2593.7h
+step   2500 | loss 4.1250 | lr 3.00e-04 | grad 0.69 | 0.9k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 4.062 | inf_steps 15 | NE 1.733 | ETA 2595.3h
+step   2510 | loss 4.8750 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 4.062 | inf_steps 14 | NE 1.733 | ETA 2591.9h
+step   2520 | loss 5.2500 | lr 3.00e-04 | grad 0.68 | 0.9k tok/s (avg 1.1k) | cert 0.26→0.26 | hpc_loss 4.062 | inf_steps 20 | NE 1.726 | ETA 2594.2h
+step   2530 | loss 6.5000 | lr 3.00e-04 | grad 0.67 | 1.0k tok/s (avg 1.1k) | cert 0.21→0.21 | hpc_loss 4.062 | inf_steps 14 | NE 1.723 | ETA 2595.5h
+step   2540 | loss 6.4375 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 4.031 | inf_steps 14 | NE 1.723 | ETA 2592.3h
+step   2550 | loss 7.1875 | lr 3.00e-04 | grad 0.73 | 0.8k tok/s (avg 1.1k) | cert 0.24→0.24 | hpc_loss 4.031 | inf_steps 21 | NE 1.720 | ETA 2595.4h
+step   2560 | loss 6.0000 | lr 3.00e-04 | grad 0.74 | 1.0k tok/s (avg 1.1k) | cert 0.26→0.26 | hpc_loss 4.031 | inf_steps 15 | NE 1.718 | ETA 2596.7h
+step   2570 | loss 5.4375 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 4.031 | inf_steps 15 | NE 1.718 | ETA 2593.5h
+step   2580 | loss 5.8438 | lr 3.00e-04 | grad 0.74 | 0.9k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 4.000 | inf_steps 14 | NE 1.712 | ETA 2595.7h
+step   2590 | loss 6.5625 | lr 3.00e-04 | grad 0.74 | 1.5k tok/s (avg 1.1k) | cert 0.24→0.24 | hpc_loss 4.000 | inf_steps 19 | NE 1.712 | ETA 2592.8h
+step   2600 | loss 4.9688 | lr 3.00e-04 | grad 0.70 | 1.0k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 4.000 | inf_steps 14 | NE 1.714 | ETA 2593.7h
+step   2610 | loss 6.3750 | lr 3.00e-04 | grad 0.76 | 0.9k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 3.984 | inf_steps 15 | NE 1.713 | ETA 2595.5h
+step   2620 | loss 6.6562 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.1k) | cert 0.29→0.29 | hpc_loss 3.984 | inf_steps 14 | NE 1.713 | ETA 2592.3h
+step   2630 | loss 5.4688 | lr 3.00e-04 | grad 0.70 | 0.9k tok/s (avg 1.1k) | cert 0.27→0.27 | hpc_loss 3.984 | inf_steps 14 | NE 1.707 | ETA 2594.7h
+step   2640 | loss 6.2812 | lr 3.00e-04 | grad 0.68 | 0.9k tok/s (avg 1.1k) | cert 0.31→0.31 | hpc_loss 3.953 | inf_steps 14 | NE 1.707 | ETA 2596.5h
+step   2650 | loss 5.0625 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.31→0.31 | hpc_loss 3.953 | inf_steps 14 | NE 1.707 | ETA 2593.3h
+step   2660 | loss 4.9375 | lr 3.00e-04 | grad 0.73 | 0.9k tok/s (avg 1.1k) | cert 0.32→0.32 | hpc_loss 3.953 | inf_steps 15 | NE 1.703 | ETA 2595.5h
+step   2670 | loss 4.6875 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 3.953 | inf_steps 14 | NE 1.703 | ETA 2592.5h
+step   2680 | loss 4.7500 | lr 3.00e-04 | grad 0.69 | 0.9k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 3.938 | inf_steps 14 | NE 1.693 | ETA 2595.1h
+step   2690 | loss 5.8438 | lr 3.00e-04 | grad 0.73 | 0.8k tok/s (avg 1.1k) | cert 0.31→0.31 | hpc_loss 3.922 | inf_steps 15 | NE 1.691 | ETA 2598.3h
+step   2700 | loss 5.3125 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 3.922 | inf_steps 14 | NE 1.691 | ETA 2595.4h
+step   2710 | loss 4.2500 | lr 3.00e-04 | grad 0.69 | 0.9k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 3.906 | inf_steps 15 | NE 1.692 | ETA 2596.9h
+step   2720 | loss 5.8125 | lr 3.00e-04 | grad 0.77 | 0.9k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 3.891 | inf_steps 15 | NE 1.692 | ETA 2598.7h
+step   2730 | loss 4.5625 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.891 | inf_steps 16 | NE 1.692 | ETA 2595.9h
+step   2740 | loss 4.4062 | lr 3.00e-04 | grad 0.66 | 0.9k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.891 | inf_steps 15 | NE 1.692 | ETA 2597.6h
+step   2750 | loss 5.0312 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.891 | inf_steps 14 | NE 1.692 | ETA 2594.4h
+step   2760 | loss 3.9844 | lr 3.00e-04 | grad 0.78 | 1.0k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 3.875 | inf_steps 13 | NE 1.695 | ETA 2595.7h
+step   2770 | loss 4.2812 | lr 3.00e-04 | grad 0.71 | 0.8k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.875 | inf_steps 20 | NE 1.693 | ETA 2598.9h
+step   2780 | loss 5.5312 | lr 3.00e-04 | grad 0.71 | 1.5k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.875 | inf_steps 15 | NE 1.693 | ETA 2596.2h
+step   2790 | loss 4.9375 | lr 3.00e-04 | grad 0.77 | 0.9k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 3.859 | inf_steps 14 | NE 1.692 | ETA 2598.1h
+step   2800 | loss 5.7188 | lr 3.00e-04 | grad 0.80 | 0.9k tok/s (avg 1.1k) | cert 0.32→0.32 | hpc_loss 3.844 | inf_steps 20 | NE 1.691 | ETA 2600.2h
+step   2810 | loss 5.5938 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 3.844 | inf_steps 14 | NE 1.691 | ETA 2597.2h
+step   2820 | loss 6.6250 | lr 3.00e-04 | grad 0.72 | 0.9k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 3.828 | inf_steps 16 | NE 1.692 | ETA 2599.1h
+step   2830 | loss 4.9062 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 3.828 | inf_steps 9 | NE 1.692 | ETA 2596.0h
+step   2840 | loss 6.1562 | lr 3.00e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.27→0.27 | hpc_loss 3.812 | inf_steps 16 | NE 1.692 | ETA 2597.9h
+step   2850 | loss 6.8438 | lr 3.00e-04 | grad 0.69 | 0.9k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 3.812 | inf_steps 15 | NE 1.694 | ETA 2600.3h
+step   2860 | loss 5.3750 | lr 3.00e-04 | grad 0.69 | 1.7k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.812 | inf_steps 9 | NE 1.694 | ETA 2597.0h
+step   2870 | loss 5.5312 | lr 3.00e-04 | grad 0.67 | 0.8k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 3.797 | inf_steps 14 | NE 1.691 | ETA 2599.8h
+step   2880 | loss 4.9062 | lr 3.00e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 3.781 | inf_steps 15 | NE 1.687 | ETA 2601.6h
+step   2890 | loss 4.6562 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.781 | inf_steps 15 | NE 1.687 | ETA 2598.7h
+step   2900 | loss 4.7500 | lr 3.00e-04 | grad 0.67 | 0.9k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.766 | inf_steps 14 | NE 1.677 | ETA 2601.1h
+step   2910 | loss 5.4375 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 3.766 | inf_steps 15 | NE 1.677 | ETA 2598.3h
+step   2920 | loss 6.8750 | lr 3.00e-04 | grad 0.81 | 0.9k tok/s (avg 1.1k) | cert 0.31→0.31 | hpc_loss 3.766 | inf_steps 14 | NE 1.669 | ETA 2599.8h
+step   2930 | loss 5.0312 | lr 3.00e-04 | grad 0.66 | 0.8k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 3.766 | inf_steps 20 | NE 1.667 | ETA 2602.4h
+step   2940 | loss 5.9688 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 3.766 | inf_steps 14 | NE 1.667 | ETA 2599.4h
+step   2950 | loss 4.6562 | lr 3.00e-04 | grad 0.76 | 0.9k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.750 | inf_steps 15 | NE 1.660 | ETA 2600.8h
+step   2960 | loss 4.9375 | lr 3.00e-04 | grad 0.70 | 0.9k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.734 | inf_steps 15 | NE 1.658 | ETA 2602.7h
+step   2970 | loss 6.2188 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 3.734 | inf_steps 16 | NE 1.658 | ETA 2599.8h
+step   2980 | loss 4.6250 | lr 3.00e-04 | grad 0.80 | 0.9k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.719 | inf_steps 14 | NE 1.656 | ETA 2601.7h
+step   2990 | loss 5.5312 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.719 | inf_steps 14 | NE 1.656 | ETA 2598.8h
+step   3000 | loss 5.2500 | lr 3.00e-04 | grad 0.71 | 0.9k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 3.703 | inf_steps 16 | NE 1.650 | ETA 2600.4h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 3000:
+  T=dyn | CE=4.8606 | PPL=129.10 | top1=23.8% | top5=43.5% | (25600 tok)
+step   3010 | loss 5.4062 | lr 3.00e-04 | grad 0.73 | 0.2k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 3.703 | inf_steps 19 | NE 1.647 | ETA 2630.9h
+step   3020 | loss 5.4375 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.703 | inf_steps 14 | NE 1.647 | ETA 2628.0h
+step   3030 | loss 4.5625 | lr 3.00e-04 | grad 0.68 | 0.9k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.688 | inf_steps 13 | NE 1.646 | ETA 2629.7h
+step   3040 | loss 4.1562 | lr 3.00e-04 | grad 0.80 | 0.9k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.672 | inf_steps 15 | NE 1.637 | ETA 2631.8h
+step   3050 | loss 4.1250 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 3.672 | inf_steps 14 | NE 1.637 | ETA 2628.9h
+step   3060 | loss 4.5938 | lr 3.00e-04 | grad 0.79 | 0.9k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.656 | inf_steps 14 | NE 1.635 | ETA 2630.9h
+step   3070 | loss 4.2188 | lr 3.00e-04 | grad 0.79 | 1.7k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.656 | inf_steps 15 | NE 1.635 | ETA 2627.9h
+step   3080 | loss 4.8750 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.641 | inf_steps 14 | NE 1.632 | ETA 2627.7h
+step   3090 | loss 6.5000 | lr 3.00e-04 | grad 0.86 | 1.0k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 3.641 | inf_steps 15 | NE 1.633 | ETA 2628.0h
+step   3100 | loss 5.9375 | lr 3.00e-04 | grad 0.86 | 1.6k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.641 | inf_steps 18 | NE 1.633 | ETA 2625.3h
+step   3110 | loss 4.7812 | lr 3.00e-04 | grad 0.87 | 1.1k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.625 | inf_steps 14 | NE 1.630 | ETA 2625.5h
+step   3120 | loss 5.6250 | lr 3.00e-04 | grad 0.82 | 1.1k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 3.625 | inf_steps 15 | NE 1.626 | ETA 2625.2h
+step   3130 | loss 4.6250 | lr 3.00e-04 | grad 0.82 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 3.625 | inf_steps 14 | NE 1.626 | ETA 2622.4h
+step   3140 | loss 4.6875 | lr 3.00e-04 | grad 0.87 | 1.1k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.609 | inf_steps 14 | NE 1.626 | ETA 2622.1h
+step   3150 | loss 4.2188 | lr 3.00e-04 | grad 0.87 | 1.6k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.609 | inf_steps 15 | NE 1.626 | ETA 2619.3h
+step   3160 | loss 4.8750 | lr 3.00e-04 | grad 0.83 | 0.9k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 3.609 | inf_steps 18 | NE 1.626 | ETA 2620.9h
+step   3170 | loss 4.6250 | lr 3.00e-04 | grad 0.82 | 1.2k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 3.594 | inf_steps 17 | NE 1.629 | ETA 2620.4h
+step   3180 | loss 5.1875 | lr 3.00e-04 | grad 0.82 | 1.6k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 3.594 | inf_steps 13 | NE 1.629 | ETA 2617.7h
+step   3190 | loss 4.6250 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.578 | inf_steps 14 | NE 1.630 | ETA 2617.0h
+step   3200 | loss 5.7500 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 3.547 | inf_steps 9 | NE 1.633 | ETA 2616.7h
+step   3210 | loss 4.4062 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 3.547 | inf_steps 15 | NE 1.633 | ETA 2614.0h
+step   3220 | loss 4.9375 | lr 3.00e-04 | grad 0.83 | 1.0k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.547 | inf_steps 15 | NE 1.635 | ETA 2614.5h
+step   3230 | loss 4.8438 | lr 3.00e-04 | grad 0.83 | 1.6k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.547 | inf_steps 15 | NE 1.635 | ETA 2611.9h
+step   3240 | loss 4.5938 | lr 3.00e-04 | grad 0.72 | 1.0k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.531 | inf_steps 14 | NE 1.632 | ETA 2612.5h
+step   3250 | loss 5.7812 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.531 | inf_steps 21 | NE 1.630 | ETA 2612.2h
+step   3260 | loss 4.7812 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.531 | inf_steps 14 | NE 1.630 | ETA 2609.8h
+step   3270 | loss 4.8750 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.516 | inf_steps 13 | NE 1.628 | ETA 2609.6h
+step   3280 | loss 5.0625 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.516 | inf_steps 15 | NE 1.625 | ETA 2609.3h
+step   3290 | loss 4.6875 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 3.516 | inf_steps 15 | NE 1.625 | ETA 2607.0h
+step   3300 | loss 4.6875 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 3.500 | inf_steps 16 | NE 1.626 | ETA 2606.8h
+step   3310 | loss 6.5938 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 3.500 | inf_steps 17 | NE 1.626 | ETA 2604.3h
+step   3320 | loss 5.5312 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 3.484 | inf_steps 20 | NE 1.612 | ETA 2603.4h
+step   3330 | loss 4.7812 | lr 3.00e-04 | grad 0.74 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.469 | inf_steps 14 | NE 1.616 | ETA 2603.0h
+step   3340 | loss 4.6250 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.469 | inf_steps 16 | NE 1.616 | ETA 2600.7h
+step   3350 | loss 5.1562 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.453 | inf_steps 16 | NE 1.617 | ETA 2600.2h
+step   3360 | loss 5.9062 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 3.453 | inf_steps 16 | NE 1.617 | ETA 2600.0h
+step   3370 | loss 5.9062 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 3.453 | inf_steps 15 | NE 1.617 | ETA 2597.5h
+step   3380 | loss 4.1250 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.438 | inf_steps 15 | NE 1.615 | ETA 2597.7h
+step   3390 | loss 4.4688 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.438 | inf_steps 15 | NE 1.615 | ETA 2595.3h
+step   3400 | loss 4.4375 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 3.422 | inf_steps 15 | NE 1.611 | ETA 2595.3h
+step   3410 | loss 6.6250 | lr 3.00e-04 | grad 0.81 | 1.3k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 3.438 | inf_steps 14 | NE 1.607 | ETA 2594.3h
+step   3420 | loss 4.5625 | lr 3.00e-04 | grad 0.81 | 1.5k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 3.422 | inf_steps 15 | NE 1.607 | ETA 2592.2h
+step   3430 | loss 6.5312 | lr 3.00e-04 | grad 0.78 | 1.2k tok/s (avg 1.1k) | cert 0.32→0.32 | hpc_loss 3.406 | inf_steps 15 | NE 1.605 | ETA 2591.6h
+step   3440 | loss 4.4375 | lr 3.00e-04 | grad 0.79 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.391 | inf_steps 15 | NE 1.606 | ETA 2591.0h
+step   3450 | loss 4.1250 | lr 3.00e-04 | grad 0.79 | 1.5k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.391 | inf_steps 15 | NE 1.606 | ETA 2589.1h
+step   3460 | loss 4.2812 | lr 3.00e-04 | grad 1.17 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.375 | inf_steps 14 | NE 1.607 | ETA 2589.0h
+step   3470 | loss 4.5938 | lr 3.00e-04 | grad 1.17 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 3.375 | inf_steps 14 | NE 1.607 | ETA 2586.7h
+step   3480 | loss 6.2188 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.359 | inf_steps 13 | NE 1.605 | ETA 2586.4h
+step   3490 | loss 6.0312 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 3.359 | inf_steps 15 | NE 1.605 | ETA 2586.1h
+step   3500 | loss 5.2188 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 3.359 | inf_steps 16 | NE 1.605 | ETA 2583.8h
+step   3510 | loss 3.2969 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 3.344 | inf_steps 8 | NE 1.609 | ETA 2583.5h
+step   3520 | loss 4.0312 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.328 | inf_steps 14 | NE 1.607 | ETA 2583.2h
+step   3530 | loss 4.3438 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.328 | inf_steps 14 | NE 1.607 | ETA 2580.8h
+step   3540 | loss 4.8438 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 3.328 | inf_steps 14 | NE 1.609 | ETA 2581.0h
+step   3550 | loss 5.7188 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.328 | inf_steps 13 | NE 1.609 | ETA 2578.9h
+step   3560 | loss 4.4375 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.312 | inf_steps 21 | NE 1.606 | ETA 2579.1h
+step   3570 | loss 5.0938 | lr 3.00e-04 | grad 0.78 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 3.297 | inf_steps 13 | NE 1.601 | ETA 2578.5h
+step   3580 | loss 4.6562 | lr 3.00e-04 | grad 0.78 | 1.7k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.297 | inf_steps 14 | NE 1.601 | ETA 2576.0h
+step   3590 | loss 8.1875 | lr 3.00e-04 | grad 0.78 | 1.1k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 3.297 | inf_steps 14 | NE 1.599 | ETA 2576.2h
+step   3600 | loss 6.1875 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 3.281 | inf_steps 14 | NE 1.596 | ETA 2575.8h
+step   3610 | loss 3.8594 | lr 3.00e-04 | grad 0.73 | 1.7k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.266 | inf_steps 14 | NE 1.596 | ETA 2573.5h
+step   3620 | loss 4.0000 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 3.266 | inf_steps 15 | NE 1.596 | ETA 2573.4h
+step   3630 | loss 5.5312 | lr 3.00e-04 | grad 0.71 | 1.7k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 3.266 | inf_steps 16 | NE 1.596 | ETA 2571.0h
+step   3640 | loss 3.6406 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 3.250 | inf_steps 15 | NE 1.595 | ETA 2570.2h
+step   3650 | loss 5.0938 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.234 | inf_steps 18 | NE 1.594 | ETA 2569.7h
+step   3660 | loss 4.4062 | lr 3.00e-04 | grad 0.73 | 1.5k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 3.234 | inf_steps 20 | NE 1.594 | ETA 2567.9h
+step   3670 | loss 4.8125 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.219 | inf_steps 15 | NE 1.588 | ETA 2568.1h
+step   3680 | loss 4.4062 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 3.203 | inf_steps 13 | NE 1.584 | ETA 2567.6h
+step   3690 | loss 4.1562 | lr 3.00e-04 | grad 0.71 | 1.5k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 3.203 | inf_steps 15 | NE 1.584 | ETA 2565.7h
+step   3700 | loss 4.3438 | lr 3.00e-04 | grad 0.64 | 1.1k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 3.203 | inf_steps 14 | NE 1.581 | ETA 2565.9h
+step   3710 | loss 6.1250 | lr 3.00e-04 | grad 0.64 | 1.6k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 3.203 | inf_steps 14 | NE 1.581 | ETA 2563.8h
+step   3720 | loss 6.0312 | lr 3.00e-04 | grad 0.68 | 1.2k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 3.188 | inf_steps 18 | NE 1.580 | ETA 2563.5h
+step   3730 | loss 4.4375 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.188 | inf_steps 15 | NE 1.579 | ETA 2563.1h
+step   3740 | loss 7.0000 | lr 3.00e-04 | grad 0.71 | 1.7k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 3.188 | inf_steps 15 | NE 1.579 | ETA 2560.8h
+step   3750 | loss 4.3125 | lr 3.00e-04 | grad 0.68 | 1.0k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.156 | inf_steps 19 | NE 1.579 | ETA 2561.2h
+step   3760 | loss 4.0938 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.141 | inf_steps 16 | NE 1.578 | ETA 2561.2h
+step   3770 | loss 4.5625 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 3.141 | inf_steps 14 | NE 1.578 | ETA 2559.1h
+step   3780 | loss 4.8125 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 3.141 | inf_steps 9 | NE 1.576 | ETA 2559.5h
+step   3790 | loss 4.5938 | lr 3.00e-04 | grad 0.68 | 1.8k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 3.141 | inf_steps 13 | NE 1.576 | ETA 2557.0h
+step   3800 | loss 4.7188 | lr 3.00e-04 | grad 0.71 | 1.0k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 3.109 | inf_steps 15 | NE 1.573 | ETA 2557.5h
+step   3810 | loss 5.1250 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 3.109 | inf_steps 14 | NE 1.572 | ETA 2557.8h
+step   3820 | loss 6.4062 | lr 3.00e-04 | grad 0.73 | 1.7k tok/s (avg 1.1k) | cert 0.30→0.30 | hpc_loss 3.109 | inf_steps 15 | NE 1.572 | ETA 2555.5h
+step   3830 | loss 5.3125 | lr 3.00e-04 | grad 0.70 | 1.0k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.094 | inf_steps 16 | NE 1.569 | ETA 2556.5h
+step   3840 | loss 4.2500 | lr 3.00e-04 | grad 0.79 | 1.2k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.078 | inf_steps 14 | NE 1.567 | ETA 2556.0h
+step   3850 | loss 6.3125 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.078 | inf_steps 14 | NE 1.567 | ETA 2553.9h
+step   3860 | loss 4.6875 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.078 | inf_steps 10 | NE 1.564 | ETA 2553.8h
+step   3870 | loss 4.5625 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 3.078 | inf_steps 14 | NE 1.564 | ETA 2551.7h
+step   3880 | loss 5.9688 | lr 3.00e-04 | grad 0.73 | 1.0k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.062 | inf_steps 16 | NE 1.561 | ETA 2552.2h
+step   3890 | loss 4.1875 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 3.047 | inf_steps 16 | NE 1.559 | ETA 2552.0h
+step   3900 | loss 4.1875 | lr 3.00e-04 | grad 0.69 | 1.5k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 3.047 | inf_steps 15 | NE 1.559 | ETA 2550.2h
+step   3910 | loss 6.6875 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 3.031 | inf_steps 9 | NE 1.553 | ETA 2550.5h
+step   3920 | loss 4.4062 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 3.016 | inf_steps 16 | NE 1.552 | ETA 2550.3h
+step   3930 | loss 5.7500 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 3.016 | inf_steps 15 | NE 1.552 | ETA 2548.4h
+step   3940 | loss 4.9062 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 3.000 | inf_steps 14 | NE 1.551 | ETA 2548.4h
+step   3950 | loss 4.6562 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 3.000 | inf_steps 16 | NE 1.551 | ETA 2546.4h
+step   3960 | loss 5.1250 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 3.000 | inf_steps 16 | NE 1.548 | ETA 2546.7h
+step   3970 | loss 3.9375 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.984 | inf_steps 18 | NE 1.548 | ETA 2546.7h
+step   3980 | loss 4.9062 | lr 3.00e-04 | grad 0.66 | 1.5k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.984 | inf_steps 14 | NE 1.548 | ETA 2545.0h
+step   3990 | loss 4.6875 | lr 3.00e-04 | grad 0.68 | 1.2k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.984 | inf_steps 15 | NE 1.546 | ETA 2544.4h
+step   4000 | loss 5.3750 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.969 | inf_steps 9 | NE 1.541 | ETA 2544.5h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 4000:
+  T=dyn | CE=4.6401 | PPL=103.55 | top1=24.2% | top5=43.6% | (25600 tok)
+step   4010 | loss 4.2812 | lr 3.00e-04 | grad 0.68 | 0.2k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.969 | inf_steps 14 | NE 1.541 | ETA 2567.1h
+step   4020 | loss 6.9375 | lr 3.00e-04 | grad 0.68 | 1.4k tok/s (avg 1.1k) | cert 0.36→0.36 | hpc_loss 2.953 | inf_steps 14 | NE 1.538 | ETA 2565.8h
+step   4030 | loss 5.2188 | lr 3.00e-04 | grad 0.68 | 1.7k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.953 | inf_steps 16 | NE 1.538 | ETA 2563.7h
+step   4040 | loss 4.6875 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.938 | inf_steps 13 | NE 1.536 | ETA 2563.6h
+step   4050 | loss 5.2500 | lr 3.00e-04 | grad 0.76 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.906 | inf_steps 9 | NE 1.539 | ETA 2563.1h
+step   4060 | loss 4.2188 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.906 | inf_steps 14 | NE 1.539 | ETA 2561.1h
+step   4070 | loss 5.7500 | lr 3.00e-04 | grad 0.74 | 1.0k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.906 | inf_steps 21 | NE 1.538 | ETA 2561.5h
+step   4080 | loss 5.7188 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.906 | inf_steps 14 | NE 1.534 | ETA 2561.2h
+step   4090 | loss 5.6562 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.906 | inf_steps 20 | NE 1.534 | ETA 2559.2h
+step   4100 | loss 6.0625 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.906 | inf_steps 14 | NE 1.531 | ETA 2559.4h
+step   4110 | loss 7.0000 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.906 | inf_steps 14 | NE 1.531 | ETA 2557.5h
+step   4120 | loss 6.3125 | lr 3.00e-04 | grad 0.81 | 1.0k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 2.891 | inf_steps 16 | NE 1.530 | ETA 2558.1h
+step   4130 | loss 4.5625 | lr 3.00e-04 | grad 0.72 | 1.4k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.875 | inf_steps 14 | NE 1.535 | ETA 2557.0h
+step   4140 | loss 5.7812 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.875 | inf_steps 15 | NE 1.535 | ETA 2555.0h
+step   4150 | loss 6.4688 | lr 3.00e-04 | grad 0.77 | 1.0k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.859 | inf_steps 15 | NE 1.536 | ETA 2555.4h
+step   4160 | loss 5.5312 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.859 | inf_steps 16 | NE 1.538 | ETA 2555.1h
+step   4170 | loss 6.2812 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 2.844 | inf_steps 15 | NE 1.538 | ETA 2553.6h
+step   4180 | loss 5.1875 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.828 | inf_steps 15 | NE 1.537 | ETA 2553.1h
+step   4190 | loss 4.2500 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.828 | inf_steps 14 | NE 1.537 | ETA 2551.2h
+step   4200 | loss 6.5625 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 2.828 | inf_steps 15 | NE 1.536 | ETA 2551.0h
+step   4210 | loss 4.6250 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.812 | inf_steps 17 | NE 1.536 | ETA 2551.1h
+step   4220 | loss 4.8750 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.812 | inf_steps 15 | NE 1.536 | ETA 2549.2h
+step   4230 | loss 5.2188 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.797 | inf_steps 13 | NE 1.534 | ETA 2548.9h
+step   4240 | loss 6.6562 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.797 | inf_steps 15 | NE 1.532 | ETA 2549.3h
+step   4250 | loss 6.3125 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.781 | inf_steps 13 | NE 1.532 | ETA 2547.4h
+step   4260 | loss 4.4688 | lr 3.00e-04 | grad 0.81 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.766 | inf_steps 15 | NE 1.530 | ETA 2547.4h
+step   4270 | loss 4.1875 | lr 3.00e-04 | grad 0.81 | 1.5k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.766 | inf_steps 14 | NE 1.530 | ETA 2546.0h
+step   4280 | loss 4.6875 | lr 3.00e-04 | grad 0.74 | 1.2k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.766 | inf_steps 15 | NE 1.529 | ETA 2545.5h
+step   4290 | loss 4.7812 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.766 | inf_steps 17 | NE 1.530 | ETA 2545.2h
+step   4300 | loss 6.1875 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.766 | inf_steps 14 | NE 1.530 | ETA 2543.4h
+step   4310 | loss 5.3750 | lr 3.00e-04 | grad 0.86 | 1.0k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 2.750 | inf_steps 14 | NE 1.532 | ETA 2543.8h
+step   4320 | loss 4.7188 | lr 3.00e-04 | grad 0.82 | 1.2k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.734 | inf_steps 14 | NE 1.531 | ETA 2543.3h
+step   4330 | loss 5.1250 | lr 3.00e-04 | grad 0.82 | 1.5k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.734 | inf_steps 16 | NE 1.531 | ETA 2541.7h
+step   4340 | loss 4.6875 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.719 | inf_steps 16 | NE 1.532 | ETA 2541.9h
+step   4350 | loss 5.5938 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.719 | inf_steps 16 | NE 1.532 | ETA 2540.0h
+step   4360 | loss 4.6562 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.703 | inf_steps 19 | NE 1.535 | ETA 2540.2h
+step   4370 | loss 5.4375 | lr 3.00e-04 | grad 0.70 | 1.3k tok/s (avg 1.1k) | cert 0.33→0.33 | hpc_loss 2.688 | inf_steps 14 | NE 1.537 | ETA 2539.5h
+step   4380 | loss 4.2500 | lr 3.00e-04 | grad 0.70 | 1.7k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.688 | inf_steps 14 | NE 1.537 | ETA 2537.6h
+step   4390 | loss 4.1562 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.672 | inf_steps 18 | NE 1.535 | ETA 2537.9h
+step   4400 | loss 4.1875 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.672 | inf_steps 14 | NE 1.538 | ETA 2537.8h
+step   4410 | loss 5.1250 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.672 | inf_steps 15 | NE 1.538 | ETA 2536.1h
+step   4420 | loss 6.0625 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.672 | inf_steps 14 | NE 1.539 | ETA 2535.7h
+step   4430 | loss 4.4375 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.672 | inf_steps 14 | NE 1.539 | ETA 2534.0h
+step   4440 | loss 5.0312 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.672 | inf_steps 14 | NE 1.536 | ETA 2534.1h
+step   4450 | loss 4.9062 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.641 | inf_steps 14 | NE 1.534 | ETA 2534.2h
+step   4460 | loss 5.1875 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.641 | inf_steps 16 | NE 1.534 | ETA 2532.5h
+step   4470 | loss 6.3125 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.625 | inf_steps 16 | NE 1.534 | ETA 2532.8h
+step   4480 | loss 5.8438 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.609 | inf_steps 16 | NE 1.531 | ETA 2532.7h
+step   4490 | loss 5.1562 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.609 | inf_steps 15 | NE 1.531 | ETA 2531.1h
+step   4500 | loss 4.0625 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.594 | inf_steps 14 | NE 1.528 | ETA 2531.3h
+step   4510 | loss 3.9531 | lr 3.00e-04 | grad 0.77 | 1.5k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.594 | inf_steps 15 | NE 1.528 | ETA 2529.8h
+step   4520 | loss 4.5625 | lr 3.00e-04 | grad 0.81 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.594 | inf_steps 15 | NE 1.532 | ETA 2529.7h
+step   4530 | loss 4.6875 | lr 3.00e-04 | grad 0.93 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.594 | inf_steps 14 | NE 1.529 | ETA 2529.6h
+step   4540 | loss 4.7812 | lr 3.00e-04 | grad 0.93 | 1.6k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.594 | inf_steps 18 | NE 1.529 | ETA 2528.0h
+step   4550 | loss 4.5000 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.562 | inf_steps 17 | NE 1.527 | ETA 2527.7h
+step   4560 | loss 6.0938 | lr 3.00e-04 | grad 0.68 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.578 | inf_steps 14 | NE 1.526 | ETA 2527.5h
+step   4570 | loss 4.2812 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.562 | inf_steps 14 | NE 1.526 | ETA 2525.7h
+step   4580 | loss 5.1875 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.562 | inf_steps 15 | NE 1.522 | ETA 2525.7h
+step   4590 | loss 7.2812 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.562 | inf_steps 15 | NE 1.522 | ETA 2524.0h
+step   4600 | loss 4.6875 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.547 | inf_steps 15 | NE 1.521 | ETA 2524.1h
+step   4610 | loss 6.0312 | lr 3.00e-04 | grad 0.82 | 1.1k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 2.531 | inf_steps 14 | NE 1.519 | ETA 2524.2h
+step   4620 | loss 4.9375 | lr 3.00e-04 | grad 0.82 | 1.7k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.531 | inf_steps 14 | NE 1.519 | ETA 2522.4h
+step   4630 | loss 6.4375 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 2.516 | inf_steps 18 | NE 1.520 | ETA 2522.5h
+step   4640 | loss 5.3750 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.516 | inf_steps 15 | NE 1.521 | ETA 2522.1h
+step   4650 | loss 3.9844 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.500 | inf_steps 15 | NE 1.521 | ETA 2520.5h
+step   4660 | loss 4.3438 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.500 | inf_steps 14 | NE 1.523 | ETA 2520.8h
+step   4670 | loss 4.6562 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.500 | inf_steps 16 | NE 1.523 | ETA 2519.2h
+step   4680 | loss 4.0938 | lr 3.00e-04 | grad 0.78 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.484 | inf_steps 17 | NE 1.523 | ETA 2519.6h
+step   4690 | loss 4.6562 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.484 | inf_steps 15 | NE 1.520 | ETA 2519.9h
+step   4700 | loss 5.2188 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.484 | inf_steps 18 | NE 1.520 | ETA 2518.3h
+step   4710 | loss 4.6562 | lr 3.00e-04 | grad 0.81 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.469 | inf_steps 16 | NE 1.519 | ETA 2518.7h
+step   4720 | loss 3.9688 | lr 3.00e-04 | grad 0.64 | 1.2k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.453 | inf_steps 15 | NE 1.523 | ETA 2518.4h
+step   4730 | loss 4.4688 | lr 3.00e-04 | grad 0.64 | 1.6k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.453 | inf_steps 21 | NE 1.523 | ETA 2516.9h
+step   4740 | loss 6.2812 | lr 3.00e-04 | grad 0.81 | 1.1k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 2.453 | inf_steps 14 | NE 1.528 | ETA 2517.1h
+step   4750 | loss 5.3750 | lr 3.00e-04 | grad 0.81 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.438 | inf_steps 15 | NE 1.528 | ETA 2515.6h
+step   4760 | loss 7.6250 | lr 3.00e-04 | grad 0.82 | 1.1k tok/s (avg 1.1k) | cert 0.34→0.34 | hpc_loss 2.438 | inf_steps 13 | NE 1.533 | ETA 2515.5h
+step   4770 | loss 4.5000 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.422 | inf_steps 14 | NE 1.531 | ETA 2515.5h
+step   4780 | loss 6.0000 | lr 3.00e-04 | grad 0.66 | 1.7k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.438 | inf_steps 14 | NE 1.531 | ETA 2513.8h
+step   4790 | loss 4.2812 | lr 3.00e-04 | grad 0.71 | 1.0k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.406 | inf_steps 14 | NE 1.528 | ETA 2514.6h
+step   4800 | loss 6.1250 | lr 3.00e-04 | grad 0.82 | 1.2k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 2.406 | inf_steps 15 | NE 1.535 | ETA 2514.4h
+step   4810 | loss 3.9688 | lr 3.00e-04 | grad 0.82 | 1.7k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.406 | inf_steps 16 | NE 1.535 | ETA 2512.7h
+step   4820 | loss 4.5312 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.406 | inf_steps 14 | NE 1.533 | ETA 2513.0h
+step   4830 | loss 4.4688 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.391 | inf_steps 24 | NE 1.533 | ETA 2511.8h
+step   4840 | loss 5.2812 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.391 | inf_steps 14 | NE 1.530 | ETA 2511.5h
+step   4850 | loss 4.5312 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.375 | inf_steps 15 | NE 1.529 | ETA 2511.5h
+step   4860 | loss 6.4688 | lr 3.00e-04 | grad 0.66 | 1.5k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 2.375 | inf_steps 20 | NE 1.529 | ETA 2510.3h
+step   4870 | loss 6.9375 | lr 3.00e-04 | grad 0.66 | 1.2k tok/s (avg 1.1k) | cert 0.35→0.35 | hpc_loss 2.375 | inf_steps 14 | NE 1.534 | ETA 2509.8h
+step   4880 | loss 3.9688 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.359 | inf_steps 18 | NE 1.534 | ETA 2509.5h
+step   4890 | loss 4.1250 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.344 | inf_steps 15 | NE 1.534 | ETA 2508.0h
+step   4900 | loss 4.7500 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.344 | inf_steps 14 | NE 1.535 | ETA 2507.8h
+step   4910 | loss 4.9375 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.344 | inf_steps 15 | NE 1.535 | ETA 2506.3h
+step   4920 | loss 4.5000 | lr 3.00e-04 | grad 0.68 | 1.0k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.344 | inf_steps 14 | NE 1.538 | ETA 2506.9h
+step   4930 | loss 4.4375 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.344 | inf_steps 13 | NE 1.535 | ETA 2506.7h
+step   4940 | loss 4.0625 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.344 | inf_steps 15 | NE 1.535 | ETA 2505.2h
+step   4950 | loss 5.3125 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.344 | inf_steps 9 | NE 1.539 | ETA 2505.3h
+step   4960 | loss 4.0938 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.344 | inf_steps 14 | NE 1.534 | ETA 2505.5h
+step   4970 | loss 3.6719 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.344 | inf_steps 15 | NE 1.534 | ETA 2504.0h
+step   4980 | loss 5.1875 | lr 3.00e-04 | grad 0.78 | 1.0k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.344 | inf_steps 14 | NE 1.534 | ETA 2504.5h
+step   4990 | loss 4.0000 | lr 3.00e-04 | grad 0.78 | 1.7k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.344 | inf_steps 14 | NE 1.534 | ETA 2502.9h
+step   5000 | loss 5.9375 | lr 3.00e-04 | grad 0.61 | 1.0k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.344 | inf_steps 16 | NE 1.531 | ETA 2503.4h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 5000:
+  T=dyn | CE=4.5733 | PPL=96.86 | top1=25.1% | top5=46.0% | (25600 tok)
+  Saved checkpoint at step 5000
+step   5010 | loss 5.3125 | lr 3.00e-04 | grad 0.67 | 0.2k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.344 | inf_steps 14 | NE 1.534 | ETA 2523.3h
+step   5020 | loss 4.3750 | lr 3.00e-04 | grad 0.67 | 1.5k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.344 | inf_steps 15 | NE 1.534 | ETA 2522.0h
+step   5030 | loss 4.4375 | lr 3.00e-04 | grad 0.78 | 1.1k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.344 | inf_steps 14 | NE 1.536 | ETA 2522.2h
+step   5040 | loss 3.8750 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.328 | inf_steps 14 | NE 1.535 | ETA 2522.2h
+step   5050 | loss 4.1250 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.328 | inf_steps 16 | NE 1.535 | ETA 2520.7h
+step   5060 | loss 3.9844 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.328 | inf_steps 9 | NE 1.537 | ETA 2521.0h
+step   5070 | loss 4.0312 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.328 | inf_steps 13 | NE 1.537 | ETA 2519.4h
+step   5080 | loss 5.3750 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 2.344 | inf_steps 15 | NE 1.535 | ETA 2519.6h
+step   5090 | loss 5.2500 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.328 | inf_steps 14 | NE 1.535 | ETA 2519.8h
+step   5100 | loss 7.1250 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 2.344 | inf_steps 13 | NE 1.535 | ETA 2518.5h
+step   5110 | loss 5.0000 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 2.344 | inf_steps 17 | NE 1.535 | ETA 2518.4h
+step   5120 | loss 5.8125 | lr 3.00e-04 | grad 0.74 | 1.2k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.344 | inf_steps 15 | NE 1.533 | ETA 2518.3h
+step   5130 | loss 6.2500 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.344 | inf_steps 16 | NE 1.533 | ETA 2516.8h
+step   5140 | loss 5.5625 | lr 3.00e-04 | grad 0.83 | 1.1k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.344 | inf_steps 14 | NE 1.530 | ETA 2516.7h
+step   5150 | loss 3.6562 | lr 3.00e-04 | grad 0.83 | 1.6k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.328 | inf_steps 14 | NE 1.530 | ETA 2515.2h
+step   5160 | loss 4.5938 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.328 | inf_steps 15 | NE 1.530 | ETA 2515.4h
+step   5170 | loss 5.7812 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 2.328 | inf_steps 14 | NE 1.530 | ETA 2515.4h
+step   5180 | loss 4.6562 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.328 | inf_steps 18 | NE 1.530 | ETA 2514.1h
+step   5190 | loss 4.1250 | lr 3.00e-04 | grad 0.81 | 1.2k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.328 | inf_steps 15 | NE 1.533 | ETA 2513.9h
+step   5200 | loss 5.3750 | lr 3.00e-04 | grad 0.84 | 1.1k tok/s (avg 1.1k) | cert 0.58→0.58 | hpc_loss 2.328 | inf_steps 14 | NE 1.534 | ETA 2513.9h
+step   5210 | loss 4.3125 | lr 3.00e-04 | grad 0.84 | 1.6k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.328 | inf_steps 14 | NE 1.534 | ETA 2512.4h
+step   5220 | loss 3.4844 | lr 3.00e-04 | grad 0.78 | 1.0k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.328 | inf_steps 15 | NE 1.534 | ETA 2512.8h
+step   5230 | loss 4.9375 | lr 3.00e-04 | grad 0.78 | 1.6k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.328 | inf_steps 14 | NE 1.534 | ETA 2511.3h
+step   5240 | loss 6.1562 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 2.328 | inf_steps 15 | NE 1.538 | ETA 2511.7h
+step   5250 | loss 4.5312 | lr 3.00e-04 | grad 0.78 | 1.3k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.328 | inf_steps 14 | NE 1.536 | ETA 2511.1h
+step   5260 | loss 4.1562 | lr 3.00e-04 | grad 0.78 | 1.6k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.328 | inf_steps 14 | NE 1.536 | ETA 2509.8h
+step   5270 | loss 4.6250 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.328 | inf_steps 14 | NE 1.535 | ETA 2509.8h
+step   5280 | loss 4.1562 | lr 3.00e-04 | grad 0.83 | 1.2k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.328 | inf_steps 13 | NE 1.539 | ETA 2509.5h
+step   5290 | loss 3.9844 | lr 3.00e-04 | grad 0.83 | 1.7k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.328 | inf_steps 14 | NE 1.539 | ETA 2507.9h
+step   5300 | loss 5.1875 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.328 | inf_steps 16 | NE 1.537 | ETA 2508.1h
+step   5310 | loss 5.0000 | lr 3.00e-04 | grad 0.75 | 1.7k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.328 | inf_steps 14 | NE 1.537 | ETA 2506.6h
+step   5320 | loss 4.9375 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.328 | inf_steps 16 | NE 1.538 | ETA 2506.7h
+step   5330 | loss 4.1562 | lr 3.00e-04 | grad 0.69 | 1.0k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.328 | inf_steps 20 | NE 1.539 | ETA 2507.1h
+step   5340 | loss 4.0938 | lr 3.00e-04 | grad 0.69 | 1.5k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.328 | inf_steps 17 | NE 1.539 | ETA 2505.8h
+step   5350 | loss 6.3438 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.328 | inf_steps 14 | NE 1.539 | ETA 2506.0h
+step   5360 | loss 5.0625 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.328 | inf_steps 14 | NE 1.536 | ETA 2505.9h
+step   5370 | loss 4.3438 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.328 | inf_steps 14 | NE 1.536 | ETA 2504.5h
+step   5380 | loss 3.7656 | lr 3.00e-04 | grad 0.84 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.328 | inf_steps 14 | NE 1.534 | ETA 2504.6h
+step   5390 | loss 5.0000 | lr 3.00e-04 | grad 0.84 | 1.6k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.328 | inf_steps 14 | NE 1.534 | ETA 2503.3h
+step   5400 | loss 5.1250 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.328 | inf_steps 14 | NE 1.529 | ETA 2503.5h
+step   5410 | loss 4.1250 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.328 | inf_steps 18 | NE 1.528 | ETA 2503.5h
+step   5420 | loss 4.6875 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.328 | inf_steps 18 | NE 1.528 | ETA 2502.2h
+step   5430 | loss 4.4062 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.328 | inf_steps 14 | NE 1.527 | ETA 2502.5h
+step   5440 | loss 4.5625 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.328 | inf_steps 16 | NE 1.525 | ETA 2502.4h
+step   5450 | loss 4.2188 | lr 3.00e-04 | grad 0.77 | 1.7k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.328 | inf_steps 16 | NE 1.525 | ETA 2500.9h
+step   5460 | loss 4.0000 | lr 3.00e-04 | grad 0.70 | 1.0k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.312 | inf_steps 14 | NE 1.528 | ETA 2501.4h
+step   5470 | loss 5.5000 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.328 | inf_steps 15 | NE 1.528 | ETA 2500.1h
+step   5480 | loss 4.0312 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.312 | inf_steps 15 | NE 1.525 | ETA 2500.1h
+step   5490 | loss 4.2188 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.312 | inf_steps 14 | NE 1.524 | ETA 2500.2h
+step   5500 | loss 4.5000 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.312 | inf_steps 19 | NE 1.524 | ETA 2499.0h
+step   5510 | loss 4.0625 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.312 | inf_steps 14 | NE 1.526 | ETA 2499.0h
+step   5520 | loss 4.1562 | lr 3.00e-04 | grad 0.66 | 1.2k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.312 | inf_steps 15 | NE 1.526 | ETA 2498.9h
+step   5530 | loss 6.2188 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.312 | inf_steps 15 | NE 1.526 | ETA 2497.6h
+step   5540 | loss 5.9062 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.312 | inf_steps 16 | NE 1.526 | ETA 2497.8h
+step   5550 | loss 5.7812 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.312 | inf_steps 16 | NE 1.526 | ETA 2496.5h
+step   5560 | loss 6.2500 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 2.312 | inf_steps 15 | NE 1.524 | ETA 2496.9h
+step   5570 | loss 5.6875 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.328 | inf_steps 13 | NE 1.519 | ETA 2496.5h
+step   5580 | loss 5.9688 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.1k) | cert 0.38→0.38 | hpc_loss 2.312 | inf_steps 15 | NE 1.519 | ETA 2495.2h
+step   5590 | loss 4.3125 | lr 3.00e-04 | grad 0.62 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.312 | inf_steps 15 | NE 1.524 | ETA 2495.3h
+step   5600 | loss 3.8750 | lr 3.00e-04 | grad 0.65 | 1.1k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.312 | inf_steps 15 | NE 1.524 | ETA 2495.5h
+step   5610 | loss 5.9375 | lr 3.00e-04 | grad 0.65 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.312 | inf_steps 14 | NE 1.524 | ETA 2494.2h
+step   5620 | loss 3.8125 | lr 3.00e-04 | grad 0.70 | 1.0k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.312 | inf_steps 14 | NE 1.522 | ETA 2494.6h
+step   5630 | loss 4.5000 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.328 | inf_steps 15 | NE 1.522 | ETA 2493.2h
+step   5640 | loss 4.8125 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.312 | inf_steps 14 | NE 1.523 | ETA 2493.1h
+step   5650 | loss 5.9688 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.312 | inf_steps 16 | NE 1.523 | ETA 2493.0h
+step   5660 | loss 3.9375 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.312 | inf_steps 15 | NE 1.523 | ETA 2491.7h
+step   5670 | loss 3.9219 | lr 3.00e-04 | grad 0.70 | 1.0k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.312 | inf_steps 15 | NE 1.520 | ETA 2492.1h
+step   5680 | loss 5.2188 | lr 3.00e-04 | grad 0.80 | 1.2k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.312 | inf_steps 14 | NE 1.522 | ETA 2491.9h
+step   5690 | loss 5.0625 | lr 3.00e-04 | grad 0.80 | 1.5k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.312 | inf_steps 24 | NE 1.522 | ETA 2490.9h
+step   5700 | loss 4.2812 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.312 | inf_steps 14 | NE 1.519 | ETA 2490.8h
+step   5710 | loss 5.2500 | lr 3.00e-04 | grad 0.70 | 1.7k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.312 | inf_steps 16 | NE 1.519 | ETA 2489.4h
+step   5720 | loss 6.6562 | lr 3.00e-04 | grad 0.68 | 1.0k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.312 | inf_steps 15 | NE 1.517 | ETA 2490.0h
+step   5730 | loss 3.8125 | lr 3.00e-04 | grad 0.90 | 1.1k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.312 | inf_steps 15 | NE 1.519 | ETA 2490.0h
+step   5740 | loss 4.0938 | lr 3.00e-04 | grad 0.90 | 1.7k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.312 | inf_steps 14 | NE 1.519 | ETA 2488.6h
+step   5750 | loss 3.3594 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.312 | inf_steps 14 | NE 1.518 | ETA 2488.6h
+step   5760 | loss 4.8438 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.312 | inf_steps 14 | NE 1.525 | ETA 2488.8h
+step   5770 | loss 5.3750 | lr 3.00e-04 | grad 0.74 | 1.5k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.312 | inf_steps 16 | NE 1.525 | ETA 2487.7h
+step   5780 | loss 4.1250 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.312 | inf_steps 14 | NE 1.526 | ETA 2487.9h
+step   5790 | loss 4.2500 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.312 | inf_steps 21 | NE 1.526 | ETA 2486.8h
+step   5800 | loss 3.7969 | lr 3.00e-04 | grad 0.74 | 1.2k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.312 | inf_steps 17 | NE 1.523 | ETA 2486.6h
+step   5810 | loss 4.9375 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.312 | inf_steps 15 | NE 1.523 | ETA 2486.5h
+step   5820 | loss 4.3438 | lr 3.00e-04 | grad 0.69 | 1.5k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.312 | inf_steps 20 | NE 1.523 | ETA 2485.5h
+step   5830 | loss 3.2656 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.312 | inf_steps 14 | NE 1.527 | ETA 2485.6h
+step   5840 | loss 4.9375 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.312 | inf_steps 14 | NE 1.527 | ETA 2485.8h
+step   5850 | loss 5.3125 | lr 3.00e-04 | grad 0.79 | 1.4k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.312 | inf_steps 14 | NE 1.527 | ETA 2484.9h
+step   5860 | loss 4.9062 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.312 | inf_steps 14 | NE 1.526 | ETA 2484.7h
+step   5870 | loss 5.8750 | lr 3.00e-04 | grad 0.70 | 1.7k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.312 | inf_steps 14 | NE 1.526 | ETA 2483.4h
+step   5880 | loss 4.8438 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.297 | inf_steps 19 | NE 1.522 | ETA 2483.4h
+step   5890 | loss 4.1562 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.297 | inf_steps 17 | NE 1.525 | ETA 2483.4h
+step   5900 | loss 5.2188 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.297 | inf_steps 19 | NE 1.525 | ETA 2482.4h
+step   5910 | loss 4.3125 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.56→0.56 | hpc_loss 2.297 | inf_steps 15 | NE 1.521 | ETA 2482.1h
+step   5920 | loss 5.1875 | lr 3.00e-04 | grad 0.74 | 1.2k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.297 | inf_steps 14 | NE 1.523 | ETA 2481.8h
+step   5930 | loss 3.8438 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.297 | inf_steps 14 | NE 1.523 | ETA 2480.6h
+step   5940 | loss 4.0000 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.297 | inf_steps 14 | NE 1.524 | ETA 2481.0h
+step   5950 | loss 5.9062 | lr 3.00e-04 | grad 0.66 | 1.5k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.297 | inf_steps 15 | NE 1.524 | ETA 2479.9h
+step   5960 | loss 3.6562 | lr 3.00e-04 | grad 0.85 | 1.1k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.297 | inf_steps 15 | NE 1.520 | ETA 2480.1h
+step   5970 | loss 4.6250 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.297 | inf_steps 14 | NE 1.523 | ETA 2480.1h
+step   5980 | loss 3.4219 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.54→0.54 | hpc_loss 2.297 | inf_steps 14 | NE 1.523 | ETA 2479.0h
+step   5990 | loss 4.2812 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.297 | inf_steps 13 | NE 1.521 | ETA 2479.3h
+step   6000 | loss 5.1875 | lr 3.00e-04 | grad 0.82 | 1.1k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.297 | inf_steps 14 | NE 1.516 | ETA 2479.5h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 6000:
+  T=dyn | CE=4.5280 | PPL=92.58 | top1=25.0% | top5=44.9% | (25600 tok)
+step   6010 | loss 5.2812 | lr 3.00e-04 | grad 0.82 | 0.2k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.297 | inf_steps 15 | NE 1.516 | ETA 2494.6h
+step   6020 | loss 6.2500 | lr 3.00e-04 | grad 0.73 | 1.4k tok/s (avg 1.1k) | cert 0.42→0.42 | hpc_loss 2.297 | inf_steps 14 | NE 1.514 | ETA 2493.9h
+step   6030 | loss 3.6250 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.297 | inf_steps 14 | NE 1.514 | ETA 2492.7h
+step   6040 | loss 4.0625 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.297 | inf_steps 14 | NE 1.515 | ETA 2492.7h
+step   6050 | loss 4.1562 | lr 3.00e-04 | grad 0.76 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.297 | inf_steps 16 | NE 1.514 | ETA 2492.5h
+step   6060 | loss 4.3750 | lr 3.00e-04 | grad 0.76 | 1.5k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.297 | inf_steps 16 | NE 1.514 | ETA 2491.4h
+step   6070 | loss 3.6250 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.57→0.57 | hpc_loss 2.297 | inf_steps 14 | NE 1.513 | ETA 2491.4h
+step   6080 | loss 4.5938 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.297 | inf_steps 14 | NE 1.508 | ETA 2491.2h
+step   6090 | loss 4.2812 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.1k) | cert 0.56→0.56 | hpc_loss 2.297 | inf_steps 14 | NE 1.508 | ETA 2490.0h
+step   6100 | loss 3.9688 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.297 | inf_steps 15 | NE 1.508 | ETA 2490.4h
+step   6110 | loss 4.3125 | lr 3.00e-04 | grad 0.74 | 1.5k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.297 | inf_steps 19 | NE 1.508 | ETA 2489.3h
+step   6120 | loss 4.2188 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.297 | inf_steps 18 | NE 1.508 | ETA 2489.6h
+step   6130 | loss 4.0938 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.297 | inf_steps 20 | NE 1.508 | ETA 2489.3h
+step   6140 | loss 7.1875 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.297 | inf_steps 15 | NE 1.508 | ETA 2488.2h
+step   6150 | loss 4.7812 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.297 | inf_steps 19 | NE 1.509 | ETA 2488.1h
+step   6160 | loss 5.8750 | lr 3.00e-04 | grad 0.68 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.297 | inf_steps 16 | NE 1.512 | ETA 2488.0h
+step   6170 | loss 4.5625 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.297 | inf_steps 14 | NE 1.512 | ETA 2486.8h
+step   6180 | loss 5.6250 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.1k) | cert 0.39→0.39 | hpc_loss 2.297 | inf_steps 15 | NE 1.518 | ETA 2486.9h
+step   6190 | loss 3.7969 | lr 3.00e-04 | grad 0.80 | 1.7k tok/s (avg 1.1k) | cert 0.57→0.57 | hpc_loss 2.297 | inf_steps 15 | NE 1.518 | ETA 2485.6h
+step   6200 | loss 5.2500 | lr 3.00e-04 | grad 0.78 | 1.0k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.297 | inf_steps 15 | NE 1.517 | ETA 2486.1h
+step   6210 | loss 5.4062 | lr 3.00e-04 | grad 0.66 | 1.2k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.297 | inf_steps 14 | NE 1.522 | ETA 2486.0h
+step   6220 | loss 4.8125 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.1k) | cert 0.37→0.37 | hpc_loss 2.297 | inf_steps 18 | NE 1.522 | ETA 2484.9h
+step   6230 | loss 6.2812 | lr 3.00e-04 | grad 0.72 | 1.0k tok/s (avg 1.1k) | cert 0.41→0.41 | hpc_loss 2.297 | inf_steps 15 | NE 1.520 | ETA 2485.3h
+step   6240 | loss 5.9062 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.297 | inf_steps 15 | NE 1.518 | ETA 2485.2h
+step   6250 | loss 4.8438 | lr 3.00e-04 | grad 0.77 | 1.5k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.297 | inf_steps 18 | NE 1.518 | ETA 2484.2h
+step   6260 | loss 4.2188 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.297 | inf_steps 14 | NE 1.520 | ETA 2484.2h
+step   6270 | loss 4.7188 | lr 3.00e-04 | grad 0.69 | 1.4k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.297 | inf_steps 19 | NE 1.520 | ETA 2483.4h
+step   6280 | loss 4.0625 | lr 3.00e-04 | grad 0.72 | 1.3k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.297 | inf_steps 15 | NE 1.520 | ETA 2482.8h
+step   6290 | loss 4.5000 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.297 | inf_steps 14 | NE 1.521 | ETA 2482.9h
+step   6300 | loss 4.0938 | lr 3.00e-04 | grad 0.73 | 1.7k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.297 | inf_steps 15 | NE 1.521 | ETA 2481.6h
+step   6310 | loss 6.0312 | lr 3.00e-04 | grad 0.76 | 1.0k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.297 | inf_steps 16 | NE 1.524 | ETA 2482.1h
+step   6320 | loss 5.3750 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.297 | inf_steps 14 | NE 1.524 | ETA 2482.1h
+step   6330 | loss 6.5938 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.297 | inf_steps 14 | NE 1.524 | ETA 2481.0h
+step   6340 | loss 5.0938 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.281 | inf_steps 15 | NE 1.522 | ETA 2481.2h
+step   6350 | loss 4.3125 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.281 | inf_steps 14 | NE 1.522 | ETA 2480.1h
+step   6360 | loss 3.9844 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.1k) | cert 0.59→0.59 | hpc_loss 2.281 | inf_steps 13 | NE 1.524 | ETA 2480.2h
+step   6370 | loss 5.6562 | lr 3.00e-04 | grad 0.76 | 1.2k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.297 | inf_steps 14 | NE 1.522 | ETA 2480.1h
+step   6380 | loss 3.9062 | lr 3.00e-04 | grad 0.76 | 1.7k tok/s (avg 1.1k) | cert 0.52→0.52 | hpc_loss 2.281 | inf_steps 17 | NE 1.522 | ETA 2478.9h
+step   6390 | loss 4.5938 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.55→0.55 | hpc_loss 2.281 | inf_steps 14 | NE 1.524 | ETA 2478.9h
+step   6400 | loss 6.0625 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.281 | inf_steps 20 | NE 1.523 | ETA 2478.6h
+step   6410 | loss 6.6250 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 2.281 | inf_steps 17 | NE 1.523 | ETA 2477.6h
+step   6420 | loss 6.0000 | lr 3.00e-04 | grad 0.79 | 1.2k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 2.281 | inf_steps 14 | NE 1.520 | ETA 2477.4h
+step   6430 | loss 4.2500 | lr 3.00e-04 | grad 0.79 | 1.7k tok/s (avg 1.1k) | cert 0.56→0.56 | hpc_loss 2.281 | inf_steps 14 | NE 1.520 | ETA 2476.3h
+step   6440 | loss 4.2812 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.281 | inf_steps 14 | NE 1.517 | ETA 2476.5h
+step   6450 | loss 5.1875 | lr 3.00e-04 | grad 0.65 | 1.1k tok/s (avg 1.1k) | cert 0.40→0.40 | hpc_loss 2.281 | inf_steps 16 | NE 1.517 | ETA 2476.7h
+step   6460 | loss 4.2812 | lr 3.00e-04 | grad 0.65 | 1.5k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.281 | inf_steps 14 | NE 1.517 | ETA 2475.8h
+step   6470 | loss 4.2500 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.281 | inf_steps 16 | NE 1.521 | ETA 2475.9h
+step   6480 | loss 4.6562 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.1k) | cert 0.50→0.50 | hpc_loss 2.281 | inf_steps 15 | NE 1.524 | ETA 2475.6h
+step   6490 | loss 4.5312 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.281 | inf_steps 14 | NE 1.524 | ETA 2474.5h
+step   6500 | loss 3.9531 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.51→0.51 | hpc_loss 2.281 | inf_steps 15 | NE 1.525 | ETA 2474.8h
+step   6510 | loss 4.1562 | lr 3.00e-04 | grad 0.76 | 1.5k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.281 | inf_steps 19 | NE 1.525 | ETA 2474.0h
+step   6520 | loss 5.9062 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.1k) | cert 0.45→0.45 | hpc_loss 2.281 | inf_steps 14 | NE 1.526 | ETA 2473.9h
+step   6530 | loss 4.1875 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.1k) | cert 0.47→0.47 | hpc_loss 2.281 | inf_steps 14 | NE 1.526 | ETA 2473.9h
+step   6540 | loss 3.7031 | lr 3.00e-04 | grad 0.76 | 1.7k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.281 | inf_steps 14 | NE 1.526 | ETA 2472.7h
+step   6550 | loss 4.6562 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.281 | inf_steps 19 | NE 1.525 | ETA 2472.7h
+step   6560 | loss 5.1875 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.1k) | cert 0.46→0.46 | hpc_loss 2.281 | inf_steps 15 | NE 1.526 | ETA 2472.9h
+step   6570 | loss 6.1562 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.281 | inf_steps 15 | NE 1.526 | ETA 2471.8h
+step   6580 | loss 5.3750 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.1k) | cert 0.43→0.43 | hpc_loss 2.281 | inf_steps 14 | NE 1.523 | ETA 2472.1h
+step   6590 | loss 4.3438 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.281 | inf_steps 14 | NE 1.523 | ETA 2471.0h
+step   6600 | loss 6.4688 | lr 3.00e-04 | grad 0.66 | 1.0k tok/s (avg 1.2k) | cert 0.37→0.37 | hpc_loss 2.281 | inf_steps 15 | NE 1.520 | ETA 2471.4h
+step   6610 | loss 5.9688 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.281 | inf_steps 14 | NE 1.520 | ETA 2471.5h
+step   6620 | loss 4.3438 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.281 | inf_steps 14 | NE 1.520 | ETA 2470.5h
+step   6630 | loss 3.8594 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.281 | inf_steps 19 | NE 1.518 | ETA 2470.7h
+step   6640 | loss 3.9531 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.281 | inf_steps 20 | NE 1.515 | ETA 2470.8h
+step   6650 | loss 4.0000 | lr 3.00e-04 | grad 0.69 | 1.7k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.281 | inf_steps 15 | NE 1.515 | ETA 2469.6h
+step   6660 | loss 4.5000 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.281 | inf_steps 15 | NE 1.514 | ETA 2469.9h
+step   6670 | loss 5.0000 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.39→0.39 | hpc_loss 2.281 | inf_steps 20 | NE 1.514 | ETA 2468.9h
+step   6680 | loss 4.2812 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.281 | inf_steps 15 | NE 1.513 | ETA 2469.2h
+step   6690 | loss 4.5938 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.281 | inf_steps 13 | NE 1.512 | ETA 2469.0h
+step   6700 | loss 4.6250 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.281 | inf_steps 15 | NE 1.512 | ETA 2468.0h
+step   6710 | loss 4.0625 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.281 | inf_steps 15 | NE 1.516 | ETA 2468.0h
+step   6720 | loss 4.6562 | lr 3.00e-04 | grad 0.76 | 1.2k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.281 | inf_steps 15 | NE 1.515 | ETA 2467.9h
+step   6730 | loss 4.4062 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.281 | inf_steps 14 | NE 1.515 | ETA 2466.9h
+step   6740 | loss 4.1562 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.281 | inf_steps 13 | NE 1.517 | ETA 2467.2h
+step   6750 | loss 4.3125 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.281 | inf_steps 14 | NE 1.517 | ETA 2466.2h
+step   6760 | loss 4.5938 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.281 | inf_steps 17 | NE 1.517 | ETA 2466.5h
+step   6770 | loss 5.9375 | lr 3.00e-04 | grad 0.69 | 1.3k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.281 | inf_steps 10 | NE 1.513 | ETA 2466.1h
+step   6780 | loss 5.5625 | lr 3.00e-04 | grad 0.69 | 1.5k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.281 | inf_steps 14 | NE 1.513 | ETA 2465.2h
+step   6790 | loss 3.4531 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.281 | inf_steps 15 | NE 1.512 | ETA 2465.6h
+step   6800 | loss 6.3125 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.281 | inf_steps 15 | NE 1.511 | ETA 2465.7h
+step   6810 | loss 4.5625 | lr 3.00e-04 | grad 0.72 | 1.7k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.281 | inf_steps 14 | NE 1.511 | ETA 2464.5h
+step   6820 | loss 4.2500 | lr 3.00e-04 | grad 0.81 | 1.1k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.281 | inf_steps 15 | NE 1.515 | ETA 2464.7h
+step   6830 | loss 5.4062 | lr 3.00e-04 | grad 0.81 | 1.7k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.281 | inf_steps 14 | NE 1.515 | ETA 2463.6h
+step   6840 | loss 5.3750 | lr 3.00e-04 | grad 0.69 | 1.0k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.281 | inf_steps 14 | NE 1.515 | ETA 2464.1h
+step   6850 | loss 4.0312 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.281 | inf_steps 15 | NE 1.515 | ETA 2464.2h
+step   6860 | loss 3.9219 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.281 | inf_steps 17 | NE 1.515 | ETA 2463.3h
+step   6870 | loss 5.1875 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.281 | inf_steps 16 | NE 1.516 | ETA 2463.4h
+step   6880 | loss 4.5625 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.281 | inf_steps 15 | NE 1.515 | ETA 2463.5h
+step   6890 | loss 4.3438 | lr 3.00e-04 | grad 0.77 | 1.5k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.281 | inf_steps 21 | NE 1.515 | ETA 2462.6h
+step   6900 | loss 4.9688 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.266 | inf_steps 19 | NE 1.514 | ETA 2462.7h
+step   6910 | loss 4.0312 | lr 3.00e-04 | grad 0.70 | 1.7k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.266 | inf_steps 15 | NE 1.514 | ETA 2461.6h
+step   6920 | loss 4.8438 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.281 | inf_steps 16 | NE 1.513 | ETA 2461.9h
+step   6930 | loss 5.5312 | lr 3.00e-04 | grad 0.78 | 1.1k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.266 | inf_steps 14 | NE 1.513 | ETA 2462.0h
+step   6940 | loss 5.2188 | lr 3.00e-04 | grad 0.78 | 1.6k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.266 | inf_steps 14 | NE 1.513 | ETA 2461.0h
+step   6950 | loss 4.7812 | lr 3.00e-04 | grad 0.70 | 1.0k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.266 | inf_steps 21 | NE 1.513 | ETA 2461.4h
+step   6960 | loss 4.3750 | lr 3.00e-04 | grad 0.67 | 1.2k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.266 | inf_steps 15 | NE 1.516 | ETA 2461.4h
+step   6970 | loss 6.4062 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.281 | inf_steps 15 | NE 1.516 | ETA 2460.5h
+step   6980 | loss 3.7812 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.266 | inf_steps 15 | NE 1.516 | ETA 2460.6h
+step   6990 | loss 4.0000 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.266 | inf_steps 14 | NE 1.516 | ETA 2459.6h
+step   7000 | loss 7.8750 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.2k) | cert 0.38→0.38 | hpc_loss 2.281 | inf_steps 16 | NE 1.515 | ETA 2459.8h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 7000:
+  T=dyn | CE=4.5124 | PPL=91.14 | top1=25.1% | top5=45.2% | (25600 tok)
+step   7010 | loss 5.3750 | lr 3.00e-04 | grad 0.67 | 0.2k tok/s (avg 1.1k) | cert 0.53→0.53 | hpc_loss 2.266 | inf_steps 14 | NE 1.516 | ETA 2473.2h
+step   7020 | loss 4.0000 | lr 3.00e-04 | grad 0.67 | 1.5k tok/s (avg 1.1k) | cert 0.48→0.48 | hpc_loss 2.266 | inf_steps 23 | NE 1.516 | ETA 2472.4h
+step   7030 | loss 4.9688 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.1k) | cert 0.44→0.44 | hpc_loss 2.266 | inf_steps 13 | NE 1.513 | ETA 2472.3h
+step   7040 | loss 5.4375 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.1k) | cert 0.49→0.49 | hpc_loss 2.266 | inf_steps 14 | NE 1.516 | ETA 2472.3h
+step   7050 | loss 3.7500 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.266 | inf_steps 14 | NE 1.516 | ETA 2471.3h
+step   7060 | loss 5.3438 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.266 | inf_steps 15 | NE 1.518 | ETA 2471.5h
+step   7070 | loss 4.8438 | lr 3.00e-04 | grad 0.66 | 1.5k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.266 | inf_steps 15 | NE 1.518 | ETA 2470.7h
+step   7080 | loss 4.0312 | lr 3.00e-04 | grad 0.66 | 1.3k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.266 | inf_steps 9 | NE 1.514 | ETA 2470.2h
+step   7090 | loss 5.3750 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.266 | inf_steps 13 | NE 1.515 | ETA 2470.2h
+step   7100 | loss 6.1250 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.2k) | cert 0.40→0.40 | hpc_loss 2.266 | inf_steps 14 | NE 1.515 | ETA 2469.3h
+step   7110 | loss 4.6562 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.266 | inf_steps 15 | NE 1.512 | ETA 2469.3h
+step   7120 | loss 6.0625 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.38→0.38 | hpc_loss 2.266 | inf_steps 14 | NE 1.517 | ETA 2469.4h
+step   7130 | loss 5.0312 | lr 3.00e-04 | grad 0.70 | 1.7k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.266 | inf_steps 15 | NE 1.517 | ETA 2468.3h
+step   7140 | loss 4.8750 | lr 3.00e-04 | grad 0.80 | 1.0k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.266 | inf_steps 14 | NE 1.520 | ETA 2468.7h
+step   7150 | loss 4.1875 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.266 | inf_steps 17 | NE 1.520 | ETA 2467.8h
+step   7160 | loss 4.8125 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.266 | inf_steps 15 | NE 1.525 | ETA 2467.9h
+step   7170 | loss 6.6250 | lr 3.00e-04 | grad 0.74 | 1.3k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.266 | inf_steps 15 | NE 1.521 | ETA 2467.6h
+step   7180 | loss 6.0000 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.266 | inf_steps 15 | NE 1.521 | ETA 2466.6h
+step   7190 | loss 3.9375 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.266 | inf_steps 14 | NE 1.518 | ETA 2466.8h
+step   7200 | loss 6.0938 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.266 | inf_steps 19 | NE 1.517 | ETA 2466.9h
+step   7210 | loss 5.0312 | lr 3.00e-04 | grad 0.73 | 1.5k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.266 | inf_steps 21 | NE 1.517 | ETA 2466.1h
+step   7220 | loss 4.4062 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.266 | inf_steps 17 | NE 1.516 | ETA 2466.1h
+step   7230 | loss 5.0938 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.266 | inf_steps 15 | NE 1.516 | ETA 2465.1h
+step   7240 | loss 4.7812 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.266 | inf_steps 16 | NE 1.514 | ETA 2465.2h
+step   7250 | loss 5.0312 | lr 3.00e-04 | grad 0.83 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.266 | inf_steps 15 | NE 1.514 | ETA 2465.2h
+step   7260 | loss 3.9688 | lr 3.00e-04 | grad 0.83 | 1.6k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.266 | inf_steps 14 | NE 1.514 | ETA 2464.2h
+step   7270 | loss 5.4062 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.266 | inf_steps 17 | NE 1.515 | ETA 2464.1h
+step   7280 | loss 4.4375 | lr 3.00e-04 | grad 0.78 | 1.2k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.266 | inf_steps 15 | NE 1.515 | ETA 2464.1h
+step   7290 | loss 4.4062 | lr 3.00e-04 | grad 0.78 | 1.7k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.266 | inf_steps 13 | NE 1.515 | ETA 2463.1h
+step   7300 | loss 6.3750 | lr 3.00e-04 | grad 0.78 | 1.0k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.266 | inf_steps 20 | NE 1.513 | ETA 2463.6h
+step   7310 | loss 4.5625 | lr 3.00e-04 | grad 0.78 | 1.7k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.266 | inf_steps 14 | NE 1.513 | ETA 2462.5h
+step   7320 | loss 5.3125 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.266 | inf_steps 19 | NE 1.515 | ETA 2462.6h
+step   7330 | loss 4.6562 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.266 | inf_steps 13 | NE 1.519 | ETA 2462.4h
+step   7340 | loss 6.1562 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.266 | inf_steps 14 | NE 1.519 | ETA 2461.6h
+step   7350 | loss 4.6250 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.266 | inf_steps 18 | NE 1.515 | ETA 2461.6h
+step   7360 | loss 4.5000 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.266 | inf_steps 15 | NE 1.517 | ETA 2461.5h
+step   7370 | loss 4.6250 | lr 3.00e-04 | grad 0.75 | 1.5k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.266 | inf_steps 19 | NE 1.517 | ETA 2460.8h
+step   7380 | loss 6.1875 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.266 | inf_steps 15 | NE 1.514 | ETA 2460.8h
+step   7390 | loss 4.5312 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.266 | inf_steps 14 | NE 1.514 | ETA 2459.8h
+step   7400 | loss 4.0625 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 15 | NE 1.517 | ETA 2460.1h
+step   7410 | loss 6.3750 | lr 3.00e-04 | grad 0.74 | 1.2k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.266 | inf_steps 9 | NE 1.516 | ETA 2459.9h
+step   7420 | loss 5.5625 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.250 | inf_steps 14 | NE 1.516 | ETA 2459.0h
+step   7430 | loss 4.5625 | lr 3.00e-04 | grad 0.90 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.250 | inf_steps 16 | NE 1.516 | ETA 2459.2h
+step   7440 | loss 6.6875 | lr 3.00e-04 | grad 0.76 | 1.2k tok/s (avg 1.2k) | cert 0.39→0.39 | hpc_loss 2.266 | inf_steps 14 | NE 1.515 | ETA 2458.9h
+step   7450 | loss 4.3750 | lr 3.00e-04 | grad 0.76 | 1.7k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 15 | NE 1.515 | ETA 2457.9h
+step   7460 | loss 5.4688 | lr 3.00e-04 | grad 0.80 | 1.0k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.250 | inf_steps 14 | NE 1.518 | ETA 2458.3h
+step   7470 | loss 4.5000 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 14 | NE 1.518 | ETA 2457.4h
+step   7480 | loss 6.0625 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.266 | inf_steps 16 | NE 1.517 | ETA 2457.6h
+step   7490 | loss 7.3750 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.2k) | cert 0.36→0.36 | hpc_loss 2.266 | inf_steps 14 | NE 1.516 | ETA 2457.6h
+step   7500 | loss 5.3750 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.2k) | cert 0.41→0.41 | hpc_loss 2.250 | inf_steps 15 | NE 1.516 | ETA 2456.6h
+step   7510 | loss 4.3125 | lr 3.00e-04 | grad 0.82 | 1.0k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.250 | inf_steps 14 | NE 1.517 | ETA 2457.1h
+step   7520 | loss 3.5938 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.250 | inf_steps 14 | NE 1.516 | ETA 2456.9h
+step   7530 | loss 5.5625 | lr 3.00e-04 | grad 0.77 | 1.5k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.266 | inf_steps 18 | NE 1.516 | ETA 2456.2h
+step   7540 | loss 7.2188 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.2k) | cert 0.41→0.41 | hpc_loss 2.250 | inf_steps 14 | NE 1.513 | ETA 2456.0h
+step   7550 | loss 4.3125 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 18 | NE 1.513 | ETA 2455.1h
+step   7560 | loss 5.4375 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.250 | inf_steps 14 | NE 1.513 | ETA 2455.0h
+step   7570 | loss 3.9375 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 14 | NE 1.512 | ETA 2455.2h
+step   7580 | loss 5.0938 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 15 | NE 1.512 | ETA 2454.3h
+step   7590 | loss 5.4062 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.250 | inf_steps 23 | NE 1.510 | ETA 2454.4h
+step   7600 | loss 4.3750 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.250 | inf_steps 14 | NE 1.510 | ETA 2454.4h
+step   7610 | loss 6.1250 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.250 | inf_steps 14 | NE 1.510 | ETA 2453.4h
+step   7620 | loss 4.9375 | lr 3.00e-04 | grad 0.93 | 1.1k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.250 | inf_steps 19 | NE 1.511 | ETA 2453.7h
+step   7630 | loss 5.5000 | lr 3.00e-04 | grad 0.93 | 1.5k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.250 | inf_steps 15 | NE 1.511 | ETA 2452.8h
+step   7640 | loss 7.4688 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.2k) | cert 0.37→0.37 | hpc_loss 2.250 | inf_steps 15 | NE 1.513 | ETA 2453.0h
+step   7650 | loss 4.6875 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.250 | inf_steps 16 | NE 1.513 | ETA 2453.1h
+step   7660 | loss 4.4375 | lr 3.00e-04 | grad 0.73 | 1.8k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 13 | NE 1.513 | ETA 2452.0h
+step   7670 | loss 4.0312 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.250 | inf_steps 16 | NE 1.511 | ETA 2452.2h
+step   7680 | loss 5.6875 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 15 | NE 1.510 | ETA 2452.2h
+step   7690 | loss 4.4062 | lr 3.00e-04 | grad 0.67 | 1.5k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.250 | inf_steps 15 | NE 1.510 | ETA 2451.5h
+step   7700 | loss 5.6250 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.250 | inf_steps 14 | NE 1.505 | ETA 2451.6h
+step   7710 | loss 4.5312 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.250 | inf_steps 15 | NE 1.505 | ETA 2450.7h
+step   7720 | loss 5.3750 | lr 3.00e-04 | grad 0.78 | 1.2k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.250 | inf_steps 15 | NE 1.507 | ETA 2450.7h
+step   7730 | loss 5.3125 | lr 3.00e-04 | grad 0.68 | 1.2k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.250 | inf_steps 19 | NE 1.507 | ETA 2450.6h
+step   7740 | loss 5.3750 | lr 3.00e-04 | grad 0.68 | 1.7k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.250 | inf_steps 9 | NE 1.507 | ETA 2449.6h
+step   7750 | loss 5.8750 | lr 3.00e-04 | grad 0.77 | 1.0k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 14 | NE 1.502 | ETA 2450.0h
+step   7760 | loss 4.5000 | lr 3.00e-04 | grad 0.76 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.250 | inf_steps 20 | NE 1.501 | ETA 2449.8h
+step   7770 | loss 4.8125 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 16 | NE 1.501 | ETA 2448.9h
+step   7780 | loss 3.5625 | lr 3.00e-04 | grad 0.81 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.250 | inf_steps 15 | NE 1.500 | ETA 2449.0h
+step   7790 | loss 4.2188 | lr 3.00e-04 | grad 0.81 | 1.6k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.250 | inf_steps 15 | NE 1.500 | ETA 2448.2h
+step   7800 | loss 4.3750 | lr 3.00e-04 | grad 0.80 | 1.2k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.250 | inf_steps 2 | NE 1.496 | ETA 2448.1h
+step   7810 | loss 4.8438 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.250 | inf_steps 18 | NE 1.493 | ETA 2448.2h
+step   7820 | loss 4.5625 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.250 | inf_steps 14 | NE 1.493 | ETA 2447.4h
+step   7830 | loss 4.8750 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.250 | inf_steps 20 | NE 1.499 | ETA 2447.5h
+step   7840 | loss 4.0938 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.250 | inf_steps 17 | NE 1.500 | ETA 2447.5h
+step   7850 | loss 4.8750 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.250 | inf_steps 15 | NE 1.500 | ETA 2446.6h
+step   7860 | loss 3.9844 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.250 | inf_steps 15 | NE 1.496 | ETA 2446.5h
+step   7870 | loss 4.1562 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.250 | inf_steps 14 | NE 1.496 | ETA 2445.6h
+step   7880 | loss 4.0312 | lr 3.00e-04 | grad 0.77 | 1.0k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.250 | inf_steps 21 | NE 1.494 | ETA 2446.1h
+step   7890 | loss 5.3438 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.250 | inf_steps 19 | NE 1.494 | ETA 2446.0h
+step   7900 | loss 3.5469 | lr 3.00e-04 | grad 0.75 | 1.5k tok/s (avg 1.2k) | cert 0.61→0.61 | hpc_loss 2.250 | inf_steps 13 | NE 1.494 | ETA 2445.3h
+step   7910 | loss 3.8594 | lr 3.00e-04 | grad 0.64 | 1.2k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.250 | inf_steps 17 | NE 1.494 | ETA 2445.1h
+step   7920 | loss 5.3438 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.250 | inf_steps 14 | NE 1.496 | ETA 2445.0h
+step   7930 | loss 4.5312 | lr 3.00e-04 | grad 0.71 | 1.5k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.250 | inf_steps 18 | NE 1.496 | ETA 2444.3h
+step   7940 | loss 3.6719 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.250 | inf_steps 14 | NE 1.492 | ETA 2444.4h
+step   7950 | loss 4.5938 | lr 3.00e-04 | grad 0.73 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.250 | inf_steps 14 | NE 1.492 | ETA 2443.6h
+step   7960 | loss 4.9062 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.250 | inf_steps 15 | NE 1.497 | ETA 2443.8h
+step   7970 | loss 4.8438 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.250 | inf_steps 18 | NE 1.497 | ETA 2443.8h
+step   7980 | loss 4.1875 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.250 | inf_steps 15 | NE 1.497 | ETA 2442.9h
+step   7990 | loss 5.4688 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.250 | inf_steps 17 | NE 1.496 | ETA 2443.0h
+step   8000 | loss 4.1562 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 18 | NE 1.492 | ETA 2443.0h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 8000:
+  T=dyn | CE=4.4416 | PPL=84.91 | top1=25.3% | top5=45.7% | (25600 tok)
+step   8010 | loss 5.4688 | lr 3.00e-04 | grad 0.71 | 0.2k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.250 | inf_steps 14 | NE 1.492 | ETA 2454.6h
+step   8020 | loss 4.6562 | lr 3.00e-04 | grad 0.74 | 1.4k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.250 | inf_steps 13 | NE 1.488 | ETA 2454.1h
+step   8030 | loss 4.7500 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.250 | inf_steps 15 | NE 1.488 | ETA 2453.3h
+step   8040 | loss 3.6406 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.234 | inf_steps 15 | NE 1.488 | ETA 2453.1h
+step   8050 | loss 4.9688 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.234 | inf_steps 16 | NE 1.486 | ETA 2452.9h
+step   8060 | loss 3.6719 | lr 3.00e-04 | grad 0.71 | 1.7k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 14 | NE 1.486 | ETA 2451.9h
+step   8070 | loss 5.8438 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.2k) | cert 0.40→0.40 | hpc_loss 2.234 | inf_steps 15 | NE 1.486 | ETA 2452.2h
+step   8080 | loss 5.4062 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.234 | inf_steps 15 | NE 1.484 | ETA 2452.1h
+step   8090 | loss 5.8438 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.234 | inf_steps 15 | NE 1.484 | ETA 2451.2h
+step   8100 | loss 5.1875 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.250 | inf_steps 17 | NE 1.487 | ETA 2451.5h
+step   8110 | loss 4.5625 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.234 | inf_steps 15 | NE 1.487 | ETA 2450.6h
+step   8120 | loss 5.3438 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.234 | inf_steps 14 | NE 1.485 | ETA 2450.8h
+step   8130 | loss 4.4062 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.234 | inf_steps 15 | NE 1.485 | ETA 2450.6h
+step   8140 | loss 3.6875 | lr 3.00e-04 | grad 0.73 | 1.7k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.234 | inf_steps 14 | NE 1.485 | ETA 2449.7h
+step   8150 | loss 6.4688 | lr 3.00e-04 | grad 0.75 | 1.0k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.234 | inf_steps 14 | NE 1.482 | ETA 2450.1h
+step   8160 | loss 3.5312 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.2k) | cert 0.61→0.61 | hpc_loss 2.234 | inf_steps 15 | NE 1.483 | ETA 2450.2h
+step   8170 | loss 4.6875 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.234 | inf_steps 14 | NE 1.483 | ETA 2449.4h
+step   8180 | loss 5.5625 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 14 | NE 1.492 | ETA 2449.6h
+step   8190 | loss 4.3125 | lr 3.00e-04 | grad 0.67 | 1.6k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 14 | NE 1.492 | ETA 2448.8h
+step   8200 | loss 4.8125 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 14 | NE 1.494 | ETA 2448.9h
+step   8210 | loss 5.0312 | lr 3.00e-04 | grad 0.81 | 1.2k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.234 | inf_steps 14 | NE 1.494 | ETA 2448.9h
+step   8220 | loss 4.0938 | lr 3.00e-04 | grad 0.81 | 1.7k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.234 | inf_steps 14 | NE 1.494 | ETA 2447.9h
+step   8230 | loss 6.0312 | lr 3.00e-04 | grad 0.87 | 1.0k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.234 | inf_steps 15 | NE 1.494 | ETA 2448.4h
+step   8240 | loss 4.4062 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 14 | NE 1.492 | ETA 2448.5h
+step   8250 | loss 4.4688 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.234 | inf_steps 19 | NE 1.492 | ETA 2447.7h
+step   8260 | loss 4.3438 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.234 | inf_steps 14 | NE 1.494 | ETA 2447.7h
+step   8270 | loss 4.3125 | lr 3.00e-04 | grad 0.79 | 1.7k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.234 | inf_steps 9 | NE 1.494 | ETA 2446.8h
+step   8280 | loss 5.0938 | lr 3.00e-04 | grad 0.67 | 0.9k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.234 | inf_steps 22 | NE 1.493 | ETA 2447.5h
+step   8290 | loss 3.5469 | lr 3.00e-04 | grad 0.78 | 1.3k tok/s (avg 1.2k) | cert 0.60→0.60 | hpc_loss 2.234 | inf_steps 15 | NE 1.492 | ETA 2447.3h
+step   8300 | loss 4.4375 | lr 3.00e-04 | grad 0.78 | 1.5k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.234 | inf_steps 15 | NE 1.492 | ETA 2446.7h
+step   8310 | loss 4.6562 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.234 | inf_steps 18 | NE 1.496 | ETA 2446.6h
+step   8320 | loss 6.4062 | lr 3.00e-04 | grad 0.88 | 1.2k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 21 | NE 1.494 | ETA 2446.6h
+step   8330 | loss 5.3438 | lr 3.00e-04 | grad 0.88 | 1.7k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 13 | NE 1.494 | ETA 2445.6h
+step   8340 | loss 6.4375 | lr 3.00e-04 | grad 0.69 | 1.0k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.234 | inf_steps 14 | NE 1.492 | ETA 2446.0h
+step   8350 | loss 3.9531 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 15 | NE 1.492 | ETA 2445.3h
+step   8360 | loss 5.4062 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.234 | inf_steps 14 | NE 1.492 | ETA 2445.4h
+step   8370 | loss 5.2188 | lr 3.00e-04 | grad 0.76 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 21 | NE 1.492 | ETA 2445.4h
+step   8380 | loss 4.4062 | lr 3.00e-04 | grad 0.76 | 1.7k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.234 | inf_steps 18 | NE 1.492 | ETA 2444.6h
+step   8390 | loss 6.2812 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 17 | NE 1.492 | ETA 2444.8h
+step   8400 | loss 5.1875 | lr 3.00e-04 | grad 0.82 | 1.3k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 14 | NE 1.492 | ETA 2444.5h
+step   8410 | loss 3.9531 | lr 3.00e-04 | grad 0.82 | 1.5k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.234 | inf_steps 15 | NE 1.492 | ETA 2443.9h
+step   8420 | loss 4.4375 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.234 | inf_steps 21 | NE 1.491 | ETA 2444.2h
+step   8430 | loss 4.5938 | lr 3.00e-04 | grad 0.74 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 15 | NE 1.491 | ETA 2443.5h
+step   8440 | loss 5.1562 | lr 3.00e-04 | grad 0.82 | 1.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.234 | inf_steps 17 | NE 1.490 | ETA 2443.6h
+step   8450 | loss 4.7188 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 15 | NE 1.495 | ETA 2443.6h
+step   8460 | loss 4.8750 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.234 | inf_steps 15 | NE 1.495 | ETA 2442.9h
+step   8470 | loss 4.6250 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.234 | inf_steps 14 | NE 1.497 | ETA 2443.1h
+step   8480 | loss 5.8438 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 9 | NE 1.499 | ETA 2443.2h
+step   8490 | loss 3.9375 | lr 3.00e-04 | grad 0.68 | 1.6k tok/s (avg 1.2k) | cert 0.58→0.58 | hpc_loss 2.234 | inf_steps 14 | NE 1.499 | ETA 2442.4h
+step   8500 | loss 4.4375 | lr 3.00e-04 | grad 0.79 | 1.0k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 23 | NE 1.499 | ETA 2442.8h
+step   8510 | loss 5.2188 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.234 | inf_steps 14 | NE 1.499 | ETA 2442.0h
+step   8520 | loss 4.6250 | lr 3.00e-04 | grad 0.79 | 1.2k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 15 | NE 1.496 | ETA 2442.0h
+step   8530 | loss 3.9062 | lr 3.00e-04 | grad 0.78 | 1.2k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.234 | inf_steps 14 | NE 1.495 | ETA 2442.0h
+step   8540 | loss 6.2188 | lr 3.00e-04 | grad 0.78 | 1.6k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.234 | inf_steps 16 | NE 1.495 | ETA 2441.2h
+step   8550 | loss 3.9531 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.234 | inf_steps 14 | NE 1.494 | ETA 2441.4h
+step   8560 | loss 4.3750 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.234 | inf_steps 22 | NE 1.494 | ETA 2441.4h
+step   8570 | loss 6.3125 | lr 3.00e-04 | grad 0.72 | 1.7k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.234 | inf_steps 13 | NE 1.494 | ETA 2440.5h
+step   8580 | loss 4.1562 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.234 | inf_steps 15 | NE 1.491 | ETA 2440.7h
+step   8590 | loss 3.9375 | lr 3.00e-04 | grad 0.74 | 1.5k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.234 | inf_steps 14 | NE 1.491 | ETA 2440.1h
+step   8600 | loss 5.6250 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.234 | inf_steps 14 | NE 1.492 | ETA 2440.3h
+step   8610 | loss 3.6719 | lr 3.00e-04 | grad 0.82 | 1.2k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.234 | inf_steps 14 | NE 1.493 | ETA 2440.1h
+step   8620 | loss 5.2812 | lr 3.00e-04 | grad 0.82 | 1.6k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.234 | inf_steps 15 | NE 1.493 | ETA 2439.4h
+step   8630 | loss 4.0625 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.234 | inf_steps 20 | NE 1.499 | ETA 2439.6h
+step   8640 | loss 8.1875 | lr 3.00e-04 | grad 0.73 | 1.3k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.234 | inf_steps 14 | NE 1.499 | ETA 2439.4h
+step   8650 | loss 4.0938 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.234 | inf_steps 16 | NE 1.499 | ETA 2438.6h
+step   8660 | loss 4.4062 | lr 3.00e-04 | grad 0.75 | 1.0k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 15 | NE 1.496 | ETA 2438.9h
+step   8670 | loss 4.9375 | lr 3.00e-04 | grad 0.75 | 1.7k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.234 | inf_steps 13 | NE 1.496 | ETA 2438.0h
+step   8680 | loss 4.4688 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 13 | NE 1.496 | ETA 2438.2h
+step   8690 | loss 4.0312 | lr 3.00e-04 | grad 0.80 | 1.0k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 17 | NE 1.494 | ETA 2438.6h
+step   8700 | loss 4.3125 | lr 3.00e-04 | grad 0.80 | 1.5k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.234 | inf_steps 21 | NE 1.494 | ETA 2437.9h
+step   8710 | loss 3.6094 | lr 3.00e-04 | grad 0.69 | 1.2k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.234 | inf_steps 15 | NE 1.494 | ETA 2437.8h
+step   8720 | loss 4.2188 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 13 | NE 1.492 | ETA 2437.8h
+step   8730 | loss 4.3438 | lr 3.00e-04 | grad 0.72 | 1.5k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 17 | NE 1.492 | ETA 2437.2h
+step   8740 | loss 4.9375 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.234 | inf_steps 14 | NE 1.490 | ETA 2437.2h
+step   8750 | loss 5.0625 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.234 | inf_steps 14 | NE 1.490 | ETA 2436.4h
+step   8760 | loss 4.2188 | lr 3.00e-04 | grad 0.84 | 1.1k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.234 | inf_steps 10 | NE 1.486 | ETA 2436.5h
+step   8770 | loss 4.5625 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.234 | inf_steps 15 | NE 1.487 | ETA 2436.8h
+step   8780 | loss 5.5000 | lr 3.00e-04 | grad 0.73 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 14 | NE 1.487 | ETA 2436.1h
+step   8790 | loss 4.2500 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.219 | inf_steps 14 | NE 1.489 | ETA 2436.2h
+step   8800 | loss 7.3750 | lr 3.00e-04 | grad 0.64 | 1.1k tok/s (avg 1.2k) | cert 0.39→0.39 | hpc_loss 2.234 | inf_steps 15 | NE 1.488 | ETA 2436.3h
+step   8810 | loss 5.0625 | lr 3.00e-04 | grad 0.64 | 1.6k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.234 | inf_steps 19 | NE 1.488 | ETA 2435.6h
+step   8820 | loss 4.0625 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 14 | NE 1.487 | ETA 2435.8h
+step   8830 | loss 4.3750 | lr 3.00e-04 | grad 0.66 | 1.6k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.234 | inf_steps 15 | NE 1.487 | ETA 2435.0h
+step   8840 | loss 5.1250 | lr 3.00e-04 | grad 0.73 | 1.0k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.234 | inf_steps 9 | NE 1.485 | ETA 2435.3h
+step   8850 | loss 4.1562 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.219 | inf_steps 16 | NE 1.489 | ETA 2435.3h
+step   8860 | loss 5.3125 | lr 3.00e-04 | grad 0.77 | 1.5k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 17 | NE 1.489 | ETA 2434.7h
+step   8870 | loss 4.0625 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.219 | inf_steps 14 | NE 1.487 | ETA 2434.9h
+step   8880 | loss 6.2188 | lr 3.00e-04 | grad 0.68 | 1.1k tok/s (avg 1.2k) | cert 0.36→0.36 | hpc_loss 2.234 | inf_steps 14 | NE 1.488 | ETA 2435.0h
+step   8890 | loss 4.5938 | lr 3.00e-04 | grad 0.68 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.234 | inf_steps 14 | NE 1.488 | ETA 2434.5h
+step   8900 | loss 3.4688 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 14 | NE 1.488 | ETA 2434.5h
+step   8910 | loss 3.6094 | lr 3.00e-04 | grad 0.80 | 1.5k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.219 | inf_steps 15 | NE 1.488 | ETA 2433.9h
+step   8920 | loss 4.1875 | lr 3.00e-04 | grad 0.79 | 1.2k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 14 | NE 1.488 | ETA 2433.9h
+step   8930 | loss 4.5938 | lr 3.00e-04 | grad 0.83 | 1.1k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.219 | inf_steps 15 | NE 1.490 | ETA 2434.2h
+step   8940 | loss 3.7969 | lr 3.00e-04 | grad 0.83 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 21 | NE 1.490 | ETA 2433.6h
+step   8950 | loss 4.7188 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.219 | inf_steps 20 | NE 1.489 | ETA 2433.7h
+step   8960 | loss 4.0312 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 21 | NE 1.486 | ETA 2433.7h
+step   8970 | loss 5.7188 | lr 3.00e-04 | grad 0.70 | 1.7k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.219 | inf_steps 15 | NE 1.486 | ETA 2432.9h
+step   8980 | loss 3.7031 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.61→0.61 | hpc_loss 2.219 | inf_steps 13 | NE 1.486 | ETA 2433.0h
+step   8990 | loss 3.7656 | lr 3.00e-04 | grad 0.73 | 1.6k tok/s (avg 1.2k) | cert 0.58→0.58 | hpc_loss 2.219 | inf_steps 14 | NE 1.486 | ETA 2432.3h
+step   9000 | loss 4.9688 | lr 3.00e-04 | grad 0.71 | 1.0k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.219 | inf_steps 14 | NE 1.485 | ETA 2432.7h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 9000:
+  T=dyn | CE=4.3646 | PPL=78.62 | top1=25.5% | top5=46.5% | (25600 tok)
+step   9010 | loss 8.0625 | lr 3.00e-04 | grad 0.75 | 0.2k tok/s (avg 1.2k) | cert 0.37→0.37 | hpc_loss 2.219 | inf_steps 14 | NE 1.488 | ETA 2443.5h
+step   9020 | loss 3.7812 | lr 3.00e-04 | grad 0.75 | 1.5k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.219 | inf_steps 19 | NE 1.488 | ETA 2442.8h
+step   9030 | loss 4.4062 | lr 3.00e-04 | grad 0.86 | 1.1k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 15 | NE 1.486 | ETA 2442.9h
+step   9040 | loss 4.0312 | lr 3.00e-04 | grad 0.66 | 1.2k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.219 | inf_steps 14 | NE 1.485 | ETA 2442.9h
+step   9050 | loss 5.0000 | lr 3.00e-04 | grad 0.66 | 1.7k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.219 | inf_steps 14 | NE 1.485 | ETA 2442.1h
+step   9060 | loss 4.8750 | lr 3.00e-04 | grad 0.73 | 1.0k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.219 | inf_steps 20 | NE 1.489 | ETA 2442.6h
+step   9070 | loss 4.7500 | lr 3.00e-04 | grad 0.73 | 1.5k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 16 | NE 1.489 | ETA 2442.1h
+step   9080 | loss 4.0625 | lr 3.00e-04 | grad 0.77 | 1.3k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 18 | NE 1.491 | ETA 2441.8h
+step   9090 | loss 3.5781 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.219 | inf_steps 15 | NE 1.494 | ETA 2442.1h
+step   9100 | loss 3.9688 | lr 3.00e-04 | grad 0.80 | 1.7k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 15 | NE 1.494 | ETA 2441.3h
+step   9110 | loss 4.5625 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 15 | NE 1.493 | ETA 2441.5h
+step   9120 | loss 4.3438 | lr 3.00e-04 | grad 0.64 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 14 | NE 1.496 | ETA 2441.7h
+step   9130 | loss 6.2812 | lr 3.00e-04 | grad 0.64 | 1.5k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.219 | inf_steps 22 | NE 1.496 | ETA 2441.1h
+step   9140 | loss 5.6250 | lr 3.00e-04 | grad 0.78 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 19 | NE 1.495 | ETA 2441.0h
+step   9150 | loss 3.3906 | lr 3.00e-04 | grad 0.78 | 1.5k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.219 | inf_steps 14 | NE 1.495 | ETA 2440.4h
+step   9160 | loss 3.7500 | lr 3.00e-04 | grad 0.68 | 1.2k tok/s (avg 1.2k) | cert 0.58→0.58 | hpc_loss 2.219 | inf_steps 16 | NE 1.492 | ETA 2440.4h
+step   9170 | loss 5.0938 | lr 3.00e-04 | grad 0.82 | 1.2k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 15 | NE 1.490 | ETA 2440.2h
+step   9180 | loss 3.6406 | lr 3.00e-04 | grad 0.82 | 1.6k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.219 | inf_steps 14 | NE 1.490 | ETA 2439.5h
+step   9190 | loss 4.2500 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.219 | inf_steps 14 | NE 1.489 | ETA 2439.7h
+step   9200 | loss 4.2500 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 14 | NE 1.485 | ETA 2439.8h
+step   9210 | loss 4.6562 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 15 | NE 1.485 | ETA 2439.2h
+step   9220 | loss 6.3750 | lr 3.00e-04 | grad 0.89 | 1.2k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.219 | inf_steps 16 | NE 1.483 | ETA 2439.2h
+step   9230 | loss 3.8438 | lr 3.00e-04 | grad 0.89 | 1.5k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.219 | inf_steps 15 | NE 1.483 | ETA 2438.6h
+step   9240 | loss 4.2188 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.219 | inf_steps 21 | NE 1.483 | ETA 2438.5h
+step   9250 | loss 5.3125 | lr 3.00e-04 | grad 0.79 | 1.2k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.219 | inf_steps 14 | NE 1.481 | ETA 2438.5h
+step   9260 | loss 3.9688 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.219 | inf_steps 15 | NE 1.481 | ETA 2437.8h
+step   9270 | loss 4.2188 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 18 | NE 1.479 | ETA 2437.7h
+step   9280 | loss 6.7812 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.219 | inf_steps 20 | NE 1.477 | ETA 2437.7h
+step   9290 | loss 5.7188 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.219 | inf_steps 15 | NE 1.477 | ETA 2437.1h
+step   9300 | loss 5.1562 | lr 3.00e-04 | grad 0.83 | 1.1k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.219 | inf_steps 19 | NE 1.476 | ETA 2437.3h
+step   9310 | loss 5.0938 | lr 3.00e-04 | grad 0.83 | 1.6k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.219 | inf_steps 20 | NE 1.476 | ETA 2436.6h
+step   9320 | loss 4.8125 | lr 3.00e-04 | grad 0.66 | 1.2k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 15 | NE 1.477 | ETA 2436.6h
+step   9330 | loss 5.0938 | lr 3.00e-04 | grad 0.78 | 1.1k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.219 | inf_steps 15 | NE 1.476 | ETA 2436.8h
+step   9340 | loss 4.2812 | lr 3.00e-04 | grad 0.78 | 1.5k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.219 | inf_steps 20 | NE 1.476 | ETA 2436.3h
+step   9350 | loss 4.8750 | lr 3.00e-04 | grad 0.78 | 1.3k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.219 | inf_steps 14 | NE 1.474 | ETA 2436.1h
+step   9360 | loss 4.0625 | lr 3.00e-04 | grad 0.76 | 1.3k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.219 | inf_steps 14 | NE 1.471 | ETA 2435.9h
+step   9370 | loss 5.0938 | lr 3.00e-04 | grad 0.76 | 1.6k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.219 | inf_steps 17 | NE 1.471 | ETA 2435.2h
+step   9380 | loss 3.9844 | lr 3.00e-04 | grad 0.75 | 1.2k tok/s (avg 1.2k) | cert 0.59→0.59 | hpc_loss 2.219 | inf_steps 14 | NE 1.471 | ETA 2435.0h
+step   9390 | loss 5.6250 | lr 3.00e-04 | grad 0.75 | 1.6k tok/s (avg 1.2k) | cert 0.44→0.44 | hpc_loss 2.219 | inf_steps 14 | NE 1.471 | ETA 2434.4h
+step   9400 | loss 3.7969 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.219 | inf_steps 15 | NE 1.469 | ETA 2434.6h
+step   9410 | loss 5.5938 | lr 3.00e-04 | grad 0.73 | 1.2k tok/s (avg 1.2k) | cert 0.41→0.41 | hpc_loss 2.219 | inf_steps 10 | NE 1.470 | ETA 2434.6h
+step   9420 | loss 4.0938 | lr 3.00e-04 | grad 0.73 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 14 | NE 1.470 | ETA 2434.0h
+step   9430 | loss 4.7812 | lr 3.00e-04 | grad 0.78 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 15 | NE 1.471 | ETA 2433.9h
+step   9440 | loss 5.6562 | lr 3.00e-04 | grad 0.83 | 1.2k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.219 | inf_steps 20 | NE 1.474 | ETA 2434.0h
+step   9450 | loss 6.0000 | lr 3.00e-04 | grad 0.83 | 1.5k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.219 | inf_steps 15 | NE 1.474 | ETA 2433.4h
+step   9460 | loss 4.2812 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 13 | NE 1.474 | ETA 2433.3h
+step   9470 | loss 4.4062 | lr 3.00e-04 | grad 0.71 | 1.5k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.219 | inf_steps 19 | NE 1.474 | ETA 2432.7h
+step   9480 | loss 4.0938 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.219 | inf_steps 15 | NE 1.474 | ETA 2432.8h
+step   9490 | loss 5.5938 | lr 3.00e-04 | grad 0.81 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.219 | inf_steps 14 | NE 1.474 | ETA 2433.0h
+step   9500 | loss 5.2812 | lr 3.00e-04 | grad 0.81 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 15 | NE 1.474 | ETA 2432.5h
+step   9510 | loss 4.9375 | lr 3.00e-04 | grad 0.76 | 1.1k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.219 | inf_steps 15 | NE 1.471 | ETA 2432.6h
+step   9520 | loss 7.0312 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.219 | inf_steps 15 | NE 1.470 | ETA 2432.5h
+step   9530 | loss 5.4375 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.2k) | cert 0.43→0.43 | hpc_loss 2.219 | inf_steps 10 | NE 1.470 | ETA 2431.7h
+step   9540 | loss 4.3438 | lr 3.00e-04 | grad 0.80 | 1.1k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.203 | inf_steps 19 | NE 1.474 | ETA 2431.9h
+step   9550 | loss 3.6250 | lr 3.00e-04 | grad 0.80 | 1.6k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.203 | inf_steps 15 | NE 1.474 | ETA 2431.2h
+step   9560 | loss 4.1562 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.2k) | cert 0.57→0.57 | hpc_loss 2.203 | inf_steps 15 | NE 1.475 | ETA 2431.3h
+step   9570 | loss 5.3125 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.219 | inf_steps 14 | NE 1.476 | ETA 2431.4h
+step   9580 | loss 5.5625 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.219 | inf_steps 14 | NE 1.476 | ETA 2430.7h
+step   9590 | loss 4.3438 | lr 3.00e-04 | grad 0.82 | 1.2k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 15 | NE 1.481 | ETA 2430.7h
+step   9600 | loss 4.6875 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.219 | inf_steps 18 | NE 1.481 | ETA 2430.7h
+step   9610 | loss 3.7500 | lr 3.00e-04 | grad 0.72 | 1.6k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.203 | inf_steps 14 | NE 1.481 | ETA 2430.0h
+step   9620 | loss 5.2188 | lr 3.00e-04 | grad 0.71 | 1.0k tok/s (avg 1.2k) | cert 0.42→0.42 | hpc_loss 2.219 | inf_steps 17 | NE 1.485 | ETA 2430.3h
+step   9630 | loss 3.8438 | lr 3.00e-04 | grad 0.71 | 1.5k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 18 | NE 1.485 | ETA 2429.8h
+step   9640 | loss 5.5312 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.219 | inf_steps 13 | NE 1.485 | ETA 2429.9h
+step   9650 | loss 3.5625 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.2k) | cert 0.61→0.61 | hpc_loss 2.203 | inf_steps 13 | NE 1.486 | ETA 2430.0h
+step   9660 | loss 4.2188 | lr 3.00e-04 | grad 0.66 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 16 | NE 1.486 | ETA 2429.4h
+step   9670 | loss 4.4062 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.203 | inf_steps 14 | NE 1.485 | ETA 2429.6h
+step   9680 | loss 3.9062 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 16 | NE 1.483 | ETA 2429.7h
+step   9690 | loss 5.4688 | lr 3.00e-04 | grad 0.70 | 1.6k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.203 | inf_steps 15 | NE 1.483 | ETA 2429.1h
+step   9700 | loss 4.4062 | lr 3.00e-04 | grad 0.66 | 1.1k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 15 | NE 1.482 | ETA 2429.2h
+step   9710 | loss 6.2188 | lr 3.00e-04 | grad 0.66 | 1.5k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 19 | NE 1.482 | ETA 2428.6h
+step   9720 | loss 4.0938 | lr 3.00e-04 | grad 0.80 | 1.2k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 15 | NE 1.483 | ETA 2428.6h
+step   9730 | loss 4.2500 | lr 3.00e-04 | grad 0.74 | 1.3k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.203 | inf_steps 14 | NE 1.482 | ETA 2428.4h
+step   9740 | loss 4.2500 | lr 3.00e-04 | grad 0.74 | 1.7k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 19 | NE 1.482 | ETA 2427.7h
+step   9750 | loss 5.0625 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.203 | inf_steps 14 | NE 1.481 | ETA 2427.8h
+step   9760 | loss 4.6250 | lr 3.00e-04 | grad 0.70 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 17 | NE 1.482 | ETA 2427.8h
+step   9770 | loss 3.7031 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 20 | NE 1.482 | ETA 2427.3h
+step   9780 | loss 4.9375 | lr 3.00e-04 | grad 0.71 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 13 | NE 1.478 | ETA 2427.2h
+step   9790 | loss 4.7188 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.203 | inf_steps 13 | NE 1.478 | ETA 2426.6h
+step   9800 | loss 3.8906 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 14 | NE 1.480 | ETA 2426.7h
+step   9810 | loss 4.2188 | lr 3.00e-04 | grad 0.84 | 1.2k tok/s (avg 1.2k) | cert 0.53→0.53 | hpc_loss 2.203 | inf_steps 15 | NE 1.478 | ETA 2426.7h
+step   9820 | loss 3.8906 | lr 3.00e-04 | grad 0.84 | 1.5k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 20 | NE 1.478 | ETA 2426.1h
+step   9830 | loss 4.1875 | lr 3.00e-04 | grad 0.66 | 1.0k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.203 | inf_steps 14 | NE 1.478 | ETA 2426.5h
+step   9840 | loss 4.0625 | lr 3.00e-04 | grad 0.86 | 1.0k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.203 | inf_steps 15 | NE 1.477 | ETA 2426.9h
+step   9850 | loss 4.3438 | lr 3.00e-04 | grad 0.86 | 1.5k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 14 | NE 1.477 | ETA 2426.3h
+step   9860 | loss 5.7188 | lr 3.00e-04 | grad 0.70 | 1.0k tok/s (avg 1.2k) | cert 0.45→0.45 | hpc_loss 2.203 | inf_steps 16 | NE 1.475 | ETA 2426.6h
+step   9870 | loss 5.1562 | lr 3.00e-04 | grad 0.70 | 1.5k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.203 | inf_steps 15 | NE 1.475 | ETA 2426.0h
+step   9880 | loss 4.0000 | lr 3.00e-04 | grad 0.70 | 1.1k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.203 | inf_steps 15 | NE 1.472 | ETA 2426.3h
+step   9890 | loss 5.4375 | lr 3.00e-04 | grad 0.79 | 1.1k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 14 | NE 1.471 | ETA 2426.5h
+step   9900 | loss 3.8125 | lr 3.00e-04 | grad 0.79 | 1.6k tok/s (avg 1.2k) | cert 0.50→0.50 | hpc_loss 2.203 | inf_steps 16 | NE 1.471 | ETA 2425.8h
+step   9910 | loss 3.2344 | lr 3.00e-04 | grad 0.68 | 1.0k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.203 | inf_steps 15 | NE 1.470 | ETA 2426.1h
+step   9920 | loss 5.2500 | lr 3.00e-04 | grad 0.74 | 1.1k tok/s (avg 1.2k) | cert 0.46→0.46 | hpc_loss 2.203 | inf_steps 14 | NE 1.475 | ETA 2426.2h
+step   9930 | loss 3.9375 | lr 3.00e-04 | grad 0.74 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 14 | NE 1.475 | ETA 2425.6h
+step   9940 | loss 4.8438 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 15 | NE 1.475 | ETA 2425.9h
+step   9950 | loss 4.5312 | lr 3.00e-04 | grad 0.69 | 1.6k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 19 | NE 1.475 | ETA 2425.2h
+step   9960 | loss 3.8125 | lr 3.00e-04 | grad 0.72 | 1.2k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 14 | NE 1.472 | ETA 2425.2h
+step   9970 | loss 5.5000 | lr 3.00e-04 | grad 0.67 | 1.2k tok/s (avg 1.2k) | cert 0.48→0.48 | hpc_loss 2.203 | inf_steps 14 | NE 1.478 | ETA 2425.1h
+step   9980 | loss 3.3750 | lr 3.00e-04 | grad 0.67 | 1.7k tok/s (avg 1.2k) | cert 0.56→0.56 | hpc_loss 2.203 | inf_steps 15 | NE 1.478 | ETA 2424.4h
+step   9990 | loss 4.9688 | lr 3.00e-04 | grad 0.72 | 1.0k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 17 | NE 1.475 | ETA 2424.9h
+step  10000 | loss 3.3594 | lr 3.00e-04 | grad 0.77 | 1.2k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 14 | NE 1.475 | ETA 2424.8h
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> val @ step 10000:
+  T=dyn | CE=4.3530 | PPL=77.71 | top1=25.9% | top5=46.3% | (25600 tok)
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+[CachedTeacherDataset/eval] 9 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+  >>> T-ablation @ step 10000:
+     T        CE       PPL     top1     top5
+  ------------------------------------------
+     1    4.6063    100.11    24.2%    44.7%
+     4    4.6039     99.87    24.3%    44.8%
+     8    4.6038     99.86    24.3%    44.8%
+    16    4.6037     99.85    24.3%    44.8%
+  Saved checkpoint at step 10000
+step  10010 | loss 5.3438 | lr 3.00e-04 | grad 0.77 | 0.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.203 | inf_steps 9 | NE 1.475 | ETA 2448.1h
+step  10020 | loss 5.6250 | lr 3.00e-04 | grad 0.71 | 1.1k tok/s (avg 1.2k) | cert 0.47→0.47 | hpc_loss 2.203 | inf_steps 14 | NE 1.475 | ETA 2448.2h
+step  10030 | loss 3.7344 | lr 3.00e-04 | grad 0.71 | 1.6k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.203 | inf_steps 16 | NE 1.475 | ETA 2447.5h
+step  10040 | loss 3.5469 | lr 3.00e-04 | grad 0.69 | 1.1k tok/s (avg 1.2k) | cert 0.55→0.55 | hpc_loss 2.203 | inf_steps 18 | NE 1.475 | ETA 2447.7h
+step  10050 | loss 3.6094 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 15 | NE 1.476 | ETA 2447.7h
+step  10060 | loss 4.8438 | lr 3.00e-04 | grad 0.75 | 1.7k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 15 | NE 1.476 | ETA 2447.0h
+step  10070 | loss 3.5781 | lr 3.00e-04 | grad 0.72 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 19 | NE 1.475 | ETA 2447.1h
+step  10080 | loss 3.1250 | lr 3.00e-04 | grad 0.77 | 1.1k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 18 | NE 1.477 | ETA 2447.3h
+step  10090 | loss 3.2812 | lr 3.00e-04 | grad 0.77 | 1.6k tok/s (avg 1.2k) | cert 0.52→0.52 | hpc_loss 2.203 | inf_steps 15 | NE 1.477 | ETA 2446.6h
+step  10100 | loss 5.8750 | lr 3.00e-04 | grad 0.73 | 1.1k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 14 | NE 1.481 | ETA 2446.7h
+step  10110 | loss 4.3438 | lr 3.00e-04 | grad 0.73 | 1.5k tok/s (avg 1.2k) | cert 0.49→0.49 | hpc_loss 2.203 | inf_steps 18 | NE 1.481 | ETA 2446.1h
+step  10120 | loss 5.1250 | lr 3.00e-04 | grad 0.67 | 1.1k tok/s (avg 1.2k) | cert 0.51→0.51 | hpc_loss 2.203 | inf_steps 14 | NE 1.480 | ETA 2446.3h
+step  10130 | loss 3.7031 | lr 3.00e-04 | grad 0.75 | 1.1k tok/s (avg 1.2k) | cert 0.54→0.54 | hpc_loss 2.203 | inf_steps 14 | NE 1.482 | ETA 2446.5h

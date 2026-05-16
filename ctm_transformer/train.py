@@ -21,7 +21,7 @@ from __future__ import annotations
 import time
 import statistics
 from contextlib import contextmanager
-from collections import defaultdict
+from collections import defaultdict, deque
 import torch
 import os
 import random
@@ -33,6 +33,7 @@ from torch.utils.data import IterableDataset, get_worker_info
 # CTMConfig stays in config.py (unchanged).
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer
+from ctm_transformer.biological import NeuroPlasticOptimizer
 from ctm_transformer.validation import (
     compute_validation_metrics,
     compute_validation_metrics_t_sweep,
@@ -629,15 +630,25 @@ def _make_adamw(config: CTMConfig, params, **overrides):
     return bnb.optim.AdamW8bit(params, **kwargs)
 
 
-def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list[torch.optim.Optimizer]:
+def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list:
     """
     Build the optimizer list for training.
 
     Returns a single-element list: [AdamW] over all trainable parameters.
 
     When `config.use_8bit_adam` is True, uses bitsandbytes' AdamW8bit.
+    When `config.use_neuromod_optimizer` is True, wraps with NeuroPlasticOptimizer
+    for surprise-modulated global learning rate scaling.
     """
     opt = _make_adamw(config, model.parameters())
+    if getattr(config, "use_neuromod_optimizer", False):
+        opt = NeuroPlasticOptimizer(
+            opt,
+            alpha=getattr(config, "neuromod_alpha", 1.0),
+            min_scale=getattr(config, "neuromod_min_scale", 0.1),
+            max_scale=getattr(config, "neuromod_max_scale", 3.0),
+            ema_decay=getattr(config, "neuromod_ema_decay", 0.95),
+        )
     return [opt]
 
 
@@ -1537,6 +1548,22 @@ def train(
     model.train()
     t_start = time.time()
 
+    # ── Episodic memory buffer for sleep consolidation ───────────────────
+    # When use_sleep_consolidation=True, we store one input_ids sequence
+    # per optimizer step in a rolling deque. During sleep micro-cycles,
+    # sequences are sampled from this buffer for generative replay.
+    # The buffer lives on CPU to keep VRAM free; each entry is [S] int64.
+    use_sleep = getattr(config, "use_sleep_consolidation", False)
+    if use_sleep and not getattr(config, "use_hebbian_synapse", False):
+        print("[Sleep] WARNING: use_sleep_consolidation=True but "
+              "use_hebbian_synapse=False — carry-over will be a no-op.")
+    episodic_buffer: deque | None = (
+        deque(maxlen=getattr(config, "sleep_buffer_size", 32))
+        if use_sleep else None
+    )
+    sleep_interval = getattr(config, "sleep_interval", 100)
+    sleep_replay_steps = getattr(config, "sleep_replay_steps", 4)
+
     # Gradient accumulation: we run `accum_steps` micro-batches per optimizer
     # step, scaling each micro-batch's loss by 1/accum_steps so the gradient
     # we eventually apply is the *mean* over the effective batch (matching
@@ -1772,9 +1799,66 @@ def train(
                 else:
                     grad_norm = torch.tensor(0.0)
 
+            # ── Neuromodulation: scale LR by surprise before step ────────
+            # Uses the mean certainty from the last micro-batch as the
+            # global surprise proxy, mirroring the biological NE release
+            # that gates cortical plasticity proportional to prediction error.
+            if last_result is not None:
+                certs = last_result.get("certainties")
+                if certs is not None:
+                    mean_cert = certs.detach().float().mean().item()
+                    for o in optimizers:
+                        if isinstance(o, NeuroPlasticOptimizer):
+                            o.modulate(mean_cert)
+
             with timer("optimizer"):
                 for o in optimizers:
                     o.step()
+
+            # Store one sequence from this step in the episodic buffer.
+            # We take x[0] (the first sequence of the last micro-batch)
+            # to keep memory cost proportional to sleep_buffer_size * S.
+            if episodic_buffer is not None:
+                episodic_buffer.append(x[0].detach().cpu())
+
+        # ── Sleep micro-cycle ────────────────────────────────────────────
+        # Triggered every sleep_interval steps once the buffer has at
+        # least a quarter of its target capacity (so early replays have
+        # enough variety). We call model() — the DDP wrapper — directly
+        # so gradients are all-reduced correctly in distributed training.
+        min_buffer = max(2, getattr(config, "sleep_buffer_size", 32) // 4)
+        sleep_loss_weight = getattr(config, "sleep_loss_weight", 0.3)
+        if (episodic_buffer is not None
+                and len(episodic_buffer) >= min_buffer
+                and step > 0
+                and step % sleep_interval == 0):
+            sleep_result = {}
+            for _sleep_step in range(sleep_replay_steps):
+                for o in optimizers:
+                    o.zero_grad(set_to_none=True)
+                # Sample replay batch from the episodic buffer
+                n_replay = min(config.batch_size, len(episodic_buffer))
+                sampled = random.sample(list(episodic_buffer), n_replay)
+                x_replay = torch.stack(sampled, dim=0).to(device)
+                y_replay = torch.cat([x_replay[:, 1:], x_replay[:, :1]], dim=1)
+                with torch.amp.autocast(device_type=device_type,
+                                        dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
+                    sleep_result = model(x_replay, targets=y_replay)
+                sleep_loss = sleep_result["loss"] * sleep_loss_weight
+                sleep_loss.backward()
+                if config.grad_clip > 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
+                for o in optimizers:
+                    o.step()
+            if is_main_process():
+                carry_norm = sleep_result.get("hebbian_carry_norm", 0.0)
+                print(
+                    f"  [Sleep] step {step}: {sleep_replay_steps} replay passes "
+                    f"over {len(episodic_buffer)} episodes "
+                    f"| sleep_loss {(sleep_result.get('loss', torch.tensor(0.0)).item() * sleep_loss_weight):.4f} "
+                    f"| |M_carry| {carry_norm:.4f}",
+                    flush=True,
+                )
 
         dt = time.time() - t0
         # Effective batch tokens accounts for accumulation AND, under DDP,
@@ -1816,12 +1900,18 @@ def train(
                 bio_str += f" | |M| {result['hebbian_M_norm']:.4f}"
             if "hebbian_lr_eff" in result:
                 bio_str += f" | lr_eff {result['hebbian_lr_eff']:.3f}"
+            if "hebbian_carry_norm" in result:
+                bio_str += f" | |M_c| {result['hebbian_carry_norm']:.4f}"
             if "distill_loss" in result:
                 dl = result["distill_loss"]
                 dl_v = dl.item() if hasattr(dl, "item") else float(dl)
                 bio_str += f" | dist {dl_v:.3f}"
             if "inference_steps" in result:
                 bio_str += f" | inf_steps {result['inference_steps']}"
+            for _o in optimizers:
+                if isinstance(_o, NeuroPlasticOptimizer) and _o.alpha > 0:
+                    bio_str += f" | NE {_o.current_scale:.3f}"
+                    break
 
             # Prospective Configuration uses a simplified log format
             # (no per-tick breakdown since the inference loop runs
@@ -2099,7 +2189,9 @@ def parse_args():
     model_group.add_argument("--sync_method", type=str, default="diag_summary",
                             choices=["full", "diag_summary", "low_rank", "sparse_decay"])
     model_group.add_argument("--sync_sparse_pairs", type=int, default=256)
-    model_group.add_argument("--synapse_type", type=str, default="mlp", choices=["mlp", "unet"])
+    model_group.add_argument("--synapse_type", type=str, default="mlp", choices=["mlp", "unet", "dendritic"])
+    model_group.add_argument("--dendritic_n_branches", type=int, default=4,
+                             help="Number of dendritic compartments (synapse_type=dendritic)")
 
     model_group.add_argument("--use_feature_encoder", action="store_true")
     model_group.add_argument("--per_tick_heads", action="store_true",
@@ -2305,6 +2397,20 @@ def parse_args():
                                 "(worse → readout actively noisy), "
                                 "(better → gate gradient was the blocker). "
                                 "Not for production — purely diagnostic.")
+    bio_group.add_argument("--use_sleep_consolidation", action="store_true",
+                           help="Enable sleep-based memory consolidation. Persists the "
+                                "Hebbian fast-weight state across batches (cross-batch "
+                                "carry-over) and periodically replays stored sequences "
+                                "to distill episodic knowledge into slow weights. "
+                                "Requires --use_hebbian_synapse.")
+    bio_group.add_argument("--sleep_interval", type=int, default=100,
+                           help="Optimizer steps between sleep micro-cycles.")
+    bio_group.add_argument("--sleep_buffer_size", type=int, default=32,
+                           help="Max sequences retained in the episodic cache.")
+    bio_group.add_argument("--sleep_replay_steps", type=int, default=4,
+                           help="Consolidation gradient steps per sleep cycle.")
+    bio_group.add_argument("--sleep_loss_weight", type=float, default=0.3,
+                           help="Scale factor applied to the consolidation loss.")
     bio_group.add_argument("--hebbian_update_rule", type=str, default="outer_product",
                            choices=["outer_product", "delta"],
                            help="Hebbian fast-weight update rule. "
@@ -2316,6 +2422,22 @@ def parse_args():
                                 "Reaches steady-state M·a≈z and stops growing "
                                 "rather than saturating. Better if |M| growth "
                                 "correlates with degraded readout at scale.")
+
+    bio_group.add_argument("--use_neuromod_optimizer", action="store_true",
+                           help="Wrap AdamW with surprise-modulated LR scaling. "
+                                "Scales the effective LR up on novel/surprising inputs "
+                                "and down on predictable inputs, mirroring the "
+                                "norepinephrine-gated plasticity of the locus coeruleus.")
+    bio_group.add_argument("--neuromod_alpha", type=float, default=1.0,
+                           help="Modulation strength. 0 = no modulation. "
+                                "1 = at max surprise, lr × (1 + alpha) = 2×.")
+    bio_group.add_argument("--neuromod_min_scale", type=float, default=0.1,
+                           help="Minimum LR multiplier (prevents plasticity collapse).")
+    bio_group.add_argument("--neuromod_max_scale", type=float, default=3.0,
+                           help="Maximum LR multiplier (prevents instability).")
+    bio_group.add_argument("--neuromod_ema_decay", type=float, default=0.95,
+                           help="EMA smoothing of the surprise signal. "
+                                "Higher = smoother modulation.")
 
     bio_group.add_argument("--use_prospective_config", action="store_true",
                            help="Prospective Configuration: Expectation-Maximization "
@@ -2442,6 +2564,7 @@ def main():
         sync_method=args.sync_method,
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
+        dendritic_n_branches=args.dendritic_n_branches,
 
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
@@ -2512,6 +2635,16 @@ def main():
         hpc_error_as_loss_weight=args.hpc_error_as_loss_weight,
         hpc_local_loss_weight=args.hpc_local_loss_weight,
         hpc_pc_n_streams=args.hpc_pc_n_streams,
+        use_sleep_consolidation=args.use_sleep_consolidation,
+        sleep_interval=args.sleep_interval,
+        sleep_buffer_size=args.sleep_buffer_size,
+        sleep_replay_steps=args.sleep_replay_steps,
+        sleep_loss_weight=args.sleep_loss_weight,
+        use_neuromod_optimizer=args.use_neuromod_optimizer,
+        neuromod_alpha=args.neuromod_alpha,
+        neuromod_min_scale=args.neuromod_min_scale,
+        neuromod_max_scale=args.neuromod_max_scale,
+        neuromod_ema_decay=args.neuromod_ema_decay,
     )
 
     try:
@@ -2601,10 +2734,21 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
     # be a few ms slower per step. The bitsandbytes path is a drop-in
     # replacement — same API, same kwargs.
     optimizer = _make_adamw(config, model.parameters())
+    if getattr(config, "use_neuromod_optimizer", False):
+        optimizer = NeuroPlasticOptimizer(
+            optimizer,
+            alpha=getattr(config, "neuromod_alpha", 1.0),
+            min_scale=getattr(config, "neuromod_min_scale", 0.1),
+            max_scale=getattr(config, "neuromod_max_scale", 3.0),
+            ema_decay=getattr(config, "neuromod_ema_decay", 0.95),
+        )
     if rank == 0:
-        opt_name = type(optimizer).__name__
+        inner = optimizer.optimizer if isinstance(optimizer, NeuroPlasticOptimizer) else optimizer
+        opt_name = type(inner).__name__
+        neuromod_tag = " + NeuroPlasticOptimizer" if isinstance(optimizer, NeuroPlasticOptimizer) else ""
         print(f"  Optimizer: {opt_name}"
-              + (" (8-bit moments)" if "8bit" in opt_name else ""))
+              + (" (8-bit moments)" if "8bit" in opt_name else "")
+              + neuromod_tag)
 
     # ── Data ─────────────────────────────────────────────────────────
 
@@ -2785,6 +2929,12 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                         model.parameters(), config.grad_clip
                     )
 
+                # ── Neuromodulation: scale LR by surprise ────────────────────
+                if isinstance(optimizer, NeuroPlasticOptimizer):
+                    certs = result.get("certainties")
+                    if certs is not None:
+                        optimizer.modulate(certs.detach().float().mean().item())
+
                 # ── Optimizer step ───────────────────────────────────────────
                 with timer("optimizer"):
                     optimizer.step()
@@ -2873,6 +3023,8 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 bio_str += f" | dist {dl_v:.3f}"
             if "inference_steps" in result:
                 bio_str += f" | inf_steps {result['inference_steps']}"
+            if isinstance(optimizer, NeuroPlasticOptimizer) and optimizer.alpha > 0:
+                bio_str += f" | NE {optimizer.current_scale:.3f}"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -2984,6 +3136,7 @@ def main_multi_gpu():
         sync_method=args.sync_method,
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
+        dendritic_n_branches=args.dendritic_n_branches,
 
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
@@ -3049,6 +3202,16 @@ def main_multi_gpu():
         hpc_error_as_loss_weight=args.hpc_error_as_loss_weight,
         hpc_local_loss_weight=args.hpc_local_loss_weight,
         hpc_pc_n_streams=args.hpc_pc_n_streams,
+        use_sleep_consolidation=args.use_sleep_consolidation,
+        sleep_interval=args.sleep_interval,
+        sleep_buffer_size=args.sleep_buffer_size,
+        sleep_replay_steps=args.sleep_replay_steps,
+        sleep_loss_weight=args.sleep_loss_weight,
+        use_neuromod_optimizer=args.use_neuromod_optimizer,
+        neuromod_alpha=args.neuromod_alpha,
+        neuromod_min_scale=args.neuromod_min_scale,
+        neuromod_max_scale=args.neuromod_max_scale,
+        neuromod_ema_decay=args.neuromod_ema_decay,
     )
 
     # Serialize config to dict for multiprocessing

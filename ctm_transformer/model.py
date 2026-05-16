@@ -1717,6 +1717,91 @@ class UNetSynapse(nn.Module):
         return self.proj(out)
 
 
+class DendriticSynapse(nn.Module):
+    """
+    Biologically-inspired dendritic nonlinear integration layer.
+
+    Biological pyramidal neurons integrate inputs non-linearly across
+    spatially-distinct dendritic compartments, each capable of generating
+    an independent local spike. This yields a bilinear (quadratic) response
+    rule that captures feature co-occurrences within a single layer rather
+    than requiring multiple stacked linear ops.
+
+    Architecture
+    ------------
+    somatic (linear) path:
+        x → W_soma → [d_out]
+
+    dendritic (bilinear) path:
+        - Divide output into n_branches compartments of size d_branch = d_out // n_branches
+        - u = W_u(x), v = W_v(x)  →  [BS, n_branches, d_branch]  (proximal / distal projections)
+        - quadratic term: u * v                                     (compartment-local bilinear product)
+        - per-branch gate: g = sigmoid(W_gate(x)) → [BS, n_branches]  (dendritic spike threshold)
+        - gated output: Σ_i g_i · (u_i * v_i)  →  [BS, d_out]
+
+    output = Dropout(soma + dendrite)
+
+    The W_u / W_v dendritic weights are small-init so the module starts
+    near the somatic linear path and learns bilinear structure gradually.
+    """
+
+    def __init__(
+        self,
+        d_in: int,
+        d_out: int,
+        n_branches: int = 4,
+        dropout: float = 0.1,
+    ):
+        super().__init__()
+        if d_out % n_branches != 0:
+            raise ValueError(
+                f"DendriticSynapse: d_out ({d_out}) must be divisible by "
+                f"n_branches ({n_branches})"
+            )
+        self.n_branches = n_branches
+        self.d_branch = d_out // n_branches
+
+        # Somatic (linear) path — initialised with Kaiming for stable gradients
+        self.soma = nn.Linear(d_in, d_out)
+
+        # Dendritic bilinear path: two independent projections
+        # Small init → bilinear term ≈ 0 at start, learns gradually
+        self.W_u = nn.Linear(d_in, d_out)
+        self.W_v = nn.Linear(d_in, d_out)
+
+        # Per-branch spike gate: zero init → sigmoid(0) = 0.5 (balanced start)
+        self.branch_gate = nn.Linear(d_in, n_branches)
+
+        self.dropout = nn.Dropout(dropout)
+        self._init_weights()
+
+    def _init_weights(self):
+        nn.init.kaiming_uniform_(self.soma.weight, a=math.sqrt(5))
+        for lin in (self.W_u, self.W_v):
+            nn.init.normal_(lin.weight, std=0.02)
+            nn.init.zeros_(lin.bias)
+        nn.init.zeros_(self.branch_gate.weight)
+        nn.init.zeros_(self.branch_gate.bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: [BS, d_in]
+        BS = x.shape[0]
+
+        # Somatic path
+        soma = self.soma(x)  # [BS, d_out]
+
+        # Dendritic bilinear path
+        u = self.W_u(x).view(BS, self.n_branches, self.d_branch)  # [BS, n, d_b]
+        v = self.W_v(x).view(BS, self.n_branches, self.d_branch)  # [BS, n, d_b]
+        quadratic = u * v                                          # [BS, n, d_b]
+
+        # Per-branch dendritic spike gate
+        gates = torch.sigmoid(self.branch_gate(x)).unsqueeze(-1)  # [BS, n, 1]
+        dendrite = (quadratic * gates).view(BS, -1)               # [BS, d_out]
+
+        return self.dropout(soma + dendrite)
+
+
 class ThoughtLayer(nn.Module):
     """
     A single thought processing block with per-position latent states
@@ -1767,6 +1852,7 @@ class ThoughtLayer(nn.Module):
         dssa_top_k_blocks: int = 4,
         use_triton_attention: bool = False,
         synapse_type: str = "mlp",
+        dendritic_n_branches: int = 4,
         # ── Biological extensions (opt-in) ──────────────────────────
         use_hebbian: bool = False,
         hebbian_bottleneck_dim: int = 64,
@@ -1861,7 +1947,13 @@ class ThoughtLayer(nn.Module):
         self.synapse_norm = nn.LayerNorm(d_model + d_latent)
         if synapse_type == "unet":
             self.synapse = UNetSynapse(d_model + d_latent, d_latent, dropout=dropout)
-        else:
+        elif synapse_type == "dendritic":
+            self.synapse = DendriticSynapse(
+                d_model + d_latent, d_latent,
+                n_branches=dendritic_n_branches,
+                dropout=dropout,
+            )
+        else:  # "mlp"
             self.synapse = nn.Sequential(
                 nn.Linear(d_model + d_latent, d_latent * 2),
                 nn.GELU(),
@@ -2177,6 +2269,7 @@ class CTMTransformer(nn.Module):
                 dssa_top_k_blocks=config.dssa_top_k_blocks,
                 use_triton_attention=config.use_triton_attention,
                 synapse_type=config.synapse_type,
+                dendritic_n_branches=getattr(config, "dendritic_n_branches", 4),
                 # Biological extensions (opt-in)
                 use_hebbian=config.use_hebbian_synapse,
                 hebbian_bottleneck_dim=config.hebbian_bottleneck_dim,
@@ -2434,6 +2527,15 @@ class CTMTransformer(nn.Module):
             torch.tensor(0, dtype=torch.long),
             persistent=False,
         )
+
+        # ── Sleep consolidation: cross-batch Hebbian carry-over ──────────
+        # When use_sleep_consolidation=True, stores the mean fast-weight
+        # matrix [m, n] per layer on CPU after each forward pass.
+        # The next forward pass warm-starts Hebbian states from this
+        # carry-over rather than zeros, making associative memory
+        # persistent across batches. Reset to None at training start.
+        # NOT a registered buffer — transient runtime state.
+        self._hebbian_carry: list | None = None
 
         self.apply(self._init_weights)
 
@@ -2909,17 +3011,30 @@ class CTMTransformer(nn.Module):
                     layer.reset_memory(BS, device, dtype)
 
         # Hebbian fast-weight states (one matrix per layer, per (B, S))
-        # Initialised to zero; updated in-loop by each ThoughtLayer. When
-        # use_hebbian_synapse is off, this list is None and the layers
+        # Initialised to zero by default; updated in-loop by each ThoughtLayer.
+        # When use_sleep_consolidation=True, warm-started from the cross-batch
+        # carry-over instead of zeros — making associative memory persistent.
+        # When use_hebbian_synapse is off, this list is None and the layers
         # short-circuit the read/update path entirely.
         hebbian_states = None
         if self.config.use_hebbian_synapse:
             hebbian_states = []
-            for layer in layers:
+            use_carry = (
+                getattr(self.config, "use_sleep_consolidation", False)
+                and self._hebbian_carry is not None
+            )
+            for i, layer in enumerate(layers):
                 if layer.hebbian is not None:
-                    hebbian_states.append(
-                        layer.hebbian.init_state(B, S, device, dtype)
-                    )
+                    if (use_carry
+                            and i < len(self._hebbian_carry)
+                            and self._hebbian_carry[i] is not None):
+                        # Expand mean carry-over [m, n] → [B, S, m, n]
+                        carry = self._hebbian_carry[i].to(device=device, dtype=dtype)
+                        hebbian_states.append(
+                            carry.unsqueeze(0).unsqueeze(0).expand(B, S, -1, -1).clone()
+                        )
+                    else:
+                        hebbian_states.append(layer.hebbian.init_state(B, S, device, dtype))
                 else:
                     hebbian_states.append(None)
 
@@ -3020,11 +3135,28 @@ class CTMTransformer(nn.Module):
                         curr_energy = self.feec.energy(z_curr, velocity_curr)
                         if prev_energy is not None:
                             rel_delta = (curr_energy - prev_energy).abs() / (curr_energy.abs() + 1e-6)
-                            if rel_delta < energy_tol and max_thought_steps is None:
+                            if rel_delta < energy_tol:
                                 break
                         prev_energy = curr_energy
 
             result["inference_steps"] = actual_inference_steps
+
+            # ── Certainty at equilibrium (for NE modulation + logging) ──
+            # The inference loop runs with compute_logits=False to save VRAM.
+            # One extra no-grad step on z* with compute_logits=True gives the
+            # model's output entropy at the settled state — the correct surprise
+            # signal for neuromodulation, not a single-step estimate from z_init.
+            with torch.no_grad():
+                _eq_step = self._thought_step(
+                    z_curr, actual_inference_steps, text_emb, key_padding_mask,
+                    pre_states, post_states, velocity_curr, stream_states_curr,
+                    targets, teacher_log_probs, teacher_top_indices, distill_temp,
+                    None, clamped_target, actual_inference_steps + 1, prev_certainty,
+                    compute_logits=True
+                )
+                _certainty_eq = _eq_step[8]   # certainty_t position in return tuple
+                if _certainty_eq is not None:
+                    result["certainties"] = _certainty_eq.unsqueeze(0)  # [1, B, S]
 
             # ── Phase 2: Learning (Consolidation) ───────────────────────
             # Execute a single forward pass with gradients enabled.
@@ -3125,6 +3257,36 @@ class CTMTransformer(nn.Module):
             if all_certainties:
                 result["certainties"] = torch.stack(all_certainties, dim=0)
 
+        # ── Update cross-batch Hebbian carry-over (sleep consolidation) ──
+        # Persist the mean fast-weight state across batches so the next
+        # forward pass warm-starts from accumulated associations rather
+        # than zeros. Mean over (B, S) gives a compact [m, n] summary
+        # that broadcasts correctly to any future (B', S') shape.
+        if getattr(self.config, "use_sleep_consolidation", False) and self.config.use_hebbian_synapse:
+            # In the BPTT path, hebbian_states_curr is updated each tick and
+            # ends up holding the final-tick Hebbian states.
+            # In the prospective path, hebbian_states_curr is never updated
+            # (still holds the initial zeros/carry-over), so we prefer the
+            # new_hebbian_states from the single learning pass instead.
+            # Both variables are always defined by this point (set via
+            # step_res destructuring in both branches of the if/else).
+            if prospective_active:
+                final_heb = new_hebbian_states
+            else:
+                final_heb = hebbian_states_curr
+            if final_heb is not None:
+                carry = []
+                for h in final_heb:
+                    if h is not None:
+                        # Mean over (batch, seq) → [m, n] on CPU
+                        carry.append(h.detach().float().mean(dim=(0, 1)).cpu())
+                    else:
+                        carry.append(None)
+                self._hebbian_carry = carry
+                norms = [c.norm().item() for c in carry if c is not None]
+                if norms:
+                    result["hebbian_carry_norm"] = sum(norms) / len(norms)
+
         return result
 
     @torch.no_grad()
@@ -3152,3 +3314,57 @@ class CTMTransformer(nn.Module):
             input_ids = torch.cat([input_ids, next_token], dim=1)
 
         return input_ids
+
+    def sleep_consolidation_step(
+        self,
+        episodic_buffer: list,
+        device,
+        amp_dtype: torch.dtype,
+        replay_batch_size: int = 4,
+    ) -> dict:
+        """Run one sleep consolidation pass over stored episodic sequences.
+
+        Samples sequences from the episodic buffer and runs a full forward
+        pass with the persistent Hebbian carry-over state warm-starting the
+        fast weights. The resulting LM loss — scaled by `sleep_loss_weight`
+        — drives upward distillation of episodic fast-weight knowledge into
+        the slow (gradient-trained) backbone weights, mirroring the role of
+        slow-wave sleep in biological memory consolidation.
+
+        The carry-over state is updated as a side-effect of the forward pass,
+        so replayed sequences also contribute to the running associative memory.
+
+        Args:
+            episodic_buffer: List of [S] int64 CPU tensors (input_ids from
+                past wake-phase batches).
+            device: Training device (same as the model).
+            amp_dtype: dtype for torch.amp.autocast.
+            replay_batch_size: How many sequences to sample per replay pass.
+
+        Returns:
+            result dict with "loss" already scaled by sleep_loss_weight.
+            Caller should call result["loss"].backward() followed by
+            optimizer.step() (with zeroed gradients beforehand).
+        """
+        import random
+
+        if not episodic_buffer:
+            return {"loss": torch.tensor(0.0, device=device)}
+
+        n = min(replay_batch_size, len(episodic_buffer))
+        sampled = random.sample(list(episodic_buffer), n)
+        x = torch.stack(sampled, dim=0).to(device)  # [n, S]
+        # Targets: standard next-token prediction (shift by 1, wrap last)
+        y = torch.cat([x[:, 1:], x[:, :1]], dim=1)
+
+        device_type = str(device).split(":")[0]
+        with torch.amp.autocast(
+            device_type=device_type,
+            dtype=amp_dtype,
+            enabled=(amp_dtype != torch.float32),
+        ):
+            result = self(x, targets=y)
+
+        sleep_weight = getattr(self.config, "sleep_loss_weight", 0.3)
+        result["loss"] = result["loss"] * sleep_weight
+        return result

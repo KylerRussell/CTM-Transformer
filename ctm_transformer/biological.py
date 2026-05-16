@@ -401,3 +401,130 @@ class CerebellarReadout(nn.Module):
             Projected state: [B, S, d_latent]
         """
         return self.predictor(target)
+
+
+# ════════════════════════════════════════════════════════════════════════
+# Neuromodulated Optimizer
+# ════════════════════════════════════════════════════════════════════════
+
+class NeuroPlasticOptimizer:
+    """
+    Surprise-modulated learning rate wrapper for biologically-inspired
+    global neuromodulation.
+
+    Biological motivation
+    ---------------------
+    The locus coeruleus releases norepinephrine (NE) in proportion to
+    prediction error (surprise). NE gates synaptic plasticity across the
+    entire cortex: high NE → higher effective learning rate (novel stimuli
+    are encoded aggressively); low NE → suppressed plasticity (familiar
+    inputs leave consolidated weights undisturbed).
+
+    The CTM already implements this locally via per-position Hebbian LR
+    modulation (HebbianSynapse + hebbian_cert_lr_alpha). This class
+    extends the same principle globally to the slow-weight AdamW optimizer.
+
+    Mechanism
+    ---------
+    At each optimizer step the base LR is temporarily scaled by:
+
+        lr_eff = lr_base × clip(1 + alpha × surprise_ema, min_scale, max_scale)
+
+    where:
+        certainty ∈ [0, 1]  —  1 = fully confident, 0 = maximum surprise
+        surprise  = 1 - certainty
+        surprise_ema  is an EMA-smoothed surprise signal (stability)
+        clip prevents destabilising extremes
+
+    The base LR is restored immediately after the step so that external
+    schedulers, logging, and gradient-norm scaling always see the unmodified
+    LR. Checkpoints are fully compatible with vanilla AdamW (state_dict
+    is a pure passthrough).
+
+    Args:
+        optimizer:  Inner PyTorch optimizer (AdamW, AdamW8bit, …).
+        alpha:      Modulation strength. 0 → no modulation (uniform LR).
+                    1 → at max surprise, lr scales by (1 + 1) = 2×.
+        min_scale:  Floor for the LR multiplier. Prevents plasticity collapse
+                    on highly predictable data.
+        max_scale:  Ceiling for the LR multiplier. Prevents instability when
+                    the model is very uncertain.
+        ema_decay:  Smoothing factor for the surprise EMA. Higher values
+                    produce slower, more stable modulation.
+    """
+
+    def __init__(
+        self,
+        optimizer: torch.optim.Optimizer,
+        alpha: float = 1.0,
+        min_scale: float = 0.1,
+        max_scale: float = 3.0,
+        ema_decay: float = 0.95,
+    ):
+        self.optimizer = optimizer
+        self.alpha = alpha
+        self.min_scale = min_scale
+        self.max_scale = max_scale
+        self.ema_decay = ema_decay
+        self._surprise_ema: float | None = None
+        self._current_scale: float = 1.0
+
+    def modulate(self, certainty: float) -> float:
+        """Update the modulation scale from a new certainty observation.
+
+        Should be called once per optimizer step, before :meth:`step`.
+
+        Args:
+            certainty: Mean model certainty ∈ [0, 1] for the current batch
+                       (1 – entropy/max_entropy, averaged over ticks × positions).
+
+        Returns:
+            The LR scale factor applied on the next :meth:`step` call.
+        """
+        surprise = 1.0 - float(certainty)
+        if self._surprise_ema is None:
+            self._surprise_ema = surprise
+        else:
+            self._surprise_ema = (
+                self.ema_decay * self._surprise_ema
+                + (1.0 - self.ema_decay) * surprise
+            )
+        raw = 1.0 + self.alpha * self._surprise_ema
+        self._current_scale = max(self.min_scale, min(self.max_scale, raw))
+        return self._current_scale
+
+    def step(self):
+        """Step with the current modulation scale applied transiently."""
+        if self.alpha == 0.0 or self._current_scale == 1.0:
+            self.optimizer.step()
+            return
+        # Temporarily scale each param group's lr
+        orig_lrs = [pg["lr"] for pg in self.optimizer.param_groups]
+        for pg in self.optimizer.param_groups:
+            pg["lr"] = pg["lr"] * self._current_scale
+        self.optimizer.step()
+        # Restore: schedulers / logging always see the unmodified base LR
+        for pg, lr in zip(self.optimizer.param_groups, orig_lrs):
+            pg["lr"] = lr
+
+    def zero_grad(self, set_to_none: bool = True):
+        self.optimizer.zero_grad(set_to_none=set_to_none)
+
+    # ── Checkpoint compatibility ─────────────────────────────────────────
+    def state_dict(self):
+        """Pass through inner optimizer state dict (checkpoint-compatible)."""
+        return self.optimizer.state_dict()
+
+    def load_state_dict(self, state_dict):
+        """Load inner optimizer state. Surprise EMA resets cleanly on resume."""
+        self.optimizer.load_state_dict(state_dict)
+
+    # ── Property delegation ─────────────────────────────────────────────
+    @property
+    def param_groups(self):
+        return self.optimizer.param_groups
+
+    @property
+    def current_scale(self) -> float:
+        """Current LR scale factor (for logging)."""
+        return self._current_scale

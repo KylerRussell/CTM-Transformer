@@ -141,7 +141,15 @@ class CTMConfig:
     sync_sparse_pairs: int = 256       # Number of (i, j) pairs for sparse_decay sync method
 
     # ── Synapse ─────────────────────────────────────────────────────────
-    synapse_type: str = "mlp"          # "mlp" or "unet"
+    synapse_type: str = "mlp"          # "mlp", "unet", or "dendritic"
+    dendritic_n_branches: int = 4      # Dendritic compartments (synapse_type="dendritic")
+
+    # ── Neuromodulated Optimizer ─────────────────────────────────────────
+    use_neuromod_optimizer: bool = False  # Wrap AdamW with surprise-modulated LR
+    neuromod_alpha: float = 1.0           # Modulation strength (0 = disabled)
+    neuromod_min_scale: float = 0.1      # Minimum LR multiplier
+    neuromod_max_scale: float = 3.0      # Maximum LR multiplier
+    neuromod_ema_decay: float = 0.95     # EMA smoothing of surprise signal
 
 
 
@@ -494,6 +502,31 @@ class CTMConfig:
     # alpha=0 disables (same as base behavior). alpha=2 means an
     # uncertainty of 1.0 triples the lr at that position.
     hebbian_cert_lr_alpha: float = 0.0
+
+    # ── Sleep-Based Memory Consolidation ────────────────────────────────
+    # Implements a dual-phase wake/sleep training paradigm to prevent
+    # destruction of fast-weight memory between batches.
+    #
+    # Wake phase: At the end of each forward pass, the mean Hebbian
+    #   fast-weight matrix (averaged over batch and sequence dimensions)
+    #   is stored as a cross-batch carry-over. The NEXT forward pass
+    #   warm-starts from this carry-over instead of zeros, making the
+    #   Hebbian associative memory persistent across batches (analogous
+    #   to the hippocampus retaining episodic traces between waking hours).
+    #
+    # Sleep phase: Every `sleep_interval` optimizer steps, stored
+    #   sequences from the episodic cache are replayed through the model
+    #   with the warm-started carry-over active. The standard LM loss on
+    #   these replays drives upward distillation of fast-weight episodic
+    #   knowledge into the slow (gradient-trained) weights — mirroring
+    #   neocortical consolidation during slow-wave sleep.
+    #
+    # Requires use_hebbian_synapse=True.
+    use_sleep_consolidation: bool = False
+    sleep_interval: int = 100        # Optimizer steps between sleep micro-cycles
+    sleep_buffer_size: int = 32      # Max sequences retained in episodic cache
+    sleep_replay_steps: int = 4      # Consolidation gradient steps per sleep cycle
+    sleep_loss_weight: float = 0.3   # Scale factor applied to consolidation loss
 
     # 2) Predictive Coding via temporal hierarchy.
     #    A per-tick "cerebellar" readout predicts the teacher's hidden

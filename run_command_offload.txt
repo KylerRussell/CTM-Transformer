@@ -51,6 +51,11 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --eval_interval 100000 \
     --optimizer adamw \
     --use_8bit_adam \
+    --use_neuromod_optimizer \
+    --neuromod_alpha 1.0 \
+    --neuromod_min_scale 0.1 \
+    --neuromod_max_scale 3.0 \
+    --neuromod_ema_decay 0.95 \
     --gradient_checkpointing \
     --gradient_checkpointing_min_T 1 \
     --checkpoint_dir checkpoints_PC_dual \
@@ -62,7 +67,8 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --tiled_schedule \
     --sync_method sparse_decay \
     --sync_sparse_pairs 256 \
-    --synapse_type mlp \
+    --synapse_type dendritic \
+    --dendritic_n_branches 8 \
     --use_two_phase_curriculum \
     --use_distillation \
     --use_cached_teacher \
@@ -89,5 +95,10 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --hpc_generative_type mlp \
     --hpc_error_as_loss_weight \
     --hpc_local_loss_weight 0.1 \
+    --use_sleep_consolidation \
+    --sleep_interval 100 \
+    --sleep_buffer_size 32 \
+    --sleep_replay_steps 4 \
+    --sleep_loss_weight 0.3 \
     > train_dual_gpu_prospect_config.log 2>&1 &
 echo "Dual-GPU Training PID: $!"
