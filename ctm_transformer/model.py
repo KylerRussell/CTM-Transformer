@@ -3020,7 +3020,7 @@ class CTMTransformer(nn.Module):
                         curr_energy = self.feec.energy(z_curr, velocity_curr)
                         if prev_energy is not None:
                             rel_delta = (curr_energy - prev_energy).abs() / (curr_energy.abs() + 1e-6)
-                            if rel_delta < energy_tol:
+                            if rel_delta < energy_tol and max_thought_steps is None:
                                 break
                         prev_energy = curr_energy
 
