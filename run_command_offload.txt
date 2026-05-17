@@ -100,5 +100,9 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --sleep_buffer_size 32 \
     --sleep_replay_steps 4 \
     --sleep_loss_weight 0.3 \
+    --use_structural_plasticity \
+    --plasticity_prune_threshold 0.05 \
+    --plasticity_grow_threshold 0.85 \
+    --plasticity_update_interval 500 \
     > train_dual_gpu_prospect_config.log 2>&1 &
 echo "Dual-GPU Training PID: $!"

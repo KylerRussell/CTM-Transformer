@@ -33,7 +33,7 @@ from torch.utils.data import IterableDataset, get_worker_info
 # CTMConfig stays in config.py (unchanged).
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer
-from ctm_transformer.biological import NeuroPlasticOptimizer
+from ctm_transformer.biological import NeuroPlasticOptimizer, StructuralPlasticityController
 from ctm_transformer.validation import (
     compute_validation_metrics,
     compute_validation_metrics_t_sweep,
@@ -1564,6 +1564,21 @@ def train(
     sleep_interval = getattr(config, "sleep_interval", 100)
     sleep_replay_steps = getattr(config, "sleep_replay_steps", 4)
 
+    # ── Structural plasticity controller ─────────────────────────────────
+    _raw = unwrap_model(model)
+    _stream_layers = list(_raw.layers) if (_raw.layers is not None) else []
+    plasticity: StructuralPlasticityController | None = (
+        StructuralPlasticityController(
+            n_layers=len(_stream_layers),
+            prune_threshold=getattr(config, "plasticity_prune_threshold", 0.05),
+            grow_threshold=getattr(config, "plasticity_grow_threshold", 0.85),
+            ema_decay=getattr(config, "plasticity_ema_decay", 0.99),
+            update_interval=getattr(config, "plasticity_update_interval", 500),
+            min_active=getattr(config, "plasticity_min_active", 1),
+        )
+        if getattr(config, "use_structural_plasticity", False) and _stream_layers else None
+    )
+
     # Gradient accumulation: we run `accum_steps` micro-batches per optimizer
     # step, scaling each micro-batch's loss by 1/accum_steps so the gradient
     # we eventually apply is the *mean* over the effective batch (matching
@@ -1860,6 +1875,14 @@ def train(
                     flush=True,
                 )
 
+        # ── Structural plasticity: update gate EMA and maybe grow/prune ──
+        if plasticity is not None:
+            plasticity.update(_stream_layers)
+            if step > 0 and step % plasticity.update_interval == 0:
+                events = plasticity.maybe_adapt(_stream_layers)
+                if events and is_main_process():
+                    print(f"  [Plasticity] step {step}: {', '.join(events)}", flush=True)
+
         dt = time.time() - t0
         # Effective batch tokens accounts for accumulation AND, under DDP,
         # the world size — every rank processes its own batch each step,
@@ -1912,6 +1935,9 @@ def train(
                 if isinstance(_o, NeuroPlasticOptimizer) and _o.alpha > 0:
                     bio_str += f" | NE {_o.current_scale:.3f}"
                     break
+            if plasticity is not None and _stream_layers:
+                counts = plasticity.active_counts(_stream_layers)
+                bio_str += f" | streams [{','.join(str(c) for c in counts)}]"
 
             # Prospective Configuration uses a simplified log format
             # (no per-tick breakdown since the inference loop runs
@@ -2439,6 +2465,20 @@ def parse_args():
                            help="EMA smoothing of the surprise signal. "
                                 "Higher = smoother modulation.")
 
+    bio_group.add_argument("--use_structural_plasticity", action="store_true",
+                           help="Online grow/prune of MatrixResidualStream slots based on "
+                                "gate EMA utilization. Requires --use_matrix_streams.")
+    bio_group.add_argument("--plasticity_prune_threshold", type=float, default=0.05,
+                           help="Gate EMA below this value → prune the stream slot.")
+    bio_group.add_argument("--plasticity_grow_threshold", type=float, default=0.85,
+                           help="Mean active gate EMA above this → grow a new stream slot.")
+    bio_group.add_argument("--plasticity_ema_decay", type=float, default=0.99,
+                           help="EMA smoothing for per-stream gate utilization.")
+    bio_group.add_argument("--plasticity_update_interval", type=int, default=500,
+                           help="Steps between grow/prune evaluations.")
+    bio_group.add_argument("--plasticity_min_active", type=int, default=1,
+                           help="Minimum stream slots to keep active per layer.")
+
     bio_group.add_argument("--use_prospective_config", action="store_true",
                            help="Prospective Configuration: Expectation-Maximization "
                                 "training separating inference and learning phases. "
@@ -2645,6 +2685,12 @@ def main():
         neuromod_min_scale=args.neuromod_min_scale,
         neuromod_max_scale=args.neuromod_max_scale,
         neuromod_ema_decay=args.neuromod_ema_decay,
+        use_structural_plasticity=args.use_structural_plasticity,
+        plasticity_prune_threshold=args.plasticity_prune_threshold,
+        plasticity_grow_threshold=args.plasticity_grow_threshold,
+        plasticity_ema_decay=args.plasticity_ema_decay,
+        plasticity_update_interval=args.plasticity_update_interval,
+        plasticity_min_active=args.plasticity_min_active,
     )
 
     try:
@@ -2749,6 +2795,20 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
         print(f"  Optimizer: {opt_name}"
               + (" (8-bit moments)" if "8bit" in opt_name else "")
               + neuromod_tag)
+
+    # ── Structural plasticity controller ─────────────────────────────────
+    _stream_layers = list(model.layers) if (model.layers is not None) else []
+    plasticity: StructuralPlasticityController | None = (
+        StructuralPlasticityController(
+            n_layers=len(_stream_layers),
+            prune_threshold=getattr(config, "plasticity_prune_threshold", 0.05),
+            grow_threshold=getattr(config, "plasticity_grow_threshold", 0.85),
+            ema_decay=getattr(config, "plasticity_ema_decay", 0.99),
+            update_interval=getattr(config, "plasticity_update_interval", 500),
+            min_active=getattr(config, "plasticity_min_active", 1),
+        )
+        if getattr(config, "use_structural_plasticity", False) and _stream_layers else None
+    )
 
     # ── Data ─────────────────────────────────────────────────────────
 
@@ -2944,6 +3004,14 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
             step_time = t1 - t0
             step_times.append(step_time)
 
+        # ── Structural plasticity: update gate EMA and maybe grow/prune ──
+        if plasticity is not None:
+            plasticity.update(_stream_layers)
+            if step > 0 and step % plasticity.update_interval == 0:
+                events = plasticity.maybe_adapt(_stream_layers)
+                if rank == 0 and events:
+                    print(f"  [Plasticity] step {step}: {', '.join(events)}", flush=True)
+
         # ── Periodic profiler report (rank 0 only) ───────────────────
         if profile_enabled and step > 0 and step % profile_interval == 0:
             timer.report(last_n=profile_interval)
@@ -3025,6 +3093,9 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 bio_str += f" | inf_steps {result['inference_steps']}"
             if isinstance(optimizer, NeuroPlasticOptimizer) and optimizer.alpha > 0:
                 bio_str += f" | NE {optimizer.current_scale:.3f}"
+            if plasticity is not None and _stream_layers:
+                counts = plasticity.active_counts(_stream_layers)
+                bio_str += f" | streams [{','.join(str(c) for c in counts)}]"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -3212,6 +3283,12 @@ def main_multi_gpu():
         neuromod_min_scale=args.neuromod_min_scale,
         neuromod_max_scale=args.neuromod_max_scale,
         neuromod_ema_decay=args.neuromod_ema_decay,
+        use_structural_plasticity=args.use_structural_plasticity,
+        plasticity_prune_threshold=args.plasticity_prune_threshold,
+        plasticity_grow_threshold=args.plasticity_grow_threshold,
+        plasticity_ema_decay=args.plasticity_ema_decay,
+        plasticity_update_interval=args.plasticity_update_interval,
+        plasticity_min_active=args.plasticity_min_active,
     )
 
     # Serialize config to dict for multiprocessing

@@ -151,7 +151,15 @@ class CTMConfig:
     neuromod_max_scale: float = 3.0      # Maximum LR multiplier
     neuromod_ema_decay: float = 0.95     # EMA smoothing of surprise signal
 
-
+    # ── Online Structural Plasticity ──────────────────────────────────────
+    # Grow/prune MatrixResidualStream slots based on gate EMA utilization.
+    # Requires use_matrix_streams=True. When OFF, no overhead.
+    use_structural_plasticity: bool = False
+    plasticity_prune_threshold: float = 0.05   # Gate EMA below this → prune
+    plasticity_grow_threshold: float = 0.85    # Mean active gate EMA above this → grow
+    plasticity_ema_decay: float = 0.99         # Smoothing for per-stream gate EMA
+    plasticity_update_interval: int = 500      # Steps between grow/prune evaluations
+    plasticity_min_active: int = 1             # Min stream slots to keep per layer
 
     # ── Training ────────────────────────────────────────────────────────
     batch_size: int = 4

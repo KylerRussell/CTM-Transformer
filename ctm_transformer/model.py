@@ -1340,6 +1340,13 @@ class MatrixResidualStream(nn.Module):
         self.collapse_weights = nn.Linear(d_latent, n_streams)
         self.collapse_norm = nn.LayerNorm(d_latent)
 
+        # ── Structural plasticity: binary activity mask ──────────────────
+        # True = stream active, False = dormant (zeroed out each step).
+        # Stored as a buffer so it's included in state_dict and restored
+        # on checkpoint load. Default: all streams active.
+        # Grows/prunes are driven externally by StructuralPlasticityController.
+        self.register_buffer("active_mask", torch.ones(n_streams, dtype=torch.bool))
+
     def init_state(
         self,
         batch_size: int,
@@ -1356,6 +1363,8 @@ class MatrixResidualStream(nn.Module):
         state = self.stream_init.unsqueeze(0).unsqueeze(0).expand(
             batch_size, seq_len, -1, -1
         ).clone().to(dtype=dtype)
+        # Dormant streams start zeroed (CUDA-graph safe multiply)
+        state = state * self.active_mask.to(dtype=dtype).view(1, 1, -1, 1)
         return state
 
     def mix_pre(
@@ -1431,7 +1440,42 @@ class MatrixResidualStream(nn.Module):
 
         updated = gate * new_content + (1 - gate) * stream
 
+        # Zero dormant streams (CUDA-graph safe: mask multiply, no control flow)
+        updated = updated * self.active_mask.to(dtype=updated.dtype).view(1, 1, -1, 1)
+
         return updated
+
+    # ── Structural plasticity interface ─────────────────────────────────
+
+    def apply_mask(self, stream: torch.Tensor) -> torch.Tensor:
+        """Zero out inactive streams in a stream state tensor.
+
+        Args:
+            stream: [B, S, n_streams, d_latent]
+
+        Returns:
+            Masked stream with inactive slots zeroed.
+        """
+        return stream * self.active_mask.to(dtype=stream.dtype).view(1, 1, -1, 1)
+
+    def activate_stream(self, idx: int) -> None:
+        """Re-activate a dormant stream slot with near-zero initialization.
+
+        Re-zeroes the slot's learnable init state and resets its gate to
+        sigmoid(-3) ≈ 0.05, so the new stream integrates gradually without
+        disrupting the current computation.
+        """
+        self.active_mask[idx] = True
+        with torch.no_grad():
+            self.stream_init.data[idx].zero_()
+            self.res_gate.data[idx] = -3.0   # very low gate → grows organically
+
+    def deactivate_stream(self, idx: int) -> None:
+        """Deactivate a stream slot (mask it out).
+
+        Content will be zeroed on the next mix_post call.
+        """
+        self.active_mask[idx] = False
 
     def to_query(
         self,

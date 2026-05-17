@@ -528,3 +528,149 @@ class NeuroPlasticOptimizer:
     def current_scale(self) -> float:
         """Current LR scale factor (for logging)."""
         return self._current_scale
+
+
+# ════════════════════════════════════════════════════════════════════════
+# Structural Plasticity Controller
+# ════════════════════════════════════════════════════════════════════════
+
+class StructuralPlasticityController:
+    """
+    Online structural plasticity for MatrixResidualStream layers.
+
+    Biological motivation
+    ---------------------
+    Biological networks continuously reorganise their topology via
+    synaptogenesis (growth) and synaptic pruning, driven by activity
+    homeostasis rather than external rewards. Under-active synapses are
+    eliminated; under-capacity networks grow new connections.
+
+    Mechanism
+    ---------
+    Uses the learned residual gate values of MatrixResidualStream as a
+    utilization proxy:
+        utilization_s = sigmoid(res_gate[s]) ∈ (0, 1)
+
+    A gate near 0 means the stream is barely contributing new information
+    (candidate for pruning). A gate near 1 means the stream is fully
+    committed (capacity saturated — candidate for growing a new stream).
+
+    Decision rules (evaluated every ``update_interval`` steps):
+        Prune:  lowest-utilization active stream's EMA < prune_threshold
+                AND n_active > min_active
+        Grow:   mean active gate EMA > grow_threshold
+                AND dormant streams exist
+
+    Masked over-allocation
+    ----------------------
+    Tensors are never reallocated. MatrixResidualStream is pre-allocated
+    with the full n_streams capacity. An ``active_mask`` boolean buffer
+    logically activates/deactivates stream slots (just a multiply by 0/1).
+    CUDA-graph safe — no control-flow change, only values change.
+
+    Args:
+        n_layers:         Number of ThoughtLayers with matrix streams.
+        prune_threshold:  Gate EMA below this → stream is dormant; prune.
+        grow_threshold:   Mean active gate EMA above this → at capacity; grow.
+        ema_decay:        Smoothing for per-stream gate EMA. Slow decay
+                          (0.99) prevents reacting to transient fluctuations.
+        update_interval:  Training steps between grow/prune evaluations.
+        min_active:       Minimum streams to keep active per layer.
+    """
+
+    def __init__(
+        self,
+        n_layers: int,
+        prune_threshold: float = 0.05,
+        grow_threshold: float = 0.85,
+        ema_decay: float = 0.99,
+        update_interval: int = 500,
+        min_active: int = 1,
+    ):
+        self.prune_threshold = prune_threshold
+        self.grow_threshold = grow_threshold
+        self.ema_decay = ema_decay
+        self.update_interval = update_interval
+        self.min_active = min_active
+        # Per-layer per-stream gate EMA (CPU float list, or None before first update)
+        self._gate_ema: list[list[float] | None] = [None] * n_layers
+
+    def update(self, stream_layers: list) -> None:
+        """Update per-stream gate EMA from live res_gate values.
+
+        Call every training step after the forward pass.
+
+        Args:
+            stream_layers: List of ThoughtLayer modules whose ``.stream``
+                           is a MatrixResidualStream with ``active_mask``.
+        """
+        d = self.ema_decay
+        for i, layer in enumerate(stream_layers):
+            if i >= len(self._gate_ema):
+                break
+            stream = getattr(layer, "stream", None)
+            if stream is None or not hasattr(stream, "active_mask"):
+                continue
+
+            gates = torch.sigmoid(stream.res_gate).detach().cpu().float().tolist()
+            if self._gate_ema[i] is None:
+                self._gate_ema[i] = gates[:]
+            else:
+                ema = self._gate_ema[i]
+                while len(ema) < len(gates):
+                    ema.append(0.5)
+                for s, g in enumerate(gates):
+                    ema[s] = d * ema[s] + (1.0 - d) * g
+
+    def maybe_adapt(self, stream_layers: list) -> list[str]:
+        """Evaluate grow/prune decisions for each stream layer.
+
+        Returns a list of event strings for logging (empty if no change).
+        Call every ``update_interval`` steps.
+        """
+        events: list[str] = []
+        for layer_idx, layer in enumerate(stream_layers):
+            if layer_idx >= len(self._gate_ema):
+                break
+            stream = getattr(layer, "stream", None)
+            if stream is None or not hasattr(stream, "active_mask"):
+                continue
+
+            gate_ema = self._gate_ema[layer_idx]
+            if gate_ema is None:
+                continue
+
+            mask = stream.active_mask
+            n = mask.shape[0]
+            active = [s for s in range(n) if mask[s].item()]
+            dormant = [s for s in range(n) if not mask[s].item()]
+
+            # ── Prune: deactivate least-used stream ──────────────────
+            if len(active) > self.min_active:
+                worst_s = min(active, key=lambda s: gate_ema[s])
+                if gate_ema[worst_s] < self.prune_threshold:
+                    stream.deactivate_stream(worst_s)
+                    gate_ema[worst_s] = 0.0
+                    events.append(f"L{layer_idx}:prune(s{worst_s},"
+                                  f"gate={gate_ema[worst_s]:.3f})")
+
+            # ── Grow: activate dormant stream if all active are saturated ──
+            if dormant and active:
+                mean_active_gate = sum(gate_ema[s] for s in active) / len(active)
+                if mean_active_gate > self.grow_threshold:
+                    new_s = dormant[0]
+                    stream.activate_stream(new_s)
+                    gate_ema[new_s] = 0.5
+                    events.append(f"L{layer_idx}:grow(s{new_s},"
+                                  f"mean_gate={mean_active_gate:.3f})")
+
+        return events
+
+    def active_counts(self, stream_layers: list) -> list[int]:
+        """Return the number of active streams per layer (for logging)."""
+        counts = []
+        for layer in stream_layers:
+            stream = getattr(layer, "stream", None)
+            if stream is not None and hasattr(stream, "active_mask"):
+                counts.append(int(stream.active_mask.sum().item()))
+        return counts
