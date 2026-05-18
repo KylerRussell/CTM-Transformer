@@ -1925,6 +1925,14 @@ def train(
                 bio_str += f" | lr_eff {result['hebbian_lr_eff']:.3f}"
             if "hebbian_carry_norm" in result:
                 bio_str += f" | |M_c| {result['hebbian_carry_norm']:.4f}"
+            if getattr(config, "use_btsp", False) and _stream_layers:
+                beta_vals = [
+                    torch.sigmoid(layer.hebbian.btsp_decay_logit).item()
+                    for layer in _stream_layers
+                    if layer.hebbian is not None and hasattr(layer.hebbian, "btsp_decay_logit")
+                ]
+                if beta_vals:
+                    bio_str += f" | β_btsp {sum(beta_vals)/len(beta_vals):.3f}"
             if "distill_loss" in result:
                 dl = result["distill_loss"]
                 dl_v = dl.item() if hasattr(dl, "item") else float(dl)
@@ -1938,6 +1946,26 @@ def train(
             if plasticity is not None and _stream_layers:
                 counts = plasticity.active_counts(_stream_layers)
                 bio_str += f" | streams [{','.join(str(c) for c in counts)}]"
+            if getattr(config, "use_intrinsic_plasticity", False) and _stream_layers:
+                ip_norms = [
+                    layer.ip_layer.ip_bias.norm().item()
+                    for layer in _stream_layers
+                    if layer.ip_layer is not None
+                ]
+                if ip_norms:
+                    bio_str += f" | |IP| {sum(ip_norms)/len(ip_norms):.4f}"
+            if getattr(config, "use_thalamic_gating", False) and _stream_layers:
+                gain_vals = [
+                    layer.thalamic_gate._gain_ema.item()
+                    for layer in _stream_layers
+                    if hasattr(layer, "thalamic_gate") and layer.thalamic_gate is not None
+                ]
+                if gain_vals:
+                    bio_str += f" | thal {sum(gain_vals)/len(gain_vals):.3f}"
+            if "bcm_loss" in result:
+                bio_str += f" | bcm {result['bcm_loss'].item():.4f}"
+            if "bcm_threshold" in result:
+                bio_str += f" | θ_M {result['bcm_threshold'].item():.3f}"
 
             # Prospective Configuration uses a simplified log format
             # (no per-tick breakdown since the inference loop runs
@@ -2449,6 +2477,30 @@ def parse_args():
                                 "rather than saturating. Better if |M| growth "
                                 "correlates with degraded readout at scale.")
 
+    bio_group.add_argument("--use_btsp", action="store_true",
+                           help="Behavioral Timescale Synaptic Plasticity. "
+                                "Augments the per-position Hebbian update with a "
+                                "causal sequence-spanning eligibility trace: each "
+                                "position s accumulates salience-weighted outer "
+                                "products from all prior positions τ≤s decayed by "
+                                "β^(s−τ). Enables one-shot association across "
+                                "temporal delays without backprop. "
+                                "Requires --use_hebbian_synapse.")
+    bio_group.add_argument("--btsp_lr_init", type=float, default=0.05,
+                           help="Initial BTSP learning rate η_BTSP (sigmoid-parameterised). "
+                                "Kept separate from --hebbian_lr_init so the causal "
+                                "trace and local update have independent magnitudes.")
+    bio_group.add_argument("--btsp_kernel_decay_init", type=float, default=0.9,
+                           help="Initial causal kernel decay β ∈ (0,1). "
+                                "β=0.9 → ~10-position effective span; "
+                                "β=0.99 → ~100-position span. Learnable.")
+    bio_group.add_argument("--btsp_salience_threshold", type=float, default=0.0,
+                           help="Threshold Φ applied to the salience signal before "
+                                "gating the BTSP outer products. 0 = continuous "
+                                "(no hard gate, all positions contribute). "
+                                "Set > 1 to require above-baseline surprise "
+                                "(needs --hebbian_cert_lr_alpha > 0).")
+
     bio_group.add_argument("--use_neuromod_optimizer", action="store_true",
                            help="Wrap AdamW with surprise-modulated LR scaling. "
                                 "Scales the effective LR up on novel/surprising inputs "
@@ -2464,6 +2516,43 @@ def parse_args():
     bio_group.add_argument("--neuromod_ema_decay", type=float, default=0.95,
                            help="EMA smoothing of the surprise signal. "
                                 "Higher = smoother modulation.")
+
+    bio_group.add_argument("--use_intrinsic_plasticity", action="store_true",
+                           help="Adaptive Intrinsic Plasticity in NLM hidden units. "
+                                "Each hidden unit tracks an EMA of its post-GELU "
+                                "activation and shifts its threshold (ip_bias) online "
+                                "to maintain a target mean firing rate (ip_target). "
+                                "Operates entirely without backprop. "
+                                "Requires use_matrix_streams=False (NLM v1 path).")
+    bio_group.add_argument("--ip_lr", type=float, default=0.01,
+                           help="Intrinsic plasticity learning rate η_IP. "
+                                "Controls how fast ip_bias adapts. "
+                                "Typical range: 0.001–0.05.")
+    bio_group.add_argument("--ip_target", type=float, default=0.1,
+                           help="Target mean post-GELU activation (sparsity target). "
+                                "0.1 ≈ 10%% mean firing rate. Lower = sparser.")
+    bio_group.add_argument("--ip_ema_decay", type=float, default=0.99,
+                           help="EMA decay for activation tracking. "
+                                "Higher = slower adaptation to distribution shifts.")
+
+    bio_group.add_argument("--use_thalamic_gating", action="store_true",
+                           help="Thalamic Multiplicative Gating: scales cross-attention output "
+                                "by a per-position gain derived from the Shannon entropy of "
+                                "attention weights. Low entropy (focused) → gain≈1; high "
+                                "entropy (diffuse/noisy) → gain≈0, protecting latent state. "
+                                "Incompatible with --use_dssa (DSSA doesn't expose weights).")
+
+    bio_group.add_argument("--use_bcm_threshold", action="store_true",
+                           help="BCM Sliding Threshold: metaplasticity for the EM inference loop. "
+                                "Tracks EMA of mean squared latent magnitude during Phase 1 "
+                                "(inference). In Phase 2 (learning), penalizes any z² that "
+                                "exceeds the sliding threshold, preventing runaway excitation. "
+                                "Only meaningful with --use_prospective_config.")
+    bio_group.add_argument("--bcm_ema_decay", type=float, default=0.99,
+                           help="EMA decay for the BCM sliding threshold. "
+                                "Higher = slower adaptation to changes in latent magnitude.")
+    bio_group.add_argument("--bcm_loss_weight", type=float, default=0.1,
+                           help="Weight of the BCM homeostatic penalty in the learning-phase loss.")
 
     bio_group.add_argument("--use_structural_plasticity", action="store_true",
                            help="Online grow/prune of MatrixResidualStream slots based on "
@@ -2656,6 +2745,10 @@ def main():
         hebbian_cert_lr_alpha=args.hebbian_cert_lr_alpha,
         hebbian_force_gate=args.hebbian_force_gate,
         hebbian_update_rule=args.hebbian_update_rule,
+        use_btsp=args.use_btsp,
+        btsp_lr_init=args.btsp_lr_init,
+        btsp_kernel_decay_init=args.btsp_kernel_decay_init,
+        btsp_salience_threshold=args.btsp_salience_threshold,
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
@@ -2685,6 +2778,14 @@ def main():
         neuromod_min_scale=args.neuromod_min_scale,
         neuromod_max_scale=args.neuromod_max_scale,
         neuromod_ema_decay=args.neuromod_ema_decay,
+        use_intrinsic_plasticity=args.use_intrinsic_plasticity,
+        ip_lr=args.ip_lr,
+        ip_target=args.ip_target,
+        ip_ema_decay=args.ip_ema_decay,
+        use_thalamic_gating=args.use_thalamic_gating,
+        use_bcm_threshold=args.use_bcm_threshold,
+        bcm_ema_decay=args.bcm_ema_decay,
+        bcm_loss_weight=args.bcm_loss_weight,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,
         plasticity_grow_threshold=args.plasticity_grow_threshold,
@@ -3085,6 +3186,14 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 # Higher → model is encoding uncertain positions more
                 # aggressively. Watch for it diverging from base lr.
                 bio_str += f" | lr_eff {result['hebbian_lr_eff']:.3f}"
+            if getattr(config, "use_btsp", False) and _stream_layers:
+                beta_vals = [
+                    torch.sigmoid(layer.hebbian.btsp_decay_logit).item()
+                    for layer in _stream_layers
+                    if layer.hebbian is not None and hasattr(layer.hebbian, "btsp_decay_logit")
+                ]
+                if beta_vals:
+                    bio_str += f" | β_btsp {sum(beta_vals)/len(beta_vals):.3f}"
             if "distill_loss" in result:
                 dl = result["distill_loss"]
                 dl_v = dl.item() if hasattr(dl, "item") else float(dl)
@@ -3096,6 +3205,26 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
             if plasticity is not None and _stream_layers:
                 counts = plasticity.active_counts(_stream_layers)
                 bio_str += f" | streams [{','.join(str(c) for c in counts)}]"
+            if getattr(config, "use_intrinsic_plasticity", False) and _stream_layers:
+                ip_norms = [
+                    layer.ip_layer.ip_bias.norm().item()
+                    for layer in _stream_layers
+                    if layer.ip_layer is not None
+                ]
+                if ip_norms:
+                    bio_str += f" | |IP| {sum(ip_norms)/len(ip_norms):.4f}"
+            if getattr(config, "use_thalamic_gating", False) and _stream_layers:
+                gain_vals = [
+                    layer.thalamic_gate._gain_ema.item()
+                    for layer in _stream_layers
+                    if hasattr(layer, "thalamic_gate") and layer.thalamic_gate is not None
+                ]
+                if gain_vals:
+                    bio_str += f" | thal {sum(gain_vals)/len(gain_vals):.3f}"
+            if "bcm_loss" in result:
+                bio_str += f" | bcm {result['bcm_loss'].item():.4f}"
+            if "bcm_threshold" in result:
+                bio_str += f" | θ_M {result['bcm_threshold'].item():.3f}"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -3254,6 +3383,10 @@ def main_multi_gpu():
         hebbian_cert_lr_alpha=args.hebbian_cert_lr_alpha,
         hebbian_force_gate=args.hebbian_force_gate,
         hebbian_update_rule=args.hebbian_update_rule,
+        use_btsp=args.use_btsp,
+        btsp_lr_init=args.btsp_lr_init,
+        btsp_kernel_decay_init=args.btsp_kernel_decay_init,
+        btsp_salience_threshold=args.btsp_salience_threshold,
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
@@ -3283,6 +3416,14 @@ def main_multi_gpu():
         neuromod_min_scale=args.neuromod_min_scale,
         neuromod_max_scale=args.neuromod_max_scale,
         neuromod_ema_decay=args.neuromod_ema_decay,
+        use_intrinsic_plasticity=args.use_intrinsic_plasticity,
+        ip_lr=args.ip_lr,
+        ip_target=args.ip_target,
+        ip_ema_decay=args.ip_ema_decay,
+        use_thalamic_gating=args.use_thalamic_gating,
+        use_bcm_threshold=args.use_bcm_threshold,
+        bcm_ema_decay=args.bcm_ema_decay,
+        bcm_loss_weight=args.bcm_loss_weight,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,
         plasticity_grow_threshold=args.plasticity_grow_threshold,

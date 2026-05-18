@@ -1156,12 +1156,20 @@ class NeuronLevelModels(nn.Module):
         nlm_hidden_dim: int,
         nlm_groups: int = 1,
         dropout: float = 0.1,
+        use_ip: bool = False,
+        ip_lr: float = 0.01,
+        ip_target: float = 0.1,
+        ip_ema_decay: float = 0.99,
     ):
         super().__init__()
         self.d_latent = d_latent
         self.history_len = history_len
         self.nlm_hidden_dim = nlm_hidden_dim
         self.nlm_groups = nlm_groups
+        self.use_ip = use_ip
+        self.ip_lr = ip_lr
+        self.ip_target = ip_target
+        self.ip_ema_decay = ip_ema_decay
 
         assert d_latent % nlm_groups == 0, \
             f"d_latent ({d_latent}) must be divisible by nlm_groups ({nlm_groups})"
@@ -1191,6 +1199,17 @@ class NeuronLevelModels(nn.Module):
         self.gate = nn.Parameter(torch.full((d_latent,), 0.0))
 
         self.dropout = nn.Dropout(dropout)
+
+        # Intrinsic Plasticity: per-hidden-unit adaptive threshold.
+        # Both are non-trainable buffers updated in-place during forward.
+        if use_ip:
+            self.register_buffer(
+                "_act_ema", torch.zeros(nlm_groups, nlm_hidden_dim)
+            )
+            self.register_buffer(
+                "ip_bias", torch.zeros(nlm_groups, nlm_hidden_dim)
+            )
+
         self._init_weights()
 
     def _init_weights(self):
@@ -1238,8 +1257,25 @@ class NeuronLevelModels(nn.Module):
         # Add bias: [groups, hidden] broadcasts over [batch, groups, neurons_per_group, hidden]
         h = h + self.b1.unsqueeze(0).unsqueeze(2)
 
+        # Intrinsic Plasticity: shift activation threshold before nonlinearity.
+        # ip_bias shifts each hidden unit's working point toward ip_target mean firing.
+        if self.use_ip:
+            h = h + self.ip_bias.unsqueeze(0).unsqueeze(2)
+
         # Activation: GELU (smooth, avoids dead neurons unlike ReLU)
         h = F.gelu(h)
+
+        # IP online update: β ← β + η_IP·(target − ĥ), no grad.
+        # Only runs during training; evaluation sees fixed ip_bias.
+        if self.use_ip and self.training:
+            with torch.no_grad():
+                # mean over batch (dim 0) and neurons_per_group (dim 2) → [G, D_hidden]
+                batch_mean = h.detach().mean(dim=(0, 2))
+                self._act_ema.mul_(self.ip_ema_decay).add_(
+                    batch_mean * (1.0 - self.ip_ema_decay)
+                )
+                self.ip_bias.add_(self.ip_lr * (self.ip_target - self._act_ema))
+
         h = self.dropout(h)
 
         # Layer 2: [batch, groups, neurons_per_group, hidden] @ [groups, hidden, 1]
@@ -1261,8 +1297,101 @@ class NeuronLevelModels(nn.Module):
         return post_activations
 
 # ═════════════════════════════════════════════════════════════════════════
+# intrinsic_plasticity.py
+# ═════════════════════════════════════════════════════════════════════════
+
+class IntrinsicPlasticityLayer(nn.Module):
+    """Per-neuron adaptive threshold implementing Intrinsic Plasticity.
+
+    Adds a learnable per-neuron bias (ip_bias) to any [..., d] activation
+    tensor and updates it online during training to keep the mean activation
+    close to ip_target:
+
+        ema  ← decay · ema + (1 − decay) · mean_batch(x)
+        bias ← bias + η · (target − ema)
+
+    No gradient flows through the update — it is a pure homeostatic rule.
+    At eval time the bias is fixed (converged).  Checkpoint-compatible: both
+    ip_bias and _act_ema are registered buffers.
+
+    Works with any flat or sequence-shaped input; reshapes to [*, d]
+    internally to compute the cross-sample mean.
+    """
+
+    def __init__(
+        self,
+        d: int,
+        ip_lr: float = 0.01,
+        ip_target: float = 0.0,
+        ip_ema_decay: float = 0.99,
+    ):
+        super().__init__()
+        self.ip_lr = ip_lr
+        self.ip_target = ip_target
+        self.ip_ema_decay = ip_ema_decay
+        self.register_buffer("ip_bias", torch.zeros(d))
+        self.register_buffer("_act_ema", torch.zeros(d))
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x + self.ip_bias
+        if self.training:
+            with torch.no_grad():
+                flat = x.detach().reshape(-1, x.shape[-1])   # [N, d]
+                batch_mean = flat.mean(dim=0)                  # [d]
+                self._act_ema.mul_(self.ip_ema_decay).add_(
+                    batch_mean * (1.0 - self.ip_ema_decay)
+                )
+                self.ip_bias.add_(self.ip_lr * (self.ip_target - self._act_ema))
+        return x
+
+# ═════════════════════════════════════════════════════════════════════════
 # matrix_stream.py
 # ═════════════════════════════════════════════════════════════════════════
+
+class ThalamicGate(nn.Module):
+    """Thalamic Multiplicative Gating: entropy-based attention routing.
+
+    Intercepts cross-attention output and scales it per-position by a gain
+    derived from the Shannon entropy of the softmax attention distribution.
+
+    Low entropy (focused) → gain near 1 → signal passes through.
+    High entropy (diffuse/noisy) → gain near 0 → latent state protected.
+
+    gain = sigmoid(w * H_norm + b)  where w, b are learnable scalars and
+    H_norm ∈ [0, 1] is mean-over-heads normalized entropy.
+    Default init: w=-4, b=3 → gain ≈ 0.95 at H=0, ≈ 0.27 at H=1.
+    """
+
+    def __init__(self, ema_decay: float = 0.99):
+        super().__init__()
+        self.gain_w = nn.Parameter(torch.tensor(-4.0))
+        self.gain_b = nn.Parameter(torch.tensor(3.0))
+        self._ema_decay = ema_decay
+        self.register_buffer("_gain_ema", torch.tensor(1.0))
+
+    def forward(self, attn_out: torch.Tensor, attn_weights: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            attn_out:     [B, S, d_model]
+            attn_weights: [B, n_heads, S, S] — softmax attention probs (causal-masked)
+        Returns:
+            gated: [B, S, d_model]
+        """
+        eps = 1e-8
+        # Shannon entropy per head per query position
+        H = -(attn_weights * (attn_weights + eps).log()).sum(dim=-1)  # [B, n_heads, S]
+        # Normalize by log(S) → [0, 1] (S = max key len, causal upper bound)
+        S = attn_weights.shape[-1]
+        H_norm = H / (math.log(S) + eps)
+        H_mean = H_norm.mean(dim=1)  # [B, S]
+        gain = torch.sigmoid(self.gain_w * H_mean + self.gain_b)  # [B, S]
+        if self.training:
+            with torch.no_grad():
+                self._gain_ema.mul_(self._ema_decay).add_(
+                    gain.detach().mean() * (1.0 - self._ema_decay)
+                )
+        return attn_out * gain.unsqueeze(-1)
+
 
 class MatrixResidualStream(nn.Module):
     """Matrix-valued residual stream with manifold-constrained mixing.
@@ -1905,6 +2034,15 @@ class ThoughtLayer(nn.Module):
         hebbian_gate_init: float = -3.0,
         hebbian_force_gate: float | None = None,
         hebbian_update_rule: str = "outer_product",
+        use_btsp: bool = False,
+        btsp_lr_init: float = 0.05,
+        btsp_kernel_decay_init: float = 0.9,
+        btsp_salience_threshold: float = 0.0,
+        use_ip: bool = False,
+        ip_lr: float = 0.01,
+        ip_target: float = 0.1,
+        ip_ema_decay: float = 0.99,
+        use_thalamic_gating: bool = False,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -1956,6 +2094,10 @@ class ThoughtLayer(nn.Module):
                 nlm_hidden_dim=nlm_hidden_dim,
                 nlm_groups=nlm_groups,
                 dropout=dropout,
+                use_ip=use_ip,
+                ip_lr=ip_lr,
+                ip_target=ip_target,
+                ip_ema_decay=ip_ema_decay,
             )
 
             # ── Memory Buffers (v1 path) ────────────────────────────────
@@ -2024,11 +2166,35 @@ class ThoughtLayer(nn.Module):
                 gate_init=hebbian_gate_init,
                 force_gate=hebbian_force_gate,
                 update_rule=hebbian_update_rule,
+                use_btsp=use_btsp,
+                btsp_lr_init=btsp_lr_init,
+                btsp_kernel_decay_init=btsp_kernel_decay_init,
+                btsp_salience_threshold=btsp_salience_threshold,
             )
         else:
             self.hebbian = None
 
+        # ── Adaptive Intrinsic Plasticity (optional) ────────────────────
+        # Applied to the synapse output (pre_activations) before post_norm
+        # in both the v1 (NLM) and v2 (MatrixStream) forward paths.
+        # Lives here rather than inside NeuronLevelModels so it activates
+        # regardless of which path is selected.
+        self.ip_layer = (
+            IntrinsicPlasticityLayer(
+                d=d_latent,
+                ip_lr=ip_lr,
+                ip_target=ip_target,
+                ip_ema_decay=ip_ema_decay,
+            )
+            if use_ip else None
+        )
 
+        # ── Thalamic Multiplicative Gate (optional) ─────────────────────
+        # Applied to cross-attention output before the synapse.
+        # Suppresses updates when attention is diffuse (high entropy),
+        # protecting the latent state from noisy or uncertain signals.
+        # Inactive when use_dssa=True (DSSA doesn't expose weight matrices).
+        self.thalamic_gate = ThalamicGate() if (use_thalamic_gating and not use_dssa) else None
 
     def reset_memory(self, batch_size: int, device: torch.device, dtype: torch.dtype):
         """Initialize memory buffers for a new sequence/batch."""
@@ -2041,7 +2207,8 @@ class ThoughtLayer(nn.Module):
         text_keys: torch.Tensor,
         text_values: torch.Tensor,
         key_padding_mask: torch.Tensor | None,
-    ) -> torch.Tensor:
+        return_weights: bool = False,
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         """Standard O(N²) cross-attention with causal masking.
 
         Args:
@@ -2049,9 +2216,13 @@ class ThoughtLayer(nn.Module):
             text_keys: [B, S, d_model]
             text_values: [B, S, d_model]
             key_padding_mask: [B, S] or None
+            return_weights: If True, also return softmax weights [B, n_heads, S, S]
+                for entropy-based thalamic gating. On the Triton path weights are
+                computed from QK^T only (no V matmul overhead).
 
         Returns:
             attn_out: [B, S, d_model]
+            attn_weights: [B, n_heads, S, S] or None
         """
         B, S, D = queries.shape
 
@@ -2061,6 +2232,17 @@ class ThoughtLayer(nn.Module):
 
         # Check if we should use accelerated attention
         if self.use_triton_attention:
+            weights_for_gate = None
+            if return_weights:
+                # Compute entropy weights via standard QKT (no V matmul)
+                q_h = q.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)
+                k_h = k.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)
+                scores = torch.matmul(q_h, k_h.transpose(-2, -1)) / math.sqrt(self.head_dim)
+                causal_mask = torch.triu(
+                    torch.ones(S, S, device=q.device, dtype=torch.bool), diagonal=1
+                )
+                scores.masked_fill_(causal_mask.unsqueeze(0).unsqueeze(0), float("-inf"))
+                weights_for_gate = F.softmax(scores, dim=-1)
             q_reshaped = q.view(B, S, self.n_heads, self.head_dim)
             k_reshaped = k.view(B, S, self.n_heads, self.head_dim)
             v_reshaped = v.view(B, S, self.n_heads, self.head_dim)
@@ -2072,7 +2254,7 @@ class ThoughtLayer(nn.Module):
                 use_triton=True,
             )
             attn_out = self.attn_out_proj(attn_out)
-            return attn_out
+            return attn_out, weights_for_gate
 
         # Standard path
         q = q.view(B, S, self.n_heads, self.head_dim).transpose(1, 2)
@@ -2101,7 +2283,7 @@ class ThoughtLayer(nn.Module):
         attn_out = attn_out.transpose(1, 2).contiguous().view(B, S, D)
         attn_out = self.attn_out_proj(attn_out)
 
-        return attn_out
+        return attn_out, (attn_weights if return_weights else None)
 
     def forward(
         self,
@@ -2157,15 +2339,16 @@ class ThoughtLayer(nn.Module):
 
         # ── Step 2: Cross-Attention ─────────────────────────────────────
         if self.use_dssa and self.dssa is not None:
-            # v2 DSSA path
+            # v2 DSSA path — weights not exposed, thalamic gate disabled
             attn_out = self.dssa(queries, text_keys, causal=True)
         else:
             # Standard attention (possibly Triton-accelerated)
-            attn_out = self._standard_attention(
-                queries, text_keys, text_values, key_padding_mask
+            attn_out, attn_weights_for_gate = self._standard_attention(
+                queries, text_keys, text_values, key_padding_mask,
+                return_weights=(self.thalamic_gate is not None),
             )
-
-
+            if self.thalamic_gate is not None and attn_weights_for_gate is not None:
+                attn_out = self.thalamic_gate(attn_out, attn_weights_for_gate)
 
         # Flatten attention output
         attn_flat = attn_out.reshape(BS, D)
@@ -2208,6 +2391,10 @@ class ThoughtLayer(nn.Module):
 
         if self.use_matrix_streams and self.stream is not None and stream_state is not None:
             # v2 path: update matrix streams (replaces NLM)
+            # Apply IP before post_norm: shifts each neuron's working point
+            # toward ip_target, correcting cross-sample systematic biases.
+            if self.ip_layer is not None:
+                pre_activations = self.ip_layer(pre_activations)
             post_activations = self.post_norm(pre_activations)
             new_state_flat = post_activations
             # Update stream state
@@ -2219,6 +2406,9 @@ class ThoughtLayer(nn.Module):
             pre_history = self.memory.get_pre_history()
             post_activations = self.nlm(pre_history)
             self.memory.push_post(post_activations)
+            # Apply IP to NLM output before post_norm (same rule, same hook point)
+            if self.ip_layer is not None:
+                post_activations = self.ip_layer(post_activations)
             new_state_flat = self.post_norm(post_activations)
 
             # Recompute sync for output
@@ -2322,6 +2512,15 @@ class CTMTransformer(nn.Module):
                 hebbian_gate_init=config.hebbian_gate_init,
                 hebbian_force_gate=getattr(config, "hebbian_force_gate", None),
                 hebbian_update_rule=getattr(config, "hebbian_update_rule", "outer_product"),
+                use_btsp=getattr(config, "use_btsp", False),
+                btsp_lr_init=getattr(config, "btsp_lr_init", 0.05),
+                btsp_kernel_decay_init=getattr(config, "btsp_kernel_decay_init", 0.9),
+                btsp_salience_threshold=getattr(config, "btsp_salience_threshold", 0.0),
+                use_ip=getattr(config, "use_intrinsic_plasticity", False),
+                ip_lr=getattr(config, "ip_lr", 0.01),
+                ip_target=getattr(config, "ip_target", 0.1),
+                ip_ema_decay=getattr(config, "ip_ema_decay", 0.99),
+                use_thalamic_gating=getattr(config, "use_thalamic_gating", False),
             )
 
         # ── Hyperloop or Standard Layer Construction ────────────────────
@@ -2580,6 +2779,15 @@ class CTMTransformer(nn.Module):
         # persistent across batches. Reset to None at training start.
         # NOT a registered buffer — transient runtime state.
         self._hebbian_carry: list | None = None
+
+        # ── BCM Sliding Threshold ─────────────────────────────────────────
+        # EMA of mean squared latent magnitude, updated during the inference
+        # phase of the EM loop. Acts as the Bienenstock-Cooper-Munro
+        # metaplasticity threshold to prevent runaway latent excitation.
+        if getattr(config, "use_bcm_threshold", False):
+            self.register_buffer("_bcm_threshold", torch.tensor(1.0))
+        else:
+            self._bcm_threshold = None
 
         self.apply(self._init_weights)
 
@@ -3153,6 +3361,9 @@ class CTMTransformer(nn.Module):
             prev_certainty = None
             prev_energy = None
             
+            bcm_active = self._bcm_threshold is not None
+            bcm_decay = getattr(self.config, "bcm_ema_decay", 0.99)
+
             with torch.no_grad():
                 actual_inference_steps = 0
                 for t in range(max_inference_steps):
@@ -3169,10 +3380,14 @@ class CTMTransformer(nn.Module):
                      ce_loss_t, kl_loss_t, certainty_t, _new_hebbian_states, pc_loss_t,
                      hebbian_lr_eff_t, hpc_local_loss_t, hpc_free_energy_t,
                      hpc_mean_precision_t, hpc_mean_error_norm_t) = step_res
-                    
+
                     if certainty_t is not None:
                         prev_certainty = certainty_t
-                    
+
+                    # BCM: update sliding threshold EMA from current latent magnitude
+                    if bcm_active:
+                        z_sq_mean = z_curr.detach().float().pow(2).mean()
+                        self._bcm_threshold.mul_(bcm_decay).add_(z_sq_mean * (1.0 - bcm_decay))
 
                     # Dynamic termination based on energy stabilization
                     if self.feec is not None and velocity_curr is not None:
@@ -3235,16 +3450,27 @@ class CTMTransformer(nn.Module):
              _, _) = step_res_learn
             
             loss = torch.tensor(0.0, device=device, dtype=dtype)
-            
+
             # The local loss from the HPC layers represents the true prospective configuration gradient
             if hpc_local_loss_t is not None:
                 loss = loss + getattr(self.config, "hpc_local_loss_weight", 1.0) * hpc_local_loss_t
                 result["hpc_local_loss"] = hpc_local_loss_t.detach()
-            
+
             # We can also add the cross-entropy of the single consolidated pass
             if ce_loss_t is not None:
                 loss = loss + ce_loss_t.mean()
-            
+
+            # BCM homeostatic penalty: penalize z² exceeding the sliding threshold
+            # Prevents runaway excitation during rapid one-shot learning.
+            if bcm_active:
+                bcm_weight = getattr(self.config, "bcm_loss_weight", 0.1)
+                z_sq = z_learn.pow(2).mean()
+                bcm_excess = torch.relu(z_sq - self._bcm_threshold.to(z_sq.dtype).detach())
+                bcm_penalty = bcm_weight * bcm_excess.pow(2)
+                loss = loss + bcm_penalty
+                result["bcm_loss"] = bcm_penalty.detach()
+                result["bcm_threshold"] = self._bcm_threshold.detach()
+
             result["loss"] = loss
             if logits_t is not None:
                 result["logits"] = logits_t

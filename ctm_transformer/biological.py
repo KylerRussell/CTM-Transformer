@@ -134,6 +134,10 @@ class HebbianSynapse(nn.Module):
         gate_init: float = -3.0,
         force_gate: float | None = None,
         update_rule: str = "outer_product",
+        use_btsp: bool = False,
+        btsp_lr_init: float = 0.05,
+        btsp_kernel_decay_init: float = 0.9,
+        btsp_salience_threshold: float = 0.0,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -181,6 +185,23 @@ class HebbianSynapse(nn.Module):
         # Output gate: starts near zero so the unaugmented synapse path
         # dominates at init. Learnable scalar.
         self.gate_logit = nn.Parameter(torch.tensor(float(gate_init)))
+
+        # ── Behavioral Timescale Synaptic Plasticity (BTSP) ──────────────
+        # Adds a sequence-spanning causal update on top of the per-position
+        # Hebbian rule.  A salient event at position s (high surprise) can
+        # retro-potentiate the fast-weight matrices of earlier positions τ<s
+        # through an exponentially decaying eligibility trace:
+        #
+        #   M_{t+1}[s] += η_BTSP · Σ_{τ≤s} β^(s−τ) · Φ(salience_τ) · (z_τ ⊗ a_τ)
+        #
+        # Computed as a lower-triangular kernel matmul — fully vectorised,
+        # no sequential Python loop.  When lr_modulator is None (no certainty
+        # signal), salience degrades to uniform=1 (pure causal trace).
+        self.use_btsp = use_btsp
+        if use_btsp:
+            self.btsp_lr_logit = nn.Parameter(torch.tensor(_logit(btsp_lr_init)))
+            self.btsp_decay_logit = nn.Parameter(torch.tensor(_logit(btsp_kernel_decay_init)))
+            self.btsp_salience_threshold = btsp_salience_threshold
 
         # Stabilise the readout norm so the Hebbian contribution doesn't
         # blow up the synapse output before training has shaped the gate.
@@ -317,6 +338,39 @@ class HebbianSynapse(nn.Module):
             # Classic Hebbian outer-product accumulation.
             outer = z_proj.unsqueeze(-1) * a_proj.unsqueeze(-2)
         new_hebbian = decay * hebbian_state.to(outer.dtype) + lr_eff * outer
+
+        # ── BTSP: sequence-spanning causal trace update ───────────────
+        # Adds: η_BTSP · K · (salience ⊙ outer)  where K[s,τ] = β^(s−τ)
+        # K is recomputed each forward (cheap [S,S]) since β is learnable.
+        if self.use_btsp:
+            m, n = self._matrix_dims
+            B_b, S_b = outer.shape[0], outer.shape[1]
+            btsp_lr = torch.sigmoid(self.btsp_lr_logit).to(outer.dtype)
+            beta = torch.sigmoid(self.btsp_decay_logit).to(outer.dtype)
+
+            # Per-position salience: use lr_modulator when available (surprise
+            # signal), else uniform=1 (pure causal exponential trace).
+            if lr_modulator is not None:
+                salience = lr_modulator.clamp(0.0, 10.0).to(outer.dtype)
+                salience = (salience - self.btsp_salience_threshold).clamp(min=0.0)
+            else:
+                salience = torch.ones(B_b, S_b, device=outer.device, dtype=outer.dtype)
+
+            # Salience-weighted outer products: [B, S, m, n]
+            weighted = salience.unsqueeze(-1).unsqueeze(-1) * outer
+
+            # Build lower-triangular causal kernel K[s, τ] = β^(s−τ) for τ≤s
+            idx = torch.arange(S_b, device=outer.device, dtype=outer.dtype)
+            dist = (idx.unsqueeze(0) - idx.unsqueeze(1)).clamp(min=0)  # [S, S]
+            K = torch.tril(beta ** dist)                                 # [S, S]
+
+            # Causal aggregation via matmul along the sequence axis:
+            #   delta[b, s, :, :] = Σ_{τ≤s} K[s,τ] · weighted[b, τ, :, :]
+            w_flat = weighted.reshape(B_b, S_b, m * n)      # [B, S, m*n]
+            delta_flat = torch.matmul(K, w_flat)             # [B, S, m*n]
+            delta_M = delta_flat.reshape(B_b, S_b, m, n)    # [B, S, m, n]
+
+            new_hebbian = new_hebbian + btsp_lr * delta_M
 
         # ── Gate the readout ──────────────────────────────────────────
         # Sigmoid-gate so the synapse output is not blown up by an

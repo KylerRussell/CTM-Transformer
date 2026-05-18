@@ -13,27 +13,17 @@
 # To stop:
 # pkill -9 -f "venv_nv/bin/python" && echo "Killed training processes" || echo "No training process found"
 # fuser -k -9 29501/tcp && echo "Freed PyTorch distributed port" || echo "Port already free"
-# --t_curriculum_stages 2:0.30,4:0.60,8:0.85,16:1.00 \
-# --distill_logit_weight 1.0 \
-# --distill_temperature 4.0 \
-# --distill_tick_aggregation first \
-# --distill_top_k 128 \
-# --distill_feature_weight 0.0 \
-
 
 cd /home/kyler/Documents/CTM-Transformer && \
   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
   CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 python \
     -m ctm_transformer.train \
     --multi_gpu \
-    --device cuda \
-    --dtype bfloat16 \
     --d_model 1024 \
     --d_latent 1024 \
     --n_layers 24 \
     --n_heads 16 \
     --nlm_hidden_dim 64 \
-    --nlm_groups 1 \
     --history_len 100 \
     --max_thought_steps 100 \
     --use_hyperloop \
@@ -41,32 +31,23 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --hyperloop_n_middle 18 \
     --hyperloop_n_end 4 \
     --hyperloop_middle_loops 1 \
-    --seq_len 512 \
     --batch_size 1 \
     --gradient_accumulation_steps 16 \
-    --learning_rate 3e-4 \
     --warmup_steps 2000 \
     --max_steps 10000000 \
     --log_interval 10 \
     --eval_interval 100000 \
-    --optimizer adamw \
+    --val_interval 1000 \
+    --t_sweep_interval 10000 \
     --use_8bit_adam \
     --use_neuromod_optimizer \
-    --neuromod_alpha 1.0 \
-    --neuromod_min_scale 0.1 \
-    --neuromod_max_scale 3.0 \
-    --neuromod_ema_decay 0.95 \
-    --gradient_checkpointing \
     --gradient_checkpointing_min_T 1 \
     --checkpoint_dir checkpoints_PC_dual \
     --use_feec \
     --use_matrix_streams \
-    --n_streams 4 \
     --use_loop_pos_emb \
     --use_triton_attention \
     --tiled_schedule \
-    --sync_method sparse_decay \
-    --sync_sparse_pairs 256 \
     --synapse_type dendritic \
     --dendritic_n_branches 8 \
     --use_two_phase_curriculum \
@@ -74,35 +55,21 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --use_cached_teacher \
     --teacher_cache_dir ./teacher_cache \
     --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16" \
-    --phase1_tokens 500000000 \
     --pure_pc_mode \
     --use_shared_head_film \
     --tie_embeddings \
-    --val_interval 1000 \
-    --t_sweep_interval 10000 \
     --use_hebbian_synapse \
-    --hebbian_bottleneck_dim 64 \
     --hebbian_force_gate 0.9 \
-    --use_predictive_coding \
-    --pc_target next_tick \
-    --pc_loss_weight 0.05 \
-    --pc_tick_aggregation all \
+    --hebbian_cert_lr_alpha 2.0 \
+    --use_btsp \
     --use_prospective_config \
     --max_inference_steps 100 \
-    --inference_energy_tol 1e-4 \
     --use_hierarchical_pc \
-    --hpc_inference_lr 0.1 \
-    --hpc_generative_type mlp \
     --hpc_error_as_loss_weight \
-    --hpc_local_loss_weight 0.1 \
     --use_sleep_consolidation \
-    --sleep_interval 100 \
-    --sleep_buffer_size 32 \
-    --sleep_replay_steps 4 \
-    --sleep_loss_weight 0.3 \
     --use_structural_plasticity \
-    --plasticity_prune_threshold 0.05 \
-    --plasticity_grow_threshold 0.85 \
-    --plasticity_update_interval 500 \
+    --use_intrinsic_plasticity \
+    --use_thalamic_gating \
+    --use_bcm_threshold \
     > train_dual_gpu_prospect_config.log 2>&1 &
 echo "Dual-GPU Training PID: $!"

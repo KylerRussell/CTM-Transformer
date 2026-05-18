@@ -151,6 +151,29 @@ class CTMConfig:
     neuromod_max_scale: float = 3.0      # Maximum LR multiplier
     neuromod_ema_decay: float = 0.95     # EMA smoothing of surprise signal
 
+    # ── Adaptive Intrinsic Plasticity ────────────────────────────────────
+    # Unsupervised, cell-autonomous adaptation of each NLM neuron's activation
+    # threshold to maintain a target mean firing rate.  Mirrors the biological
+    # mechanism whereby neurons shift their intrinsic excitability to maximise
+    # information transmission.
+    #
+    # During training each NLM hidden unit tracks an EMA of its post-GELU
+    # activation.  A non-gradient ip_bias (analogous to a membrane threshold)
+    # is updated in-place every forward pass using:
+    #
+    #   β ← β + η_IP · (target − ĥ)
+    #
+    # where ĥ is the running activation EMA.  When the unit is too active
+    # (ĥ > target) the bias decreases, suppressing it; when too sparse it
+    # increases, driving it into range.  This happens entirely outside the
+    # gradient graph (no backprop needed).
+    #
+    # Requires use_matrix_streams=False (NLM v1 path).
+    use_intrinsic_plasticity: bool = False
+    ip_lr: float = 0.01            # η_IP — intrinsic plasticity learning rate
+    ip_target: float = 0.1         # Target mean activation (≈10% sparsity)
+    ip_ema_decay: float = 0.99     # EMA decay for activation tracking
+
     # ── Online Structural Plasticity ──────────────────────────────────────
     # Grow/prune MatrixResidualStream slots based on gate EMA utilization.
     # Requires use_matrix_streams=True. When OFF, no overhead.
@@ -473,6 +496,32 @@ class CTMConfig:
     #                with degraded readout quality at scale.
     hebbian_update_rule: str = "outer_product"
 
+    # ── Behavioral Timescale Synaptic Plasticity (BTSP) ─────────────────
+    # Augments the per-position Hebbian fast-weight update with a causal
+    # sequence-spanning eligibility trace.  At each thought tick, each
+    # position s receives extra potentiation from all prior positions τ≤s,
+    # weighted by an exponential decay kernel β^(s−τ) and the per-position
+    # salience (surprise).  This lets a salient event at position s
+    # instantly retro-potentiate associations formed earlier in the sequence
+    # — enabling true one-shot learning over temporal delays without
+    # backpropagation.
+    #
+    # Salience source: hebbian_cert_lr_alpha > 0 provides per-position
+    # surprise (1 + α·uncertainty).  When cert_lr_alpha=0, BTSP defaults to
+    # uniform salience (pure causal exponential MA of outer products).
+    #
+    # Requires use_hebbian_synapse=True.
+    use_btsp: bool = False
+    btsp_lr_init: float = 0.05          # Initial BTSP learning rate η_BTSP
+    btsp_kernel_decay_init: float = 0.9  # Initial kernel decay β (causal span)
+    btsp_salience_threshold: float = 0.0 # Φ threshold; 0 = continuous (no gate)
+
+    # ── Thalamic Multiplicative Gating ─────────────────────────────────────
+    # Intercepts cross-attention output and scales by an entropy-derived gain.
+    # Low entropy (focused attention) → gain ≈ 1 (signal passes).
+    # High entropy (diffuse/noisy attention) → gain ≈ 0 (state protected).
+    use_thalamic_gating: bool = False
+
     # ── Prospective Configuration ───────────────────────────────────────
     # Biologically motivated Expectation-Maximization (EM) training.
     # 
@@ -492,10 +541,19 @@ class CTMConfig:
     # (e.g. 1000) as inference relies on energy stabilization to terminate,
     # but provides a safety bound against floating point divergence.
     max_inference_steps: int = 1000
-    
+
     # Threshold for energy stabilization (tau). The inference loop terminates
     # when the relative change in FEEC energy drops below this value.
     inference_energy_tol: float = 1e-4
+
+    # ── BCM Sliding Threshold (metaplasticity for the EM loop) ─────────────
+    # Tracks EMA of mean squared latent magnitude during the inference phase.
+    # Penalizes the learning pass when z² exceeds the historical threshold,
+    # preventing runaway excitation and catastrophic forgetting.
+    # Only active when use_prospective_config=True.
+    use_bcm_threshold: bool = False
+    bcm_ema_decay: float = 0.99    # EMA smoothing for the sliding threshold
+    bcm_loss_weight: float = 0.1   # Weight on the homeostatic BCM penalty
     
     prospective_beta: float = 2.0           # [DEPRECATED]
     # Certainty-modulated learning rate ("neurochemical modulation"):
