@@ -64,9 +64,20 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --use_btsp \
     --use_prospective_config \
     --max_inference_steps 100 \
+    --use_amortized_inference \
+    --amortized_inference_steps 5 \
+    --amortized_aux_loss_weight 0.1 \
     --use_hierarchical_pc \
     --hpc_error_as_loss_weight \
+    --use_precision_neuromod \
+    --precision_neuromod_min_scale 0.2 \
+    --precision_neuromod_max_scale 5.0 \
     --use_sleep_consolidation \
+    --use_prioritized_replay \
+    --replay_fe_temperature 1.0 \
+    --use_schema_routing \
+    --schema_routing_temperature 0.1 \
+    --schema_routing_btsp_scale 2.0 \
     --use_structural_plasticity \
     --use_intrinsic_plasticity \
     --use_thalamic_gating \

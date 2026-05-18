@@ -585,6 +585,214 @@ class NeuroPlasticOptimizer:
 
 
 # ════════════════════════════════════════════════════════════════════════
+# Free-Energy Prioritized Replay Buffer
+# ════════════════════════════════════════════════════════════════════════
+
+class PrioritizedReplayBuffer:
+    """Episodic replay buffer with free-energy priority sampling.
+
+    Biological motivation
+    ---------------------
+    The hippocampus does not replay experiences uniformly during sleep.
+    It preferentially reactivates sequences that generated the highest
+    prediction errors (surprise) during waking — boundary events, novel
+    stimuli, and hard-to-learn patterns. Frequent, easy sequences are
+    largely ignored during consolidation.
+
+    Mechanism
+    ---------
+    Each stored episode carries a scalar priority = variational free
+    energy (or CE-loss proxy when HPC is inactive):
+
+        F_ℓ = 0.5 · π_ℓ · ‖ε_ℓ‖² − 0.5 · log(π_ℓ)
+
+    When the buffer is full, the incoming entry replaces the LOWEST-
+    priority incumbent (most-consolidated), keeping hard examples alive.
+
+    Sampling weights are proportional to priority, optionally sharpened
+    or flattened by a temperature τ:
+
+        w_i = softmax(F_i / τ)
+
+    τ=1   → direct softmax over raw FE (biological default)
+    τ→∞   → uniform sampling (degrades to original behavior)
+    τ→0   → greedy (always replay highest-FE episode)
+
+    Args:
+        maxsize:     Maximum number of episodes to retain.
+        temperature: Softmax temperature τ for sampling weights (default 1.0).
+    """
+
+    def __init__(self, maxsize: int, temperature: float = 1.0):
+        self._buf: list[tuple[float, torch.Tensor]] = []
+        self.maxsize = maxsize
+        self.temperature = max(float(temperature), 1e-6)
+
+    def push(self, priority: float, seq: torch.Tensor) -> None:
+        """Store an episode. When full, evicts the lowest-priority entry
+        if the new priority is higher; otherwise discards the new entry."""
+        priority = float(priority)
+        if len(self._buf) < self.maxsize:
+            self._buf.append((priority, seq))
+        else:
+            min_idx = min(range(len(self._buf)), key=lambda i: self._buf[i][0])
+            if priority > self._buf[min_idx][0]:
+                self._buf[min_idx] = (priority, seq)
+
+    def sample(self, n: int) -> list[torch.Tensor]:
+        """Sample n episodes proportionally to their priority (with replacement
+        if n > buffer size, otherwise without)."""
+        if not self._buf:
+            return []
+        n = min(n, len(self._buf))
+        scores = torch.tensor([s for s, _ in self._buf], dtype=torch.float32)
+        weights = torch.softmax(scores / self.temperature, dim=0)
+        replace = n > len(self._buf)
+        indices = torch.multinomial(weights, num_samples=n, replacement=replace)
+        return [self._buf[i][1] for i in indices.tolist()]
+
+    def __len__(self) -> int:
+        return len(self._buf)
+
+    @property
+    def mean_priority(self) -> float:
+        if not self._buf:
+            return 0.0
+        return sum(s for s, _ in self._buf) / len(self._buf)
+
+    @property
+    def max_priority(self) -> float:
+        if not self._buf:
+            return 0.0
+        return max(s for s, _ in self._buf)
+
+
+# ════════════════════════════════════════════════════════════════════════
+# Precision-Weighted Gradient Scaler
+# ════════════════════════════════════════════════════════════════════════
+
+class PrecisionWeightedGradientScaler:
+    """Per-layer gradient scaling based on local HPC precision weights.
+
+    Biological motivation
+    ---------------------
+    The LC-NE system gates plasticity locally: norepinephrine modulates
+    individual synapses in proportion to their precision trace (calcium
+    influx). Well-calibrated synapses (high precision, low error) are
+    protected from overwriting. Uncertain synapses (low precision, high
+    error) receive amplified updates.
+
+    In artificial terms: parameters of a thought layer with high HPC
+    precision π_ℓ > π_ref are scaled DOWN (stable schema — protect), while
+    parameters of low-precision layers (novel/uncertain) are scaled UP.
+
+    Mechanism
+    ---------
+    At each optimizer step, per-layer precision readings are EMA-smoothed
+    to produce stable π̄_ℓ.  The per-layer gradient multiplier is then:
+
+        scale_ℓ = clip(π_ref / π̄_ℓ, min_scale, max_scale)
+
+    where π_ref = mean(π̄_ℓ) across all active layers.
+
+    PC layer parameters are automatically excluded because their
+    local_loss already incorporates π_ℓ (via 0.5 * π_ℓ * ε_ℓ²), and
+    applying the inverse multiplier again would cancel it out.
+
+    Requires use_hierarchical_pc=True so per-layer precision is available.
+    """
+
+    def __init__(
+        self,
+        n_layers: int,
+        min_scale: float = 0.2,
+        max_scale: float = 5.0,
+        ema_decay: float = 0.95,
+    ):
+        self.n_layers = n_layers
+        self.min_scale = min_scale
+        self.max_scale = max_scale
+        self.ema_decay = ema_decay
+        self._precision_ema: list[float | None] = [None] * n_layers
+        self._last_scales: list[float] = [1.0] * n_layers
+
+    def update_and_scale(
+        self,
+        layers: list,
+        per_layer_precision: list[float],
+        excluded_param_ids: set | None = None,
+    ) -> list[float]:
+        """EMA-update precision estimates then apply per-layer gradient scaling.
+
+        Args:
+            layers:               ordered list of nn.Module thought layers
+                                  (from _get_layers_sequence())
+            per_layer_precision:  per-layer π scalars from HPC (same order)
+            excluded_param_ids:   set of id(param) to skip — typically the
+                                  PC generative-layer parameters whose local
+                                  loss already embeds precision weighting
+
+        Returns:
+            Applied per-layer scales (for logging).
+        """
+        n = min(len(per_layer_precision), len(layers), self.n_layers)
+
+        for i in range(n):
+            pi = float(per_layer_precision[i])
+            if self._precision_ema[i] is None:
+                self._precision_ema[i] = pi
+            else:
+                self._precision_ema[i] = (
+                    self.ema_decay * self._precision_ema[i]
+                    + (1.0 - self.ema_decay) * pi
+                )
+
+        active = [e for e in self._precision_ema[:n] if e is not None and e > 1e-8]
+        if not active:
+            return [1.0] * n
+
+        pi_ref = sum(active) / len(active)
+        excluded = excluded_param_ids or set()
+        seen = set()
+        scales: list[float] = []
+
+        for i in range(n):
+            pi_l = self._precision_ema[i]
+            if pi_l is None or pi_l < 1e-8:
+                scale = float(self.max_scale)
+            else:
+                scale = float(pi_ref) / float(pi_l)
+            scale = max(float(self.min_scale), min(float(self.max_scale), scale))
+            scales.append(scale)
+            self._last_scales[i] = scale
+
+            layer = layers[i]
+            lid = id(layer)
+            if lid in seen:
+                continue  # hyperloop: same module instance repeated — skip
+            seen.add(lid)
+
+            if abs(scale - 1.0) < 1e-6:
+                continue
+
+            for p in layer.parameters():
+                if p.grad is not None and id(p) not in excluded:
+                    p.grad.mul_(scale)
+
+        return scales
+
+    @property
+    def mean_scale(self) -> float:
+        """Mean absolute deviation of per-layer scales from 1.0 (for logging)."""
+        valid = [s for s in self._last_scales if s != 1.0]
+        return sum(valid) / len(valid) if valid else 1.0
+
+    @property
+    def precision_ema(self) -> list[float]:
+        return [e if e is not None else 0.0 for e in self._precision_ema]
+
+
+# ════════════════════════════════════════════════════════════════════════
 # Structural Plasticity Controller
 # ════════════════════════════════════════════════════════════════════════
 

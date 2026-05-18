@@ -1348,6 +1348,91 @@ class IntrinsicPlasticityLayer(nn.Module):
 # matrix_stream.py
 # ═════════════════════════════════════════════════════════════════════════
 
+class SchemaRouter(nn.Module):
+    """Cosine-similarity schema router for MatrixResidualStream.
+
+    Maintains per-stream EMA prototype vectors.  On each forward pass it
+    routes the incoming collapsed latent toward the most-similar schema
+    stream, enabling rapid schema-consistent assimilation while protecting
+    dissimilar streams from interference.
+
+    Routing weights are passed to MatrixResidualStream.mix_post so that
+    high-match streams receive a proportionally larger fraction of the new
+    layer output.  The returned max_similarity scalar can also boost the
+    Hebbian/BTSP lr_modulator in ThoughtLayer for the current tick.
+
+    Args:
+        n_streams:           Number of parallel residual streams.
+        d_latent:            Stream dimension.
+        ema_decay:           EMA decay for prototype update (per-batch).
+        temperature:         Softmax temperature (lower = winner-take-all).
+        novelty_threshold:   Max cosine-sim below this → caller may wake a
+                             dormant stream.
+    """
+
+    def __init__(
+        self,
+        n_streams: int,
+        d_latent: int,
+        ema_decay: float = 0.99,
+        temperature: float = 0.1,
+        novelty_threshold: float = 0.1,
+    ):
+        super().__init__()
+        self.n_streams = n_streams
+        self.d_latent = d_latent
+        self.ema_decay = ema_decay
+        self.temperature = max(float(temperature), 1e-6)
+        self.novelty_threshold = novelty_threshold
+        # Per-stream prototype (EMA of routed inputs).  Buffer so it's in
+        # state_dict and checkpoint-restored; not a Parameter (no grad).
+        self.register_buffer("prototypes", torch.zeros(n_streams, d_latent))
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        active_mask: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Args:
+            x:           [B, S, d_latent] — collapsed stream state (detached).
+            active_mask: [N] bool         — which streams are active.
+        Returns:
+            routing_weights: [B, S, N]  — softmax weights per stream.
+            max_similarity:  [B, S]     — max cosine-sim to any active stream.
+        """
+        B, S, D = x.shape
+        x_norm = F.normalize(x.float(), dim=-1)             # [B, S, D]
+        proto_norm = F.normalize(self.prototypes.float(), dim=-1)  # [N, D]
+        sims = torch.einsum("bsd,nd->bsn", x_norm, proto_norm)     # [B, S, N]
+
+        # Mask dormant streams: drive their similarity to -∞ so they get
+        # ≈0 routing weight but don't disturb the softmax of active ones.
+        mask_f = active_mask.float().view(1, 1, -1)                 # [1, 1, N]
+        masked_sims = sims + (1.0 - mask_f) * (-1e9)
+        routing_weights = F.softmax(
+            masked_sims / self.temperature, dim=-1
+        ).to(x.dtype)                                               # [B, S, N]
+
+        # Max similarity over active streams only
+        max_similarity = (sims * mask_f).max(dim=-1).values.to(x.dtype)  # [B, S]
+
+        # EMA prototype update (no grad, only during training)
+        if self.training:
+            with torch.no_grad():
+                rw = routing_weights.float().detach()
+                xd = x.float().detach()
+                total_weight = rw.sum(dim=(0, 1))                  # [N]
+                weighted_x = torch.einsum("bsn,bsd->nd", rw, xd)  # [N, D]
+                safe_count = total_weight.clamp(min=1e-8).unsqueeze(1)
+                batch_proto = weighted_x / safe_count              # [N, D]
+                self.prototypes.mul_(self.ema_decay).add_(
+                    batch_proto * (1.0 - self.ema_decay)
+                )
+
+        return routing_weights, max_similarity
+
+
 class ThalamicGate(nn.Module):
     """Thalamic Multiplicative Gating: entropy-based attention routing.
 
@@ -1417,6 +1502,10 @@ class MatrixResidualStream(nn.Module):
         n_streams: int = 4,
         d_model: int = 512,
         gating: str = "diagonal",
+        use_schema_routing: bool = False,
+        schema_routing_ema_decay: float = 0.99,
+        schema_routing_temperature: float = 0.1,
+        schema_routing_novelty_threshold: float = 0.1,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -1476,6 +1565,18 @@ class MatrixResidualStream(nn.Module):
         # Grows/prunes are driven externally by StructuralPlasticityController.
         self.register_buffer("active_mask", torch.ones(n_streams, dtype=torch.bool))
 
+        # ── Dynamic Schema Router (optional) ───────────────────────────
+        self.schema_router = (
+            SchemaRouter(
+                n_streams=n_streams,
+                d_latent=d_latent,
+                ema_decay=schema_routing_ema_decay,
+                temperature=schema_routing_temperature,
+                novelty_threshold=schema_routing_novelty_threshold,
+            ) if use_schema_routing else None
+        )
+        self._novelty_threshold = schema_routing_novelty_threshold
+
     def init_state(
         self,
         batch_size: int,
@@ -1532,6 +1633,7 @@ class MatrixResidualStream(nn.Module):
         self,
         stream: torch.Tensor,
         layer_output: torch.Tensor,
+        routing_weights: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Post-layer mixing with residual gating.
 
@@ -1541,8 +1643,11 @@ class MatrixResidualStream(nn.Module):
         learned gating.
 
         Args:
-            stream: [B, S, n_streams, d_latent] — pre-layer stream state
-            layer_output: [B, S, d_latent] — output from the thought layer
+            stream:          [B, S, n_streams, d_latent] — pre-layer stream state
+            layer_output:    [B, S, d_latent]            — output from the thought layer
+            routing_weights: [B, S, n_streams] or None   — schema-routing weights.
+                If provided, each stream receives a proportional share of
+                layer_output rather than the learned post_mix_proj mixing.
 
         Returns:
             updated: [B, S, n_streams, d_latent]
@@ -1553,14 +1658,19 @@ class MatrixResidualStream(nn.Module):
         # [B, S, D] → [B, S, 1, D] → broadcast to [B, S, N, D]
         expanded = layer_output.unsqueeze(2).expand_as(stream)
 
-        # Post-mixing weights (input-dependent)
-        mean_state = stream.mean(dim=2)  # [B, S, D]
-        mix_logits = self.post_mix_proj(mean_state)  # [B, S, N*N]
-        mix_logits = mix_logits.view(B, S, N, N)
-        mix_weights = F.softmax(mix_logits, dim=-1)
-
-        # Mix the expanded output across streams
-        new_content = torch.matmul(mix_weights, expanded)  # [B, S, N, D]
+        if routing_weights is not None:
+            # Schema routing: stream i gets routing_weights[..., i] fraction of
+            # the layer output.  High-match stream → nearly full update;
+            # low-match streams → protected from overwriting.
+            # routing_weights: [B, S, N] → [B, S, N, 1]
+            new_content = routing_weights.unsqueeze(-1) * expanded
+        else:
+            # Standard learned post-mixing
+            mean_state = stream.mean(dim=2)              # [B, S, D]
+            mix_logits = self.post_mix_proj(mean_state)  # [B, S, N*N]
+            mix_logits = mix_logits.view(B, S, N, N)
+            mix_weights = F.softmax(mix_logits, dim=-1)
+            new_content = torch.matmul(mix_weights, expanded)  # [B, S, N, D]
 
         # Residual gating: blend old stream with new content
         # gate ∈ (0, 1) via sigmoid; 0.5 at init (both contribute equally)
@@ -1573,6 +1683,27 @@ class MatrixResidualStream(nn.Module):
         updated = updated * self.active_mask.to(dtype=updated.dtype).view(1, 1, -1, 1)
 
         return updated
+
+    def maybe_activate_novel_stream(self, mean_max_similarity: float) -> int | None:
+        """Activate a dormant stream if mean_max_similarity is below the novelty threshold.
+
+        Called during training when the schema router reports that the current
+        batch does not match any existing schema.  Wakes the first dormant
+        stream slot so it can specialize on the novel concept.
+
+        Args:
+            mean_max_similarity: Scalar — mean over (B, S) of max cosine-sim.
+        Returns:
+            Index of the newly activated stream, or None if nothing was done.
+        """
+        if mean_max_similarity >= self._novelty_threshold:
+            return None
+        dormant = (~self.active_mask).nonzero(as_tuple=True)[0]
+        if len(dormant) == 0:
+            return None
+        idx = int(dormant[0].item())
+        self.activate_stream(idx)
+        return idx
 
     # ── Structural plasticity interface ─────────────────────────────────
 
@@ -1835,6 +1966,37 @@ class FEECIntegrator(nn.Module):
             f"dt=[{', '.join(f'{d:.3f}' for d in dts)}]"
         )
 
+class AmortizedInferenceNet(nn.Module):
+    """Single-pass prediction of the prospective configuration equilibrium state.
+
+    Maps text representations directly to an approximate z*, bypassing the
+    iterative inference loop.  After this warm-start, only a few relaxation
+    ticks are needed to reach the true fixed point instead of up to 1000.
+
+    Trained via an auxiliary MSE loss: MSE(z_hat, z*_detached), so the
+    network learns to match wherever the inference loop converges.
+    """
+
+    def __init__(self, d_model: int, d_latent: int, hidden_dim: int = 0):
+        super().__init__()
+        hidden = hidden_dim or (2 * d_model)
+        self.net = nn.Sequential(
+            nn.Linear(d_model, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, d_latent),
+            nn.LayerNorm(d_latent),
+        )
+
+    def forward(self, text_emb: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            text_emb: [B, S, d_model]
+        Returns:
+            z_hat:    [B, S, d_latent] predicted equilibrium latents
+        """
+        return self.net(text_emb)
+
+
 # ═════════════════════════════════════════════════════════════════════════
 # thought_layer.py
 # ═════════════════════════════════════════════════════════════════════════
@@ -2043,6 +2205,11 @@ class ThoughtLayer(nn.Module):
         ip_target: float = 0.1,
         ip_ema_decay: float = 0.99,
         use_thalamic_gating: bool = False,
+        use_schema_routing: bool = False,
+        schema_routing_ema_decay: float = 0.99,
+        schema_routing_temperature: float = 0.1,
+        schema_routing_novelty_threshold: float = 0.1,
+        schema_routing_btsp_scale: float = 2.0,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -2051,6 +2218,7 @@ class ThoughtLayer(nn.Module):
         self.use_matrix_streams = use_matrix_streams
         self.use_dssa = use_dssa
         self.use_triton_attention = use_triton_attention
+        self.schema_btsp_scale = schema_routing_btsp_scale if use_schema_routing else 0.0
 
         assert d_model % n_heads == 0, \
             f"d_model ({d_model}) must be divisible by n_heads ({n_heads})"
@@ -2063,6 +2231,10 @@ class ThoughtLayer(nn.Module):
                 n_streams=n_streams,
                 d_model=d_model,
                 gating=stream_gating,
+                use_schema_routing=use_schema_routing,
+                schema_routing_ema_decay=schema_routing_ema_decay,
+                schema_routing_temperature=schema_routing_temperature,
+                schema_routing_novelty_threshold=schema_routing_novelty_threshold,
             )
             # No sync_computer, nlm, or memory needed
             self.sync_computer = None
@@ -2354,9 +2526,30 @@ class ThoughtLayer(nn.Module):
         attn_flat = attn_out.reshape(BS, D)
 
         # ── Step 3: Synapse Model ───────────────────────────────────────
+        routing_weights = None
         if self.use_matrix_streams and self.stream is not None and stream_state is not None:
             collapsed = self.stream.collapse(stream_state)  # [B, S, d_latent]
             prev_flat = collapsed.reshape(BS, -1)
+
+            # ── Step 3.5: Schema routing ─────────────────────────────────
+            # Compute cosine-similarity routing before Hebbian so the match
+            # score can boost the current tick's lr_modulator.
+            if self.stream.schema_router is not None:
+                routing_weights, schema_max_sim = self.stream.schema_router(
+                    collapsed.detach(), self.stream.active_mask,
+                )
+                # Store sideband for novelty check in _thought_step
+                self.stream._last_max_similarity = (
+                    schema_max_sim.detach().mean().item()
+                )
+                # High match → boost Hebbian/BTSP LR for rapid assimilation
+                if self.schema_btsp_scale > 0:
+                    boost = 1.0 + self.schema_btsp_scale * schema_max_sim
+                    hebbian_lr_modulator = (
+                        hebbian_lr_modulator * boost
+                        if hebbian_lr_modulator is not None
+                        else boost
+                    )
         else:
             prev_flat = prev_state.reshape(BS, -1)
 
@@ -2397,9 +2590,11 @@ class ThoughtLayer(nn.Module):
                 pre_activations = self.ip_layer(pre_activations)
             post_activations = self.post_norm(pre_activations)
             new_state_flat = post_activations
-            # Update stream state
+            # Update stream state; pass routing_weights for schema-biased mixing
             layer_output = post_activations.reshape(B, S, -1)
-            new_stream_state = self.stream.mix_post(stream_state, layer_output)
+            new_stream_state = self.stream.mix_post(
+                stream_state, layer_output, routing_weights=routing_weights
+            )
         else:
             # v1 path: NLM processing
             self.memory.push_pre(pre_activations)
@@ -2521,6 +2716,11 @@ class CTMTransformer(nn.Module):
                 ip_target=getattr(config, "ip_target", 0.1),
                 ip_ema_decay=getattr(config, "ip_ema_decay", 0.99),
                 use_thalamic_gating=getattr(config, "use_thalamic_gating", False),
+                use_schema_routing=getattr(config, "use_schema_routing", False),
+                schema_routing_ema_decay=getattr(config, "schema_routing_ema_decay", 0.99),
+                schema_routing_temperature=getattr(config, "schema_routing_temperature", 0.1),
+                schema_routing_novelty_threshold=getattr(config, "schema_routing_novelty_threshold", 0.1),
+                schema_routing_btsp_scale=getattr(config, "schema_routing_btsp_scale", 2.0),
             )
 
         # ── Hyperloop or Standard Layer Construction ────────────────────
@@ -2789,6 +2989,18 @@ class CTMTransformer(nn.Module):
         else:
             self._bcm_threshold = None
 
+        # ── Amortized Inference Network ─────────────────────────────────
+        if (getattr(config, "use_amortized_inference", False)
+                and getattr(config, "use_prospective_config", False)):
+            amortized_hidden = getattr(config, "amortized_hidden_dim", 0) or (2 * config.d_model)
+            self.amortized_net = AmortizedInferenceNet(
+                d_model=config.d_model,
+                d_latent=config.d_latent,
+                hidden_dim=amortized_hidden,
+            )
+        else:
+            self.amortized_net = None
+
         self.apply(self._init_weights)
 
         # Re-apply Engram-specific inits
@@ -3023,6 +3235,25 @@ class CTMTransformer(nn.Module):
 
         z_new = layer_outputs[-1]
 
+        # ── Schema novelty: maybe wake a dormant stream ──────────────────
+        # After all layers have run, check whether the schema router on any
+        # layer is reporting consistently low max-similarity (novel input).
+        # If so, activate one dormant stream slot for that layer.
+        # Only fires during training; guarded with no_grad since activate_stream
+        # is a buffer mutation.
+        if self.training and getattr(self.config, "use_schema_routing", False):
+            with torch.no_grad():
+                seen_stream_ids: set[int] = set()
+                for layer in layers:
+                    if (layer.stream is None
+                            or layer.stream.schema_router is None
+                            or id(layer.stream) in seen_stream_ids):
+                        continue
+                    seen_stream_ids.add(id(layer.stream))
+                    last_sim = getattr(layer.stream, "_last_max_similarity", None)
+                    if last_sim is not None:
+                        layer.stream.maybe_activate_novel_stream(last_sim)
+
         # ── Hierarchical PC Inference Step ───────────────────────────────
         # After the standard forward pass produces per-layer μ values
         # (layer_outputs), run one PC inference iteration:
@@ -3113,6 +3344,12 @@ class CTMTransformer(nn.Module):
                 hpc_free_energy_t = self.pc_state_mgr.free_energy(
                     pc_errors, pc_precisions
                 )
+                # Per-layer precision scalars for precision-weighted gradient scaling.
+                # Stored on the model so forward() can publish them without
+                # expanding the _thought_step return tuple.
+                self._last_per_layer_precision = [
+                    float(p.mean().item()) for p in pc_precisions
+                ]
 
         # ── Output + Loss + Certainty (In-Loop) ─────────────────────────
         # In pure_pc_mode, we detach z_new before producing logits. This allows the 
@@ -3351,11 +3588,25 @@ class CTMTransformer(nn.Module):
         # If Prospective Configuration is active, we run the thought loop
         # purely as an inference process to find the equilibrium state \mu^*.
         # We wrap this in torch.no_grad() to save massive amounts of VRAM.
+        #
+        # Amortized inference: if use_amortized_inference is on, a lightweight
+        # feedforward network predicts z* in one pass and warm-starts z_curr,
+        # cutting required relaxation steps from O(1000) to O(5).
         if prospective_active:
-            if max_thought_steps is not None:
-                max_inference_steps = max_thought_steps
+            z_hat = None
+            if self.amortized_net is not None:
+                # Single-pass prediction of equilibrium state
+                z_hat = self.amortized_net(text_emb)  # [B, S, d_latent]
+                z_curr = z_hat.detach()               # warm-start inference loop
+                if max_thought_steps is not None:
+                    max_inference_steps = max_thought_steps
+                else:
+                    max_inference_steps = getattr(self.config, "amortized_inference_steps", 5)
             else:
-                max_inference_steps = getattr(self.config, "max_inference_steps", 1000)
+                if max_thought_steps is not None:
+                    max_inference_steps = max_thought_steps
+                else:
+                    max_inference_steps = getattr(self.config, "max_inference_steps", 1000)
             energy_tol = getattr(self.config, "inference_energy_tol", 1e-4)
 
             prev_certainty = None
@@ -3448,7 +3699,10 @@ class CTMTransformer(nn.Module):
              ce_loss_t, kl_loss_t, certainty_t, new_hebbian_states, pc_loss_t,
              _, hpc_local_loss_t, hpc_free_energy_t,
              _, _) = step_res_learn
-            
+
+            if hpc_free_energy_t is not None:
+                result["hpc_free_energy"] = hpc_free_energy_t.detach()
+
             loss = torch.tensor(0.0, device=device, dtype=dtype)
 
             # The local loss from the HPC layers represents the true prospective configuration gradient
@@ -3471,6 +3725,15 @@ class CTMTransformer(nn.Module):
                 result["bcm_loss"] = bcm_penalty.detach()
                 result["bcm_threshold"] = self._bcm_threshold.detach()
 
+            # Amortized auxiliary loss: train the inference network to predict z*.
+            # z_curr here is the equilibrium state discovered by Phase 1; we
+            # supervise z_hat toward it so the warm-start improves over training.
+            if z_hat is not None:
+                amortized_weight = getattr(self.config, "amortized_aux_loss_weight", 0.1)
+                amortized_loss = F.mse_loss(z_hat, z_curr.detach().to(z_hat.dtype))
+                loss = loss + amortized_weight * amortized_loss
+                result["amortized_loss"] = amortized_loss.detach()
+
             result["loss"] = loss
             if logits_t is not None:
                 result["logits"] = logits_t
@@ -3480,9 +3743,10 @@ class CTMTransformer(nn.Module):
             all_logits = []
             all_certainties = []
             per_tick_ce_losses = []
-            
+            all_hpc_fe: list = []
+
             prev_certainty = None
-            
+
             for t in range(T):
                 if use_per_step_ckpt:
                     step_res = torch_checkpoint.checkpoint(
@@ -3517,6 +3781,8 @@ class CTMTransformer(nn.Module):
                 
                 if new_hebbian_states and any(h is not None for h in new_hebbian_states):
                     hebbian_states_curr = new_hebbian_states
+                if hpc_free_energy_t is not None:
+                    all_hpc_fe.append(hpc_free_energy_t.detach())
 
             if per_tick_ce_losses:
                 per_tick_loss_tensor = torch.stack(per_tick_ce_losses)
@@ -3526,6 +3792,8 @@ class CTMTransformer(nn.Module):
                 result["all_logits"] = all_logits
             if all_certainties:
                 result["certainties"] = torch.stack(all_certainties, dim=0)
+            if all_hpc_fe:
+                result["hpc_free_energy"] = torch.stack(all_hpc_fe).mean()
 
         # ── Update cross-batch Hebbian carry-over (sleep consolidation) ──
         # Persist the mean fast-weight state across batches so the next
@@ -3556,6 +3824,12 @@ class CTMTransformer(nn.Module):
                 norms = [c.norm().item() for c in carry if c is not None]
                 if norms:
                     result["hebbian_carry_norm"] = sum(norms) / len(norms)
+
+        # Expose per-layer HPC precision for precision-weighted gradient scaling.
+        # Updated by _thought_step whenever HPC layers are active; available in
+        # both prospective-config and BPTT paths (reflects the final thought tick).
+        if hasattr(self, "_last_per_layer_precision"):
+            result["hpc_per_layer_precision"] = list(self._last_per_layer_precision)
 
         return result
 

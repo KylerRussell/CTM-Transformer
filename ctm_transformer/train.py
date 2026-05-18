@@ -33,7 +33,12 @@ from torch.utils.data import IterableDataset, get_worker_info
 # CTMConfig stays in config.py (unchanged).
 from ctm_transformer.config import CTMConfig
 from ctm_transformer.model import CTMTransformer
-from ctm_transformer.biological import NeuroPlasticOptimizer, StructuralPlasticityController
+from ctm_transformer.biological import (
+    NeuroPlasticOptimizer,
+    PrecisionWeightedGradientScaler,
+    PrioritizedReplayBuffer,
+    StructuralPlasticityController,
+)
 from ctm_transformer.validation import (
     compute_validation_metrics,
     compute_validation_metrics_t_sweep,
@@ -1557,10 +1562,17 @@ def train(
     if use_sleep and not getattr(config, "use_hebbian_synapse", False):
         print("[Sleep] WARNING: use_sleep_consolidation=True but "
               "use_hebbian_synapse=False — carry-over will be a no-op.")
-    episodic_buffer: deque | None = (
-        deque(maxlen=getattr(config, "sleep_buffer_size", 32))
-        if use_sleep else None
-    )
+    _sleep_buf_size = getattr(config, "sleep_buffer_size", 32)
+    _use_pri_replay = getattr(config, "use_prioritized_replay", False)
+    if use_sleep and _use_pri_replay:
+        episodic_buffer: PrioritizedReplayBuffer | None = PrioritizedReplayBuffer(
+            maxsize=_sleep_buf_size,
+            temperature=getattr(config, "replay_fe_temperature", 1.0),
+        )
+    elif use_sleep:
+        episodic_buffer: deque | None = deque(maxlen=_sleep_buf_size)
+    else:
+        episodic_buffer = None
     sleep_interval = getattr(config, "sleep_interval", 100)
     sleep_replay_steps = getattr(config, "sleep_replay_steps", 4)
 
@@ -1577,6 +1589,17 @@ def train(
             min_active=getattr(config, "plasticity_min_active", 1),
         )
         if getattr(config, "use_structural_plasticity", False) and _stream_layers else None
+    )
+
+    # ── Precision-weighted gradient scaler ────────────────────────────────
+    precision_scaler: PrecisionWeightedGradientScaler | None = (
+        PrecisionWeightedGradientScaler(
+            n_layers=_raw._effective_n_layers,
+            min_scale=getattr(config, "precision_neuromod_min_scale", 0.2),
+            max_scale=getattr(config, "precision_neuromod_max_scale", 5.0),
+            ema_decay=getattr(config, "precision_neuromod_ema_decay", 0.95),
+        )
+        if getattr(config, "use_precision_neuromod", False) else None
     )
 
     # Gradient accumulation: we run `accum_steps` micro-batches per optimizer
@@ -1808,6 +1831,20 @@ def train(
             # Average loss across the accumulation window for logging
             loss_for_log = accum_loss / accum_steps
 
+            # ── Precision-weighted gradient scaling ──────────────────────
+            # Scale per-layer gradients by π_ref/π̄_ℓ (after all accumulation
+            # backward passes, before grad clip so clip still caps the norm).
+            if precision_scaler is not None and last_result is not None:
+                per_layer_prec = last_result.get("hpc_per_layer_precision")
+                if per_layer_prec is not None:
+                    thought_layers = _raw._get_layers_sequence()
+                    pc_param_ids: set = set()
+                    if _raw.pc_layers is not None:
+                        pc_param_ids = {id(p) for p in _raw.pc_layers.parameters()}
+                    precision_scaler.update_and_scale(
+                        thought_layers, per_layer_prec, pc_param_ids
+                    )
+
             with timer("grad_clip"):
                 if config.grad_clip > 0:
                     grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
@@ -1834,7 +1871,15 @@ def train(
             # We take x[0] (the first sequence of the last micro-batch)
             # to keep memory cost proportional to sleep_buffer_size * S.
             if episodic_buffer is not None:
-                episodic_buffer.append(x[0].detach().cpu())
+                if isinstance(episodic_buffer, PrioritizedReplayBuffer):
+                    # Priority = variational free energy (or CE loss as proxy)
+                    _fe = last_result.get("hpc_free_energy") if last_result is not None else None
+                    if _fe is None and last_result is not None:
+                        _fe = last_result.get("loss")
+                    _fe_val = float(_fe.item()) if _fe is not None and torch.is_tensor(_fe) else float(_fe or 0.0)
+                    episodic_buffer.push(_fe_val, x[0].detach().cpu())
+                else:
+                    episodic_buffer.append(x[0].detach().cpu())
 
         # ── Sleep micro-cycle ────────────────────────────────────────────
         # Triggered every sleep_interval steps once the buffer has at
@@ -1853,7 +1898,10 @@ def train(
                     o.zero_grad(set_to_none=True)
                 # Sample replay batch from the episodic buffer
                 n_replay = min(config.batch_size, len(episodic_buffer))
-                sampled = random.sample(list(episodic_buffer), n_replay)
+                if isinstance(episodic_buffer, PrioritizedReplayBuffer):
+                    sampled = episodic_buffer.sample(n_replay)
+                else:
+                    sampled = random.sample(list(episodic_buffer), n_replay)
                 x_replay = torch.stack(sampled, dim=0).to(device)
                 y_replay = torch.cat([x_replay[:, 1:], x_replay[:, :1]], dim=1)
                 with torch.amp.autocast(device_type=device_type,
@@ -1871,7 +1919,10 @@ def train(
                     f"  [Sleep] step {step}: {sleep_replay_steps} replay passes "
                     f"over {len(episodic_buffer)} episodes "
                     f"| sleep_loss {(sleep_result.get('loss', torch.tensor(0.0)).item() * sleep_loss_weight):.4f} "
-                    f"| |M_carry| {carry_norm:.4f}",
+                    f"| |M_carry| {carry_norm:.4f}"
+                    + (f" | mean_FE {episodic_buffer.mean_priority:.4f}"
+                       f" | max_FE {episodic_buffer.max_priority:.4f}"
+                       if isinstance(episodic_buffer, PrioritizedReplayBuffer) else ""),
                     flush=True,
                 )
 
@@ -1939,6 +1990,10 @@ def train(
                 bio_str += f" | dist {dl_v:.3f}"
             if "inference_steps" in result:
                 bio_str += f" | inf_steps {result['inference_steps']}"
+            if "amortized_loss" in result:
+                bio_str += f" | amort {result['amortized_loss'].item():.4f}"
+            if precision_scaler is not None and result.get("hpc_per_layer_precision") is not None:
+                bio_str += f" | π_scale {precision_scaler.mean_scale:.3f}"
             for _o in optimizers:
                 if isinstance(_o, NeuroPlasticOptimizer) and _o.alpha > 0:
                     bio_str += f" | NE {_o.current_scale:.3f}"
@@ -1966,6 +2021,15 @@ def train(
                 bio_str += f" | bcm {result['bcm_loss'].item():.4f}"
             if "bcm_threshold" in result:
                 bio_str += f" | θ_M {result['bcm_threshold'].item():.3f}"
+            if getattr(config, "use_schema_routing", False) and _stream_layers:
+                sim_vals = [
+                    getattr(layer.stream, "_last_max_similarity", None)
+                    for layer in _stream_layers
+                    if layer.stream is not None and layer.stream.schema_router is not None
+                ]
+                sim_vals = [v for v in sim_vals if v is not None]
+                if sim_vals:
+                    bio_str += f" | schema {sum(sim_vals)/len(sim_vals):.3f}"
 
             # Prospective Configuration uses a simplified log format
             # (no per-tick breakdown since the inference loop runs
@@ -2465,6 +2529,16 @@ def parse_args():
                            help="Consolidation gradient steps per sleep cycle.")
     bio_group.add_argument("--sleep_loss_weight", type=float, default=0.3,
                            help="Scale factor applied to the consolidation loss.")
+    bio_group.add_argument("--use_prioritized_replay", action="store_true",
+                           help="Replace uniform episodic replay with Free-Energy Prioritized "
+                                "Episodic Replay. Sequences with higher variational free energy "
+                                "(or CE loss as proxy) are retained preferentially and sampled "
+                                "proportionally via softmax weighting. Requires "
+                                "--use_sleep_consolidation.")
+    bio_group.add_argument("--replay_fe_temperature", type=float, default=1.0,
+                           help="Softmax temperature for priority-weighted replay sampling. "
+                                "Lower → sharper focus on highest-FE episodes; "
+                                "higher → closer to uniform. Default 1.0.")
     bio_group.add_argument("--hebbian_update_rule", type=str, default="outer_product",
                            choices=["outer_product", "delta"],
                            help="Hebbian fast-weight update rule. "
@@ -2551,6 +2625,17 @@ def parse_args():
     bio_group.add_argument("--bcm_ema_decay", type=float, default=0.99,
                            help="EMA decay for the BCM sliding threshold. "
                                 "Higher = slower adaptation to changes in latent magnitude.")
+    bio_group.add_argument("--use_precision_neuromod", action="store_true",
+                           help="Precision-Weighted Gradient Scaling: scale per-layer "
+                                "gradients by π_ref/π_ℓ so high-precision (well-learned) "
+                                "layers are protected and low-precision layers amplified. "
+                                "Requires --use_hierarchical_pc.")
+    bio_group.add_argument("--precision_neuromod_min_scale", type=float, default=0.2,
+                           help="Floor for per-layer gradient scale (default 0.2).")
+    bio_group.add_argument("--precision_neuromod_max_scale", type=float, default=5.0,
+                           help="Ceiling for per-layer gradient scale (default 5.0).")
+    bio_group.add_argument("--precision_neuromod_ema_decay", type=float, default=0.95,
+                           help="EMA decay for per-layer precision smoothing (default 0.95).")
     bio_group.add_argument("--bcm_loss_weight", type=float, default=0.1,
                            help="Weight of the BCM homeostatic penalty in the learning-phase loss.")
 
@@ -2568,6 +2653,27 @@ def parse_args():
     bio_group.add_argument("--plasticity_min_active", type=int, default=1,
                            help="Minimum stream slots to keep active per layer.")
 
+    bio_group.add_argument("--use_schema_routing", action="store_true",
+                           help="Dynamic Schema Routing: routes incoming latents to the "
+                                "most cosine-similar MatrixResidualStream slot using "
+                                "per-stream EMA prototypes. High-match streams receive a "
+                                "larger update share (fast assimilation); novel inputs "
+                                "can wake a dormant stream. Also boosts Hebbian/BTSP "
+                                "lr_modulator on matched ticks. "
+                                "Requires --use_matrix_streams.")
+    bio_group.add_argument("--schema_routing_ema_decay", type=float, default=0.99,
+                           help="EMA decay for per-stream prototype update. "
+                                "Higher = slower prototype drift (default 0.99).")
+    bio_group.add_argument("--schema_routing_temperature", type=float, default=0.1,
+                           help="Softmax temperature for routing weights. "
+                                "Lower = winner-take-all; higher ≈ uniform (default 0.1).")
+    bio_group.add_argument("--schema_routing_novelty_threshold", type=float, default=0.1,
+                           help="Max cosine-sim below this → attempt to wake a dormant "
+                                "stream for the novel concept (default 0.1).")
+    bio_group.add_argument("--schema_routing_btsp_scale", type=float, default=2.0,
+                           help="Hebbian/BTSP lr_modulator boost at full schema match. "
+                                "lr *= (1 + scale * max_sim) (default 2.0).")
+
     bio_group.add_argument("--use_prospective_config", action="store_true",
                            help="Prospective Configuration: Expectation-Maximization "
                                 "training separating inference and learning phases. "
@@ -2577,6 +2683,19 @@ def parse_args():
     bio_group.add_argument("--inference_energy_tol", type=float, default=1e-4,
                            help="Threshold for energy stabilization (tau) to terminate "
                                 "the inference loop.")
+    bio_group.add_argument("--use_amortized_inference", action="store_true",
+                           help="Amortized Inference: warm-start the inference loop with "
+                                "a single-pass feedforward prediction of z*, reducing "
+                                "required relaxation steps from O(1000) to "
+                                "amortized_inference_steps. Requires --use_prospective_config.")
+    bio_group.add_argument("--amortized_inference_steps", type=int, default=5,
+                           help="Relaxation steps after amortized warm-start (default 5). "
+                                "Only used when --use_amortized_inference is set.")
+    bio_group.add_argument("--amortized_hidden_dim", type=int, default=0,
+                           help="Hidden dim of the amortized inference MLP. 0 → auto (2×d_model).")
+    bio_group.add_argument("--amortized_aux_loss_weight", type=float, default=0.1,
+                           help="Weight on the MSE(z_hat, z*) auxiliary loss that trains "
+                                "the amortized inference network.")
 
     bio_group.add_argument("--use_predictive_coding", action="store_true",
                            help="Attach a per-tick 'cerebellar' readout that predicts "
@@ -2752,6 +2871,10 @@ def main():
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
+        use_amortized_inference=args.use_amortized_inference,
+        amortized_inference_steps=args.amortized_inference_steps,
+        amortized_hidden_dim=args.amortized_hidden_dim,
+        amortized_aux_loss_weight=args.amortized_aux_loss_weight,
         use_predictive_coding=args.use_predictive_coding,
         pc_loss_weight=args.pc_loss_weight,
         pc_hidden_dim=args.pc_hidden_dim,
@@ -2773,6 +2896,8 @@ def main():
         sleep_buffer_size=args.sleep_buffer_size,
         sleep_replay_steps=args.sleep_replay_steps,
         sleep_loss_weight=args.sleep_loss_weight,
+        use_prioritized_replay=args.use_prioritized_replay,
+        replay_fe_temperature=args.replay_fe_temperature,
         use_neuromod_optimizer=args.use_neuromod_optimizer,
         neuromod_alpha=args.neuromod_alpha,
         neuromod_min_scale=args.neuromod_min_scale,
@@ -2786,6 +2911,15 @@ def main():
         use_bcm_threshold=args.use_bcm_threshold,
         bcm_ema_decay=args.bcm_ema_decay,
         bcm_loss_weight=args.bcm_loss_weight,
+        use_precision_neuromod=args.use_precision_neuromod,
+        precision_neuromod_min_scale=args.precision_neuromod_min_scale,
+        precision_neuromod_max_scale=args.precision_neuromod_max_scale,
+        precision_neuromod_ema_decay=args.precision_neuromod_ema_decay,
+        use_schema_routing=args.use_schema_routing,
+        schema_routing_ema_decay=args.schema_routing_ema_decay,
+        schema_routing_temperature=args.schema_routing_temperature,
+        schema_routing_novelty_threshold=args.schema_routing_novelty_threshold,
+        schema_routing_btsp_scale=args.schema_routing_btsp_scale,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,
         plasticity_grow_threshold=args.plasticity_grow_threshold,
@@ -2909,6 +3043,17 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
             min_active=getattr(config, "plasticity_min_active", 1),
         )
         if getattr(config, "use_structural_plasticity", False) and _stream_layers else None
+    )
+
+    # ── Precision-weighted gradient scaler ────────────────────────────────
+    precision_scaler: PrecisionWeightedGradientScaler | None = (
+        PrecisionWeightedGradientScaler(
+            n_layers=model._effective_n_layers,
+            min_scale=getattr(config, "precision_neuromod_min_scale", 0.2),
+            max_scale=getattr(config, "precision_neuromod_max_scale", 5.0),
+            ema_decay=getattr(config, "precision_neuromod_ema_decay", 0.95),
+        )
+        if getattr(config, "use_precision_neuromod", False) else None
     )
 
     # ── Data ─────────────────────────────────────────────────────────
@@ -3084,6 +3229,18 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                         for g, u in zip(grads, torch._utils._unflatten_dense_tensors(flat_grads, grads)):
                             g.copy_(u)
 
+                # ── Precision-weighted gradient scaling ──────────────────────
+                if precision_scaler is not None:
+                    per_layer_prec = result.get("hpc_per_layer_precision")
+                    if per_layer_prec is not None:
+                        thought_layers = model._get_layers_sequence()
+                        pc_param_ids: set = set()
+                        if model.pc_layers is not None:
+                            pc_param_ids = {id(p) for p in model.pc_layers.parameters()}
+                        precision_scaler.update_and_scale(
+                            thought_layers, per_layer_prec, pc_param_ids
+                        )
+
                 # ── Gradient clipping ────────────────────────────────────────
                 with timer("grad_clip"):
                     last_grad_norm = torch.nn.utils.clip_grad_norm_(
@@ -3200,6 +3357,10 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 bio_str += f" | dist {dl_v:.3f}"
             if "inference_steps" in result:
                 bio_str += f" | inf_steps {result['inference_steps']}"
+            if "amortized_loss" in result:
+                bio_str += f" | amort {result['amortized_loss'].item():.4f}"
+            if precision_scaler is not None and result.get("hpc_per_layer_precision") is not None:
+                bio_str += f" | π_scale {precision_scaler.mean_scale:.3f}"
             if isinstance(optimizer, NeuroPlasticOptimizer) and optimizer.alpha > 0:
                 bio_str += f" | NE {optimizer.current_scale:.3f}"
             if plasticity is not None and _stream_layers:
@@ -3225,6 +3386,15 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 bio_str += f" | bcm {result['bcm_loss'].item():.4f}"
             if "bcm_threshold" in result:
                 bio_str += f" | θ_M {result['bcm_threshold'].item():.3f}"
+            if getattr(config, "use_schema_routing", False) and _stream_layers:
+                sim_vals = [
+                    getattr(layer.stream, "_last_max_similarity", None)
+                    for layer in _stream_layers
+                    if layer.stream is not None and layer.stream.schema_router is not None
+                ]
+                sim_vals = [v for v in sim_vals if v is not None]
+                if sim_vals:
+                    bio_str += f" | schema {sum(sim_vals)/len(sim_vals):.3f}"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -3390,6 +3560,10 @@ def main_multi_gpu():
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
+        use_amortized_inference=args.use_amortized_inference,
+        amortized_inference_steps=args.amortized_inference_steps,
+        amortized_hidden_dim=args.amortized_hidden_dim,
+        amortized_aux_loss_weight=args.amortized_aux_loss_weight,
         use_predictive_coding=args.use_predictive_coding,
         pc_loss_weight=args.pc_loss_weight,
         pc_hidden_dim=args.pc_hidden_dim,
@@ -3411,6 +3585,8 @@ def main_multi_gpu():
         sleep_buffer_size=args.sleep_buffer_size,
         sleep_replay_steps=args.sleep_replay_steps,
         sleep_loss_weight=args.sleep_loss_weight,
+        use_prioritized_replay=args.use_prioritized_replay,
+        replay_fe_temperature=args.replay_fe_temperature,
         use_neuromod_optimizer=args.use_neuromod_optimizer,
         neuromod_alpha=args.neuromod_alpha,
         neuromod_min_scale=args.neuromod_min_scale,
@@ -3424,6 +3600,15 @@ def main_multi_gpu():
         use_bcm_threshold=args.use_bcm_threshold,
         bcm_ema_decay=args.bcm_ema_decay,
         bcm_loss_weight=args.bcm_loss_weight,
+        use_precision_neuromod=args.use_precision_neuromod,
+        precision_neuromod_min_scale=args.precision_neuromod_min_scale,
+        precision_neuromod_max_scale=args.precision_neuromod_max_scale,
+        precision_neuromod_ema_decay=args.precision_neuromod_ema_decay,
+        use_schema_routing=args.use_schema_routing,
+        schema_routing_ema_decay=args.schema_routing_ema_decay,
+        schema_routing_temperature=args.schema_routing_temperature,
+        schema_routing_novelty_threshold=args.schema_routing_novelty_threshold,
+        schema_routing_btsp_scale=args.schema_routing_btsp_scale,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,
         plasticity_grow_threshold=args.plasticity_grow_threshold,

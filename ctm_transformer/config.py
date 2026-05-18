@@ -184,6 +184,19 @@ class CTMConfig:
     plasticity_update_interval: int = 500      # Steps between grow/prune evaluations
     plasticity_min_active: int = 1             # Min stream slots to keep per layer
 
+    # ── Dynamic Schema Routing ────────────────────────────────────────────
+    # Routes latents to the most-similar MatrixResidualStream slot via cosine
+    # similarity matching against per-stream EMA prototypes.  Schema-matched
+    # streams receive a larger share of the layer update (fast assimilation);
+    # novel inputs can wake a dormant stream rather than overwriting an active
+    # schema.  Augments the Hebbian/BTSP lr_modulator for matched schemas.
+    # Requires use_matrix_streams=True.
+    use_schema_routing: bool = False
+    schema_routing_ema_decay: float = 0.99      # EMA decay for prototype update
+    schema_routing_temperature: float = 0.1     # Softmax temperature (lower = sharper)
+    schema_routing_novelty_threshold: float = 0.1  # Max-sim below this → try wake dormant
+    schema_routing_btsp_scale: float = 2.0      # Hebbian/BTSP LR boost at full match
+
     # ── Training ────────────────────────────────────────────────────────
     batch_size: int = 4
     learning_rate: float = 3e-4
@@ -546,6 +559,18 @@ class CTMConfig:
     # when the relative change in FEEC energy drops below this value.
     inference_energy_tol: float = 1e-4
 
+    # ── Amortized Inference ─────────────────────────────────────────────────
+    # Single-pass prediction of the prospective configuration equilibrium state.
+    # A lightweight feedforward network q(z*|x) maps text_emb → z_hat, which
+    # warm-starts the inference loop near the true equilibrium. This reduces
+    # the required relaxation steps from O(1000) → amortized_inference_steps.
+    # An auxiliary MSE loss trains the network to match the discovered z*.
+    # Only meaningful when use_prospective_config=True.
+    use_amortized_inference: bool = False
+    amortized_inference_steps: int = 5      # relaxation steps after warm-start
+    amortized_hidden_dim: int = 0           # 0 → auto (2 × d_model)
+    amortized_aux_loss_weight: float = 0.1  # weight on MSE(z_hat, z*) auxiliary loss
+
     # ── BCM Sliding Threshold (metaplasticity for the EM loop) ─────────────
     # Tracks EMA of mean squared latent magnitude during the inference phase.
     # Penalizes the learning pass when z² exceeds the historical threshold,
@@ -554,7 +579,23 @@ class CTMConfig:
     use_bcm_threshold: bool = False
     bcm_ema_decay: float = 0.99    # EMA smoothing for the sliding threshold
     bcm_loss_weight: float = 0.1   # Weight on the homeostatic BCM penalty
-    
+
+    # ── Precision-Weighted Gradient Scaling (Priority #2) ─────────────────
+    # Applies per-layer gradient multipliers derived from HPC precision π_ℓ.
+    # High-precision layers (well-learned schemas) are scaled DOWN to protect
+    # consolidated knowledge. Low-precision layers are scaled UP for amplified
+    # learning on novel/uncertain inputs.
+    #
+    #   scale_ℓ = clip(π_ref / π̄_ℓ, min_scale, max_scale)
+    #
+    # PC layer parameters are excluded since their local_loss already
+    # incorporates π_ℓ (0.5 * π_ℓ * ε_ℓ²).
+    # Requires use_hierarchical_pc=True.
+    use_precision_neuromod: bool = False
+    precision_neuromod_min_scale: float = 0.2   # floor for per-layer gradient multiplier
+    precision_neuromod_max_scale: float = 5.0   # ceiling for per-layer gradient multiplier
+    precision_neuromod_ema_decay: float = 0.95  # EMA smoothing of per-layer π readings
+
     prospective_beta: float = 2.0           # [DEPRECATED]
     # Certainty-modulated learning rate ("neurochemical modulation"):
     # When > 0, the Hebbian outer-product update is scaled per-position
@@ -593,6 +634,16 @@ class CTMConfig:
     sleep_buffer_size: int = 32      # Max sequences retained in episodic cache
     sleep_replay_steps: int = 4      # Consolidation gradient steps per sleep cycle
     sleep_loss_weight: float = 0.3   # Scale factor applied to consolidation loss
+
+    # ── Free-Energy Prioritized Episodic Replay (Priority #3) ─────────────
+    # Upgrades the uniform-random sleep replay to hippocampal-style priority
+    # replay: high-free-energy (hard/surprising) episodes are replayed more
+    # often; low-FE (fully consolidated) episodes are evicted when the buffer
+    # fills.  Priority = hpc_free_energy when HPC is active; CE loss otherwise.
+    #
+    # Requires use_sleep_consolidation=True.
+    use_prioritized_replay: bool = False
+    replay_fe_temperature: float = 1.0  # softmax temperature τ for sampling weights
 
     # 2) Predictive Coding via temporal hierarchy.
     #    A per-tick "cerebellar" readout predicts the teacher's hidden
