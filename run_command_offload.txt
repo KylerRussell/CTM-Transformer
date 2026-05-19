@@ -78,6 +78,7 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --use_schema_routing \
     --schema_routing_temperature 0.1 \
     --schema_routing_btsp_scale 2.0 \
+    --hebbian_n_compartments 4 \
     --use_structural_plasticity \
     --use_intrinsic_plasticity \
     --use_thalamic_gating \

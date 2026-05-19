@@ -480,6 +480,7 @@ class CTMConfig:
     #      bottleneck_dim=0   →  full d_latent × d_model (very expensive)
     use_hebbian_synapse: bool = False
     hebbian_bottleneck_dim: int = 64        # 0 → no bottleneck (full matrix)
+    hebbian_n_compartments: int = 1         # >1 → dendritic compartmentalization
     hebbian_decay_init: float = 0.9         # Persistence of M across ticks
     hebbian_lr_init: float = 0.1            # Outer-product update magnitude
     hebbian_gate_init: float = -3.0         # Logit; -3 ≈ 5% initial readout

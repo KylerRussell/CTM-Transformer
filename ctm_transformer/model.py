@@ -2210,6 +2210,7 @@ class ThoughtLayer(nn.Module):
         schema_routing_temperature: float = 0.1,
         schema_routing_novelty_threshold: float = 0.1,
         schema_routing_btsp_scale: float = 2.0,
+        hebbian_n_compartments: int = 1,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -2342,6 +2343,7 @@ class ThoughtLayer(nn.Module):
                 btsp_lr_init=btsp_lr_init,
                 btsp_kernel_decay_init=btsp_kernel_decay_init,
                 btsp_salience_threshold=btsp_salience_threshold,
+                n_compartments=hebbian_n_compartments,
             )
         else:
             self.hebbian = None
@@ -2721,6 +2723,7 @@ class CTMTransformer(nn.Module):
                 schema_routing_temperature=getattr(config, "schema_routing_temperature", 0.1),
                 schema_routing_novelty_threshold=getattr(config, "schema_routing_novelty_threshold", 0.1),
                 schema_routing_btsp_scale=getattr(config, "schema_routing_btsp_scale", 2.0),
+                hebbian_n_compartments=getattr(config, "hebbian_n_compartments", 1),
             )
 
         # ── Hyperloop or Standard Layer Construction ────────────────────
@@ -3517,10 +3520,10 @@ class CTMTransformer(nn.Module):
                     if (use_carry
                             and i < len(self._hebbian_carry)
                             and self._hebbian_carry[i] is not None):
-                        # Expand mean carry-over [m, n] → [B, S, m, n]
+                        # Expand mean carry-over [...] → [B, S, ...] (works for flat [m,n] and compartmentalized [K,m_k,m_k])
                         carry = self._hebbian_carry[i].to(device=device, dtype=dtype)
                         hebbian_states.append(
-                            carry.unsqueeze(0).unsqueeze(0).expand(B, S, -1, -1).clone()
+                            carry.unsqueeze(0).unsqueeze(0).expand(B, S, *[-1] * carry.ndim).clone()
                         )
                     else:
                         hebbian_states.append(layer.hebbian.init_state(B, S, device, dtype))

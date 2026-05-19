@@ -2030,6 +2030,14 @@ def train(
                 sim_vals = [v for v in sim_vals if v is not None]
                 if sim_vals:
                     bio_str += f" | schema {sum(sim_vals)/len(sim_vals):.3f}"
+            if getattr(config, "hebbian_n_compartments", 1) > 1 and _stream_layers:
+                plat_vals = [
+                    torch.sigmoid(layer.hebbian.plateau_gate_logit).mean().item()
+                    for layer in _stream_layers
+                    if layer.hebbian is not None and layer.hebbian.is_compartmentalized
+                ]
+                if plat_vals:
+                    bio_str += f" | plat {sum(plat_vals)/len(plat_vals):.3f}"
 
             # Prospective Configuration uses a simplified log format
             # (no per-tick breakdown since the inference loop runs
@@ -2673,6 +2681,11 @@ def parse_args():
     bio_group.add_argument("--schema_routing_btsp_scale", type=float, default=2.0,
                            help="Hebbian/BTSP lr_modulator boost at full schema match. "
                                 "lr *= (1 + scale * max_sim) (default 2.0).")
+    bio_group.add_argument("--hebbian_n_compartments", type=int, default=1,
+                           help="Number of dendritic compartments in HebbianSynapse. "
+                                ">1 partitions the bottleneck into K independent branches "
+                                "with per-compartment decay, LR, and plateau gating. "
+                                "Must divide hebbian_bottleneck_dim evenly (default 1 = flat).")
 
     bio_group.add_argument("--use_prospective_config", action="store_true",
                            help="Prospective Configuration: Expectation-Maximization "
@@ -2920,6 +2933,7 @@ def main():
         schema_routing_temperature=args.schema_routing_temperature,
         schema_routing_novelty_threshold=args.schema_routing_novelty_threshold,
         schema_routing_btsp_scale=args.schema_routing_btsp_scale,
+        hebbian_n_compartments=args.hebbian_n_compartments,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,
         plasticity_grow_threshold=args.plasticity_grow_threshold,
@@ -3395,6 +3409,14 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 sim_vals = [v for v in sim_vals if v is not None]
                 if sim_vals:
                     bio_str += f" | schema {sum(sim_vals)/len(sim_vals):.3f}"
+            if getattr(config, "hebbian_n_compartments", 1) > 1 and _stream_layers:
+                plat_vals = [
+                    torch.sigmoid(layer.hebbian.plateau_gate_logit).mean().item()
+                    for layer in _stream_layers
+                    if layer.hebbian is not None and layer.hebbian.is_compartmentalized
+                ]
+                if plat_vals:
+                    bio_str += f" | plat {sum(plat_vals)/len(plat_vals):.3f}"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -3609,6 +3631,7 @@ def main_multi_gpu():
         schema_routing_temperature=args.schema_routing_temperature,
         schema_routing_novelty_threshold=args.schema_routing_novelty_threshold,
         schema_routing_btsp_scale=args.schema_routing_btsp_scale,
+        hebbian_n_compartments=args.hebbian_n_compartments,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,
         plasticity_grow_threshold=args.plasticity_grow_threshold,

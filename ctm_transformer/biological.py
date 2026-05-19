@@ -138,6 +138,7 @@ class HebbianSynapse(nn.Module):
         btsp_lr_init: float = 0.05,
         btsp_kernel_decay_init: float = 0.9,
         btsp_salience_threshold: float = 0.0,
+        n_compartments: int = 1,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -162,13 +163,39 @@ class HebbianSynapse(nn.Module):
         # readout multiplication.
         self.force_gate = force_gate
 
+        # ── Dendritic compartmentalization ──────────────────────────────
+        # When n_compartments > 1, the bottleneck space is partitioned
+        # into K independent branches.  Each branch has its own fast-weight
+        # matrix M_k, per-compartment decay/LR, and a learnable plateau-
+        # potential gate that gates the Hebbian readout bilinearly.
+        # Requires bottleneck_dim divisible by n_compartments.
+        if n_compartments > 1:
+            if not self.use_bottleneck:
+                raise ValueError(
+                    "n_compartments > 1 requires bottleneck_dim > 0"
+                )
+            if bottleneck_dim % n_compartments != 0:
+                raise ValueError(
+                    f"bottleneck_dim ({bottleneck_dim}) must be divisible "
+                    f"by n_compartments ({n_compartments})"
+                )
+        self.n_compartments = n_compartments
+        self.is_compartmentalized = n_compartments > 1
+
         if self.use_bottleneck:
             self.z_proj = nn.Linear(d_latent, bottleneck_dim, bias=False)
             self.a_proj = nn.Linear(d_model, bottleneck_dim, bias=False)
-            # Read out from M·a back into d_latent.
+            # Read out (K * m_k = bottleneck_dim) → d_latent.  Same shape
+            # whether compartmentalized or not.
             self.readout_proj = nn.Linear(bottleneck_dim, d_latent, bias=False)
-            # M shape per (B, S): [bottleneck_dim, bottleneck_dim]
-            self._matrix_dims = (bottleneck_dim, bottleneck_dim)
+            if self.is_compartmentalized:
+                m_k = bottleneck_dim // n_compartments
+                self.m_k = m_k
+                # M shape per (B, S): [K, m_k, m_k]
+                self._matrix_dims = (n_compartments, m_k, m_k)
+            else:
+                # M shape per (B, S): [bottleneck_dim, bottleneck_dim]
+                self._matrix_dims = (bottleneck_dim, bottleneck_dim)
         else:
             self.z_proj = None
             self.a_proj = None
@@ -177,13 +204,28 @@ class HebbianSynapse(nn.Module):
             # M shape per (B, S): [d_latent, d_model]
             self._matrix_dims = (d_latent, d_model)
 
-        # Learnable decay and learning-rate scalars (in logit space so
-        # the sigmoid keeps them in (0, 1)).
-        self.decay_logit = nn.Parameter(torch.tensor(_logit(decay_init)))
-        self.lr_logit = nn.Parameter(torch.tensor(_logit(lr_init)))
+        # Learnable decay and learning-rate scalars/vectors (logit space).
+        # Per-compartment when is_compartmentalized, scalar otherwise.
+        if self.is_compartmentalized:
+            self.decay_logit = nn.Parameter(
+                torch.full((n_compartments,), float(_logit(decay_init)))
+            )
+            self.lr_logit = nn.Parameter(
+                torch.full((n_compartments,), float(_logit(lr_init)))
+            )
+            # Per-compartment plateau-potential gate (dendritic spike
+            # threshold).  Initialized same as gate_init so each branch
+            # starts near-silent and grows organically.
+            self.plateau_gate_logit = nn.Parameter(
+                torch.full((n_compartments,), float(gate_init))
+            )
+        else:
+            self.decay_logit = nn.Parameter(torch.tensor(_logit(decay_init)))
+            self.lr_logit = nn.Parameter(torch.tensor(_logit(lr_init)))
+            self.plateau_gate_logit = None
 
-        # Output gate: starts near zero so the unaugmented synapse path
-        # dominates at init. Learnable scalar.
+        # Global output gate: starts near zero so the unaugmented synapse
+        # path dominates at init.  Scalar for both flat and compartmentalized.
         self.gate_logit = nn.Parameter(torch.tensor(float(gate_init)))
 
         # ── Behavioral Timescale Synaptic Plasticity (BTSP) ──────────────
@@ -223,7 +265,15 @@ class HebbianSynapse(nn.Module):
         device: torch.device,
         dtype: torch.dtype,
     ) -> torch.Tensor:
-        """Create a fresh zero fast-weight matrix for a new sequence."""
+        """Create a fresh zero fast-weight matrix for a new sequence.
+
+        Non-compartmentalized: [B, S, m, n]
+        Compartmentalized:     [B, S, K, m_k, m_k]
+        """
+        if self.is_compartmentalized:
+            K, m_k, _ = self._matrix_dims
+            return torch.zeros(batch_size, seq_len, K, m_k, m_k,
+                               device=device, dtype=dtype)
         m, n = self._matrix_dims
         return torch.zeros(batch_size, seq_len, m, n, device=device, dtype=dtype)
 
@@ -256,7 +306,14 @@ class HebbianSynapse(nn.Module):
         """
         B, S, _ = prev_state.shape
 
-        # ── Project into Hebbian space ────────────────────────────────
+        if self.is_compartmentalized:
+            return self._forward_compartmentalized(
+                prev_state, attn_out, hebbian_state, lr_modulator
+            )
+
+        # ── Flat (non-compartmentalized) path ────────────────────────
+
+        # Project into Hebbian space
         if self.use_bottleneck:
             z_proj = self.z_proj(prev_state)        # [B, S, bn]
             a_proj = self.a_proj(attn_out)          # [B, S, bn]
@@ -264,37 +321,20 @@ class HebbianSynapse(nn.Module):
             z_proj = prev_state                     # [B, S, d_latent]
             a_proj = attn_out                       # [B, S, d_model]
 
-        # ── Read: r = M · a (per position) ────────────────────────────
-        # hebbian_state: [B, S, m, n], a_proj: [B, S, n]
-        # result: [B, S, m]
+        # Read: r = M · a (per position)
+        # hebbian_state: [B, S, m, n], a_proj: [B, S, n] → [B, S, m]
         readout_raw = torch.einsum(
             "bsmn,bsn->bsm",
             hebbian_state.to(a_proj.dtype),
             a_proj,
         )
-        # Project back to d_latent (no-op shape-wise if not using
-        # bottleneck, since m == d_latent there).
         readout = self.readout_proj(readout_raw)    # [B, S, d_latent]
         readout = self.readout_norm(readout)
 
-        # ── Update: M_{t+1} = decay · M_t + lr_eff · z ⊗ a ────────────
-        # We compute the update in the current activation dtype, then
-        # store back into the buffer's dtype on return. autograd does
-        # flow through the update — the gate, decay, and lr all receive
-        # gradient signal from later ticks' readouts.
-        #
-        # lr_eff has shape [B, S, 1, 1] when modulated so it broadcasts
-        # over the outer-product (m, n) dimensions. When unmodulated, lr
-        # is a plain scalar. We keep this branch explicit because the
-        # broadcasting cost is small but nonzero, and a scalar mul on
-        # the unmodulated path is faster.
+        # Update: M_{t+1} = decay · M_t + lr_eff · z ⊗ a
         decay = torch.sigmoid(self.decay_logit)
         lr_base = torch.sigmoid(self.lr_logit)
         if lr_modulator is not None:
-            # lr_modulator is [B, S]; reshape to [B, S, 1, 1] for broadcast
-            # over outer product. Clamp to a sane range to prevent runaway
-            # updates from anomalous uncertainty values (e.g. NaNs from
-            # an exploded softmax during early training).
             lr_mod = lr_modulator.clamp(min=0.0, max=10.0).to(lr_base.dtype)
             lr_eff = lr_base * lr_mod.unsqueeze(-1).unsqueeze(-1)
             with torch.no_grad():
@@ -303,81 +343,137 @@ class HebbianSynapse(nn.Module):
             lr_eff = lr_base
             effective_lr_scalar = lr_base.detach()
 
-        # outer product per position: [B, S, m, 1] * [B, S, 1, n] -> [B, S, m, n]
         if self.update_rule == "delta":
-            # Delta rule / Widrow-Hoff / error-correcting Hebbian:
-            #   M_{t+1} = decay·M_t + lr·(z − M·a) ⊗ a / (||a||² + ε)
-            #
-            # The ||a||² normalization is essential for numerical stability.
-            # Without it, the recursion on r = M·a is
-            #   r_{t+1} = (decay − lr·||a||²)·r_t + lr·||a||²·z
-            # which only contracts if |decay − lr·||a||²| < 1. For any
-            # bottleneck dim or unnormalized activations, ||a||² grows
-            # with the dimension and the rule diverges.
-            #
-            # With the normalization, the recursion becomes
-            #   r_{t+1} = (decay − lr)·r_t + lr·z
-            # which is contractive for any lr ∈ (0, 1+decay) and converges
-            # to r∞ = lr/(lr + 1 − decay) · z. With decay ≈ 0.9, lr ≈ 0.1
-            # this converges in ~50 steps to roughly z/2 — useful working
-            # memory without explosion. (Some literature calls this the
-            # "normalized LMS" or "NLMS" rule.)
-            #
-            # We already computed M·a as `readout_raw` above. We detach
-            # it inside the error term so the BPTT graph doesn't chain
-            # through every prior tick's M state — see the long-loop
-            # memory comment in the docstring.
             error = z_proj - readout_raw.detach()
             outer = error.unsqueeze(-1) * a_proj.unsqueeze(-2)
-            # Per-position normalization by ||a||² + eps. a_proj is
-            # [B, S, n]; the squared norm is [B, S, 1, 1] so it
-            # broadcasts over (m, n).
             a_sq = (a_proj * a_proj).sum(dim=-1, keepdim=True).unsqueeze(-1)
             outer = outer / (a_sq + 1e-6)
         else:
-            # Classic Hebbian outer-product accumulation.
             outer = z_proj.unsqueeze(-1) * a_proj.unsqueeze(-2)
         new_hebbian = decay * hebbian_state.to(outer.dtype) + lr_eff * outer
 
-        # ── BTSP: sequence-spanning causal trace update ───────────────
-        # Adds: η_BTSP · K · (salience ⊙ outer)  where K[s,τ] = β^(s−τ)
-        # K is recomputed each forward (cheap [S,S]) since β is learnable.
+        # BTSP: sequence-spanning causal trace update
+        # Adds: η_BTSP · btsp_K · (salience ⊙ outer)
         if self.use_btsp:
             m, n = self._matrix_dims
             B_b, S_b = outer.shape[0], outer.shape[1]
             btsp_lr = torch.sigmoid(self.btsp_lr_logit).to(outer.dtype)
             beta = torch.sigmoid(self.btsp_decay_logit).to(outer.dtype)
 
-            # Per-position salience: use lr_modulator when available (surprise
-            # signal), else uniform=1 (pure causal exponential trace).
             if lr_modulator is not None:
                 salience = lr_modulator.clamp(0.0, 10.0).to(outer.dtype)
                 salience = (salience - self.btsp_salience_threshold).clamp(min=0.0)
             else:
                 salience = torch.ones(B_b, S_b, device=outer.device, dtype=outer.dtype)
 
-            # Salience-weighted outer products: [B, S, m, n]
-            weighted = salience.unsqueeze(-1).unsqueeze(-1) * outer
+            weighted = salience.unsqueeze(-1).unsqueeze(-1) * outer  # [B, S, m, n]
 
-            # Build lower-triangular causal kernel K[s, τ] = β^(s−τ) for τ≤s
             idx = torch.arange(S_b, device=outer.device, dtype=outer.dtype)
-            dist = (idx.unsqueeze(0) - idx.unsqueeze(1)).clamp(min=0)  # [S, S]
-            K = torch.tril(beta ** dist)                                 # [S, S]
+            dist = (idx.unsqueeze(0) - idx.unsqueeze(1)).clamp(min=0)
+            btsp_K = torch.tril(beta ** dist)                          # [S, S]
 
-            # Causal aggregation via matmul along the sequence axis:
-            #   delta[b, s, :, :] = Σ_{τ≤s} K[s,τ] · weighted[b, τ, :, :]
-            w_flat = weighted.reshape(B_b, S_b, m * n)      # [B, S, m*n]
-            delta_flat = torch.matmul(K, w_flat)             # [B, S, m*n]
-            delta_M = delta_flat.reshape(B_b, S_b, m, n)    # [B, S, m, n]
-
+            w_flat = weighted.reshape(B_b, S_b, m * n)
+            delta_flat = torch.matmul(btsp_K, w_flat)
+            delta_M = delta_flat.reshape(B_b, S_b, m, n)
             new_hebbian = new_hebbian + btsp_lr * delta_M
 
-        # ── Gate the readout ──────────────────────────────────────────
-        # Sigmoid-gate so the synapse output is not blown up by an
-        # uninitialised fast-weight matrix on tick 0. The gate is shared
-        # across all positions; per-position gating would over-parameterise.
-        # Diagnostic mode: force_gate overrides the learned gate. Used
-        # to isolate gate-gradient issues from readout-content issues.
+        # Gate the readout (global scalar gate)
+        if self.force_gate is not None:
+            gate = torch.tensor(self.force_gate, dtype=readout.dtype, device=readout.device)
+        else:
+            gate = torch.sigmoid(self.gate_logit)
+        gated_readout = gate * readout
+
+        return gated_readout, new_hebbian, effective_lr_scalar
+
+    def _forward_compartmentalized(
+        self,
+        prev_state: torch.Tensor,
+        attn_out: torch.Tensor,
+        hebbian_state: torch.Tensor,
+        lr_modulator: torch.Tensor | None,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Compartmentalized forward: K independent branches with bilinear plateau gating.
+
+        hebbian_state shape: [B, S, K, m_k, m_k]
+        """
+        B, S, _ = prev_state.shape
+        K, m_k, _ = self._matrix_dims
+
+        # Project into Hebbian space (shared projections, then chunk)
+        z_proj = self.z_proj(prev_state)   # [B, S, K*m_k]
+        a_proj = self.a_proj(attn_out)     # [B, S, K*m_k]
+
+        z_k = z_proj.view(B, S, K, m_k)   # [B, S, K, m_k]
+        a_k = a_proj.view(B, S, K, m_k)   # [B, S, K, m_k]
+
+        # Per-compartment read: M_k · a_k
+        # hebbian_state: [B, S, K, m_k, m_k]
+        readout_raw = torch.einsum(
+            "bskmn,bskn->bskm",
+            hebbian_state.to(a_k.dtype), a_k,
+        )  # [B, S, K, m_k]
+
+        # Bilinear plateau gate: per-compartment sigmoid scales the readout.
+        # Biological analogy: each dendritic branch has an independent
+        # plateau-potential threshold; only branches that exceed their
+        # threshold contribute to the somatic readout.
+        plateau = torch.sigmoid(self.plateau_gate_logit)   # [K]
+        gated_branches = plateau.view(1, 1, K, 1) * readout_raw  # [B, S, K, m_k]
+
+        # Merge branches → project to d_latent (K * m_k = bottleneck_dim)
+        branch_flat = gated_branches.reshape(B, S, K * m_k)       # [B, S, bn]
+        readout = self.readout_proj(branch_flat)                   # [B, S, d_latent]
+        readout = self.readout_norm(readout)
+
+        # Per-compartment write
+        decay_k = torch.sigmoid(self.decay_logit).view(1, 1, K, 1, 1)   # [K]→bcst
+        lr_k_base = torch.sigmoid(self.lr_logit)                          # [K]
+
+        if lr_modulator is not None:
+            lr_mod = lr_modulator.clamp(0.0, 10.0).to(lr_k_base.dtype)  # [B, S]
+            lr_eff = lr_k_base.view(1, 1, K, 1, 1) * lr_mod.view(B, S, 1, 1, 1)
+            with torch.no_grad():
+                effective_lr_scalar = lr_eff.mean().detach()
+        else:
+            lr_eff = lr_k_base.view(1, 1, K, 1, 1)
+            effective_lr_scalar = lr_k_base.mean().detach()
+
+        if self.update_rule == "delta":
+            error = z_k - readout_raw.detach()                             # [B,S,K,m_k]
+            outer = error.unsqueeze(-1) * a_k.unsqueeze(-2)               # [B,S,K,m_k,m_k]
+            a_sq = (a_k * a_k).sum(dim=-1, keepdim=True).unsqueeze(-1)   # [B,S,K,1,1]
+            outer = outer / (a_sq + 1e-6)
+        else:
+            outer = z_k.unsqueeze(-1) * a_k.unsqueeze(-2)                 # [B,S,K,m_k,m_k]
+
+        new_hebbian = decay_k * hebbian_state.to(outer.dtype) + lr_eff * outer
+
+        # BTSP: naturally extends — reshape [B,S,K,m_k,m_k] → [B,S,K*m_k*m_k]
+        if self.use_btsp:
+            btsp_lr = torch.sigmoid(self.btsp_lr_logit).to(outer.dtype)
+            beta = torch.sigmoid(self.btsp_decay_logit).to(outer.dtype)
+
+            if lr_modulator is not None:
+                salience = lr_modulator.clamp(0.0, 10.0).to(outer.dtype)
+                salience = (salience - self.btsp_salience_threshold).clamp(min=0.0)
+            else:
+                salience = torch.ones(B, S, device=outer.device, dtype=outer.dtype)
+
+            # salience: [B, S] → [B, S, 1, 1, 1] to broadcast over [B,S,K,m_k,m_k]
+            weighted = salience.view(B, S, 1, 1, 1) * outer
+
+            idx = torch.arange(S, device=outer.device, dtype=outer.dtype)
+            dist = (idx.unsqueeze(0) - idx.unsqueeze(1)).clamp(min=0)
+            btsp_K = torch.tril(beta ** dist)                              # [S, S]
+
+            flat_dim = K * m_k * m_k
+            w_flat = weighted.reshape(B, S, flat_dim)
+            delta_flat = torch.matmul(btsp_K, w_flat)
+            delta_M = delta_flat.reshape(B, S, K, m_k, m_k)
+            new_hebbian = new_hebbian + btsp_lr * delta_M
+
+        # Global output gate on the merged readout
         if self.force_gate is not None:
             gate = torch.tensor(self.force_gate, dtype=readout.dtype, device=readout.device)
         else:
