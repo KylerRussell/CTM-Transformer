@@ -83,5 +83,20 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --use_intrinsic_plasticity \
     --use_thalamic_gating \
     --use_bcm_threshold \
+    --use_stc \
+    --stc_tag_decay 0.5 \
+    --stc_threshold_tag 0.05 \
+    --stc_threshold_prp 0.3 \
+    --stc_min_gate 0.01 \
+    --use_swil \
+    --swil_sim_weight 1.0 \
+    --swil_embed_dim 64 \
+    --use_dnd \
+    --dnd_capacity 1000 \
+    --dnd_key_dim 64 \
+    --dnd_confidence_threshold 0.98 \
+    --dnd_write_confidence 0.9 \
+    --dnd_hopfield_beta 4.0 \
+    --dnd_min_novelty 0.05 \
     > train_dual_gpu_prospect_config.log 2>&1 &
 echo "Dual-GPU Training PID: $!"

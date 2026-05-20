@@ -38,6 +38,7 @@ from ctm_transformer.biological import (
     PrecisionWeightedGradientScaler,
     PrioritizedReplayBuffer,
     StructuralPlasticityController,
+    STCGradientGate,
 )
 from ctm_transformer.validation import (
     compute_validation_metrics,
@@ -1568,6 +1569,7 @@ def train(
         episodic_buffer: PrioritizedReplayBuffer | None = PrioritizedReplayBuffer(
             maxsize=_sleep_buf_size,
             temperature=getattr(config, "replay_fe_temperature", 1.0),
+            sim_weight=getattr(config, "swil_sim_weight", 1.0),
         )
     elif use_sleep:
         episodic_buffer: deque | None = deque(maxlen=_sleep_buf_size)
@@ -1600,6 +1602,16 @@ def train(
             ema_decay=getattr(config, "precision_neuromod_ema_decay", 0.95),
         )
         if getattr(config, "use_precision_neuromod", False) else None
+    )
+
+    # ── Synaptic Tagging and Capture gate ─────────────────────────────────
+    stc_gate: STCGradientGate | None = (
+        STCGradientGate(
+            threshold_tag=getattr(config, "stc_threshold_tag", 0.05),
+            threshold_prp=getattr(config, "stc_threshold_prp", 0.3),
+            min_gate=getattr(config, "stc_min_gate", 0.01),
+        )
+        if getattr(config, "use_stc", False) and _stream_layers else None
     )
 
     # Gradient accumulation: we run `accum_steps` micro-batches per optimizer
@@ -1845,6 +1857,17 @@ def train(
                         thought_layers, per_layer_prec, pc_param_ids
                     )
 
+            # ── STC gradient gate ─────────────────────────────────────────
+            # Blocks slow-weight updates when local tag or global PRP is
+            # below threshold — shields consolidated schemas from routine data.
+            if stc_gate is not None:
+                _prp = 0.0
+                for _o in optimizers:
+                    if isinstance(_o, NeuroPlasticOptimizer) and _o._surprise_ema is not None:
+                        _prp = float(_o._surprise_ema)
+                        break
+                stc_gate.apply(_stream_layers, _prp)
+
             with timer("grad_clip"):
                 if config.grad_clip > 0:
                     grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
@@ -1877,7 +1900,13 @@ def train(
                     if _fe is None and last_result is not None:
                         _fe = last_result.get("loss")
                     _fe_val = float(_fe.item()) if _fe is not None and torch.is_tensor(_fe) else float(_fe or 0.0)
-                    episodic_buffer.push(_fe_val, x[0].detach().cpu())
+                    # SWIL: extract semantic vector from final-tick latent pool
+                    _svec = None
+                    if getattr(config, "use_swil", False) and last_result is not None:
+                        _lp = last_result.get("final_latent_pool")
+                        if _lp is not None:
+                            _svec = _lp[0]   # first batch item → [d]
+                    episodic_buffer.push(_fe_val, x[0].detach().cpu(), _svec)
                 else:
                     episodic_buffer.append(x[0].detach().cpu())
 
@@ -1899,7 +1928,13 @@ def train(
                 # Sample replay batch from the episodic buffer
                 n_replay = min(config.batch_size, len(episodic_buffer))
                 if isinstance(episodic_buffer, PrioritizedReplayBuffer):
-                    sampled = episodic_buffer.sample(n_replay)
+                    # SWIL: bias sampling toward episodes similar to current context
+                    _qvec = None
+                    if getattr(config, "use_swil", False) and last_result is not None:
+                        _lp = last_result.get("final_latent_pool")
+                        if _lp is not None:
+                            _qvec = _lp[0]   # [d] — current context query vector
+                    sampled = episodic_buffer.sample(n_replay, query_vec=_qvec)
                 else:
                     sampled = random.sample(list(episodic_buffer), n_replay)
                 x_replay = torch.stack(sampled, dim=0).to(device)
@@ -1922,6 +1957,8 @@ def train(
                     f"| |M_carry| {carry_norm:.4f}"
                     + (f" | mean_FE {episodic_buffer.mean_priority:.4f}"
                        f" | max_FE {episodic_buffer.max_priority:.4f}"
+                       + (f" | swil={'on' if episodic_buffer.has_semantic_vecs else 'no_vecs'}"
+                          if getattr(config, "use_swil", False) else "")
                        if isinstance(episodic_buffer, PrioritizedReplayBuffer) else ""),
                     flush=True,
                 )
@@ -2038,6 +2075,22 @@ def train(
                 ]
                 if plat_vals:
                     bio_str += f" | plat {sum(plat_vals)/len(plat_vals):.3f}"
+            if stc_gate is not None and _stream_layers:
+                bio_str += (
+                    f" | stc_tag {stc_gate.mean_tag_norm(_stream_layers):.4f}"
+                    f" gated {stc_gate._last_n_gated}/{stc_gate._last_n_total}"
+                )
+            if (getattr(config, "use_swil", False)
+                    and isinstance(episodic_buffer, PrioritizedReplayBuffer)
+                    and episodic_buffer.has_semantic_vecs):
+                bio_str += f" | swil({len(episodic_buffer)}ep)"
+            _dnd_obj = getattr(_raw, "dnd", None)
+            if _dnd_obj is not None:
+                bio_str += f" | dnd {_dnd_obj.n_stored}/{_dnd_obj.capacity}"
+                if result.get("dnd_hit"):
+                    bio_str += " [HIT]"
+                elif "dnd_max_sim" in result:
+                    bio_str += f" sim={result['dnd_max_sim']:.3f}"
 
             # Prospective Configuration uses a simplified log format
             # (no per-tick breakdown since the inference loop runs
@@ -2547,6 +2600,23 @@ def parse_args():
                            help="Softmax temperature for priority-weighted replay sampling. "
                                 "Lower → sharper focus on highest-FE episodes; "
                                 "higher → closer to uniform. Default 1.0.")
+    bio_group.add_argument("--use_swil", action="store_true",
+                           help="Similarity-Weighted Interleaved Learning (SWIL / CLS). "
+                                "Augments PrioritizedReplayBuffer with a semantic vector "
+                                "(mean-pooled final-tick latent z) stored alongside each episode. "
+                                "During sleep, sampling weights = softmax((F_i + λ·cos_sim) / τ) "
+                                "so episodes that are both high-surprise AND structurally similar "
+                                "to the current context are preferentially replayed. "
+                                "Requires --use_sleep_consolidation --use_prioritized_replay.")
+    bio_group.add_argument("--swil_sim_weight", type=float, default=1.0,
+                           help="λ — scale of cosine-similarity term relative to free-energy "
+                                "in SWIL sampling. 0.0 = pure-FE (same as no SWIL). "
+                                "1.0 = equal weight. 2.0 = similarity dominates.")
+    bio_group.add_argument("--swil_embed_dim", type=int, default=64,
+                           help="Dimension of stored semantic vectors for SWIL. "
+                                "Uses first N dims of the d_latent-dimensional latent pool. "
+                                "0 = use full d_latent (may be large). "
+                                "64 is a good default (4KB per episode, 128KB at buf_size=32).")
     bio_group.add_argument("--hebbian_update_rule", type=str, default="outer_product",
                            choices=["outer_product", "delta"],
                            help="Hebbian fast-weight update rule. "
@@ -2582,6 +2652,59 @@ def parse_args():
                                 "(no hard gate, all positions contribute). "
                                 "Set > 1 to require above-baseline surprise "
                                 "(needs --hebbian_cert_lr_alpha > 0).")
+
+    bio_group.add_argument("--use_stc", action="store_true",
+                           help="Synaptic Tagging and Capture: gate slow-weight gradient "
+                                "updates using per-layer local prediction error (tag) and "
+                                "global surprise EMA (PRP). A layer's gradients are scaled "
+                                "to stc_min_gate unless BOTH tag >= stc_threshold_tag AND "
+                                "surprise_ema >= stc_threshold_prp. Shields consolidated "
+                                "schemas from routine, low-salience overwriting. "
+                                "Requires --use_hebbian_synapse. Works best with "
+                                "--use_neuromod_optimizer for a meaningful PRP signal.")
+    bio_group.add_argument("--stc_tag_decay", type=float, default=0.5,
+                           help="EMA decay for per-layer tag norm. "
+                                "0.5 = half-life ~1 step (fast transient marker). "
+                                "0.9 = slower, ~10-step effective window.")
+    bio_group.add_argument("--stc_threshold_tag", type=float, default=0.05,
+                           help="Minimum tag norm for a layer's gate to open. "
+                                "Increase to require stronger recent prediction error.")
+    bio_group.add_argument("--stc_threshold_prp", type=float, default=0.3,
+                           help="Minimum global surprise EMA (PRP) for any gate to open. "
+                                "Set to 0.0 if not using --use_neuromod_optimizer.")
+    bio_group.add_argument("--stc_min_gate", type=float, default=0.01,
+                           help="Gradient multiplier when gate is closed. "
+                                "0.01 = 1%% pass-through (Adam state still updates slowly).")
+
+    bio_group.add_argument("--use_dnd", action="store_true",
+                           help="Episodic Differentiable Neural Dictionary: non-parametric "
+                                "key-value bank for zero-shot retrieval of previously-solved "
+                                "contexts. Keys = mean-pooled input embeddings (first "
+                                "dnd_key_dim dims); values = mean-pooled final-tick latent z "
+                                "from high-certainty passes. If cosine_sim to any stored key "
+                                ">= dnd_confidence_threshold, the thought loop is bypassed "
+                                "entirely (O(1) inference). Implements Episodic Control: "
+                                "deterministic tasks are answered from memory once mastered.")
+    bio_group.add_argument("--dnd_capacity", type=int, default=1000,
+                           help="Maximum number of key-value pairs in the episodic DND. "
+                                "At capacity=1000, key_dim=64, d_latent=1024: ≈4.3 MB.")
+    bio_group.add_argument("--dnd_key_dim", type=int, default=64,
+                           help="Dimensionality of stored DND keys (first N dims of mean-pooled "
+                                "text embedding). 64 balances discrimination and storage.")
+    bio_group.add_argument("--dnd_confidence_threshold", type=float, default=0.98,
+                           help="Cosine similarity threshold to trigger DND bypass. "
+                                "0.98 is deliberately stringent: only near-exact input matches "
+                                "short-circuit the thought loop.")
+    bio_group.add_argument("--dnd_write_confidence", type=float, default=0.9,
+                           help="Minimum mean token certainty ([0,1]) required to write a "
+                                "new entry to the DND. Only caches high-confidence passes.")
+    bio_group.add_argument("--dnd_hopfield_beta", type=float, default=4.0,
+                           help="Softmax inverse temperature for Hopfield-style DND retrieval. "
+                                "Higher → sharper (closer to argmax). 4.0 is a good default.")
+    bio_group.add_argument("--dnd_min_novelty", type=float, default=0.05,
+                           help="Minimum (1 - max_sim) required to accept a new DND write. "
+                                "0.05 = skip if an entry with sim > 0.95 already exists, "
+                                "preventing near-duplicate entries from filling capacity.")
 
     bio_group.add_argument("--use_neuromod_optimizer", action="store_true",
                            help="Wrap AdamW with surprise-modulated LR scaling. "
@@ -2881,6 +3004,11 @@ def main():
         btsp_lr_init=args.btsp_lr_init,
         btsp_kernel_decay_init=args.btsp_kernel_decay_init,
         btsp_salience_threshold=args.btsp_salience_threshold,
+        use_stc=args.use_stc,
+        stc_tag_decay=args.stc_tag_decay,
+        stc_threshold_tag=args.stc_threshold_tag,
+        stc_threshold_prp=args.stc_threshold_prp,
+        stc_min_gate=args.stc_min_gate,
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
@@ -2911,6 +3039,16 @@ def main():
         sleep_loss_weight=args.sleep_loss_weight,
         use_prioritized_replay=args.use_prioritized_replay,
         replay_fe_temperature=args.replay_fe_temperature,
+        use_swil=args.use_swil,
+        swil_sim_weight=args.swil_sim_weight,
+        swil_embed_dim=args.swil_embed_dim,
+        use_dnd=args.use_dnd,
+        dnd_capacity=args.dnd_capacity,
+        dnd_key_dim=args.dnd_key_dim,
+        dnd_confidence_threshold=args.dnd_confidence_threshold,
+        dnd_write_confidence=args.dnd_write_confidence,
+        dnd_hopfield_beta=args.dnd_hopfield_beta,
+        dnd_min_novelty=args.dnd_min_novelty,
         use_neuromod_optimizer=args.use_neuromod_optimizer,
         neuromod_alpha=args.neuromod_alpha,
         neuromod_min_scale=args.neuromod_min_scale,
@@ -3068,6 +3206,16 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
             ema_decay=getattr(config, "precision_neuromod_ema_decay", 0.95),
         )
         if getattr(config, "use_precision_neuromod", False) else None
+    )
+
+    # ── Synaptic Tagging and Capture gate ─────────────────────────────────
+    stc_gate: STCGradientGate | None = (
+        STCGradientGate(
+            threshold_tag=getattr(config, "stc_threshold_tag", 0.05),
+            threshold_prp=getattr(config, "stc_threshold_prp", 0.3),
+            min_gate=getattr(config, "stc_min_gate", 0.01),
+        )
+        if getattr(config, "use_stc", False) and _stream_layers else None
     )
 
     # ── Data ─────────────────────────────────────────────────────────
@@ -3255,6 +3403,13 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                             thought_layers, per_layer_prec, pc_param_ids
                         )
 
+                # ── STC gradient gate ─────────────────────────────────────────
+                if stc_gate is not None:
+                    _prp = 0.0
+                    if isinstance(optimizer, NeuroPlasticOptimizer) and optimizer._surprise_ema is not None:
+                        _prp = float(optimizer._surprise_ema)
+                    stc_gate.apply(_stream_layers, _prp)
+
                 # ── Gradient clipping ────────────────────────────────────────
                 with timer("grad_clip"):
                     last_grad_norm = torch.nn.utils.clip_grad_norm_(
@@ -3417,6 +3572,18 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 ]
                 if plat_vals:
                     bio_str += f" | plat {sum(plat_vals)/len(plat_vals):.3f}"
+            if stc_gate is not None and _stream_layers:
+                bio_str += (
+                    f" | stc_tag {stc_gate.mean_tag_norm(_stream_layers):.4f}"
+                    f" gated {stc_gate._last_n_gated}/{stc_gate._last_n_total}"
+                )
+            _dnd_obj = getattr(model, "dnd", None)
+            if _dnd_obj is not None:
+                bio_str += f" | dnd {_dnd_obj.n_stored}/{_dnd_obj.capacity}"
+                if result.get("dnd_hit"):
+                    bio_str += " [HIT]"
+                elif "dnd_max_sim" in result:
+                    bio_str += f" sim={result['dnd_max_sim']:.3f}"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -3579,6 +3746,11 @@ def main_multi_gpu():
         btsp_lr_init=args.btsp_lr_init,
         btsp_kernel_decay_init=args.btsp_kernel_decay_init,
         btsp_salience_threshold=args.btsp_salience_threshold,
+        use_stc=args.use_stc,
+        stc_tag_decay=args.stc_tag_decay,
+        stc_threshold_tag=args.stc_threshold_tag,
+        stc_threshold_prp=args.stc_threshold_prp,
+        stc_min_gate=args.stc_min_gate,
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
@@ -3609,6 +3781,16 @@ def main_multi_gpu():
         sleep_loss_weight=args.sleep_loss_weight,
         use_prioritized_replay=args.use_prioritized_replay,
         replay_fe_temperature=args.replay_fe_temperature,
+        use_swil=args.use_swil,
+        swil_sim_weight=args.swil_sim_weight,
+        swil_embed_dim=args.swil_embed_dim,
+        use_dnd=args.use_dnd,
+        dnd_capacity=args.dnd_capacity,
+        dnd_key_dim=args.dnd_key_dim,
+        dnd_confidence_threshold=args.dnd_confidence_threshold,
+        dnd_write_confidence=args.dnd_write_confidence,
+        dnd_hopfield_beta=args.dnd_hopfield_beta,
+        dnd_min_novelty=args.dnd_min_novelty,
         use_neuromod_optimizer=args.use_neuromod_optimizer,
         neuromod_alpha=args.neuromod_alpha,
         neuromod_min_scale=args.neuromod_min_scale,

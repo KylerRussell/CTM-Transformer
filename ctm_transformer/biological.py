@@ -139,6 +139,9 @@ class HebbianSynapse(nn.Module):
         btsp_kernel_decay_init: float = 0.9,
         btsp_salience_threshold: float = 0.0,
         n_compartments: int = 1,
+        use_stc: bool = False,
+        stc_tag_decay: float = 0.5,
+        stc_threshold_tag: float = 0.05,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -245,6 +248,17 @@ class HebbianSynapse(nn.Module):
             self.btsp_decay_logit = nn.Parameter(torch.tensor(_logit(btsp_kernel_decay_init)))
             self.btsp_salience_threshold = btsp_salience_threshold
 
+        # ── Synaptic Tagging and Capture (STC) ──────────────────────────
+        # Tracks a fast-decaying EMA of the mean absolute delta-rule error
+        # |z - M·a|.  High error → tag is active → this layer's slow weights
+        # are eligible for updates when the global PRP is also high.
+        # Stored as a plain Python float (CPU, outside the gradient graph).
+        self.use_stc = use_stc
+        if use_stc:
+            self.stc_tag_decay = stc_tag_decay
+            self.stc_threshold_tag = stc_threshold_tag
+            self._tag_norm: float = 0.0
+
         # Stabilise the readout norm so the Hebbian contribution doesn't
         # blow up the synapse output before training has shaped the gate.
         self.readout_norm = nn.LayerNorm(d_latent, elementwise_affine=False)
@@ -330,6 +344,15 @@ class HebbianSynapse(nn.Module):
         )
         readout = self.readout_proj(readout_raw)    # [B, S, d_latent]
         readout = self.readout_norm(readout)
+
+        # STC tag update: EMA of mean |prediction error| (outside grad graph)
+        if self.use_stc and self.training:
+            with torch.no_grad():
+                _err = (z_proj - readout_raw).abs().mean().item()
+            self._tag_norm = (
+                self.stc_tag_decay * self._tag_norm
+                + (1.0 - self.stc_tag_decay) * _err
+            )
 
         # Update: M_{t+1} = decay · M_t + lr_eff · z ⊗ a
         decay = torch.sigmoid(self.decay_logit)
@@ -425,6 +448,15 @@ class HebbianSynapse(nn.Module):
         branch_flat = gated_branches.reshape(B, S, K * m_k)       # [B, S, bn]
         readout = self.readout_proj(branch_flat)                   # [B, S, d_latent]
         readout = self.readout_norm(readout)
+
+        # STC tag update: EMA of mean |prediction error| across compartments
+        if self.use_stc and self.training:
+            with torch.no_grad():
+                _err = (z_k - readout_raw).abs().mean().item()
+            self._tag_norm = (
+                self.stc_tag_decay * self._tag_norm
+                + (1.0 - self.stc_tag_decay) * _err
+            )
 
         # Per-compartment write
         decay_k = torch.sigmoid(self.decay_logit).view(1, 1, K, 1, 1)   # [K]→bcst
@@ -685,7 +717,7 @@ class NeuroPlasticOptimizer:
 # ════════════════════════════════════════════════════════════════════════
 
 class PrioritizedReplayBuffer:
-    """Episodic replay buffer with free-energy priority sampling.
+    """Episodic replay buffer with free-energy priority and optional SWIL sampling.
 
     Biological motivation
     ---------------------
@@ -694,6 +726,20 @@ class PrioritizedReplayBuffer:
     prediction errors (surprise) during waking — boundary events, novel
     stimuli, and hard-to-learn patterns. Frequent, easy sequences are
     largely ignored during consolidation.
+
+    CLS / SWIL extension
+    --------------------
+    Complementary Learning Systems theory predicts that replay should
+    interleave memories that are STRUCTURALLY SIMILAR to the current
+    context, not just high-surprise ones. When a query semantic vector is
+    supplied to sample(), the sampling weight becomes:
+
+        w_i = softmax( (F_i + λ · cos_sim(query, v_i)) / τ )
+
+    where v_i is the stored semantic vector (mean-pooled final-tick latent).
+    This focuses consolidation on episodes whose representations overlap
+    with the ones currently being modified, preventing gradient interference
+    while requiring fewer total replay steps.
 
     Mechanism
     ---------
@@ -705,43 +751,101 @@ class PrioritizedReplayBuffer:
     When the buffer is full, the incoming entry replaces the LOWEST-
     priority incumbent (most-consolidated), keeping hard examples alive.
 
-    Sampling weights are proportional to priority, optionally sharpened
-    or flattened by a temperature τ:
-
+    Base sampling (no query vector):
         w_i = softmax(F_i / τ)
+
+    SWIL sampling (query vector provided):
+        w_i = softmax( (F_i + λ · cos_sim(query, v_i)) / τ )
 
     τ=1   → direct softmax over raw FE (biological default)
     τ→∞   → uniform sampling (degrades to original behavior)
-    τ→0   → greedy (always replay highest-FE episode)
+    τ→0   → greedy (always replay highest-FE / most-similar episode)
 
     Args:
         maxsize:     Maximum number of episodes to retain.
         temperature: Softmax temperature τ for sampling weights (default 1.0).
+        sim_weight:  λ — scale of cosine-similarity term in SWIL mode. 0 = pure-FE.
     """
 
-    def __init__(self, maxsize: int, temperature: float = 1.0):
-        self._buf: list[tuple[float, torch.Tensor]] = []
+    def __init__(self, maxsize: int, temperature: float = 1.0, sim_weight: float = 1.0):
+        # Each entry: (priority, seq, semantic_vec_or_None)
+        self._buf: list[tuple[float, torch.Tensor, torch.Tensor | None]] = []
         self.maxsize = maxsize
         self.temperature = max(float(temperature), 1e-6)
+        self.sim_weight = float(sim_weight)
 
-    def push(self, priority: float, seq: torch.Tensor) -> None:
-        """Store an episode. When full, evicts the lowest-priority entry
-        if the new priority is higher; otherwise discards the new entry."""
+    def push(
+        self,
+        priority: float,
+        seq: torch.Tensor,
+        semantic_vec: torch.Tensor | None = None,
+    ) -> None:
+        """Store an episode with optional semantic vector.
+
+        When full, evicts the lowest-priority incumbent if the new priority
+        is higher; otherwise discards the new entry.
+
+        Args:
+            priority:     Scalar free-energy (or CE-loss) priority.
+            seq:          Input sequence tensor (stored on CPU).
+            semantic_vec: Optional [d] float32 CPU tensor — mean-pooled
+                          final-tick latent state for SWIL cosine similarity.
+        """
         priority = float(priority)
+        entry = (priority, seq, semantic_vec)
         if len(self._buf) < self.maxsize:
-            self._buf.append((priority, seq))
+            self._buf.append(entry)
         else:
             min_idx = min(range(len(self._buf)), key=lambda i: self._buf[i][0])
             if priority > self._buf[min_idx][0]:
-                self._buf[min_idx] = (priority, seq)
+                self._buf[min_idx] = entry
 
-    def sample(self, n: int) -> list[torch.Tensor]:
-        """Sample n episodes proportionally to their priority (with replacement
-        if n > buffer size, otherwise without)."""
+    def sample(
+        self,
+        n: int,
+        query_vec: torch.Tensor | None = None,
+        sim_weight: float | None = None,
+    ) -> list[torch.Tensor]:
+        """Sample n episodes by priority, optionally biased by similarity.
+
+        Args:
+            n:          Number of episodes to sample.
+            query_vec:  [d] float32 CPU tensor — current context's semantic
+                        vector. When provided and stored vectors exist, the
+                        sampling weight is:
+                          softmax((F_i + λ·cos_sim(query, v_i)) / τ)
+                        Falls back to pure-FE softmax if stored vectors are
+                        absent or query_vec is None.
+            sim_weight: Override for λ (uses self.sim_weight if None).
+
+        Returns:
+            List of sampled sequence tensors.
+        """
         if not self._buf:
             return []
         n = min(n, len(self._buf))
-        scores = torch.tensor([s for s, _ in self._buf], dtype=torch.float32)
+        lam = sim_weight if sim_weight is not None else self.sim_weight
+
+        scores = torch.tensor(
+            [entry[0] for entry in self._buf], dtype=torch.float32
+        )
+
+        # SWIL: add cosine-similarity term when query and stored vecs available
+        if query_vec is not None and lam != 0.0:
+            stored_vecs = [entry[2] for entry in self._buf]
+            if any(v is not None for v in stored_vecs):
+                # Pad missing vecs with zeros so cosine sim = 0 (no bias)
+                d = query_vec.shape[0]
+                stack = torch.stack([
+                    v if v is not None else torch.zeros(d)
+                    for v in stored_vecs
+                ])  # [N, d]
+                q = query_vec.float().unsqueeze(0)   # [1, d]
+                q_norm = F.normalize(q, dim=-1)
+                s_norm = F.normalize(stack.float(), dim=-1)
+                cos_sim = (q_norm * s_norm).sum(dim=-1)  # [N]
+                scores = scores + lam * cos_sim
+
         weights = torch.softmax(scores / self.temperature, dim=0)
         replace = n > len(self._buf)
         indices = torch.multinomial(weights, num_samples=n, replacement=replace)
@@ -754,13 +858,18 @@ class PrioritizedReplayBuffer:
     def mean_priority(self) -> float:
         if not self._buf:
             return 0.0
-        return sum(s for s, _ in self._buf) / len(self._buf)
+        return sum(e[0] for e in self._buf) / len(self._buf)
 
     @property
     def max_priority(self) -> float:
         if not self._buf:
             return 0.0
-        return max(s for s, _ in self._buf)
+        return max(e[0] for e in self._buf)
+
+    @property
+    def has_semantic_vecs(self) -> bool:
+        """True if at least one stored episode has a semantic vector."""
+        return any(e[2] is not None for e in self._buf)
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -1032,3 +1141,253 @@ class StructuralPlasticityController:
             if stream is not None and hasattr(stream, "active_mask"):
                 counts.append(int(stream.active_mask.sum().item()))
         return counts
+
+
+# ════════════════════════════════════════════════════════════════════════
+# Synaptic Tagging and Capture (STC) Gradient Gate
+# ════════════════════════════════════════════════════════════════════════
+
+class STCGradientGate:
+    """
+    Synaptic Tagging and Capture gradient gate for slow-weight consolidation.
+
+    Biological motivation
+    ---------------------
+    Late-phase LTP (long-term structural change) requires two concurrent
+    signals at the synapse:
+
+      Tag (local):  A synapse experiencing high prediction error (early-LTP)
+                    sets a transient biochemical marker.  This fades rapidly
+                    when activity drops.
+      PRP (global): Strong, surprising stimuli trigger soma-wide synthesis of
+                    Plasticity-Related Proteins that diffuse and enable late-LTP
+                    at tagged synapses.
+
+    Only when BOTH signals exceed their thresholds does the synapse undergo
+    permanent structural consolidation.  Routine, predictable inputs that
+    generate neither local error nor global surprise cannot overwrite
+    consolidated schemas.
+
+    Computational analog
+    --------------------
+    Tag  = HebbianSynapse._tag_norm: per-layer fast-decaying EMA of
+           |z - M·a|, the local delta-rule prediction error.
+    PRP  = NeuroPlasticOptimizer._surprise_ema: global surprise EMA
+           (0 if NeuroPlasticOptimizer is not enabled).
+
+    After backward() but before grad_clip and optimizer.step():
+    - For each ThoughtLayer with a tagged HebbianSynapse:
+        if tag < threshold_tag  OR  prp < threshold_prp:
+            scale all layer.parameters() gradients by min_gate
+    - Fully gradient-path safe: modifies .grad in-place, no hooks needed.
+
+    Args:
+        threshold_tag: Minimum tag norm for the layer gate to open.
+                       Increase to require stronger recent error signal.
+        threshold_prp: Minimum global PRP for any gate to open.
+                       Set to 0.0 if not using NeuroPlasticOptimizer.
+        min_gate:      Gradient scale when the gate is closed.
+                       0.01 = 1%% pass-through (near-zero but not zero,
+                       so Adam state keeps updating slowly).
+    """
+
+    def __init__(
+        self,
+        threshold_tag: float = 0.05,
+        threshold_prp: float = 0.3,
+        min_gate: float = 0.01,
+    ):
+        self.threshold_tag = threshold_tag
+        self.threshold_prp = threshold_prp
+        self.min_gate = min_gate
+        self._last_n_gated: int = 0
+        self._last_n_total: int = 0
+
+    def apply(self, layers: list, prp: float) -> None:
+        """Scale slow-weight gradients by the STC gate.
+
+        Args:
+            layers: ThoughtLayer modules (from _stream_layers or similar).
+            prp:    Global PRP = NeuroPlasticOptimizer._surprise_ema.
+                    Pass 0.0 when the neuromodulated optimizer is absent.
+        """
+        prp_active = prp >= self.threshold_prp
+        n_gated = 0
+        n_total = 0
+
+        for layer in layers:
+            hebbian = getattr(layer, "hebbian", None)
+            if hebbian is None or not getattr(hebbian, "use_stc", False):
+                continue
+
+            n_total += 1
+            tag_active = hebbian._tag_norm >= self.threshold_tag
+
+            if not (prp_active and tag_active):
+                n_gated += 1
+                for p in layer.parameters():
+                    if p.grad is not None:
+                        p.grad.mul_(self.min_gate)
+
+        self._last_n_gated = n_gated
+        self._last_n_total = n_total
+
+    @property
+    def gate_fraction(self) -> float:
+        """Fraction of STC-enabled layers currently gated (for logging)."""
+        if self._last_n_total == 0:
+            return 0.0
+        return self._last_n_gated / self._last_n_total
+
+    def mean_tag_norm(self, layers: list) -> float:
+        """Mean tag norm across all STC-enabled layers (for logging)."""
+        vals = [
+            layer.hebbian._tag_norm
+            for layer in layers
+            if getattr(layer, "hebbian", None) is not None
+            and getattr(layer.hebbian, "use_stc", False)
+        ]
+        return sum(vals) / len(vals) if vals else 0.0
+
+
+class EpisodicDND:
+    """
+    Episodic Differentiable Neural Dictionary (DND) for zero-shot retrieval.
+
+    Biological motivation
+    ---------------------
+    Episodic Control in biological agents bypasses slow incremental learning
+    for previously-encountered situations by directly retrieving successful
+    responses from hippocampal episodic memory via pattern-completion.
+
+    The DND is a non-parametric key-value bank:
+      Keys  = truncated mean-pooled input embeddings (context fingerprint).
+      Values = mean-pooled final-tick latent z from high-confidence passes.
+
+    During forward(): if max cosine_sim(current_key, stored_keys) >= threshold,
+    the thought loop is bypassed entirely — the retrieved value is expanded and
+    passed through the output head to produce logits in O(1) instead of O(T).
+
+    Memory cost: capacity × (key_dim + d_latent) × 4 bytes.
+    At capacity=1000, key_dim=64, d_latent=1024: ≈4.3 MB — negligible.
+
+    Retrieval uses Hopfield-style soft attention rather than hard argmax: the
+    returned value is a softmax-weighted blend of the top-k stored values,
+    making retrieval robust to small distributional shifts.
+
+    Args:
+        capacity:             Max number of stored key-value pairs.
+        key_dim:              Dimensionality of stored keys.
+        d_latent:             Dimensionality of stored values (final latent).
+        confidence_threshold: Cosine similarity required to trigger bypass.
+                              0.98 is deliberately stringent: only near-exact
+                              matches short-circuit the thought loop.
+        hopfield_beta:        Softmax inverse temperature for retrieval.
+                              Higher → sharper (closer to argmax). 4.0 works well.
+        min_novelty:          Min (1 − max_sim) required to accept a write.
+                              Prevents near-duplicates from filling capacity.
+                              0.05 = skip if sim > 0.95 entry already exists.
+    """
+
+    def __init__(
+        self,
+        capacity: int = 1000,
+        key_dim: int = 64,
+        d_latent: int = 64,
+        confidence_threshold: float = 0.98,
+        hopfield_beta: float = 4.0,
+        min_novelty: float = 0.05,
+    ):
+        self.capacity = capacity
+        self.key_dim = key_dim
+        self.d_latent = d_latent
+        self.confidence_threshold = confidence_threshold
+        self.hopfield_beta = hopfield_beta
+        self.min_novelty = min_novelty
+
+        # Lazily initialized on first push/query (device not known at construction)
+        self._keys: torch.Tensor | None = None    # [capacity, key_dim]
+        self._values: torch.Tensor | None = None  # [capacity, d_latent]
+        self._n_stored: int = 0
+        self._write_ptr: int = 0  # FIFO write pointer
+
+        # Diagnostics (updated by push/query)
+        self._last_max_sim: float = 0.0
+        self._last_hit: bool = False
+
+    def _init_buffers(self, device: torch.device, dtype: torch.dtype) -> None:
+        if self._keys is None:
+            self._keys = torch.zeros(
+                self.capacity, self.key_dim, device=device, dtype=dtype
+            )
+            self._values = torch.zeros(
+                self.capacity, self.d_latent, device=device, dtype=dtype
+            )
+
+    def push(self, key: torch.Tensor, value: torch.Tensor) -> bool:
+        """Write key/value to the buffer (FIFO with novelty guard).
+
+        Args:
+            key:   [key_dim] — context fingerprint.
+            value: [d_latent] — mean-pooled final-tick latent to cache.
+
+        Returns:
+            True if written, False if skipped (too similar to existing entry).
+        """
+        key = key.float()
+        value = value.float()
+        self._init_buffers(key.device, key.dtype)
+
+        if self._n_stored > 0 and self.min_novelty > 0.0:
+            k_norm = F.normalize(key.unsqueeze(0), dim=-1)             # [1, key_dim]
+            K_norm = F.normalize(self._keys[:self._n_stored], dim=-1)  # [n, key_dim]
+            max_sim = float((k_norm @ K_norm.T).squeeze(0).max().item())
+            if max_sim >= (1.0 - self.min_novelty):
+                return False  # Too similar — skip to avoid near-duplicate entries
+
+        idx = self._write_ptr % self.capacity
+        self._keys[idx] = key
+        self._values[idx] = value
+        self._write_ptr += 1
+        self._n_stored = min(self._n_stored + 1, self.capacity)
+        return True
+
+    def query(self, key: torch.Tensor) -> tuple:
+        """Hopfield-style retrieval.
+
+        If max cosine similarity >= confidence_threshold, returns a
+        softmax-weighted blend of the top matching stored values.
+        Otherwise returns (None, max_sim).
+
+        Args:
+            key: [key_dim] — context fingerprint.
+
+        Returns:
+            (value: [d_latent] | None, max_sim: float)
+        """
+        if self._n_stored == 0 or self._keys is None:
+            self._last_hit = False
+            self._last_max_sim = 0.0
+            return None, 0.0
+
+        key = key.float()
+        self._init_buffers(key.device, key.dtype)
+
+        k_norm = F.normalize(key.unsqueeze(0), dim=-1)                   # [1, key_dim]
+        K_norm = F.normalize(self._keys[:self._n_stored], dim=-1)        # [n, key_dim]
+        sims = (k_norm @ K_norm.T).squeeze(0)                            # [n]
+        max_sim = float(sims.max().item())
+        self._last_max_sim = max_sim
+
+        if max_sim < self.confidence_threshold:
+            self._last_hit = False
+            return None, max_sim
+
+        attn = torch.softmax(self.hopfield_beta * sims, dim=0)           # [n]
+        v_out = attn @ self._values[:self._n_stored]                     # [d_latent]
+        self._last_hit = True
+        return v_out, max_sim
+
+    @property
+    def n_stored(self) -> int:
+        return self._n_stored

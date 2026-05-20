@@ -530,6 +530,75 @@ class CTMConfig:
     btsp_kernel_decay_init: float = 0.9  # Initial kernel decay β (causal span)
     btsp_salience_threshold: float = 0.0 # Φ threshold; 0 = continuous (no gate)
 
+    # ── Synaptic Tagging and Capture (STC) ───────────────────────────────
+    # Biological late-phase LTP requires two concurrent signals:
+    #   Tag (local):  A synapse experiencing high prediction error sets a
+    #                 transient biochemical marker (early-LTP trace).
+    #   PRP (global): Strong, surprising stimuli trigger the soma to synthesize
+    #                 Plasticity-Related Proteins that diffuse globally.
+    # Only when BOTH signals exceed threshold does the synapse undergo
+    # permanent structural consolidation (late-LTP / slow-weight update).
+    #
+    # Computationally:
+    #   Tag = fast-decaying EMA of |z - M·a| in HebbianSynapse (per layer).
+    #   PRP = NeuroPlasticOptimizer._surprise_ema (global scalar).
+    #   Gate: if tag < threshold_tag OR prp < threshold_prp,
+    #         slow-weight gradients for that layer are multiplied by min_gate.
+    #
+    # Effect: routine, low-salience inputs cannot erode consolidated schemas.
+    # Reduces reliance on brute-force sleep replay to protect old memories.
+    #
+    # Requires use_hebbian_synapse=True. Works best with use_neuromod_optimizer=True
+    # to provide a meaningful PRP signal; if absent, PRP is 0 and the gate
+    # acts purely on the local tag (threshold_prp should be set to 0.0).
+    use_stc: bool = False
+    stc_tag_decay: float = 0.5        # Fast-decaying EMA coefficient for local tag
+    stc_threshold_tag: float = 0.05   # Tag norm threshold; below → layer is "stale"
+    stc_threshold_prp: float = 0.3    # PRP (surprise EMA) threshold; below → routine input
+    stc_min_gate: float = 0.01        # Gradient multiplier when gate is closed
+
+    # ── Similarity-Weighted Interleaved Learning (SWIL / CLS Priority #3) ──
+    # Augments the PrioritizedReplayBuffer with semantic indexing so sleep
+    # replay is biased toward structurally related past episodes rather than
+    # high-surprise episodes alone.
+    #
+    # Each stored episode carries a semantic vector — the mean-pooled final-tick
+    # latent z_curr, optionally truncated to swil_embed_dim for storage efficiency.
+    # When sampling for sleep, the cosine similarity between the current batch's
+    # semantic vector (query) and each stored episode's vector is computed and
+    # added to the free-energy priority:
+    #
+    #   w_i = softmax( (F_i + λ · cos_sim(query, v_i)) / τ )
+    #
+    # Episodes that are both high-surprise AND structurally similar to the current
+    # context are sampled preferentially, preventing gradient interference with
+    # representations currently being modified. Pure-surprise episodes that are
+    # unrelated to the current context are down-weighted.
+    #
+    # Requires use_sleep_consolidation=True and use_prioritized_replay=True.
+    use_swil: bool = False
+    swil_sim_weight: float = 1.0   # λ — cosine similarity scale relative to FE
+    swil_embed_dim: int = 64       # Stored vector dim; 0 = use full d_latent
+
+    # ── Episodic Differentiable Neural Dictionaries (DNDs) ────────────────────
+    # Non-parametric key-value bank for zero-shot retrieval of previously-solved
+    # contexts. Keys = truncated mean-pooled input embeddings; values =
+    # mean-pooled final-tick latent z from high-confidence forward passes.
+    # When cosine_sim(current_key, stored_key) >= dnd_confidence_threshold,
+    # the thought loop is bypassed entirely — the cached latent is expanded and
+    # projected to logits via the output head in O(1). Implements Episodic
+    # Control: deterministic algorithmic tasks are solved without re-running T
+    # thought steps once the model has mastered them.
+    #
+    # Enable with --use_dnd. Works with any other flag combination.
+    use_dnd: bool = False
+    dnd_capacity: int = 1000           # Max key-value pairs in the episodic bank
+    dnd_key_dim: int = 64             # Key dim (first N dims of mean-pooled text embedding)
+    dnd_confidence_threshold: float = 0.98   # Cosine sim threshold to bypass thought loop
+    dnd_write_confidence: float = 0.9  # Min mean token certainty to write a new entry
+    dnd_hopfield_beta: float = 4.0    # Softmax inverse temperature for Hopfield retrieval
+    dnd_min_novelty: float = 0.05     # Min (1 - max_sim) required to write (skip near-dupes)
+
     # ── Thalamic Multiplicative Gating ─────────────────────────────────────
     # Intercepts cross-attention output and scales by an entropy-derived gain.
     # Low entropy (focused attention) → gain ≈ 1 (signal passes).

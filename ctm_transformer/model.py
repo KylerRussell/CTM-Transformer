@@ -27,7 +27,7 @@ from typing import Optional
 import torch.utils.checkpoint as torch_checkpoint
 from contextlib import nullcontext
 
-from ctm_transformer.biological import HebbianSynapse, CerebellarReadout
+from ctm_transformer.biological import HebbianSynapse, CerebellarReadout, EpisodicDND
 from ctm_transformer.predictive_coding import PCLayer, PCStateManager
 
 
@@ -2211,6 +2211,9 @@ class ThoughtLayer(nn.Module):
         schema_routing_novelty_threshold: float = 0.1,
         schema_routing_btsp_scale: float = 2.0,
         hebbian_n_compartments: int = 1,
+        use_stc: bool = False,
+        stc_tag_decay: float = 0.5,
+        stc_threshold_tag: float = 0.05,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -2344,6 +2347,9 @@ class ThoughtLayer(nn.Module):
                 btsp_kernel_decay_init=btsp_kernel_decay_init,
                 btsp_salience_threshold=btsp_salience_threshold,
                 n_compartments=hebbian_n_compartments,
+                use_stc=use_stc,
+                stc_tag_decay=stc_tag_decay,
+                stc_threshold_tag=stc_threshold_tag,
             )
         else:
             self.hebbian = None
@@ -2724,6 +2730,9 @@ class CTMTransformer(nn.Module):
                 schema_routing_novelty_threshold=getattr(config, "schema_routing_novelty_threshold", 0.1),
                 schema_routing_btsp_scale=getattr(config, "schema_routing_btsp_scale", 2.0),
                 hebbian_n_compartments=getattr(config, "hebbian_n_compartments", 1),
+                use_stc=getattr(config, "use_stc", False),
+                stc_tag_decay=getattr(config, "stc_tag_decay", 0.5),
+                stc_threshold_tag=getattr(config, "stc_threshold_tag", 0.05),
             )
 
         # ── Hyperloop or Standard Layer Construction ────────────────────
@@ -3003,6 +3012,23 @@ class CTMTransformer(nn.Module):
             )
         else:
             self.amortized_net = None
+
+        # ── Episodic DND ──────────────────────────────────────────────────────
+        # Non-parametric key-value bank for zero-shot retrieval. No model
+        # parameters are added; the DND is purely runtime state (not saved in
+        # state_dict). Keys = mean-pooled text_emb[:key_dim]; values =
+        # mean-pooled z_curr from high-certainty passes.
+        if getattr(config, "use_dnd", False):
+            self.dnd: EpisodicDND | None = EpisodicDND(
+                capacity=getattr(config, "dnd_capacity", 1000),
+                key_dim=getattr(config, "dnd_key_dim", 64),
+                d_latent=config.d_latent,
+                confidence_threshold=getattr(config, "dnd_confidence_threshold", 0.98),
+                hopfield_beta=getattr(config, "dnd_hopfield_beta", 4.0),
+                min_novelty=getattr(config, "dnd_min_novelty", 0.05),
+            )
+        else:
+            self.dnd = None
 
         self.apply(self._init_weights)
 
@@ -3466,7 +3492,41 @@ class CTMTransformer(nn.Module):
         # ── Embed text ──────────────────────────────────────────────────
         text_emb = self._embed_text(input_ids)
 
+        # ── Episodic DND: instant retrieval for previously solved contexts ────
+        # Key = mean-pooled text embedding (content fingerprint of the input).
+        # If a near-exact key is in the DND, bypass the thought loop entirely:
+        # expand the cached latent to [B, S, d_latent] and project to logits.
+        # The output head (adapter + lm_head) is NOT frozen — CE loss still
+        # flows gradients through it, so the head keeps improving even when
+        # the thought loop is bypassed.
+        if self.dnd is not None:
+            with torch.no_grad():
+                _key_dim = getattr(self.config, "dnd_key_dim", 64)
+                _dnd_pool = text_emb.detach().float().mean(dim=1)  # [B, d_model]
+                if _key_dim < _dnd_pool.shape[-1]:
+                    _dnd_pool = _dnd_pool[..., :_key_dim]
+                _retrieved = [self.dnd.query(_dnd_pool[b]) for b in range(B)]
+                _all_hit = all(v is not None for v, _ in _retrieved)
 
+            if _all_hit:
+                _z_stacked = torch.stack([v for v, _ in _retrieved]).to(device=device, dtype=dtype)
+                _z_exp = _z_stacked.unsqueeze(1).expand(B, S, -1)  # [B, S, d_latent]
+                _logits = self._output_logits(_z_exp, text_emb, tick=T - 1)
+                _dnd_result: dict = {
+                    "logits": _logits,
+                    "certainties": None,
+                    "all_logits": [],
+                    "loss": torch.tensor(0.0, device=device, dtype=dtype),
+                    "dnd_hit": True,
+                    "dnd_max_sim": float(max(sim for _, sim in _retrieved)),
+                }
+                if targets is not None:
+                    _dnd_result["loss"] = F.cross_entropy(
+                        _logits.reshape(-1, self.config.vocab_size),
+                        targets.reshape(-1),
+                        reduction="mean",
+                    )
+                return _dnd_result
 
         # ── Initialize latent states ────────────────────────────────────
         z = self.z0.unsqueeze(0).unsqueeze(0).expand(B, S, -1).clone()
@@ -3833,6 +3893,39 @@ class CTMTransformer(nn.Module):
         # both prospective-config and BPTT paths (reflects the final thought tick).
         if hasattr(self, "_last_per_layer_precision"):
             result["hpc_per_layer_precision"] = list(self._last_per_layer_precision)
+
+        # SWIL semantic vector: mean-pooled final-tick latent for cosine-similarity
+        # replay sampling.  z_curr holds the final equilibrium state (prospective
+        # path) or the last-tick latent (BPTT path) — both are meaningful semantic
+        # summaries of the processed sequence.  Optionally truncated to
+        # swil_embed_dim for storage efficiency.
+        if getattr(self.config, "use_swil", False):
+            embed_dim = getattr(self.config, "swil_embed_dim", 64)
+            _pool = z_curr.detach().float().mean(dim=1)   # [B, d_latent]
+            if embed_dim > 0 and embed_dim < _pool.shape[-1]:
+                _pool = _pool[..., :embed_dim]
+            result["final_latent_pool"] = _pool.cpu()     # [B, d] on CPU
+
+        # ── Episodic DND: write high-confidence latents ──────────────────────
+        # After a normal forward pass, cache the final latent when the model is
+        # sufficiently certain. Future calls with the same (or near-identical)
+        # input will bypass the thought loop and retrieve this cached latent.
+        if self.dnd is not None:
+            _certs = result.get("certainties")
+            if _certs is not None:
+                with torch.no_grad():
+                    _mean_cert = float(_certs.float().mean().item())
+                    if _mean_cert >= getattr(self.config, "dnd_write_confidence", 0.9):
+                        _key_dim = getattr(self.config, "dnd_key_dim", 64)
+                        _kpool = text_emb.detach().float().mean(dim=1)  # [B, d_model]
+                        if _key_dim < _kpool.shape[-1]:
+                            _kpool = _kpool[..., :_key_dim]
+                        _vpool = z_curr.detach().float().mean(dim=1)    # [B, d_latent]
+                        for b in range(B):
+                            self.dnd.push(_kpool[b], _vpool[b])
+                        result["dnd_written"] = True
+            result["dnd_hit"] = False
+            result["dnd_max_sim"] = self.dnd._last_max_sim
 
         return result
 
