@@ -71,8 +71,10 @@ from ctm_transformer.predictive_coding import (
 from ctm_transformer.validation import (
     compute_validation_metrics,
     compute_validation_metrics_t_sweep,
+    compute_spectrum_metrics,
     format_validation_report,
     format_t_sweep_report,
+    format_spectrum_report,
 )
 
 
@@ -107,7 +109,9 @@ __all__ = [
     # Validation
     "compute_validation_metrics",
     "compute_validation_metrics_t_sweep",
+    "compute_spectrum_metrics",
     "format_validation_report",
     "format_t_sweep_report",
+    "format_spectrum_report",
 ]
 __version__ = "2.0.0"

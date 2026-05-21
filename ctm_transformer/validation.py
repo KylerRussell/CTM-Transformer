@@ -220,6 +220,238 @@ def compute_validation_metrics_t_sweep(
     return out
 
 
+def _svca_spectrum(
+    Z: torch.Tensor,
+    n_components: Optional[int] = None,
+    generator: Optional[torch.Generator] = None,
+) -> torch.Tensor:
+    """Cross-validated (SVCA2) variance spectrum of an activation matrix.
+
+    Splits neurons into two equal halves (a, b) and reads the shared variance
+    of each covarying mode. The *neuron* split is the cross-validation: only
+    covariation between the two disjoint populations survives, so private
+    per-neuron noise collapses to ~0 in the tail instead of inflating it.
+
+    This is SVCA2 — NOT time-split SVCA. The cross-covariance and the variance
+    readout both use ALL timepoints; there is no train/test split over time.
+    Stringer/Pachitariu found the extra time split inflates the power-law
+    exponent (their Fig S4: a symmetric-connectivity ground truth of α≈0.69
+    reads ≈0.86 with the time split vs ≈0.68 without), so it is omitted. This
+    matters for comparison against the biological target α≈0.67; for pure
+    self-comparison across runs the estimator choice only needs to be consistent.
+
+    Args:
+        Z: [N, d] activations (N timepoints, d neurons), fp32/64.
+        n_components: cap on returned modes (default: d // 2).
+        generator: optional RNG for the neuron split → reproducible α.
+
+    Returns:
+        1D tensor of cross-validated shared variances, descending order.
+    """
+    Z = Z.double()
+    Z = Z - Z.mean(dim=0, keepdim=True)
+    N, d = Z.shape
+
+    nperm = torch.randperm(d, generator=generator)
+    da = d // 2
+    A = Z[:, nperm[:da]]
+    B = Z[:, nperm[da:2 * da]]
+
+    # SVCA2: cross-covariance over ALL timepoints (no train/test time split).
+    C = (A.t() @ B) / max(N - 1, 1)
+    U, _, Vh = torch.linalg.svd(C)
+    V = Vh.t()
+    k = n_components or da
+    k = min(k, U.shape[1], V.shape[1])
+    U, V = U[:, :k], V[:, :k]
+
+    # Shared variance per mode = covariance of the paired projections on the
+    # same data (≈ the singular values of C; the paired form is kept so
+    # per-component temporal traces stay inspectable if ever needed).
+    pa = A @ U
+    pb = B @ V
+    pa = pa - pa.mean(dim=0, keepdim=True)
+    pb = pb - pb.mean(dim=0, keepdim=True)
+    shared = (pa * pb).mean(dim=0)  # [k]
+    return shared.sort(descending=True).values
+
+
+def _fit_power_law(
+    spec: torch.Tensor, fit_lo: int = 10, fit_hi: Optional[int] = 500
+) -> Optional[dict]:
+    """Weighted log-log fit of var(rank) ∝ rank^(-alpha) over [fit_lo, fit_hi).
+
+    Uses the paper's regression weights 1/log(rank), which upweight the
+    more-reliable head of the spectrum. Returns a metrics dict, or None when
+    too few reliable (positive) modes exist to fit.
+    """
+    n_pos = int((spec > 0).sum().item())
+    if n_pos < fit_lo + 5:
+        return None
+    hi = min(fit_hi or n_pos, n_pos)
+    lo = fit_lo
+    if hi - lo < 5:
+        return None
+
+    rank = torch.arange(lo, hi, dtype=torch.float64) + 1.0   # 1-based PC index
+    x = torch.log(rank)
+    y = torch.log(spec[lo:hi].double())
+    w = 1.0 / torch.log(rank)                                # paper weighting
+    w = w / w.sum()
+
+    xm = (w * x).sum()
+    ym = (w * y).sum()
+    sxx = (w * (x - xm) ** 2).sum()
+    if sxx <= 0:
+        return None
+    slope = (w * (x - xm) * (y - ym)).sum() / sxx
+    yhat = slope * x + (ym - slope * xm)
+    ss_res = (w * (y - yhat) ** 2).sum()
+    ss_tot = (w * (y - ym) ** 2).sum().clamp_min(1e-12)
+    return {
+        "power_law_alpha": float(-slope.item()),
+        "fit_r2": float((1.0 - ss_res / ss_tot).item()),
+        "n_components": n_pos,
+        "fit_lo": lo,
+        "fit_hi": int(hi),
+    }
+
+
+@torch.no_grad()
+def compute_spectrum_metrics(
+    model,
+    input_ids: torch.Tensor,
+    device,
+    fit_lo: int = 10,
+    fit_hi: Optional[int] = 500,
+    max_thought_steps: Optional[int] = None,
+    seed: Optional[int] = 0,
+) -> dict:
+    """Power-law exponent of the latent-activation variance spectrum (SVCA2).
+
+    Captures the per-tick post-norm latent z from every thought layer (the
+    recurrent compute state) and fits a power law var(rank) ∝ rank^(-alpha)
+    over PC indices [fit_lo, fit_hi] using the cross-validated SVCA2 spectrum.
+
+    A well-conditioned critical-symmetric scaffold should sit near alpha ≈ 2/3
+    (≈0.67); drift toward alpha ≫ 1 (collapsing/low-dimensional) or alpha ≈ 0
+    (white/uncorrelated) is the pathology to watch.
+
+    The headline `power_law_alpha` pools activations across all layers and
+    ticks. Pooling conflates across-layer dimensionality with across-tick
+    dynamics, so a per-layer breakdown (`per_layer`) is also returned — that's
+    what reveals whether one specific layer is collapsing while others are
+    healthy. Each layer/tick contributes the same B*S rows, so ticks are
+    weighted equally (no late-tick bias).
+
+    Args:
+        seed: RNG seed for the neuron split, so repeated calls on the same data
+            give the same alpha (stable learning-curve plots). None → global RNG.
+
+    Returns:
+        dict with headline keys: power_law_alpha, fit_r2, n_components,
+        n_samples, fit_lo, fit_hi; plus `per_layer` (dict layer_idx -> fit dict)
+        and `per_layer_alpha` (dict layer_idx -> alpha) for the breakdown.
+    """
+    nan = float("nan")
+    out = {
+        "power_law_alpha": nan, "fit_r2": nan,
+        "n_components": 0, "n_samples": 0, "fit_lo": fit_lo, "fit_hi": fit_hi,
+        "per_layer": {}, "per_layer_alpha": {},
+    }
+
+    unwrapped = _unwrap_model(model)
+    if not hasattr(unwrapped, "_get_layers_sequence"):
+        return out
+
+    # One hook per unique post_norm module (de-dup so hyperloop's reused middle
+    # block isn't double-counted), keyed by its first layer index.
+    captured: dict[int, list[torch.Tensor]] = {}
+    handles = []
+    seen: dict[int, int] = {}
+
+    def _make_hook(idx):
+        def _hook(_m, _i, o):
+            captured.setdefault(idx, []).append(
+                o.detach().reshape(-1, o.shape[-1]).float().cpu()
+            )
+        return _hook
+
+    for idx, layer in enumerate(unwrapped._get_layers_sequence()):
+        pn = getattr(layer, "post_norm", None)
+        if pn is None or id(pn) in seen:
+            continue
+        seen[id(pn)] = idx
+        handles.append(pn.register_forward_hook(_make_hook(idx)))
+
+    was_training = model.training
+    model.eval()
+    try:
+        model(input_ids.to(device), max_thought_steps=max_thought_steps)
+    finally:
+        for h in handles:
+            h.remove()
+        if was_training:
+            model.train()
+
+    if not captured:
+        return out
+
+    def _gen(s):
+        if s is None:
+            return None
+        g = torch.Generator()
+        g.manual_seed(int(s))
+        return g
+
+    # ── Per-layer spectra ────────────────────────────────────────────────
+    per_layer: dict = {}
+    per_layer_alpha: dict = {}
+    for idx in sorted(captured):
+        Zl = torch.cat(captured[idx], dim=0)
+        if Zl.shape[0] < 8 or Zl.shape[1] < 4:
+            continue
+        spec_l = _svca_spectrum(Zl, generator=_gen(None if seed is None else seed + idx + 1))
+        fit_l = _fit_power_law(spec_l, fit_lo, fit_hi)
+        if fit_l is not None:
+            per_layer[idx] = fit_l
+            per_layer_alpha[idx] = fit_l["power_law_alpha"]
+    out["per_layer"] = per_layer
+    out["per_layer_alpha"] = per_layer_alpha
+
+    # ── Pooled headline spectrum ─────────────────────────────────────────
+    Z = torch.cat([c for caps in captured.values() for c in caps], dim=0)
+    out["n_samples"] = int(Z.shape[0])
+    if Z.shape[0] < 8 or Z.shape[1] < 4:
+        return out
+
+    spec = _svca_spectrum(Z, generator=_gen(seed))
+    fit = _fit_power_law(spec, fit_lo, fit_hi)
+    if fit is not None:
+        out.update(fit)
+    else:
+        out["n_components"] = int((spec > 0).sum().item())
+    return out
+
+
+def format_spectrum_report(metrics: dict, prefix: str = "  ") -> str:
+    """One-line formatted report for the activation-spectrum probe (SVCA2)."""
+    a = metrics.get("power_law_alpha", float("nan"))
+    if math.isnan(a):
+        return prefix + f"spectrum: n/a (n_components={metrics.get('n_components', 0)})"
+    line = (
+        prefix
+        + f"spectrum: α={a:.3f}  R²={metrics.get('fit_r2', float('nan')):.3f}  "
+        f"(PCs {metrics.get('fit_lo')}–{metrics.get('fit_hi')}, "
+        f"{metrics.get('n_components')} modes, {metrics.get('n_samples')} samples)"
+    )
+    per_layer = metrics.get("per_layer_alpha", {})
+    if per_layer:
+        layers = "  ".join(f"L{i}={per_layer[i]:.3f}" for i in sorted(per_layer))
+        line += f"\n{prefix}  per-layer α: {layers}"
+    return line
+
+
 def format_validation_report(metrics: dict, prefix: str = "  ") -> str:
     """One-line-ish formatted report for log printing."""
     parts = [

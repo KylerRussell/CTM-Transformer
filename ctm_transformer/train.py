@@ -1971,6 +1971,19 @@ def train(
                 if events and is_main_process():
                     print(f"  [Plasticity] step {step}: {', '.join(events)}", flush=True)
 
+        # ── Synaptic homeostasis (SHY): renormalize recurrent spectral radius ──
+        # Deterministic given the (DDP-synced) weights, so all ranks stay in sync.
+        if (getattr(config, "use_spectral_renorm", False)
+                and step > 0
+                and step % getattr(config, "spectral_renorm_interval", 200) == 0):
+            _tgt = getattr(config, "spectral_renorm_target", 1.0)
+            _radii = _raw.renormalize_spectral_radius(_tgt)
+            if _radii and is_main_process():
+                _rescaled = sum(1 for _, b, a in _radii if abs(b - a) > 1e-9)
+                _max_rho = max(b for _, b, _ in _radii)
+                print(f"  [SHY] step {step}: renormalized {_rescaled}/{len(_radii)} "
+                      f"layers, max ρ {_max_rho:.3f} (target ≤{_tgt:.3f})", flush=True)
+
         dt = time.time() - t0
         # Effective batch tokens accounts for accumulation AND, under DDP,
         # the world size — every rank processes its own batch each step,
@@ -2371,6 +2384,37 @@ def parse_args():
     model_group.add_argument("--synapse_type", type=str, default="mlp", choices=["mlp", "unet", "dendritic"])
     model_group.add_argument("--dendritic_n_branches", type=int, default=4,
                              help="Number of dendritic compartments (synapse_type=dendritic)")
+    model_group.add_argument("--use_critical_init", action="store_true",
+                             help="Initialize recurrent dynamics matrices (synapse z-slice "
+                                  "and Hebbian M_0) as critically-normalized symmetric random "
+                                  "matrices instead of normal/zeros. Gives a ~2/3 power-law "
+                                  "variance spectrum and long-timescale dynamics at init.")
+    model_group.add_argument("--critical_init_sym_frac", type=float, default=0.6,
+                             help="Symmetry fraction for critical init. 1.0=fully symmetric "
+                                  "(real spectrum, ~2/3 exponent), 0.0=asymmetric. ~0.6 is "
+                                  "near the biological regime. Ignored for the non-square mlp "
+                                  "synapse z-slice (asymmetric scaling only).")
+    model_group.add_argument("--critical_init_spectral_radius", type=float, default=0.999,
+                             help="Target leading-eigenvalue magnitude for critical init. "
+                                  "0.999 keeps it just sub-critical.")
+    model_group.add_argument("--use_spectral_renorm", action="store_true",
+                             help="Synaptic-homeostasis (SHY) hook: every "
+                                  "--spectral_renorm_interval steps, project the synapse "
+                                  "z-recurrence matrix back to spectral radius <= "
+                                  "--spectral_renorm_target. Keeps the recurrent dynamics "
+                                  "near criticality as training deforms the spectrum. "
+                                  "Complements --use_critical_init.")
+    model_group.add_argument("--spectral_renorm_interval", type=int, default=200,
+                             help="Training steps between spectral-renorm passes.")
+    model_group.add_argument("--spectral_renorm_target", type=float, default=1.0,
+                             help="Maximum allowed spectral radius for the synapse "
+                                  "z-recurrence matrix (only shrinks when exceeded).")
+    model_group.add_argument("--use_multi_rate_streams", action="store_true",
+                             help="Multi-rate thought loop: matrix streams update at "
+                                  "different timescales (power-of-2 periods [1,1,2,4,8,...]). "
+                                  "Slow streams hold their value between refreshes, giving "
+                                  "cross-frequency-coupling-style multi-timescale dynamics. "
+                                  "Requires --use_matrix_streams.")
 
     model_group.add_argument("--use_feature_encoder", action="store_true")
     model_group.add_argument("--per_tick_heads", action="store_true",
@@ -2949,6 +2993,13 @@ def main():
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
         dendritic_n_branches=args.dendritic_n_branches,
+        use_critical_init=args.use_critical_init,
+        critical_init_sym_frac=args.critical_init_sym_frac,
+        critical_init_spectral_radius=args.critical_init_spectral_radius,
+        use_spectral_renorm=args.use_spectral_renorm,
+        spectral_renorm_interval=args.spectral_renorm_interval,
+        spectral_renorm_target=args.spectral_renorm_target,
+        use_multi_rate_streams=args.use_multi_rate_streams,
 
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
@@ -3439,6 +3490,19 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 if rank == 0 and events:
                     print(f"  [Plasticity] step {step}: {', '.join(events)}", flush=True)
 
+        # ── Synaptic homeostasis (SHY): renormalize recurrent spectral radius ──
+        # Deterministic given the (allreduce-synced) weights → ranks stay in sync.
+        if (getattr(config, "use_spectral_renorm", False)
+                and step > 0
+                and step % getattr(config, "spectral_renorm_interval", 200) == 0):
+            _tgt = getattr(config, "spectral_renorm_target", 1.0)
+            _radii = model.renormalize_spectral_radius(_tgt)
+            if _radii and rank == 0:
+                _rescaled = sum(1 for _, b, a in _radii if abs(b - a) > 1e-9)
+                _max_rho = max(b for _, b, _ in _radii)
+                print(f"  [SHY] step {step}: renormalized {_rescaled}/{len(_radii)} "
+                      f"layers, max ρ {_max_rho:.3f} (target ≤{_tgt:.3f})", flush=True)
+
         # ── Periodic profiler report (rank 0 only) ───────────────────
         if profile_enabled and step > 0 and step % profile_interval == 0:
             timer.report(last_n=profile_interval)
@@ -3696,6 +3760,13 @@ def main_multi_gpu():
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
         dendritic_n_branches=args.dendritic_n_branches,
+        use_critical_init=args.use_critical_init,
+        critical_init_sym_frac=args.critical_init_sym_frac,
+        critical_init_spectral_radius=args.critical_init_spectral_radius,
+        use_spectral_renorm=args.use_spectral_renorm,
+        spectral_renorm_interval=args.spectral_renorm_interval,
+        spectral_renorm_target=args.spectral_renorm_target,
+        use_multi_rate_streams=args.use_multi_rate_streams,
 
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,

@@ -98,5 +98,8 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --dnd_write_confidence 0.9 \
     --dnd_hopfield_beta 4.0 \
     --dnd_min_novelty 0.05 \
+    --use_critical_init \
+    --use_spectral_renorm \
+    --use_multi_rate_streams \
     > train_dual_gpu_prospect_config.log 2>&1 &
 echo "Dual-GPU Training PID: $!"

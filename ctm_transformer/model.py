@@ -27,7 +27,12 @@ from typing import Optional
 import torch.utils.checkpoint as torch_checkpoint
 from contextlib import nullcontext
 
-from ctm_transformer.biological import HebbianSynapse, CerebellarReadout, EpisodicDND
+from ctm_transformer.biological import (
+    HebbianSynapse,
+    CerebellarReadout,
+    EpisodicDND,
+    critical_symmetric_init_,
+)
 from ctm_transformer.predictive_coding import PCLayer, PCStateManager
 
 
@@ -1506,6 +1511,7 @@ class MatrixResidualStream(nn.Module):
         schema_routing_ema_decay: float = 0.99,
         schema_routing_temperature: float = 0.1,
         schema_routing_novelty_threshold: float = 0.1,
+        use_multi_rate: bool = False,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -1565,6 +1571,20 @@ class MatrixResidualStream(nn.Module):
         # Grows/prunes are driven externally by StructuralPlasticityController.
         self.register_buffer("active_mask", torch.ones(n_streams, dtype=torch.bool))
 
+        # ── Multi-rate update cadence (optional) ─────────────────────────
+        # Cross-frequency-coupling analogue: streams refresh at different
+        # timescales. Stream i is updated only on ticks where t % period_i == 0;
+        # otherwise it holds its value (a slow stream). Periods follow a
+        # power-of-2 schedule [1, 1, 2, 4, 8, ...] so the first two streams
+        # track fast dynamics while later streams integrate over longer windows.
+        # Stored as a buffer (checkpoint-safe). Only meaningful when enabled.
+        self.use_multi_rate = use_multi_rate
+        if use_multi_rate:
+            periods = torch.tensor(
+                [1 << max(0, i - 1) for i in range(n_streams)], dtype=torch.long
+            )
+            self.register_buffer("stream_update_period", periods)
+
         # ── Dynamic Schema Router (optional) ───────────────────────────
         self.schema_router = (
             SchemaRouter(
@@ -1589,12 +1609,15 @@ class MatrixResidualStream(nn.Module):
         Returns:
             state: [B, S, n_streams, d_latent]
         """
-        # Broadcast learnable init to [B, S, n, D]
+        # Broadcast learnable init to [B, S, n, D]. Respect the requested
+        # device: under CPU-offload, stream_init lives on CPU but the thought
+        # loop runs on GPU — the .to(device) here is a differentiable copy, so
+        # gradients still flow back to the (CPU-resident) stream_init param.
         state = self.stream_init.unsqueeze(0).unsqueeze(0).expand(
             batch_size, seq_len, -1, -1
-        ).clone().to(dtype=dtype)
+        ).clone().to(device=device, dtype=dtype)
         # Dormant streams start zeroed (CUDA-graph safe multiply)
-        state = state * self.active_mask.to(dtype=dtype).view(1, 1, -1, 1)
+        state = state * self.active_mask.to(device=device, dtype=dtype).view(1, 1, -1, 1)
         return state
 
     def mix_pre(
@@ -1683,6 +1706,27 @@ class MatrixResidualStream(nn.Module):
         updated = updated * self.active_mask.to(dtype=updated.dtype).view(1, 1, -1, 1)
 
         return updated
+
+    def apply_update_cadence(
+        self, t: int, old: torch.Tensor, new: torch.Tensor
+    ) -> torch.Tensor:
+        """Multi-rate freeze: keep `old` for slow streams, `new` for fast ones.
+
+        A stream with period p is refreshed only when t % p == 0; otherwise it
+        retains its previous value, giving the stream a slower effective
+        timescale. Implemented as a CUDA-graph-safe mask multiply (no control
+        flow). No-op unless multi-rate is enabled.
+
+        Args:
+            t:   current thought-tick index.
+            old: [B, S, n_streams, d_latent] — stream state entering this tick.
+            new: [B, S, n_streams, d_latent] — freshly mixed stream state.
+        """
+        if not self.use_multi_rate:
+            return new
+        update = (t % self.stream_update_period == 0)            # [n_streams] bool
+        mask = update.view(1, 1, -1, 1).to(device=new.device, dtype=new.dtype)
+        return mask * new + (1.0 - mask) * old
 
     def maybe_activate_novel_stream(self, mean_max_similarity: float) -> int | None:
         """Activate a dormant stream if mean_max_similarity is below the novelty threshold.
@@ -2214,10 +2258,18 @@ class ThoughtLayer(nn.Module):
         use_stc: bool = False,
         stc_tag_decay: float = 0.5,
         stc_threshold_tag: float = 0.05,
+        use_critical_init: bool = False,
+        critical_init_sym_frac: float = 0.6,
+        critical_init_spectral_radius: float = 0.999,
+        use_multi_rate_streams: bool = False,
     ):
         super().__init__()
         self.d_latent = d_latent
         self.d_model = d_model
+        self.synapse_type = synapse_type
+        self.use_critical_init = bool(use_critical_init)
+        self.critical_init_sym_frac = critical_init_sym_frac
+        self.critical_init_spectral_radius = critical_init_spectral_radius
         self.n_heads = n_heads
         self.use_matrix_streams = use_matrix_streams
         self.use_dssa = use_dssa
@@ -2239,6 +2291,7 @@ class ThoughtLayer(nn.Module):
                 schema_routing_ema_decay=schema_routing_ema_decay,
                 schema_routing_temperature=schema_routing_temperature,
                 schema_routing_novelty_threshold=schema_routing_novelty_threshold,
+                use_multi_rate=use_multi_rate_streams,
             )
             # No sync_computer, nlm, or memory needed
             self.sync_computer = None
@@ -2350,6 +2403,9 @@ class ThoughtLayer(nn.Module):
                 use_stc=use_stc,
                 stc_tag_decay=stc_tag_decay,
                 stc_threshold_tag=stc_threshold_tag,
+                use_critical_init=use_critical_init,
+                critical_init_sym_frac=critical_init_sym_frac,
+                critical_init_spectral_radius=critical_init_spectral_radius,
             )
         else:
             self.hebbian = None
@@ -2375,6 +2431,63 @@ class ThoughtLayer(nn.Module):
         # protecting the latent state from noisy or uncertain signals.
         # Inactive when use_dssa=True (DSSA doesn't expose weight matrices).
         self.thalamic_gate = ThalamicGate() if (use_thalamic_gating and not use_dssa) else None
+
+    def _synapse_recurrent_weight(self) -> torch.Tensor:
+        """The synapse projection whose z-columns form the recurrent matrix A.
+
+        dendritic → soma; unet → final proj linear; mlp → first linear. The
+        d_model columns are feed-forward (attention) input; columns [d_model:]
+        read the previous latent z and constitute the recurrent dynamics.
+        """
+        if self.synapse_type == "dendritic":
+            return self.synapse.soma.weight        # [d_latent, d_model + d_latent]
+        elif self.synapse_type == "unet":
+            return self.synapse.proj[1].weight     # [d_latent, d_model + d_latent]
+        return self.synapse[0].weight              # mlp: [2·d_latent, d_model + d_latent]
+
+    def _synapse_recurrent_slice(self) -> torch.Tensor:
+        """View of the z-recurrence columns — the dynamics matrix A.
+
+        Square ([d_latent, d_latent]) for dendritic/unet; non-square
+        ([2·d_latent, d_latent]) for mlp.
+        """
+        return self._synapse_recurrent_weight()[:, self.d_model:]
+
+    def _reset_special_inits(self):
+        """Re-apply critical-symmetric init to the synapse z-recurrence slice.
+
+        Invoked by CTMTransformer.__init__ *after* the global ``_init_weights``
+        pass (which would otherwise overwrite it with normal_(std=0.02)).
+        For the mlp synapse the z-slice is non-square, so only the spectral
+        scaling applies (symmetry undefined).
+        """
+        if not self.use_critical_init:
+            return
+        critical_symmetric_init_(
+            self._synapse_recurrent_slice(),
+            self.critical_init_sym_frac,
+            self.critical_init_spectral_radius,
+        )
+
+    @torch.no_grad()
+    def renormalize_synapse_spectral_radius(self, target: float = 1.0) -> tuple[float, float]:
+        """Project the synapse z-recurrence matrix back to spectral radius ≤ target.
+
+        Synaptic-homeostasis (SHY) analogue: when training pushes the recurrent
+        dynamics matrix supercritical, downscale it back toward criticality.
+        Square slice → leading |eigenvalue|; non-square (mlp) → top singular
+        value. Only ever shrinks (never amplifies). Returns (rho_before, rho_after).
+        """
+        W = self._synapse_recurrent_slice()
+        A = W.detach().float()
+        if A.shape[0] == A.shape[1]:
+            rho = torch.linalg.eigvals(A).abs().max().real.item()
+        else:
+            rho = torch.linalg.svdvals(A).max().item()
+        if rho > target and rho > 1e-12:
+            W.mul_(target / rho)
+            return rho, float(target)
+        return rho, rho
 
     def reset_memory(self, batch_size: int, device: torch.device, dtype: torch.dtype):
         """Initialize memory buffers for a new sequence/batch."""
@@ -2733,6 +2846,10 @@ class CTMTransformer(nn.Module):
                 use_stc=getattr(config, "use_stc", False),
                 stc_tag_decay=getattr(config, "stc_tag_decay", 0.5),
                 stc_threshold_tag=getattr(config, "stc_threshold_tag", 0.05),
+                use_critical_init=getattr(config, "use_critical_init", False),
+                critical_init_sym_frac=getattr(config, "critical_init_sym_frac", 0.6),
+                critical_init_spectral_radius=getattr(config, "critical_init_spectral_radius", 0.999),
+                use_multi_rate_streams=getattr(config, "use_multi_rate_streams", False),
             )
 
         # ── Hyperloop or Standard Layer Construction ────────────────────
@@ -3070,6 +3187,28 @@ class CTMTransformer(nn.Module):
             n_params -= self.pos_embedding.weight.numel()
         return n_params
 
+    @torch.no_grad()
+    def renormalize_spectral_radius(self, target: float = 1.0) -> list[tuple[int, float, float]]:
+        """Synaptic-homeostasis (SHY) pass over all thought layers.
+
+        Projects each layer's synapse z-recurrence matrix back to spectral
+        radius ≤ target, downscaling supercritical recurrences toward
+        criticality. De-duplicates shared layers (hyperloop reuses the middle
+        block) so a weight isn't rescaled more than once. Deterministic given
+        the weights, so it stays in sync across DDP ranks without communication.
+
+        Returns [(layer_idx, rho_before, rho_after), ...].
+        """
+        seen: set[int] = set()
+        out: list[tuple[int, float, float]] = []
+        for i, layer in enumerate(self._get_layers_sequence()):
+            if id(layer) in seen:
+                continue
+            seen.add(id(layer))
+            before, after = layer.renormalize_synapse_spectral_radius(target)
+            out.append((i, before, after))
+        return out
+
     def _embed_text(self, input_ids: torch.Tensor) -> torch.Tensor:
         """Embed input tokens or continuous features. Returns [batch, seq_len, d_model]."""
         B, S = input_ids.shape[:2]
@@ -3245,7 +3384,16 @@ class CTMTransformer(nn.Module):
                 hebbian_lr_effs.append(layer_lr_eff)
 
             if self.config.use_matrix_streams and new_layer_stream is not None:
-                    new_stream_states.append(new_layer_stream)
+                # Multi-rate cadence: slow streams hold their value between
+                # refreshes (cross-frequency-coupling analogue). No-op unless
+                # use_multi_rate_streams is enabled.
+                if (getattr(self.config, "use_multi_rate_streams", False)
+                        and layer.stream is not None
+                        and layer_stream is not None):
+                    new_layer_stream = layer.stream.apply_update_cadence(
+                        t, layer_stream, new_layer_stream
+                    )
+                new_stream_states.append(new_layer_stream)
             # Keep new_hebbian_states parallel to `layers`: append None
             # for layers without a Hebbian synapse so indexing by l_idx
             # stays stable across calls. Today the flag is global so

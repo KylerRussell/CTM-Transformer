@@ -144,6 +144,33 @@ class CTMConfig:
     synapse_type: str = "mlp"          # "mlp", "unet", or "dendritic"
     dendritic_n_branches: int = 4      # Dendritic compartments (synapse_type="dendritic")
 
+    # ── Critical-Symmetric Dynamics Prior ───────────────────────────────
+    # Initialize recurrent dynamics matrices (the synapse z-recurrence slice
+    # and, if enabled, the Hebbian fast-weight M_0) as critically-normalized
+    # symmetric random matrices instead of the default normal_(std=0.02) /
+    # zeros. Produces a ~2/3 power-law variance spectrum and long-timescale
+    # dynamics as a "scaffold for learning". sym_frac=1.0 → fully symmetric
+    # (real spectrum); 0.0 → asymmetric; ~0.6 sits near the biological regime.
+    use_critical_init: bool = False
+    critical_init_sym_frac: float = 0.6
+    critical_init_spectral_radius: float = 0.999
+
+    # ── Synaptic Homeostasis (SHY) — Spectral Renormalization ───────────
+    # Periodically project the synapse z-recurrence matrix back to spectral
+    # radius ≤ target, downscaling supercritical recurrences toward criticality
+    # (the homeostatic counterpart to use_critical_init: init near-critical,
+    # then keep it there as training deforms the spectrum). Slow-wave-sleep
+    # synaptic downscaling analogue.
+    use_spectral_renorm: bool = False
+    spectral_renorm_interval: int = 200    # training steps between renorm passes
+    spectral_renorm_target: float = 1.0    # max allowed spectral radius
+
+    # ── Multi-Rate Thought Loop (cross-frequency coupling) ──────────────
+    # Matrix streams update at different timescales: stream i refreshes only on
+    # ticks where t % period_i == 0 (power-of-2 schedule [1,1,2,4,8,...]).
+    # Requires use_matrix_streams=True.
+    use_multi_rate_streams: bool = False
+
     # ── Neuromodulated Optimizer ─────────────────────────────────────────
     use_neuromod_optimizer: bool = False  # Wrap AdamW with surprise-modulated LR
     neuromod_alpha: float = 1.0           # Modulation strength (0 = disabled)

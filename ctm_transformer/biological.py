@@ -142,6 +142,9 @@ class HebbianSynapse(nn.Module):
         use_stc: bool = False,
         stc_tag_decay: float = 0.5,
         stc_threshold_tag: float = 0.05,
+        use_critical_init: bool = False,
+        critical_init_sym_frac: float = 0.6,
+        critical_init_spectral_radius: float = 0.999,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -272,6 +275,33 @@ class HebbianSynapse(nn.Module):
             nn.init.xavier_uniform_(self.z_proj.weight)
             nn.init.xavier_uniform_(self.a_proj.weight)
 
+        # ── Critical-symmetric fast-weight prior (optional) ─────────────
+        # Instead of starting M at zero (all eigenvalues 0, the opposite of
+        # critical), pre-warm it with a critically-normalized matrix so the
+        # fast-weight readout has long-timescale, high-dimensional dynamics
+        # from tick one — a "scaffold" before any (z, a) co-occurrences are
+        # written. Stored as a fixed buffer (no grad): the decay rule erodes
+        # it over ticks as learned associations accumulate. Only registered
+        # when enabled, so existing checkpoints load unchanged.
+        self.use_critical_prior = bool(use_critical_init)
+        if self.use_critical_prior:
+            if self.is_compartmentalized:
+                K, m_k, _ = self._matrix_dims
+                M_init = torch.zeros(K, m_k, m_k)
+                for k in range(K):
+                    critical_symmetric_init_(
+                        M_init[k], critical_init_sym_frac,
+                        critical_init_spectral_radius,
+                    )
+            else:
+                m, n = self._matrix_dims
+                M_init = torch.zeros(m, n)
+                critical_symmetric_init_(
+                    M_init, critical_init_sym_frac,
+                    critical_init_spectral_radius,
+                )
+            self.register_buffer("M_init", M_init)
+
     def init_state(
         self,
         batch_size: int,
@@ -279,11 +309,19 @@ class HebbianSynapse(nn.Module):
         device: torch.device,
         dtype: torch.dtype,
     ) -> torch.Tensor:
-        """Create a fresh zero fast-weight matrix for a new sequence.
+        """Create a fresh fast-weight matrix for a new sequence.
+
+        Zeros by default; a broadcast critical-symmetric prior when
+        ``use_critical_init`` was set (see ``M_init`` buffer).
 
         Non-compartmentalized: [B, S, m, n]
         Compartmentalized:     [B, S, K, m_k, m_k]
         """
+        if self.use_critical_prior:
+            prior = self.M_init.to(device=device, dtype=dtype)
+            return prior.unsqueeze(0).unsqueeze(0).expand(
+                batch_size, seq_len, *([-1] * prior.ndim)
+            ).clone()
         if self.is_compartmentalized:
             K, m_k, _ = self._matrix_dims
             return torch.zeros(batch_size, seq_len, K, m_k, m_k,
@@ -513,6 +551,54 @@ class HebbianSynapse(nn.Module):
         gated_readout = gate * readout
 
         return gated_readout, new_hebbian, effective_lr_scalar
+
+
+@torch.no_grad()
+def critical_symmetric_init_(
+    W: torch.Tensor,
+    sym_frac: float = 1.0,
+    spectral_radius: float = 0.999,
+) -> torch.Tensor:
+    """In-place critical init of a 2D weight as a random dynamics matrix A.
+
+    Implements the recipe from the critically-normalized random-matrix prior:
+    dense Gaussian → subtract mean (global inhibition) → enforce (partial)
+    symmetry → rescale so the leading eigenvalue magnitude ≈ ``spectral_radius``.
+    A critically-scaled symmetric matrix yields a ~2/3 power-law variance
+    spectrum and long-timescale dynamics, the proposed "scaffold for learning".
+
+    Args:
+        W: 2D tensor [out, in], modified in place.
+        sym_frac: 1.0 → fully symmetric (real spectrum, ~2/3 exponent);
+            0.0 → fully asymmetric. Interpolated in between. **Ignored when
+            W is non-square** — symmetry is undefined, so the matrix is left
+            asymmetric and only the spectral scaling is applied.
+        spectral_radius: target leading-|eigenvalue| (square) or leading
+            singular value (non-square). 0.999 keeps it just sub-critical.
+
+    Returns:
+        W (for chaining).
+    """
+    assert W.dim() == 2, f"critical_symmetric_init_ expects 2D, got {tuple(W.shape)}"
+    out_d, in_d = W.shape
+    A = torch.randn(out_d, in_d, device=W.device, dtype=torch.float32)
+    A = A - A.mean()
+
+    if out_d == in_d:
+        # Square: build a (partially) symmetric matrix and scale by spectral radius.
+        A.fill_diagonal_(0.0)
+        A_sym = 0.5 * (A + A.t())
+        A_eff = sym_frac * A_sym + (1.0 - sym_frac) * A
+        rho = torch.linalg.eigvals(A_eff).abs().max().real
+    else:
+        # Non-square: no symmetry possible. Scale by the largest singular
+        # value so the operator norm matches the requested radius.
+        A_eff = A
+        rho = torch.linalg.svdvals(A_eff).max()
+
+    A_eff = A_eff * (spectral_radius / rho.clamp_min(1e-12))
+    W.copy_(A_eff.to(W.dtype))
+    return W
 
 
 def _logit(p: float) -> float:
