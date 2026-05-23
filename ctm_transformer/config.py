@@ -68,6 +68,15 @@ class CTMConfig:
     feec_dt_init: float = 0.1            # Initial learnable step size per layer
     feec_damping_init: float = 0.1       # Initial damping coefficient γ
     feec_clamp_dt: float = 1.0           # Upper bound on dt for stability
+    # Trust-region bound on the relaxation state. The prospective-config loop
+    # iterates the FEEC integrator up to max_inference_steps; a non-normal
+    # recurrence can transiently amplify the state even at ρ<1 (ρ=1 with a
+    # Jordan block still grows ∝T), so the loop is the unbounded part of the
+    # model. This caps the per-position L2 norm of z and velocity at
+    # feec_state_clip·√d_latent each step — a hard ceiling that only engages
+    # during pathological growth (healthy ‖z‖≈0.3·√d), so the relaxation can't
+    # diverge to NaN regardless of ρ/σ_max. 0 = disabled.
+    feec_state_clip: float = 0.0
     feec_energy_penalty_weight: float = 0.01  # Weight of energy growth penalty in loss
 
     # ── CTM-v2: Matrix-Valued Residual Streams ──────────────────────────
@@ -162,8 +171,20 @@ class CTMConfig:
     # then keep it there as training deforms the spectrum). Slow-wave-sleep
     # synaptic downscaling analogue.
     use_spectral_renorm: bool = False
-    spectral_renorm_interval: int = 200    # training steps between renorm passes
-    spectral_renorm_target: float = 1.0    # max allowed spectral radius
+    # 10, not 200: a sleep micro-cycle shifts the dynamics into a regime where ρ
+    # drifts back toward/over 1.0 over the *following* normal steps (not just at
+    # sleep). Exact-ρ renorm is ~2.6s for 26 layers, so per-step is too slow;
+    # every 10 steps caps the post-sleep drift at ~0.99→0.994 (well under 1)
+    # while keeping overhead ~25%. Paired with a renorm after EACH sleep step
+    # (see worker_multi_gpu / train) so the sleep cycle itself can't leave ρ>1.
+    # Drop to 5 if the SHY log still shows max ρ creeping > ~0.998.
+    spectral_renorm_interval: int = 10     # training steps between renorm passes
+    # Subcritical (<1.0) on purpose: weights are bf16, and the in-place rescale
+    # injects ~±0.4% (2^-8) per-element spectral-radius noise, so a target of
+    # exactly 1.0 lands in ~[0.996, 1.004] — supercritical half the time. A
+    # target of 0.99 keeps the recurrence safely contracting even after a sleep
+    # micro-cycle kicks ρ above 1.0 (target × (1+0.4%) ≈ 0.994 < 1.0).
+    spectral_renorm_target: float = 0.99   # max allowed spectral radius
 
     # ── Multi-Rate Thought Loop (cross-frequency coupling) ──────────────
     # Matrix streams update at different timescales: stream i refreshes only on
@@ -731,6 +752,20 @@ class CTMConfig:
     sleep_buffer_size: int = 32      # Max sequences retained in episodic cache
     sleep_replay_steps: int = 4      # Consolidation gradient steps per sleep cycle
     sleep_loss_weight: float = 0.3   # Scale factor applied to consolidation loss
+    # Max Frobenius norm of the per-layer Hebbian carry-over (0 = unbounded).
+    # The carry is an integrator (forward warm-starts M from it and re-saves
+    # mean(M_final) ≈ carry+ΔM), so it grows without bound across sleeps,
+    # saturating the output (certainty collapse) and eventually NaN-ing. This
+    # caps it; healthy carry ≈ 0.3, so ~1.0 is a generous safety bound.
+    sleep_carry_max_norm: float = 0.0
+    # Isolate the optimizer state across the sleep micro-cycle: snapshot the
+    # optimizer's momentum/variance buffers before the replay steps and restore
+    # them after. Sleep still updates the *weights* (consolidation) but its
+    # gradients no longer pollute the main AdamW EMA — which otherwise carries
+    # the sleep direction into subsequent normal steps and drives the recurrence
+    # supercritical (the post-sleep ρ drift). Standard "auxiliary-phase optimizer
+    # state isolation". Snapshot is taken to CPU to avoid a VRAM spike.
+    isolate_sleep_optimizer: bool = False
 
     # ── Free-Energy Prioritized Episodic Replay (Priority #3) ─────────────
     # Upgrades the uniform-random sleep replay to hippocampal-style priority
@@ -805,6 +840,114 @@ class CTMConfig:
     hpc_error_as_loss_weight: bool = True        # Weight per-tick CE by mean precision
     hpc_local_loss_weight: float = 0.1           # Weight of local PC losses in total
     hpc_pc_n_streams: int = 8                    # Streams when PC enabled (4μ + 4ε)
+
+    # ── R1: Expected-Free-Energy Thought-Step Controller (Active Inference) ──
+    # A PonderNet-style halting policy over the thought loop, shaped by an
+    # expected-free-energy (EFE) objective. At each thought tick t the
+    # controller emits a per-position halting probability λ_t from EFE
+    # features (ambiguity = 1 − certainty; epistemic value = latent info
+    # gain ‖z_t − z_{t-1}‖). The per-position halting distribution
+    #   p_t = λ_t · Π_{t'<t}(1 − λ_{t'})
+    # reweights the per-position cross-entropy (Σ_t p_t·CE_t replaces the
+    # uniform per-tick mean) so the model is rewarded for emitting early
+    # when confident. Three loss terms are added:
+    #   1. PonderNet reconstruction:  Σ_t p_t · CE_t
+    #   2. KL(p ‖ Geometric(efe_halt_prior)) — keeps the loop from collapsing
+    #      to "halt at tick 0".
+    #   3. EFE shaping: Σ_t p_t · (ambiguity_t − epistemic_t) — pushes halting
+    #      mass toward low-EFE ticks (confident + info-gain exhausted).
+    # At eval / generate, the loop early-exits once the mean cumulative halt
+    # probability crosses efe_halt_threshold — the wall-clock payoff.
+    #
+    # Only active on the legacy BPTT thought loop (not under
+    # use_prospective_config, which has no per-tick loop). Default OFF.
+    use_efe_controller: bool = False
+    efe_halt_prior: float = 0.1          # Geometric prior λ for the PonderNet KL
+    efe_ponder_kl_weight: float = 0.01   # Weight on KL(p ‖ Geometric)
+    efe_weight: float = 0.1              # Weight on the EFE shaping term
+    efe_halt_threshold: float = 0.5      # Mean cumulative halt prob to early-exit (eval/gen)
+    efe_controller_hidden_dim: int = 0   # 0 → auto (max(32, d_latent // 8))
+
+    # ── R2: Burst-multiplexed dendritic credit assignment (Burstprop) ────────
+    # Payeur, Guerguiev, Zenke, Richards & Naud (Nat Neurosci 2021): postsynaptic
+    # activity factorizes into events E (any spike) and bursts B (high-frequency
+    # spikes gated by an apical top-down signal). The fast-weight update replaces
+    # the unsigned event factor with the burst-vs-event residual:
+    #   ΔM ∝ (B − P̄·E) ⊗ a ,  B = burst_p · E ,  P̄ = running burst probability
+    # The apical burst probability burst_p is derived from the *previous* thought
+    # tick's per-layer hierarchical-PC prediction error — top-down credit
+    # multiplexed onto the same fast-weight write. High top-down error → more
+    # bursting → stronger credit assignment at that layer/position.
+    #
+    # Requires use_hebbian_synapse=True AND use_hierarchical_pc=True (the burst
+    # signal source). Default OFF.
+    use_burstprop: bool = False
+    burstprop_tau: float = 100.0         # EMA window for the running burst probability P̄
+    burstprop_scale_init: float = 1.0    # Initial slope mapping top-down error → burst prob
+
+    # ── R3: Prefrontal meta-RL reward/action channel (self-supervised) ───────
+    # Wang et al. (Nat Neurosci 2018) / RL² (Wang et al. 2016): a recurrent
+    # network meta-trained with (obs_t, a_{t-1}, r_{t-1}) in its input learns an
+    # in-context RL algorithm whose state lives in activations, not weights.
+    # For an autoregressive LM, each sequence is an episode; the causal reward
+    # r_{s-1} = p(token_{s-1}) (the probability the model assigned to the realized
+    # previous token) and action a_{s-1} = argmax prediction at s-1. Under
+    # teacher forcing these are recovered with a cheap no_grad pre-pass, then
+    # shifted by one position and injected into the input embedding alongside the
+    # token. The thought loop thereby sees how well it predicted recent tokens
+    # and can adapt in-context.
+    #
+    # Requires a token embedding (not use_feature_encoder). Cost: one extra
+    # no_grad forward per step. Default OFF.
+    use_meta_rl: bool = False
+    meta_rl_reward_scale_init: float = 0.1  # Initial gate on the reward/action injection
+
+    # ── R11: BTSP-v2 — weight-dependent / stochastic / delayed plasticity ────
+    # Upgrades the additive BTSP eligibility trace with three empirically-
+    # grounded properties (opt-in; when off, the original additive BTSP rule
+    # is used unchanged):
+    #   (a) Milstein et al. (eLife 2021) bidirectional inverse-weight-dependence:
+    #       plateaus potentiate weak synapses and depress strong ones — the
+    #       update drives M toward sign(eligibility)·w_max gated by the current
+    #       weight, making the fast-weight self-stabilising rather than runaway.
+    #   (b) Jain et al. (Nature 2024) stochastic CaMKII consolidation: each
+    #       plateau consolidates only with probability btsp_consolidate_prob
+    #       (per-position Bernoulli during training; expectation at eval).
+    #   (c) Delayed kernel: a gamma-shaped causal kernel (rises then decays,
+    #       peak set by btsp_delay_shape) approximates the 10–100 s post-plateau
+    #       CaMKII delay. btsp_delay_shape=0 → the original immediate kernel.
+    # Requires use_btsp=True (and therefore use_hebbian_synapse=True).
+    btsp_weight_dependent: bool = False
+    btsp_w_max: float = 1.0              # Saturating bound for the fast-weight magnitude
+    btsp_consolidate_prob: float = 0.3   # Per-plateau stochastic consolidation probability
+    btsp_delay_shape: float = 0.0        # Gamma-kernel delay shape (0 = immediate)
+
+    # ── R4: Sharp-Wave-Ripple content-tagged replay ─────────────────────────
+    # Yang et al. (Science 2024): awake SPW-Rs tag a *subset* of experiences and
+    # the same content is preferentially replayed in NREM. Augments the
+    # PrioritizedReplayBuffer with a heuristic tagger — an episode is tagged when
+    # its free-energy/surprise priority exceeds a running EMA threshold AND a
+    # stochastic gate fires at the target tag rate. Sleep replay then samples
+    # preferentially from tagged episodes (falls back to priority sampling when
+    # nothing is tagged). Requires use_sleep_consolidation + use_prioritized_replay.
+    use_swr_tagging: bool = False
+    swr_tag_rate: float = 0.3                # Target fraction of episodes tagged
+    swr_tag_threshold_decay: float = 0.99    # EMA decay for the running surprise threshold
+
+    # ── R10: REM-style generative replay (adversarial dreaming) ─────────────
+    # Deperrois et al. (Comm Biol 2022): a REM sub-phase generates novel latent
+    # samples (the generative pathway) which the recognition pathway is trained
+    # to handle adversarially. Implemented as a latent-space GAN with a
+    # gradient-reversal layer so generator, discriminator, and the backbone's
+    # real-latent encoder all train in a SINGLE allreduced backward (keeps DDP /
+    # flat-allreduce replicas in sync — a per-rank internal GAN optimizer would
+    # diverge). The REM loss augments the sleep-consolidation loss.
+    # Requires use_sleep_consolidation=True.
+    use_rem_dreaming: bool = False
+    rem_noise_dim: int = 0           # Generator noise dim (0 → d_latent)
+    rem_hidden_dim: int = 0          # Generator/discriminator hidden width (0 → max(64, d_latent//4))
+    rem_loss_weight: float = 0.1     # Weight of the adversarial REM loss in the sleep loss
+    rem_grl_lambda: float = 1.0      # Gradient-reversal strength for the generator
 
     @property
     def sync_dim(self) -> int:

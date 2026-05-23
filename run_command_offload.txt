@@ -13,6 +13,29 @@
 # To stop:
 # pkill -9 -f "venv_nv/bin/python" && echo "Killed training processes" || echo "No training process found"
 # fuser -k -9 29501/tcp && echo "Freed PyTorch distributed port" || echo "Port already free"
+#
+# NOTE on R1/R2/R3 (2026-05-21): all three are integrated with Prospective
+# Configuration (the memory-safe EM regime — KEEP --use_prospective_config here;
+# the BPTT path at --max_thought_steps 100 OOMs on full-vocab per-tick logits).
+#   R1 (--use_efe_controller): PonderNet halting adapted to the EM inference
+#     relaxation — learns to stop the loop at the low-free-energy step
+#     (objective Σ p_t·F_t + KL prior), early-exits the relaxation at eval.
+#   R2 (--use_burstprop): the consolidation (learning) pass's Hebbian write is
+#     burst-gated by the equilibrium PC error (apical credit). Needs HPC+Hebbian.
+#   R3 (--use_meta_rl): prev-token reward/action input channel; adds a ~2x fwd
+#     cost (a no_grad pre-pass; cheap here since amortized inference = 5 steps).
+#
+# NOTE on R4/R10/R11 (2026-05-22):
+#   R11 (--btsp_weight_dependent): lives in HebbianSynapse → runs in the dual-GPU
+#     path. Bidirectional weight-dependent + stochastic + (delay_shape=0 →
+#     immediate) BTSP. Preserves plain --use_btsp when off.
+#   R4 (--use_swr_tagging) + R10 (--use_rem_dreaming): the sleep micro-cycle is
+#     now PORTED into the dual-GPU worker, so these — and --use_sleep_consolidation
+#     / --use_swil / --use_prioritized_replay — run under --multi_gpu. Each rank
+#     keeps its own episodic buffer; the sleep backward flat-allreduces its grads
+#     (same as the main loop) so replica weights stay bit-identical. R10's REM
+#     loss is folded into the sleep loss in-graph (gradient-reversal GAN) so the
+#     generator/discriminator grads ride the same allreduce.
 
 cd /home/kyler/Documents/CTM-Transformer && \
   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
@@ -44,6 +67,7 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --gradient_checkpointing_min_T 1 \
     --checkpoint_dir checkpoints_PC_dual \
     --use_feec \
+    --feec_state_clip 4.0 \
     --use_matrix_streams \
     --use_loop_pos_emb \
     --use_triton_attention \
@@ -73,6 +97,9 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --precision_neuromod_min_scale 0.2 \
     --precision_neuromod_max_scale 5.0 \
     --use_sleep_consolidation \
+    --sleep_interval 100 \
+    --sleep_carry_max_norm 0.3 \
+    --isolate_sleep_optimizer \
     --use_prioritized_replay \
     --replay_fe_temperature 1.0 \
     --use_schema_routing \
@@ -100,6 +127,25 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --dnd_min_novelty 0.05 \
     --use_critical_init \
     --use_spectral_renorm \
+    --spectral_renorm_target 0.99 \
+    --spectral_renorm_interval 100 \
     --use_multi_rate_streams \
+    --use_efe_controller \
+    --efe_halt_prior 0.1 \
+    --efe_ponder_kl_weight 0.01 \
+    --efe_weight 0.1 \
+    --efe_halt_threshold 0.5 \
+    --use_burstprop \
+    --burstprop_tau 100.0 \
+    --burstprop_scale_init 1.0 \
+    --use_meta_rl \
+    --meta_rl_reward_scale_init 0.1 \
+    --btsp_weight_dependent \
+    --btsp_w_max 1.0 \
+    --btsp_consolidate_prob 0.3 \
+    --btsp_delay_shape 0.0 \
+    --use_swr_tagging \
+    --swr_tag_rate 0.3 \
+    --swr_tag_threshold_decay 0.99 \
     > train_dual_gpu_prospect_config.log 2>&1 &
 echo "Dual-GPU Training PID: $!"

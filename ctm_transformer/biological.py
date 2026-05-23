@@ -55,6 +55,7 @@ Integration points (see model.py for the call sites):
 from __future__ import annotations
 
 import math
+import random
 from typing import Optional
 
 import torch
@@ -138,6 +139,10 @@ class HebbianSynapse(nn.Module):
         btsp_lr_init: float = 0.05,
         btsp_kernel_decay_init: float = 0.9,
         btsp_salience_threshold: float = 0.0,
+        btsp_weight_dependent: bool = False,
+        btsp_w_max: float = 1.0,
+        btsp_consolidate_prob: float = 0.3,
+        btsp_delay_shape: float = 0.0,
         n_compartments: int = 1,
         use_stc: bool = False,
         stc_tag_decay: float = 0.5,
@@ -145,6 +150,9 @@ class HebbianSynapse(nn.Module):
         use_critical_init: bool = False,
         critical_init_sym_frac: float = 0.6,
         critical_init_spectral_radius: float = 0.999,
+        use_burstprop: bool = False,
+        burstprop_tau: float = 100.0,
+        burstprop_scale_init: float = 1.0,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -250,6 +258,30 @@ class HebbianSynapse(nn.Module):
             self.btsp_lr_logit = nn.Parameter(torch.tensor(_logit(btsp_lr_init)))
             self.btsp_decay_logit = nn.Parameter(torch.tensor(_logit(btsp_kernel_decay_init)))
             self.btsp_salience_threshold = btsp_salience_threshold
+            # R11: BTSP-v2 — weight-dependent / stochastic / delayed (opt-in).
+            self.btsp_weight_dependent = bool(btsp_weight_dependent)
+            self.btsp_w_max = float(btsp_w_max)
+            self.btsp_consolidate_prob = float(btsp_consolidate_prob)
+            self.btsp_delay_shape = float(btsp_delay_shape)
+        else:
+            self.btsp_weight_dependent = False
+
+        # ── R2: Burstprop (burst-multiplexed credit assignment) ─────────
+        # Payeur et al. 2021: postsynaptic activity splits into events E and
+        # bursts B (gated by an apical top-down signal). The plasticity factor
+        # becomes (B − P̄·E) instead of the raw event E, where P̄ is the
+        # running burst probability. The top-down signal here is the previous
+        # thought tick's hierarchical-PC prediction error (supplied via
+        # `top_down_signal` to forward); high error → high burst prob → stronger
+        # credit assignment. burst_scale / burst_bias map the (detached) error
+        # magnitude through a sigmoid to a per-position burst probability.
+        self.use_burstprop = use_burstprop
+        if use_burstprop:
+            self.burst_scale = nn.Parameter(torch.tensor(float(burstprop_scale_init)))
+            self.burst_bias = nn.Parameter(torch.tensor(0.0))
+            self.burstprop_tau = float(burstprop_tau)
+            # Running burst probability P̄ — non-grad EMA buffer (init 0.5).
+            self.register_buffer("_burst_p_bar", torch.tensor(0.5))
 
         # ── Synaptic Tagging and Capture (STC) ──────────────────────────
         # Tracks a fast-decaying EMA of the mean absolute delta-rule error
@@ -329,12 +361,101 @@ class HebbianSynapse(nn.Module):
         m, n = self._matrix_dims
         return torch.zeros(batch_size, seq_len, m, n, device=device, dtype=dtype)
 
+    def _burst_factor(
+        self,
+        events: torch.Tensor,
+        top_down_signal: torch.Tensor,
+    ) -> torch.Tensor:
+        """Burstprop postsynaptic factor (B − P̄·E).
+
+        Args:
+            events:          [..., m] — postsynaptic event activity E (the
+                             projected latent in Hebbian space). Trailing dim
+                             is the per-position/per-compartment feature axis.
+            top_down_signal: [B, S, d_latent] — apical top-down credit signal
+                             (previous tick's PC prediction error). Detached;
+                             its per-position magnitude sets the burst prob.
+
+        Returns:
+            Tensor shaped like ``events`` — the burst-vs-event residual that
+            replaces the raw event factor in the outer-product update.
+        """
+        td = top_down_signal.detach().to(torch.float32)
+        # Per-position burst probability from top-down error magnitude → (0,1).
+        td_mag = td.pow(2).mean(dim=-1)                      # [B, S]
+        burst_p = torch.sigmoid(
+            self.burst_scale * (td_mag - self.burst_bias)
+        ).to(events.dtype)                                   # [B, S]
+        # Broadcast over any compartment / feature axes between [B, S] and the
+        # trailing feature dim of `events`.
+        while burst_p.dim() < events.dim():
+            burst_p = burst_p.unsqueeze(-1)
+        bursts = burst_p * events
+        # Snapshot P̄ as a Python float *before* the in-place EMA update so the
+        # buffer tensor never enters the autograd graph (the `* events` multiply
+        # would otherwise save it and trip a version-counter error when the next
+        # tick mutates it in place).
+        p_bar_val = float(self._burst_p_bar)
+        if self.training:
+            with torch.no_grad():
+                e_mean = events.abs().mean().clamp_min(1e-6)
+                ratio = (bursts.abs().mean() / e_mean).clamp(0.0, 1.0)
+                a = 1.0 / self.burstprop_tau
+                self._burst_p_bar.mul_(1.0 - a).add_(ratio.float() * a)
+        return bursts - p_bar_val * events
+
+    def _btsp_kernel(
+        self, S: int, beta: torch.Tensor, device, dtype
+    ) -> torch.Tensor:
+        """Lower-triangular causal BTSP kernel K[s,τ] (τ ≤ s).
+
+        Immediate (default): β^(s−τ). When BTSP-v2 delay is enabled, a
+        gamma-shaped kernel (s−τ+1)^shape · β^(s−τ) rises then decays — its
+        peak at a positive lag approximates the post-plateau CaMKII delay
+        (Jain et al. 2024).
+        """
+        idx = torch.arange(S, device=device, dtype=dtype)
+        dist = (idx.unsqueeze(0) - idx.unsqueeze(1)).clamp(min=0)   # [S, S]
+        K = beta ** dist
+        if self.btsp_weight_dependent and self.btsp_delay_shape > 0:
+            K = ((dist + 1.0) ** self.btsp_delay_shape) * K
+        return torch.tril(K)
+
+    def _btsp_v2_delta(
+        self, hebbian_state: torch.Tensor, elig: torch.Tensor
+    ) -> torch.Tensor:
+        """BTSP-v2 weight-dependent + stochastic plasticity increment.
+
+        Milstein et al. (eLife 2021) bidirectional inverse-weight-dependence:
+        positive eligibility drives M toward +w_max (potentiating weak synapses
+        more strongly, saturating strong ones); negative eligibility drives it
+        toward −w_max. Jain et al. (Nature 2024) stochastic CaMKII: the
+        increment is gated by a per-position Bernoulli(p) during training
+        (its expectation p·Δ at eval), so only a fraction of plateaus
+        consolidate. Returns the increment (the caller scales by btsp_lr).
+        """
+        w_max = self.btsp_w_max
+        pot = elig.clamp(min=0.0) * (w_max - hebbian_state)   # weak → up, saturate at +w_max
+        dep = elig.clamp(max=0.0) * (w_max + hebbian_state)   # neg elig → down, saturate at −w_max
+        delta = pot + dep
+        p = self.btsp_consolidate_prob
+        if p < 1.0:
+            if self.training:
+                lead = delta.shape[:2]   # (B, S) — one Bernoulli draw per position
+                mask = (torch.rand(lead, device=delta.device, dtype=delta.dtype) < p)
+                mask = mask.to(delta.dtype).reshape(lead + (1,) * (delta.dim() - 2))
+                delta = delta * mask
+            else:
+                delta = delta * p
+        return delta
+
     def forward(
         self,
         prev_state: torch.Tensor,
         attn_out: torch.Tensor,
         hebbian_state: torch.Tensor,
         lr_modulator: torch.Tensor | None = None,
+        top_down_signal: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Compute Hebbian readout and update the fast-weight matrix.
@@ -348,6 +469,11 @@ class HebbianSynapse(nn.Module):
                 applied to the outer-product update (NOT to the readout).
                 Caller supplies (1 + alpha * uncertainty) for
                 certainty-based modulation. When None, uniform lr.
+            top_down_signal: [B, S, d_latent] or None — apical top-down credit
+                signal for Burstprop (previous tick's PC error). Ignored unless
+                use_burstprop=True; when active, the postsynaptic event factor
+                in the outer product is replaced by the burst residual
+                (B − P̄·E).
 
         Returns:
             readout:        [B, S, d_latent] — gated, LayerNormed readout
@@ -360,7 +486,7 @@ class HebbianSynapse(nn.Module):
 
         if self.is_compartmentalized:
             return self._forward_compartmentalized(
-                prev_state, attn_out, hebbian_state, lr_modulator
+                prev_state, attn_out, hebbian_state, lr_modulator, top_down_signal
             )
 
         # ── Flat (non-compartmentalized) path ────────────────────────
@@ -404,7 +530,12 @@ class HebbianSynapse(nn.Module):
             lr_eff = lr_base
             effective_lr_scalar = lr_base.detach()
 
-        if self.update_rule == "delta":
+        if self.use_burstprop and top_down_signal is not None:
+            # Burstprop: replace the postsynaptic event factor with the
+            # burst-vs-event residual (B − P̄·E) before the outer product.
+            post_factor = self._burst_factor(z_proj, top_down_signal)
+            outer = post_factor.unsqueeze(-1) * a_proj.unsqueeze(-2)
+        elif self.update_rule == "delta":
             error = z_proj - readout_raw.detach()
             outer = error.unsqueeze(-1) * a_proj.unsqueeze(-2)
             a_sq = (a_proj * a_proj).sum(dim=-1, keepdim=True).unsqueeze(-1)
@@ -429,14 +560,15 @@ class HebbianSynapse(nn.Module):
 
             weighted = salience.unsqueeze(-1).unsqueeze(-1) * outer  # [B, S, m, n]
 
-            idx = torch.arange(S_b, device=outer.device, dtype=outer.dtype)
-            dist = (idx.unsqueeze(0) - idx.unsqueeze(1)).clamp(min=0)
-            btsp_K = torch.tril(beta ** dist)                          # [S, S]
+            btsp_K = self._btsp_kernel(S_b, beta, outer.device, outer.dtype)  # [S, S]
 
             w_flat = weighted.reshape(B_b, S_b, m * n)
             delta_flat = torch.matmul(btsp_K, w_flat)
-            delta_M = delta_flat.reshape(B_b, S_b, m, n)
-            new_hebbian = new_hebbian + btsp_lr * delta_M
+            elig = delta_flat.reshape(B_b, S_b, m, n)
+            if self.btsp_weight_dependent:
+                new_hebbian = new_hebbian + btsp_lr * self._btsp_v2_delta(new_hebbian, elig)
+            else:
+                new_hebbian = new_hebbian + btsp_lr * elig
 
         # Gate the readout (global scalar gate)
         if self.force_gate is not None:
@@ -453,6 +585,7 @@ class HebbianSynapse(nn.Module):
         attn_out: torch.Tensor,
         hebbian_state: torch.Tensor,
         lr_modulator: torch.Tensor | None,
+        top_down_signal: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Compartmentalized forward: K independent branches with bilinear plateau gating.
 
@@ -509,7 +642,11 @@ class HebbianSynapse(nn.Module):
             lr_eff = lr_k_base.view(1, 1, K, 1, 1)
             effective_lr_scalar = lr_k_base.mean().detach()
 
-        if self.update_rule == "delta":
+        if self.use_burstprop and top_down_signal is not None:
+            # Burstprop residual per compartment: (B − P̄·E) over z_k.
+            post_factor = self._burst_factor(z_k, top_down_signal)        # [B,S,K,m_k]
+            outer = post_factor.unsqueeze(-1) * a_k.unsqueeze(-2)         # [B,S,K,m_k,m_k]
+        elif self.update_rule == "delta":
             error = z_k - readout_raw.detach()                             # [B,S,K,m_k]
             outer = error.unsqueeze(-1) * a_k.unsqueeze(-2)               # [B,S,K,m_k,m_k]
             a_sq = (a_k * a_k).sum(dim=-1, keepdim=True).unsqueeze(-1)   # [B,S,K,1,1]
@@ -533,15 +670,16 @@ class HebbianSynapse(nn.Module):
             # salience: [B, S] → [B, S, 1, 1, 1] to broadcast over [B,S,K,m_k,m_k]
             weighted = salience.view(B, S, 1, 1, 1) * outer
 
-            idx = torch.arange(S, device=outer.device, dtype=outer.dtype)
-            dist = (idx.unsqueeze(0) - idx.unsqueeze(1)).clamp(min=0)
-            btsp_K = torch.tril(beta ** dist)                              # [S, S]
+            btsp_K = self._btsp_kernel(S, beta, outer.device, outer.dtype)  # [S, S]
 
             flat_dim = K * m_k * m_k
             w_flat = weighted.reshape(B, S, flat_dim)
             delta_flat = torch.matmul(btsp_K, w_flat)
-            delta_M = delta_flat.reshape(B, S, K, m_k, m_k)
-            new_hebbian = new_hebbian + btsp_lr * delta_M
+            elig = delta_flat.reshape(B, S, K, m_k, m_k)
+            if self.btsp_weight_dependent:
+                new_hebbian = new_hebbian + btsp_lr * self._btsp_v2_delta(new_hebbian, elig)
+            else:
+                new_hebbian = new_hebbian + btsp_lr * elig
 
         # Global output gate on the merged readout
         if self.force_gate is not None:
@@ -853,12 +991,25 @@ class PrioritizedReplayBuffer:
         sim_weight:  λ — scale of cosine-similarity term in SWIL mode. 0 = pure-FE.
     """
 
-    def __init__(self, maxsize: int, temperature: float = 1.0, sim_weight: float = 1.0):
-        # Each entry: (priority, seq, semantic_vec_or_None)
-        self._buf: list[tuple[float, torch.Tensor, torch.Tensor | None]] = []
+    def __init__(
+        self,
+        maxsize: int,
+        temperature: float = 1.0,
+        sim_weight: float = 1.0,
+        tagging: bool = False,
+        tag_rate: float = 0.3,
+        tag_threshold_decay: float = 0.99,
+    ):
+        # Each entry: (priority, seq, semantic_vec_or_None, tagged)
+        self._buf: list[tuple[float, torch.Tensor, torch.Tensor | None, bool]] = []
         self.maxsize = maxsize
         self.temperature = max(float(temperature), 1e-6)
         self.sim_weight = float(sim_weight)
+        # R4 SWR content-tagging
+        self.tagging = bool(tagging)
+        self.tag_rate = float(tag_rate)
+        self.tag_threshold_decay = float(tag_threshold_decay)
+        self._priority_ema: float | None = None
 
     def push(
         self,
@@ -878,7 +1029,25 @@ class PrioritizedReplayBuffer:
                           final-tick latent state for SWIL cosine similarity.
         """
         priority = float(priority)
-        entry = (priority, seq, semantic_vec)
+        # Drop episodes whose priority is non-finite (the source forward
+        # diverged): a NaN priority would propagate through the softmax in
+        # sample() and crash torch.multinomial. A corrupted episode carries no
+        # replay value, so discarding it is strictly correct.
+        if not math.isfinite(priority):
+            return
+        # R4 SWR tag: an episode is tagged when it is more surprising than the
+        # running mean priority AND a stochastic gate fires at the target rate
+        # (Yang et al. 2024 — only a subset of experiences are tagged).
+        tagged = False
+        if self.tagging:
+            if self._priority_ema is None:
+                self._priority_ema = priority
+            else:
+                d = self.tag_threshold_decay
+                self._priority_ema = d * self._priority_ema + (1.0 - d) * priority
+            if priority > self._priority_ema and random.random() < self.tag_rate:
+                tagged = True
+        entry = (priority, seq, semantic_vec, tagged)
         if len(self._buf) < self.maxsize:
             self._buf.append(entry)
         else:
@@ -909,16 +1078,26 @@ class PrioritizedReplayBuffer:
         """
         if not self._buf:
             return []
-        n = min(n, len(self._buf))
         lam = sim_weight if sim_weight is not None else self.sim_weight
 
+        # R4 SWR: restrict the replay pool to tagged episodes (content-tagged
+        # consolidation). Fall back to the full buffer when nothing is tagged
+        # yet so early sleep cycles still have material to replay.
+        if self.tagging:
+            cand = [i for i, e in enumerate(self._buf) if e[3]]
+            if not cand:
+                cand = list(range(len(self._buf)))
+        else:
+            cand = list(range(len(self._buf)))
+
+        n = min(n, len(cand))
         scores = torch.tensor(
-            [entry[0] for entry in self._buf], dtype=torch.float32
+            [self._buf[i][0] for i in cand], dtype=torch.float32
         )
 
         # SWIL: add cosine-similarity term when query and stored vecs available
         if query_vec is not None and lam != 0.0:
-            stored_vecs = [entry[2] for entry in self._buf]
+            stored_vecs = [self._buf[i][2] for i in cand]
             if any(v is not None for v in stored_vecs):
                 # Pad missing vecs with zeros so cosine sim = 0 (no bias)
                 d = query_vec.shape[0]
@@ -933,9 +1112,15 @@ class PrioritizedReplayBuffer:
                 scores = scores + lam * cos_sim
 
         weights = torch.softmax(scores / self.temperature, dim=0)
-        replace = n > len(self._buf)
+        # Defensive: if anything upstream produced a non-finite weight (e.g. a
+        # NaN priority that slipped in, or a degenerate cos-sim term), fall back
+        # to uniform sampling so torch.multinomial can't raise on a NaN/inf/<0
+        # probability tensor and abort the whole run.
+        if not torch.isfinite(weights).all():
+            weights = torch.ones_like(weights) / weights.numel()
+        replace = n > len(cand)
         indices = torch.multinomial(weights, num_samples=n, replacement=replace)
-        return [self._buf[i][1] for i in indices.tolist()]
+        return [self._buf[cand[i]][1] for i in indices.tolist()]
 
     def __len__(self) -> int:
         return len(self._buf)
@@ -956,6 +1141,11 @@ class PrioritizedReplayBuffer:
     def has_semantic_vecs(self) -> bool:
         """True if at least one stored episode has a semantic vector."""
         return any(e[2] is not None for e in self._buf)
+
+    @property
+    def n_tagged(self) -> int:
+        """Number of SWR-tagged episodes currently in the buffer."""
+        return sum(1 for e in self._buf if e[3])
 
 
 # ════════════════════════════════════════════════════════════════════════

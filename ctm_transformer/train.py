@@ -19,6 +19,7 @@ train() runs (with optional torchrun-driven DDP).
 from __future__ import annotations
 
 import time
+import copy
 import statistics
 from contextlib import contextmanager
 from collections import defaultdict, deque
@@ -656,6 +657,40 @@ def build_optimizers(model: torch.nn.Module, config: CTMConfig) -> list:
             ema_decay=getattr(config, "neuromod_ema_decay", 0.95),
         )
     return [opt]
+
+
+def _map_state_tensors(obj, fn):
+    """Recursively apply ``fn`` to every tensor in a (nested) optimizer state."""
+    if torch.is_tensor(obj):
+        return fn(obj)
+    if isinstance(obj, dict):
+        return {k: _map_state_tensors(v, fn) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return type(obj)(_map_state_tensors(v, fn) for v in obj)
+    return copy.deepcopy(obj)
+
+
+def _snapshot_optimizer_state_cpu(optimizer) -> dict:
+    """Deep-clone an optimizer's state_dict with all tensors moved to CPU.
+
+    Used to isolate auxiliary phases (sleep consolidation): snapshot before the
+    phase, restore after, so the phase's gradients update the weights but not the
+    main optimizer's momentum/variance EMA. CPU clone avoids a VRAM spike during
+    the (already activation-heavy) replay forwards.
+    """
+    return _map_state_tensors(optimizer.state_dict(),
+                              lambda t: t.detach().to("cpu", copy=True))
+
+
+def _restore_optimizer_state(optimizer, state_cpu, device) -> None:
+    """Restore a CPU snapshot, moving tensors back to ``device`` first.
+
+    Mirrors the checkpoint path (torch.load(map_location=device) → load_state_dict),
+    i.e. the state tensors are device-correct *before* load_state_dict — so we
+    don't depend on the 8-bit optimizer's internal handling of CPU-resident state.
+    """
+    on_device = _map_state_tensors(state_cpu, lambda t: t.to(device))
+    optimizer.load_state_dict(on_device)
 
 
 
@@ -1570,6 +1605,9 @@ def train(
             maxsize=_sleep_buf_size,
             temperature=getattr(config, "replay_fe_temperature", 1.0),
             sim_weight=getattr(config, "swil_sim_weight", 1.0),
+            tagging=getattr(config, "use_swr_tagging", False),
+            tag_rate=getattr(config, "swr_tag_rate", 0.3),
+            tag_threshold_decay=getattr(config, "swr_tag_threshold_decay", 0.99),
         )
     elif use_sleep:
         episodic_buffer: deque | None = deque(maxlen=_sleep_buf_size)
@@ -1887,8 +1925,18 @@ def train(
                             o.modulate(mean_cert)
 
             with timer("optimizer"):
-                for o in optimizers:
-                    o.step()
+                # NaN-guard: skip the step if grads are non-finite, so one
+                # diverged batch can't permanently poison the weights.
+                if torch.isfinite(grad_norm):
+                    for o in optimizers:
+                        o.step()
+                else:
+                    for o in optimizers:
+                        o.zero_grad(set_to_none=True)
+                    if is_main_process():
+                        print(f"  [NaN-guard] step {step}: non-finite grad "
+                              f"({float(grad_norm):.3g}) — optimizer step skipped.",
+                              flush=True)
 
             # Store one sequence from this step in the episodic buffer.
             # We take x[0] (the first sequence of the last micro-batch)
@@ -1921,6 +1969,12 @@ def train(
                 and len(episodic_buffer) >= min_buffer
                 and step > 0
                 and step % sleep_interval == 0):
+            # Optimizer-state isolation: snapshot momentum/variance so the sleep
+            # replay steps update the weights without polluting the main AdamW EMA.
+            _opt_state_baks = (
+                [_snapshot_optimizer_state_cpu(o) for o in optimizers]
+                if getattr(config, "isolate_sleep_optimizer", False) else None
+            )
             sleep_result = {}
             for _sleep_step in range(sleep_replay_steps):
                 for o in optimizers:
@@ -1939,15 +1993,77 @@ def train(
                     sampled = random.sample(list(episodic_buffer), n_replay)
                 x_replay = torch.stack(sampled, dim=0).to(device)
                 y_replay = torch.cat([x_replay[:, 1:], x_replay[:, :1]], dim=1)
-                with torch.amp.autocast(device_type=device_type,
-                                        dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
-                    sleep_result = model(x_replay, targets=y_replay)
-                sleep_loss = sleep_result["loss"] * sleep_loss_weight
+                # R10: enable the in-graph adversarial REM loss for this replay
+                # forward so generator/discriminator gradients live inside the
+                # DDP-tracked graph (allreduced in the same backward). The loss
+                # is folded into result["loss"] by forward() itself.
+                _rem_on = getattr(config, "use_rem_dreaming", False)
+                if _rem_on:
+                    _raw._rem_sleep_active = True
+                try:
+                    with torch.amp.autocast(device_type=device_type,
+                                            dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
+                        sleep_result = model(x_replay, targets=y_replay)
+                        sleep_loss = sleep_result["loss"] * sleep_loss_weight
+                finally:
+                    if _rem_on:
+                        _raw._rem_sleep_active = False
                 sleep_loss.backward()
-                if config.grad_clip > 0:
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
-                for o in optimizers:
-                    o.step()
+                # Apply the SAME gradient safeguards the main step uses. Without
+                # these, sleep updates are far larger than normal training — the
+                # STC gate scales most layers' grads to stc_min_gate (~0.01) on
+                # consolidated layers, so ungated sleep grads are ~100× larger,
+                # which pushes the synapse recurrence supercritical (ρ>1) and
+                # pollutes Adam momentum → divergence a few hundred steps later.
+                if precision_scaler is not None:
+                    _slp_prec = sleep_result.get("hpc_per_layer_precision")
+                    if _slp_prec is not None:
+                        _pc_ids = ({id(p) for p in _raw.pc_layers.parameters()}
+                                   if _raw.pc_layers is not None else set())
+                        precision_scaler.update_and_scale(
+                            _raw._get_layers_sequence(), _slp_prec, _pc_ids
+                        )
+                if stc_gate is not None:
+                    _slp_prp = 0.0
+                    for _o in optimizers:
+                        if isinstance(_o, NeuroPlasticOptimizer) and _o._surprise_ema is not None:
+                            _slp_prp = float(_o._surprise_ema)
+                            break
+                    stc_gate.apply(_stream_layers, _slp_prp)
+                _sleep_gn = torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip) \
+                    if config.grad_clip > 0 else torch.tensor(0.0)
+                if torch.isfinite(_sleep_gn):
+                    for o in optimizers:
+                        o.step()
+                    # Project the recurrence back to ρ≤target after EVERY sleep
+                    # update (not just once after the loop): otherwise the later
+                    # replay forwards run at the inflated ρ the prior step left,
+                    # polluting optimizer momentum and driving post-sleep drift
+                    # over 1.0. Renorming each step bounds the sleep cycle itself.
+                    if getattr(config, "use_spectral_renorm", False):
+                        _raw.renormalize_spectral_radius(
+                            getattr(config, "spectral_renorm_target", 1.0)
+                        )
+                else:
+                    for o in optimizers:
+                        o.zero_grad(set_to_none=True)
+                    if is_main_process():
+                        print(f"  [NaN-guard] sleep step {step}: non-finite grad — skipped.",
+                              flush=True)
+            # Backstop renorm after the whole sleep cycle (covers the case where
+            # the final replay step was NaN-skipped). The 100-step prospective
+            # relaxation is hypersensitive to ρ>1, and SHY's periodic pass is too
+            # coarse to catch a sleep-induced spike before it diverges.
+            if getattr(config, "use_spectral_renorm", False):
+                _raw.renormalize_spectral_radius(
+                    getattr(config, "spectral_renorm_target", 1.0)
+                )
+            # Restore pre-sleep optimizer state (weights keep sleep's updates,
+            # momentum is rolled back so sleep can't pollute the main EMA).
+            if _opt_state_baks is not None:
+                for o, _bak in zip(optimizers, _opt_state_baks):
+                    _restore_optimizer_state(o, _bak, device)
+                del _opt_state_baks
             if is_main_process():
                 carry_norm = sleep_result.get("hebbian_carry_norm", 0.0)
                 print(
@@ -2040,6 +2156,8 @@ def train(
                 bio_str += f" | dist {dl_v:.3f}"
             if "inference_steps" in result:
                 bio_str += f" | inf_steps {result['inference_steps']}"
+            if "latent_srank" in result:
+                bio_str += f" | srank {result['latent_srank']:.1f}"
             if "amortized_loss" in result:
                 bio_str += f" | amort {result['amortized_loss'].item():.4f}"
             if precision_scaler is not None and result.get("hpc_per_layer_precision") is not None:
@@ -2104,6 +2222,25 @@ def train(
                     bio_str += " [HIT]"
                 elif "dnd_max_sim" in result:
                     bio_str += f" sim={result['dnd_max_sim']:.3f}"
+            if "efe_expected_halt" in result:
+                bio_str += f" | halt {result['efe_expected_halt']:.2f}"
+            if getattr(config, "use_burstprop", False) and _stream_layers:
+                pbar_vals = [
+                    layer.hebbian._burst_p_bar.item()
+                    for layer in _stream_layers
+                    if layer.hebbian is not None and hasattr(layer.hebbian, "_burst_p_bar")
+                ]
+                if pbar_vals:
+                    bio_str += f" | P̄ {sum(pbar_vals)/len(pbar_vals):.3f}"
+            if getattr(config, "use_meta_rl", False):
+                _msc = getattr(_raw, "meta_inject_scale", None)
+                if _msc is not None:
+                    bio_str += f" | meta {_msc.item():.3f}"
+            if getattr(config, "use_rem_dreaming", False):
+                bio_str += f" | rem_acc {getattr(_raw, '_last_rem_disc_acc', 0.0):.2f}"
+            if (getattr(config, "use_swr_tagging", False)
+                    and isinstance(episodic_buffer, PrioritizedReplayBuffer)):
+                bio_str += f" | swr {episodic_buffer.n_tagged}/{len(episodic_buffer)}"
 
             # Prospective Configuration uses a simplified log format
             # (no per-tick breakdown since the inference loop runs
@@ -2404,11 +2541,19 @@ def parse_args():
                                   "--spectral_renorm_target. Keeps the recurrent dynamics "
                                   "near criticality as training deforms the spectrum. "
                                   "Complements --use_critical_init.")
-    model_group.add_argument("--spectral_renorm_interval", type=int, default=200,
-                             help="Training steps between spectral-renorm passes.")
-    model_group.add_argument("--spectral_renorm_target", type=float, default=1.0,
+    model_group.add_argument("--spectral_renorm_interval", type=int, default=10,
+                             help="Training steps between spectral-renorm passes. "
+                                  "Kept tight (10) because a sleep micro-cycle makes ρ "
+                                  "drift toward 1.0 over the following steps; a coarse "
+                                  "cadence lets it cross criticality and diverge the "
+                                  "100-step relaxation. Paired with a per-sleep-step "
+                                  "renorm so sleep itself can't leave ρ>1.")
+    model_group.add_argument("--spectral_renorm_target", type=float, default=0.99,
                              help="Maximum allowed spectral radius for the synapse "
-                                  "z-recurrence matrix (only shrinks when exceeded).")
+                                  "z-recurrence matrix (only shrinks when exceeded). "
+                                  "Subcritical (<1.0) on purpose: bf16 weights pick up "
+                                  "~+/-0.4%% rescale noise, so a target of 1.0 lands "
+                                  "supercritical half the time and diverges the relaxation.")
     model_group.add_argument("--use_multi_rate_streams", action="store_true",
                              help="Multi-rate thought loop: matrix streams update at "
                                   "different timescales (power-of-2 periods [1,1,2,4,8,...]). "
@@ -2533,6 +2678,14 @@ def parse_args():
                           help="Initial damping coefficient γ.")
     v2_group.add_argument("--feec_clamp_dt", type=float, default=1.0,
                           help="Upper bound on dt for stability.")
+    v2_group.add_argument("--feec_state_clip", type=float, default=0.0,
+                          help="Trust-region bound on the relaxation state: caps "
+                               "the per-position L2 norm of z and velocity at "
+                               "feec_state_clip*sqrt(d_latent) each FEEC step "
+                               "(0=off). A hard ceiling that only engages during "
+                               "pathological growth (healthy ‖z‖~0.3*sqrt(d)), so "
+                               "the inference relaxation can't diverge to NaN even "
+                               "when ρ momentarily exceeds 1. Try 4.0.")
     v2_group.add_argument("--feec_energy_penalty_weight", type=float, default=0.01,
                           help="Weight of energy growth penalty in loss.")
 
@@ -2634,6 +2787,20 @@ def parse_args():
                            help="Consolidation gradient steps per sleep cycle.")
     bio_group.add_argument("--sleep_loss_weight", type=float, default=0.3,
                            help="Scale factor applied to the consolidation loss.")
+    bio_group.add_argument("--sleep_carry_max_norm", type=float, default=0.0,
+                           help="Max Frobenius norm of the per-layer Hebbian "
+                                "carry-over (0=unbounded). The carry is an integrator "
+                                "(warm-starts M, re-saves mean(M_final)≈carry+ΔM) and "
+                                "grows without bound across sleeps — saturating the "
+                                "output (certainty collapse) then NaN-ing. Healthy "
+                                "carry≈0.3; ~1.0 is a generous safety bound.")
+    bio_group.add_argument("--isolate_sleep_optimizer", action="store_true",
+                           help="Snapshot the optimizer momentum/variance before the "
+                                "sleep replay steps and restore it after, so sleep "
+                                "updates the weights but does NOT pollute the main "
+                                "AdamW EMA. Prevents the sleep gradient direction from "
+                                "carrying into normal steps and driving the recurrence "
+                                "supercritical (the post-sleep ρ drift).")
     bio_group.add_argument("--use_prioritized_replay", action="store_true",
                            help="Replace uniform episodic replay with Free-Energy Prioritized "
                                 "Episodic Replay. Sequences with higher variational free energy "
@@ -2923,6 +3090,89 @@ def parse_args():
     hpc_group.add_argument("--hpc_pc_n_streams", type=int, default=8,
                            help="Number of streams to allocate when PC is enabled.")
 
+    # ── Brain-speed learning extensions (R1 / R2 / R3) ──────────────────
+    frontier_group = parser.add_argument_group("Brain-speed extensions (R1/R2/R3)")
+    # R1: Expected-Free-Energy thought-step controller (PonderNet + EFE).
+    frontier_group.add_argument("--use_efe_controller", action="store_true",
+                                help="R1: PonderNet-style halting policy over the "
+                                     "thought loop, shaped by expected free energy. "
+                                     "Reweights per-tick CE by a learned halting "
+                                     "distribution (confident early emission), adds a "
+                                     "KL-to-geometric prior + EFE shaping term, and "
+                                     "early-exits the loop at eval/generate. BPTT path "
+                                     "only (not prospective config).")
+    frontier_group.add_argument("--efe_halt_prior", type=float, default=0.1,
+                                help="Geometric prior λ for the PonderNet KL term.")
+    frontier_group.add_argument("--efe_ponder_kl_weight", type=float, default=0.01,
+                                help="Weight on KL(p ‖ Geometric(efe_halt_prior)).")
+    frontier_group.add_argument("--efe_weight", type=float, default=0.1,
+                                help="Weight on the EFE shaping term Σ p_t·(ambiguity−epistemic).")
+    frontier_group.add_argument("--efe_halt_threshold", type=float, default=0.5,
+                                help="Cumulative halt probability that triggers early "
+                                     "exit of the thought loop at eval/generate.")
+    frontier_group.add_argument("--efe_controller_hidden_dim", type=int, default=0,
+                                help="Hidden dim of the EFE halting MLP. 0 -> auto "
+                                     "(max(32, d_latent // 8)).")
+    # R2: Burst-multiplexed dendritic credit assignment (Burstprop).
+    frontier_group.add_argument("--use_burstprop", action="store_true",
+                                help="R2: Payeur et al. 2021 burst/event factorization "
+                                     "of the Hebbian fast-weight update. The apical "
+                                     "burst probability is the previous thought tick's "
+                                     "per-layer hierarchical-PC error. Requires "
+                                     "--use_hebbian_synapse and --use_hierarchical_pc.")
+    frontier_group.add_argument("--burstprop_tau", type=float, default=100.0,
+                                help="EMA window for the running burst probability P̄.")
+    frontier_group.add_argument("--burstprop_scale_init", type=float, default=1.0,
+                                help="Initial slope mapping top-down PC error → burst prob.")
+    # R3: Prefrontal meta-RL reward/action channel (self-supervised).
+    frontier_group.add_argument("--use_meta_rl", action="store_true",
+                                help="R3: feed the model its own previous-token reward "
+                                     "(probability of the realized token) and action "
+                                     "(argmax) as an extra input channel, RL²-style. "
+                                     "Recovered with a cheap no_grad pre-pass (≈2× fwd). "
+                                     "Requires a token embedding (not feature encoder).")
+    frontier_group.add_argument("--meta_rl_reward_scale_init", type=float, default=0.1,
+                                help="Initial gate on the meta reward/action injection.")
+    # R11: BTSP-v2 (weight-dependent / stochastic / delayed).
+    frontier_group.add_argument("--btsp_weight_dependent", action="store_true",
+                                help="R11: upgrade BTSP with Milstein bidirectional "
+                                     "inverse-weight-dependence + stochastic CaMKII "
+                                     "consolidation + delayed gamma kernel. Opt-in; "
+                                     "existing --use_btsp behavior preserved when off. "
+                                     "Requires --use_btsp.")
+    frontier_group.add_argument("--btsp_w_max", type=float, default=1.0,
+                                help="Saturating bound for the BTSP-v2 fast-weight magnitude.")
+    frontier_group.add_argument("--btsp_consolidate_prob", type=float, default=0.3,
+                                help="Per-plateau stochastic consolidation probability (DDSC).")
+    frontier_group.add_argument("--btsp_delay_shape", type=float, default=0.0,
+                                help="Gamma-kernel delay shape for BTSP-v2 (0 = immediate kernel).")
+    # R4: SWR content-tagged replay.
+    frontier_group.add_argument("--use_swr_tagging", action="store_true",
+                                help="R4: tag a subset of high-surprise episodes (Yang et al. "
+                                     "2024) and sleep-replay preferentially from tagged ones. "
+                                     "Requires --use_sleep_consolidation --use_prioritized_replay.")
+    frontier_group.add_argument("--swr_tag_rate", type=float, default=0.3,
+                                help="Target fraction of episodes the SWR tagger marks.")
+    frontier_group.add_argument("--swr_tag_threshold_decay", type=float, default=0.99,
+                                help="EMA decay for the running surprise threshold used to tag.")
+    # R10: REM adversarial dreaming.
+    frontier_group.add_argument("--use_rem_dreaming", action="store_true",
+                                help="R10: add an adversarial REM dreaming loss (latent-space "
+                                     "GAN with gradient reversal) to the sleep cycle. "
+                                     "Requires --use_sleep_consolidation. "
+                                     "WARNING (2026-05-23): KNOWN to cause an irreversible "
+                                     "certainty collapse (output flattens to ~uniform while CE "
+                                     "keeps improving), confirmed by ablation. Leave OFF. See the "
+                                     "REMDreamer docstring (model.py) for the full diagnosis.")
+    frontier_group.add_argument("--rem_noise_dim", type=int, default=0,
+                                help="REM generator noise dim (0 -> d_latent).")
+    frontier_group.add_argument("--rem_hidden_dim", type=int, default=0,
+                                help="REM generator/discriminator hidden width (0 -> auto).")
+    frontier_group.add_argument("--rem_loss_weight", type=float, default=0.1,
+                                help="Weight of the adversarial REM loss in the sleep loss.")
+    frontier_group.add_argument("--rem_grl_lambda", type=float, default=1.0,
+                                help="Gradient-reversal strength for the REM generator.")
+
     return parser.parse_args()
 
 
@@ -3024,6 +3274,7 @@ def main():
         feec_dt_init=args.feec_dt_init,
         feec_damping_init=args.feec_damping_init,
         feec_clamp_dt=args.feec_clamp_dt,
+        feec_state_clip=args.feec_state_clip,
         feec_energy_penalty_weight=args.feec_energy_penalty_weight,
         use_matrix_streams=args.use_matrix_streams,
         n_streams=args.n_streams,
@@ -3083,11 +3334,37 @@ def main():
         hpc_error_as_loss_weight=args.hpc_error_as_loss_weight,
         hpc_local_loss_weight=args.hpc_local_loss_weight,
         hpc_pc_n_streams=args.hpc_pc_n_streams,
+        # Brain-speed extensions (R1/R2/R3)
+        use_efe_controller=args.use_efe_controller,
+        efe_halt_prior=args.efe_halt_prior,
+        efe_ponder_kl_weight=args.efe_ponder_kl_weight,
+        efe_weight=args.efe_weight,
+        efe_halt_threshold=args.efe_halt_threshold,
+        efe_controller_hidden_dim=args.efe_controller_hidden_dim,
+        use_burstprop=args.use_burstprop,
+        burstprop_tau=args.burstprop_tau,
+        burstprop_scale_init=args.burstprop_scale_init,
+        use_meta_rl=args.use_meta_rl,
+        meta_rl_reward_scale_init=args.meta_rl_reward_scale_init,
+        btsp_weight_dependent=args.btsp_weight_dependent,
+        btsp_w_max=args.btsp_w_max,
+        btsp_consolidate_prob=args.btsp_consolidate_prob,
+        btsp_delay_shape=args.btsp_delay_shape,
+        use_swr_tagging=args.use_swr_tagging,
+        swr_tag_rate=args.swr_tag_rate,
+        swr_tag_threshold_decay=args.swr_tag_threshold_decay,
+        use_rem_dreaming=args.use_rem_dreaming,
+        rem_noise_dim=args.rem_noise_dim,
+        rem_hidden_dim=args.rem_hidden_dim,
+        rem_loss_weight=args.rem_loss_weight,
+        rem_grl_lambda=args.rem_grl_lambda,
         use_sleep_consolidation=args.use_sleep_consolidation,
         sleep_interval=args.sleep_interval,
         sleep_buffer_size=args.sleep_buffer_size,
         sleep_replay_steps=args.sleep_replay_steps,
         sleep_loss_weight=args.sleep_loss_weight,
+        sleep_carry_max_norm=args.sleep_carry_max_norm,
+        isolate_sleep_optimizer=args.isolate_sleep_optimizer,
         use_prioritized_replay=args.use_prioritized_replay,
         replay_fe_temperature=args.replay_fe_temperature,
         use_swil=args.use_swil,
@@ -3268,6 +3545,36 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
         )
         if getattr(config, "use_stc", False) and _stream_layers else None
     )
+
+    # ── Episodic memory buffer for sleep consolidation (dual-GPU) ─────────
+    # Mirrors the single-GPU train() setup so sleep consolidation — and the
+    # R4 (SWR content-tagging) and R10 (REM adversarial dreaming) phases that
+    # ride on it — run under --multi_gpu too. Each rank keeps its own buffer;
+    # the sleep micro-cycle flat-allreduces its gradients (below), so replica
+    # weights stay in sync exactly like the main loop.
+    use_sleep = getattr(config, "use_sleep_consolidation", False)
+    if use_sleep and not getattr(config, "use_hebbian_synapse", False) and rank == 0:
+        print("[Sleep] WARNING: use_sleep_consolidation=True but "
+              "use_hebbian_synapse=False — carry-over has no effect.", flush=True)
+    _sleep_buf_size = getattr(config, "sleep_buffer_size", 32)
+    _use_pri_replay = getattr(config, "use_prioritized_replay", False)
+    if use_sleep and _use_pri_replay:
+        episodic_buffer: PrioritizedReplayBuffer | None = PrioritizedReplayBuffer(
+            maxsize=_sleep_buf_size,
+            temperature=getattr(config, "replay_fe_temperature", 1.0),
+            sim_weight=getattr(config, "swil_sim_weight", 1.0),
+            tagging=getattr(config, "use_swr_tagging", False),
+            tag_rate=getattr(config, "swr_tag_rate", 0.3),
+            tag_threshold_decay=getattr(config, "swr_tag_threshold_decay", 0.99),
+        )
+    elif use_sleep:
+        episodic_buffer = deque(maxlen=_sleep_buf_size)
+    else:
+        episodic_buffer = None
+    sleep_interval = getattr(config, "sleep_interval", 100)
+    sleep_replay_steps = getattr(config, "sleep_replay_steps", 4)
+    sleep_loss_weight = getattr(config, "sleep_loss_weight", 0.3)
+    _opt_step = 0  # optimizer-step counter (sleep cadence is in optimizer steps)
 
     # ── Data ─────────────────────────────────────────────────────────
 
@@ -3474,13 +3781,151 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                         optimizer.modulate(certs.detach().float().mean().item())
 
                 # ── Optimizer step ───────────────────────────────────────────
+                # NaN-guard: last_grad_norm is computed from the *allreduced*
+                # grads, so it is identical on every rank → all ranks skip or
+                # all step together (no desync / deadlock). Prevents one diverged
+                # batch from permanently poisoning the weights with NaNs.
                 with timer("optimizer"):
-                    optimizer.step()
+                    if torch.isfinite(last_grad_norm):
+                        optimizer.step()
+                    elif rank == 0:
+                        print(f"  [NaN-guard] step {step}: non-finite grad "
+                              f"({float(last_grad_norm):.3g}) — optimizer step skipped.",
+                              flush=True)
                     optimizer.zero_grad()
 
             t1 = time.perf_counter()
             step_time = t1 - t0
             step_times.append(step_time)
+
+        # ── Episodic push + sleep micro-cycle (sleep / R4 / R10) ─────────
+        # Runs at optimizer-step boundaries. The trigger (len(buffer), opt-step
+        # count) is identical across ranks, so all ranks enter the sleep block
+        # together — required because the sleep backward flat-allreduces, and a
+        # rank skipping it would deadlock the collective.
+        did_opt_step = ((step + 1) % config.gradient_accumulation_steps == 0
+                        or (step + 1) == config.max_steps)
+        if episodic_buffer is not None and did_opt_step:
+            _opt_step += 1
+            # Store this batch's first sequence (priority = free energy / loss).
+            if isinstance(episodic_buffer, PrioritizedReplayBuffer):
+                _fe = result.get("hpc_free_energy")
+                if _fe is None:
+                    _fe = result.get("loss")
+                _fe_val = float(_fe.item()) if torch.is_tensor(_fe) else float(_fe or 0.0)
+                _svec = None
+                if getattr(config, "use_swil", False):
+                    _lp = result.get("final_latent_pool")
+                    if _lp is not None:
+                        _svec = _lp[0]
+                episodic_buffer.push(_fe_val, ids[0].detach().cpu(), _svec)
+            else:
+                episodic_buffer.append(ids[0].detach().cpu())
+
+            min_buffer = max(2, _sleep_buf_size // 4)
+            if len(episodic_buffer) >= min_buffer and _opt_step % sleep_interval == 0:
+                _rem_on = getattr(config, "use_rem_dreaming", False)
+                # Optimizer-state isolation: snapshot the main optimizer's
+                # momentum/variance so the sleep replay steps can't pollute the
+                # main AdamW EMA (deterministic on synced weights → identical
+                # across ranks; CPU clone to avoid a VRAM spike during replay).
+                _opt_state_bak = (
+                    _snapshot_optimizer_state_cpu(optimizer)
+                    if getattr(config, "isolate_sleep_optimizer", False) else None
+                )
+                sleep_result: dict = {}
+                for _ss in range(sleep_replay_steps):
+                    optimizer.zero_grad(set_to_none=True)
+                    n_replay = min(config.batch_size, len(episodic_buffer))
+                    if isinstance(episodic_buffer, PrioritizedReplayBuffer):
+                        _qvec = None
+                        if getattr(config, "use_swil", False):
+                            _lp = result.get("final_latent_pool")
+                            if _lp is not None:
+                                _qvec = _lp[0]
+                        sampled = episodic_buffer.sample(n_replay, query_vec=_qvec)
+                    else:
+                        sampled = random.sample(list(episodic_buffer), n_replay)
+                    x_replay = torch.stack(sampled, dim=0).to(device)
+                    y_replay = torch.cat([x_replay[:, 1:], x_replay[:, :1]], dim=1)
+                    # R10: fold the adversarial REM loss into result["loss"]
+                    # in-graph so generator/discriminator grads are part of the
+                    # flat-allreduce (kept in sync across ranks).
+                    if _rem_on:
+                        model._rem_sleep_active = True
+                    try:
+                        sleep_result = model(x_replay, targets=y_replay)
+                        sleep_loss = sleep_result["loss"] * sleep_loss_weight
+                    finally:
+                        if _rem_on:
+                            model._rem_sleep_active = False
+                    sleep_loss.backward()
+                    # Flat-allreduce the sleep gradients (mirror the main loop).
+                    s_grads = [p.grad for p in model.parameters() if p.grad is not None]
+                    if s_grads and dist.is_initialized():
+                        flat = torch._utils._flatten_dense_tensors(s_grads)
+                        dist.all_reduce(flat, op=dist.ReduceOp.SUM)
+                        flat.div_(world_size)
+                        for g, u in zip(s_grads, torch._utils._unflatten_dense_tensors(flat, s_grads)):
+                            g.copy_(u)
+                    # Same grad safeguards as the main step, on the allreduced
+                    # grads (identical across ranks → synced). Critically the STC
+                    # gate: without it, ungated sleep grads are ~100× larger than
+                    # normal STC-gated updates and push the synapse recurrence
+                    # supercritical (ρ>1) → divergence.
+                    if precision_scaler is not None:
+                        _slp_prec = sleep_result.get("hpc_per_layer_precision")
+                        if _slp_prec is not None:
+                            _pc_ids = ({id(p) for p in model.pc_layers.parameters()}
+                                       if model.pc_layers is not None else set())
+                            precision_scaler.update_and_scale(
+                                model._get_layers_sequence(), _slp_prec, _pc_ids
+                            )
+                    if stc_gate is not None:
+                        _slp_prp = (float(optimizer._surprise_ema)
+                                    if isinstance(optimizer, NeuroPlasticOptimizer)
+                                    and optimizer._surprise_ema is not None else 0.0)
+                        stc_gate.apply(_stream_layers, _slp_prp)
+                    _sleep_gn = torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip) \
+                        if config.grad_clip > 0 else torch.tensor(0.0, device=device)
+                    # NaN-guard (grads already allreduced → identical across ranks).
+                    if torch.isfinite(_sleep_gn):
+                        optimizer.step()
+                        # Project the recurrence back to ρ≤target after EVERY sleep
+                        # update (not just once after the loop): the post-loop pass
+                        # left intermediate replay forwards running at the inflated ρ
+                        # the prior step produced, polluting Adam momentum and driving
+                        # post-sleep drift over 1.0. Renorming each step bounds the
+                        # sleep cycle itself and keeps every replay forward sane.
+                        # Deterministic on the allreduce-synced weights → no comm,
+                        # stays in lockstep across ranks. The finite-grad gate is
+                        # rank-identical (allreduced norm) so all ranks renorm together.
+                        if getattr(config, "use_spectral_renorm", False):
+                            model.renormalize_spectral_radius(
+                                getattr(config, "spectral_renorm_target", 1.0)
+                            )
+                    elif rank == 0:
+                        print(f"  [NaN-guard] sleep opt_step {_opt_step}: non-finite grad — skipped.",
+                              flush=True)
+                optimizer.zero_grad(set_to_none=True)
+                # Restore the pre-sleep optimizer state: sleep's weight updates
+                # persist, but the main AdamW momentum/variance is rolled back so
+                # the sleep gradient direction can't leak into normal steps.
+                if _opt_state_bak is not None:
+                    _restore_optimizer_state(optimizer, _opt_state_bak, device)
+                    del _opt_state_bak
+                if rank == 0:
+                    _msg = (f"  [Sleep] opt_step {_opt_step}: {sleep_replay_steps} replays "
+                            f"over {len(episodic_buffer)} eps | sleep_loss "
+                            f"{(sleep_result.get('loss', torch.tensor(0.0)).item() * sleep_loss_weight):.4f}"
+                            f" | |M_carry| {sleep_result.get('hebbian_carry_norm', 0.0):.4f}")
+                    if isinstance(episodic_buffer, PrioritizedReplayBuffer):
+                        _msg += f" | mean_FE {episodic_buffer.mean_priority:.4f}"
+                        if getattr(config, "use_swr_tagging", False):
+                            _msg += f" | swr {episodic_buffer.n_tagged}/{len(episodic_buffer)}"
+                    if _rem_on:
+                        _msg += f" | rem_acc {getattr(model, '_last_rem_disc_acc', 0.0):.2f}"
+                    print(_msg, flush=True)
 
         # ── Structural plasticity: update gate EMA and maybe grow/prune ──
         if plasticity is not None:
@@ -3590,6 +4035,8 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 bio_str += f" | dist {dl_v:.3f}"
             if "inference_steps" in result:
                 bio_str += f" | inf_steps {result['inference_steps']}"
+            if "latent_srank" in result:
+                bio_str += f" | srank {result['latent_srank']:.1f}"
             if "amortized_loss" in result:
                 bio_str += f" | amort {result['amortized_loss'].item():.4f}"
             if precision_scaler is not None and result.get("hpc_per_layer_precision") is not None:
@@ -3648,6 +4095,25 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                     bio_str += " [HIT]"
                 elif "dnd_max_sim" in result:
                     bio_str += f" sim={result['dnd_max_sim']:.3f}"
+            if "efe_expected_halt" in result:
+                bio_str += f" | halt {result['efe_expected_halt']:.2f}"
+            if getattr(config, "use_burstprop", False) and _stream_layers:
+                pbar_vals = [
+                    layer.hebbian._burst_p_bar.item()
+                    for layer in _stream_layers
+                    if layer.hebbian is not None and hasattr(layer.hebbian, "_burst_p_bar")
+                ]
+                if pbar_vals:
+                    bio_str += f" | P̄ {sum(pbar_vals)/len(pbar_vals):.3f}"
+            if getattr(config, "use_meta_rl", False):
+                _msc = getattr(model, "meta_inject_scale", None)
+                if _msc is not None:
+                    bio_str += f" | meta {_msc.item():.3f}"
+            if getattr(config, "use_rem_dreaming", False):
+                bio_str += f" | rem_acc {getattr(model, '_last_rem_disc_acc', 0.0):.2f}"
+            if (getattr(config, "use_swr_tagging", False)
+                    and isinstance(episodic_buffer, PrioritizedReplayBuffer)):
+                bio_str += f" | swr {episodic_buffer.n_tagged}/{len(episodic_buffer)}"
 
             t_field = f"T={current_T} | " if config.t_curriculum else ""
             print(
@@ -3787,6 +4253,7 @@ def main_multi_gpu():
         feec_dt_init=args.feec_dt_init,
         feec_damping_init=args.feec_damping_init,
         feec_clamp_dt=args.feec_clamp_dt,
+        feec_state_clip=args.feec_state_clip,
         feec_energy_penalty_weight=args.feec_energy_penalty_weight,
         use_matrix_streams=args.use_matrix_streams,
         n_streams=args.n_streams, stream_gating=args.stream_gating,
@@ -3845,11 +4312,37 @@ def main_multi_gpu():
         hpc_error_as_loss_weight=args.hpc_error_as_loss_weight,
         hpc_local_loss_weight=args.hpc_local_loss_weight,
         hpc_pc_n_streams=args.hpc_pc_n_streams,
+        # Brain-speed extensions (R1/R2/R3)
+        use_efe_controller=args.use_efe_controller,
+        efe_halt_prior=args.efe_halt_prior,
+        efe_ponder_kl_weight=args.efe_ponder_kl_weight,
+        efe_weight=args.efe_weight,
+        efe_halt_threshold=args.efe_halt_threshold,
+        efe_controller_hidden_dim=args.efe_controller_hidden_dim,
+        use_burstprop=args.use_burstprop,
+        burstprop_tau=args.burstprop_tau,
+        burstprop_scale_init=args.burstprop_scale_init,
+        use_meta_rl=args.use_meta_rl,
+        meta_rl_reward_scale_init=args.meta_rl_reward_scale_init,
+        btsp_weight_dependent=args.btsp_weight_dependent,
+        btsp_w_max=args.btsp_w_max,
+        btsp_consolidate_prob=args.btsp_consolidate_prob,
+        btsp_delay_shape=args.btsp_delay_shape,
+        use_swr_tagging=args.use_swr_tagging,
+        swr_tag_rate=args.swr_tag_rate,
+        swr_tag_threshold_decay=args.swr_tag_threshold_decay,
+        use_rem_dreaming=args.use_rem_dreaming,
+        rem_noise_dim=args.rem_noise_dim,
+        rem_hidden_dim=args.rem_hidden_dim,
+        rem_loss_weight=args.rem_loss_weight,
+        rem_grl_lambda=args.rem_grl_lambda,
         use_sleep_consolidation=args.use_sleep_consolidation,
         sleep_interval=args.sleep_interval,
         sleep_buffer_size=args.sleep_buffer_size,
         sleep_replay_steps=args.sleep_replay_steps,
         sleep_loss_weight=args.sleep_loss_weight,
+        sleep_carry_max_norm=args.sleep_carry_max_norm,
+        isolate_sleep_optimizer=args.isolate_sleep_optimizer,
         use_prioritized_replay=args.use_prioritized_replay,
         replay_fe_temperature=args.replay_fe_temperature,
         use_swil=args.use_swil,

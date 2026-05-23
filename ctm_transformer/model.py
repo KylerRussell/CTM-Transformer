@@ -1867,11 +1867,19 @@ class FEECIntegrator(nn.Module):
         dt_init: float = 0.1,
         damping_init: float = 0.1,
         clamp_dt: float = 1.0,
+        state_clip: float = 0.0,
     ):
         super().__init__()
         self.d_latent = d_latent
         self.n_layers = n_layers
         self.clamp_dt = clamp_dt
+        # Trust-region ceiling on the per-position L2 norm of the relaxation
+        # state. Absolute value = state_clip · √d_latent (0 → disabled). See
+        # CTMConfig.feec_state_clip: bounds transient amplification so the
+        # iterated relaxation can't diverge to NaN even when ρ momentarily > 1.
+        self.max_state_norm = (
+            float(state_clip) * (d_latent ** 0.5) if state_clip and state_clip > 0 else 0.0
+        )
 
         # Per-layer learnable step sizes. Initialized small so the
         # integrator starts near the identity (z_{t+1} ≈ z_t).
@@ -1954,7 +1962,23 @@ class FEECIntegrator(nn.Module):
         # Position update (using NEW velocity — symplectic)
         z_new = z + dt * velocity_new
 
+        # Trust-region clip: cap the per-position L2 norm of state and velocity.
+        # Differentiable (scale ≤ 1, shrink-only) so the learning-pass step is
+        # unaffected; only engages when growth is pathological. This is what
+        # makes the iterated relaxation robust to a transiently supercritical ρ.
+        if self.max_state_norm > 0.0:
+            z_new = self._clip_norm(z_new, self.max_state_norm)
+            velocity_new = self._clip_norm(velocity_new, self.max_state_norm)
+
         return z_new, velocity_new
+
+    @staticmethod
+    def _clip_norm(x: torch.Tensor, max_norm: float) -> torch.Tensor:
+        """Scale rows whose per-position L2 norm exceeds ``max_norm`` back down
+        to it; leave smaller rows untouched. Shrink-only and differentiable."""
+        norm = x.norm(dim=-1, keepdim=True)
+        scale = (max_norm / norm.clamp_min(1e-6)).clamp(max=1.0)
+        return x * scale
 
     def energy(
         self,
@@ -2039,6 +2063,176 @@ class AmortizedInferenceNet(nn.Module):
             z_hat:    [B, S, d_latent] predicted equilibrium latents
         """
         return self.net(text_emb)
+
+
+class EFEThoughtController(nn.Module):
+    """R1 — Expected-Free-Energy halting policy over the thought loop.
+
+    A PonderNet-style controller that, at each thought tick t, maps a small
+    set of EFE features to a halting probability λ_t ∈ (0, 1):
+
+        ambiguity_t = 1 − mean certainty_t      (predictive entropy proxy)
+        epistemic_t = normalized ‖z_t − z_{t-1}‖ (latent information gain)
+        progress_t  = t / (T − 1)                (loop position)
+
+    The per-tick halting distribution is the PonderNet construction
+        p_t = λ_t · Π_{t'<t} (1 − λ_{t'}),
+    with the final tick absorbing the remaining mass so Σ_t p_t = 1.
+
+    The controller is consumed by ``CTMTransformer.forward``:
+      - the reconstruction loss Σ_t p_t · CE_t replaces the uniform per-tick
+        mean, rewarding confident early emission;
+      - a KL(p ‖ Geometric(halt_prior)) term keeps the loop from collapsing to
+        "halt immediately";
+      - an EFE-shaping term Σ_t p_t · (ambiguity_t − epistemic_t) pulls halting
+        mass toward low-EFE ticks (confident + info-gain exhausted).
+    At eval / generate, the loop early-exits once the cumulative halt
+    probability crosses a threshold — the wall-clock payoff.
+
+    Operates on scalar (sequence-mean) features so the loss it shapes is built
+    from the per-tick scalar CE that ``_thought_step`` already returns — which
+    keeps it correct under gradient checkpointing (side-effect tensors stored
+    on ``self`` would not be).
+    """
+
+    N_FEATURES = 3
+
+    def __init__(self, hidden_dim: int, halt_prior: float = 0.1):
+        super().__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(self.N_FEATURES, hidden_dim),
+            nn.GELU(),
+            nn.Linear(hidden_dim, 1),
+        )
+        # Bias the initial halting logit so λ ≈ halt_prior at the start, before
+        # the controller has learned anything (matches the geometric prior).
+        p = float(min(max(halt_prior, 1e-4), 1 - 1e-4))
+        with torch.no_grad():
+            nn.init.zeros_(self.mlp[-1].weight)
+            self.mlp[-1].bias.fill_(math.log(p / (1.0 - p)))
+
+    def halt_logit(
+        self,
+        ambiguity: torch.Tensor,
+        epistemic: torch.Tensor,
+        progress: torch.Tensor,
+    ) -> torch.Tensor:
+        """Map scalar EFE features to a scalar halting logit for one tick."""
+        feats = torch.stack([ambiguity, epistemic, progress]).to(
+            self.mlp[0].weight.dtype
+        )
+        return self.mlp(feats).squeeze(-1)
+
+
+class _GradReverse(torch.autograd.Function):
+    """Gradient-reversal layer (Ganin & Lempitsky 2015).
+
+    Identity on the forward pass; multiplies the gradient by −λ on the
+    backward pass. Lets an adversarial objective be optimised with a single
+    backward / single optimizer step (distributed-safe).
+    """
+
+    @staticmethod
+    def forward(ctx, x, lambd):
+        ctx.lambd = float(lambd)
+        return x.view_as(x)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        return -ctx.lambd * grad_output, None
+
+
+def grad_reverse(x: torch.Tensor, lambd: float = 1.0) -> torch.Tensor:
+    return _GradReverse.apply(x, lambd)
+
+
+class REMDreamer(nn.Module):
+    """R10 — REM-style adversarial dreaming over pooled latents.
+
+    A latent-space GAN. The generator maps noise → a "dream" latent; the
+    discriminator scores latents as real (the backbone's own pooled latent from
+    data) vs dreamed. A gradient-reversal layer on the generator path makes the
+    whole adversarial objective a single loss, so generator, discriminator, and
+    the backbone's real-latent encoder all train in ONE backward / ONE optimizer
+    step — keeping DDP / flat-allreduce replicas in sync (a per-rank internal
+    GAN optimizer would diverge across ranks). The loss is
+
+        L = BCE(D(real), 1) + BCE(D(GRL_λ(G(noise))), 0).
+
+    D minimises it (real→1, dream→0); the backbone's real latents are pulled to
+    the "real" side; GRL flips the generator's gradient so G learns to produce
+    latents D rates as real. This is adversarial dreaming (Deperrois et al. 2022)
+    adapted to be distributed-safe and to reuse the main optimizer.
+
+    ──────────────────────────────────────────────────────────────────────────
+    KNOWN ISSUE — DEFAULT-DISABLED (2026-05-23). `use_rem_dreaming` defaults OFF
+    and should stay off; it causes a sudden, irreversible CERTAINTY COLLAPSE.
+
+    Symptom: the next-token distribution flattens toward uniform — output
+    certainty (1 − H(softmax)/log V) drops from a healthy ~0.3 to a pinned
+    ~0.02 within one logging interval and never recovers — while cross-entropy,
+    perplexity and the PC loss keep improving normally. The collapse is a sharp
+    cliff triggered by a sleep micro-cycle (observed reproducibly at the 3rd
+    sleep, ~step 1200), accompanied by a gradient spike.
+
+    Root cause: this loss includes BCE(D(real), 1) on the backbone's OWN pooled
+    latent, and via the GRL the adversarial objective shapes that same latent —
+    the one that feeds the readout. The pressure drives real latents toward the
+    noise-like "dream" distribution, so the output becomes input-insensitive and
+    high-entropy. The effect accumulates across sleeps until it tips. This is
+    INHERENT to the design (REM deliberately trains the output-determining
+    latent), not a tuning bug — lowering rem_loss_weight only delays it.
+
+    Confirmed by ablation (2026-05-23): disabling REM removes the cliff entirely
+    (certainty develops healthily to ~0.3–0.45); re-enabling it reproduces the
+    collapse. Ruled OUT as causes via isolation + a stable-rank probe: the
+    Hebbian sleep carry (cliff persists with carry≈0) and latent rank collapse
+    (srank stays ~1.5 throughout, healthy and collapsed alike).
+
+    If ever revisited: the only way to keep REM AND sharp outputs is to make D
+    score a DETACHED latent / a separate head so the adversarial gradient never
+    reaches the readout-determining latent — which largely defeats its purpose.
+    ──────────────────────────────────────────────────────────────────────────
+    """
+
+    def __init__(self, d_latent: int, noise_dim: int = 0, hidden_dim: int = 0):
+        super().__init__()
+        self.noise_dim = noise_dim or d_latent
+        hidden = hidden_dim or max(64, d_latent // 4)
+        self.generator = nn.Sequential(
+            nn.Linear(self.noise_dim, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, d_latent),
+        )
+        self.discriminator = nn.Sequential(
+            nn.Linear(d_latent, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, 1),
+        )
+
+    def loss(
+        self, real_latents: torch.Tensor, grl_lambda: float = 1.0
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Single adversarial REM loss + discriminator accuracy (for logging).
+
+        Args:
+            real_latents: [n, d_latent] grad-carrying pooled latents from the
+                backbone (the "real" samples).
+        """
+        n = real_latents.shape[0]
+        noise = torch.randn(
+            n, self.noise_dim, device=real_latents.device, dtype=real_latents.dtype
+        )
+        dream = grad_reverse(self.generator(noise), grl_lambda)
+        d_real = self.discriminator(real_latents).float().squeeze(-1)
+        d_dream = self.discriminator(dream).float().squeeze(-1)
+        loss = (
+            F.binary_cross_entropy_with_logits(d_real, torch.ones_like(d_real))
+            + F.binary_cross_entropy_with_logits(d_dream, torch.zeros_like(d_dream))
+        )
+        with torch.no_grad():
+            acc = 0.5 * ((d_real > 0).float().mean() + (d_dream < 0).float().mean())
+        return loss, acc.detach()
 
 
 # ═════════════════════════════════════════════════════════════════════════
@@ -2244,6 +2438,10 @@ class ThoughtLayer(nn.Module):
         btsp_lr_init: float = 0.05,
         btsp_kernel_decay_init: float = 0.9,
         btsp_salience_threshold: float = 0.0,
+        btsp_weight_dependent: bool = False,
+        btsp_w_max: float = 1.0,
+        btsp_consolidate_prob: float = 0.3,
+        btsp_delay_shape: float = 0.0,
         use_ip: bool = False,
         ip_lr: float = 0.01,
         ip_target: float = 0.1,
@@ -2262,6 +2460,9 @@ class ThoughtLayer(nn.Module):
         critical_init_sym_frac: float = 0.6,
         critical_init_spectral_radius: float = 0.999,
         use_multi_rate_streams: bool = False,
+        use_burstprop: bool = False,
+        burstprop_tau: float = 100.0,
+        burstprop_scale_init: float = 1.0,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -2399,6 +2600,10 @@ class ThoughtLayer(nn.Module):
                 btsp_lr_init=btsp_lr_init,
                 btsp_kernel_decay_init=btsp_kernel_decay_init,
                 btsp_salience_threshold=btsp_salience_threshold,
+                btsp_weight_dependent=btsp_weight_dependent,
+                btsp_w_max=btsp_w_max,
+                btsp_consolidate_prob=btsp_consolidate_prob,
+                btsp_delay_shape=btsp_delay_shape,
                 n_compartments=hebbian_n_compartments,
                 use_stc=use_stc,
                 stc_tag_decay=stc_tag_decay,
@@ -2406,6 +2611,9 @@ class ThoughtLayer(nn.Module):
                 use_critical_init=use_critical_init,
                 critical_init_sym_frac=critical_init_sym_frac,
                 critical_init_spectral_radius=critical_init_spectral_radius,
+                use_burstprop=use_burstprop,
+                burstprop_tau=burstprop_tau,
+                burstprop_scale_init=burstprop_scale_init,
             )
         else:
             self.hebbian = None
@@ -2588,6 +2796,7 @@ class ThoughtLayer(nn.Module):
         stream_state: torch.Tensor | None = None,
         hebbian_state: torch.Tensor | None = None,
         hebbian_lr_modulator: torch.Tensor | None = None,
+        hebbian_top_down: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
         """
         Execute one thought step with per-position states and causal masking.
@@ -2697,6 +2906,7 @@ class ThoughtLayer(nn.Module):
             heb_readout, new_hebbian_state, hebbian_lr_eff = self.hebbian(
                 pre_act_2d, attn_out, hebbian_state,
                 lr_modulator=hebbian_lr_modulator,
+                top_down_signal=hebbian_top_down,
             )
             pre_activations = pre_activations + heb_readout.reshape(BS, -1)
 
@@ -2832,6 +3042,10 @@ class CTMTransformer(nn.Module):
                 btsp_lr_init=getattr(config, "btsp_lr_init", 0.05),
                 btsp_kernel_decay_init=getattr(config, "btsp_kernel_decay_init", 0.9),
                 btsp_salience_threshold=getattr(config, "btsp_salience_threshold", 0.0),
+                btsp_weight_dependent=getattr(config, "btsp_weight_dependent", False),
+                btsp_w_max=getattr(config, "btsp_w_max", 1.0),
+                btsp_consolidate_prob=getattr(config, "btsp_consolidate_prob", 0.3),
+                btsp_delay_shape=getattr(config, "btsp_delay_shape", 0.0),
                 use_ip=getattr(config, "use_intrinsic_plasticity", False),
                 ip_lr=getattr(config, "ip_lr", 0.01),
                 ip_target=getattr(config, "ip_target", 0.1),
@@ -2850,6 +3064,9 @@ class CTMTransformer(nn.Module):
                 critical_init_sym_frac=getattr(config, "critical_init_sym_frac", 0.6),
                 critical_init_spectral_radius=getattr(config, "critical_init_spectral_radius", 0.999),
                 use_multi_rate_streams=getattr(config, "use_multi_rate_streams", False),
+                use_burstprop=getattr(config, "use_burstprop", False),
+                burstprop_tau=getattr(config, "burstprop_tau", 100.0),
+                burstprop_scale_init=getattr(config, "burstprop_scale_init", 1.0),
             )
 
         # ── Hyperloop or Standard Layer Construction ────────────────────
@@ -2893,6 +3110,7 @@ class CTMTransformer(nn.Module):
                 dt_init=config.feec_dt_init,
                 damping_init=config.feec_damping_init,
                 clamp_dt=config.feec_clamp_dt,
+                state_clip=getattr(config, "feec_state_clip", 0.0),
             )
         else:
             self.feec = None
@@ -3109,6 +3327,22 @@ class CTMTransformer(nn.Module):
         # NOT a registered buffer — transient runtime state.
         self._hebbian_carry: list | None = None
 
+        # ── R2 Burstprop: previous-tick PC errors (apical top-down signal) ──
+        # Populated by _thought_step when use_burstprop is on; consumed one
+        # tick later by the Hebbian fast-weight update. Transient runtime state.
+        self._last_pc_errors: list | None = None
+        if getattr(config, "use_burstprop", False):
+            if not config.use_hebbian_synapse:
+                raise ValueError(
+                    "use_burstprop requires use_hebbian_synapse=True "
+                    "(Burstprop modulates the Hebbian fast-weight update)."
+                )
+            if not getattr(config, "use_hierarchical_pc", False):
+                raise ValueError(
+                    "use_burstprop requires use_hierarchical_pc=True "
+                    "(the apical burst signal is the previous tick's PC error)."
+                )
+
         # ── BCM Sliding Threshold ─────────────────────────────────────────
         # EMA of mean squared latent magnitude, updated during the inference
         # phase of the EM loop. Acts as the Bienenstock-Cooper-Munro
@@ -3129,6 +3363,59 @@ class CTMTransformer(nn.Module):
             )
         else:
             self.amortized_net = None
+
+        # ── R1: EFE / PonderNet thought-step controller ─────────────────
+        if getattr(config, "use_efe_controller", False):
+            efe_hidden = getattr(config, "efe_controller_hidden_dim", 0) or max(
+                32, config.d_latent // 8
+            )
+            self.efe_controller = EFEThoughtController(
+                hidden_dim=efe_hidden,
+                halt_prior=getattr(config, "efe_halt_prior", 0.1),
+            )
+        else:
+            self.efe_controller = None
+
+        # ── R3: Meta-RL reward / action input channel ───────────────────
+        # Reward = probability the model assigned to the previous realized
+        # token (scalar in [0, 1]); action = the previous-position argmax token
+        # (reuses the token embedding). Both are shifted by one position and
+        # injected into the input embedding via a learnable gate. _meta_inner
+        # guards the no_grad pre-pass against recursion / double side-effects.
+        self._meta_inner = False
+        if getattr(config, "use_meta_rl", False):
+            if config.use_feature_encoder:
+                raise ValueError(
+                    "use_meta_rl requires a token embedding (the action channel "
+                    "reuses it); it is incompatible with use_feature_encoder."
+                )
+            self.meta_reward_proj = nn.Linear(1, config.d_model)
+            self.meta_inject_scale = nn.Parameter(
+                torch.tensor(float(getattr(config, "meta_rl_reward_scale_init", 0.1)))
+            )
+        else:
+            self.meta_reward_proj = None
+            self.meta_inject_scale = None
+
+        # ── R10: REM adversarial dreamer ────────────────────────────────
+        if getattr(config, "use_rem_dreaming", False):
+            if not getattr(config, "use_sleep_consolidation", False):
+                raise ValueError(
+                    "use_rem_dreaming requires use_sleep_consolidation=True "
+                    "(the REM phase augments the sleep-consolidation loss)."
+                )
+            self.rem_dreamer = REMDreamer(
+                d_latent=config.d_latent,
+                noise_dim=getattr(config, "rem_noise_dim", 0),
+                hidden_dim=getattr(config, "rem_hidden_dim", 0),
+            )
+            self._last_rem_disc_acc = 0.0
+        else:
+            self.rem_dreamer = None
+        # Set by the sleep cycle (via the DDP-wrapped module) so the adversarial
+        # REM loss is computed INSIDE forward — keeping its generator/
+        # discriminator gradients inside the DDP-tracked graph (allreduced).
+        self._rem_sleep_active = False
 
         # ── Episodic DND ──────────────────────────────────────────────────────
         # Non-parametric key-value bank for zero-shot retrieval. No model
@@ -3297,6 +3584,7 @@ class CTMTransformer(nn.Module):
         T_total: int = 1,
         prev_certainty: torch.Tensor | None = None,
         compute_logits: bool = True,
+        burst_prev_errors: list[torch.Tensor] | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor | None, list[torch.Tensor], list[torch.Tensor], torch.Tensor | None, list[torch.Tensor], torch.Tensor | None, torch.Tensor | None, torch.Tensor | None, list[torch.Tensor], torch.Tensor | None, torch.Tensor | None]:
         """
         Execute all layers in the sequence for one thought tick.
@@ -3370,6 +3658,11 @@ class CTMTransformer(nn.Module):
             if hebbian_states is not None and l_idx < len(hebbian_states):
                 layer_heb = hebbian_states[l_idx]
 
+            # Burstprop apical signal: previous tick's PC error for this layer.
+            layer_top_down = None
+            if burst_prev_errors is not None and l_idx < len(burst_prev_errors):
+                layer_top_down = burst_prev_errors[l_idx]
+
             z_out, _sync_repr, new_layer_stream, new_layer_heb, layer_lr_eff = layer(
                 text_emb,
                 text_emb,
@@ -3379,6 +3672,7 @@ class CTMTransformer(nn.Module):
                 stream_state=layer_stream,
                 hebbian_state=layer_heb,
                 hebbian_lr_modulator=hebbian_lr_modulator,
+                hebbian_top_down=layer_top_down,
             )
             if layer_lr_eff is not None:
                 hebbian_lr_effs.append(layer_lr_eff)
@@ -3527,6 +3821,12 @@ class CTMTransformer(nn.Module):
                 self._last_per_layer_precision = [
                     float(p.mean().item()) for p in pc_precisions
                 ]
+                # R2 Burstprop: stash this tick's per-layer PC errors (detached)
+                # so the *next* tick's Hebbian update can use them as the apical
+                # top-down credit signal. Read in the BPTT loop (outside any
+                # gradient-checkpoint region), so it stays checkpoint-safe.
+                if getattr(self.config, "use_burstprop", False):
+                    self._last_pc_errors = [e.detach() for e in pc_errors]
 
         # ── Output + Loss + Certainty (In-Loop) ─────────────────────────
         # In pure_pc_mode, we detach z_new before producing logits. This allows the 
@@ -3639,6 +3939,64 @@ class CTMTransformer(nn.Module):
 
         # ── Embed text ──────────────────────────────────────────────────
         text_emb = self._embed_text(input_ids)
+
+        # ── R3: Meta-RL reward / action channel ──────────────────────────
+        # Treat each sequence as an episode. A cheap no_grad pre-pass yields
+        # the model's own per-position prediction; from it we form the causal
+        # reward r_{s-1} = p(token_{s-1}) and action a_{s-1} = argmax_{s-1},
+        # shift them one position forward, and add them (gated) to the input
+        # embedding so the thought loop sees how well it predicted recent
+        # tokens. _meta_inner guards the pre-pass against recursion and
+        # suppresses its side-effects.
+        meta_active = (
+            getattr(self.config, "use_meta_rl", False)
+            and self.meta_reward_proj is not None
+            and not self._meta_inner
+            and targets is not None
+        )
+        if meta_active:
+            self._meta_inner = True
+            # Run the probe in eval mode: _thought_step drops per-tick logits
+            # while self.training, so we'd get no prediction back otherwise.
+            # eval mode also makes the throwaway pass deterministic and
+            # side-effect-free (dropout off, no IP/STC/schema EMA updates).
+            _was_training = self.training
+            self.eval()
+            try:
+                with torch.no_grad():
+                    inner = self.forward(
+                        input_ids,
+                        targets=targets,
+                        key_padding_mask=key_padding_mask,
+                        max_thought_steps=max_thought_steps,
+                    )
+            finally:
+                self.train(_was_training)
+                self._meta_inner = False
+            inner_logits = inner.get("logits")
+            if inner_logits is not None:
+                with torch.no_grad():
+                    logp = F.log_softmax(inner_logits.float(), dim=-1)
+                    # reward = probability assigned to the realized token ∈ [0,1]
+                    reward = logp.gather(-1, targets.unsqueeze(-1)).squeeze(-1).exp()
+                    action = inner_logits.argmax(dim=-1)
+                    reward_prev = torch.zeros_like(reward)
+                    reward_prev[:, 1:] = reward[:, :-1]
+                    action_prev = torch.zeros_like(action)
+                    action_prev[:, 1:] = action[:, :-1]
+                reward_emb = self.meta_reward_proj(
+                    reward_prev.unsqueeze(-1).to(text_emb.dtype)
+                )
+                action_emb = self.token_embedding(action_prev).to(text_emb.dtype)
+                # Re-normalize after injecting: text_emb feeds cross-attention K/V
+                # every thought tick and the meta channel (meta_reward_proj +
+                # meta_inject_scale) is otherwise an *unbounded* additive
+                # perturbation on the post-embed_norm signal. Without this the
+                # injection magnitude grows with training and can push the
+                # prospective inference relaxation supercritical → NaN.
+                text_emb = self.embed_norm(
+                    text_emb + self.meta_inject_scale * (reward_emb + action_emb)
+                )
 
         # ── Episodic DND: instant retrieval for previously solved contexts ────
         # Key = mean-pooled text embedding (content fingerprint of the input).
@@ -3822,9 +4180,29 @@ class CTMTransformer(nn.Module):
 
             prev_certainty = None
             prev_energy = None
-            
+
             bcm_active = self._bcm_threshold is not None
             bcm_decay = getattr(self.config, "bcm_ema_decay", 0.99)
+
+            # ── R1 (prospective): EFE halting over the inference relaxation ──
+            # PonderNet adapted to the EM loop: the controller learns *when the
+            # relaxation has settled* and halts it (active inference — stop when
+            # epistemic value is exhausted). The objective is the Expected Free
+            # Energy Σ_t p_t·F_t over the recorded inference steps (F_t = the
+            # variational/FEEC free energy the loop is already minimizing), so
+            # the policy is trained to put halting mass on the low-free-energy
+            # steps. All features are scalars → memory-safe (no per-step logits).
+            efe_active = (
+                getattr(self.config, "use_efe_controller", False)
+                and self.efe_controller is not None
+            )
+            efe_feats: list = []     # per-step [info_gain, rel_delta, progress] (detached)
+            efe_settle: list = []    # per-step free-energy / settle cost (detached scalar)
+            z_prev_efe = z_curr.detach()
+            efe_inv_dim = 1.0 / math.sqrt(self.config.d_latent)
+            efe_cum_halt = 0.0
+            efe_cum_continue = 1.0
+            z_safe = z_curr   # last finite latent (divergence-guard fallback)
 
             with torch.no_grad():
                 actual_inference_steps = 0
@@ -3846,21 +4224,105 @@ class CTMTransformer(nn.Module):
                     if certainty_t is not None:
                         prev_certainty = certainty_t
 
-                    # BCM: update sliding threshold EMA from current latent magnitude
-                    if bcm_active:
+                    # BCM: update sliding threshold EMA from current latent magnitude.
+                    # Skip during the R3 meta inner-pass (a throwaway probe): it
+                    # also runs this inference loop and would double-update θ_M,
+                    # making the threshold track z² faster and weakening the very
+                    # homeostat meant to prevent latent runaway.
+                    if bcm_active and not self._meta_inner:
                         z_sq_mean = z_curr.detach().float().pow(2).mean()
+                        # Finite-guard (sync-free): if the latent is non-finite
+                        # (a transient diverged batch), feed the threshold its own
+                        # value so the EMA is a no-op — otherwise θ_M latches to
+                        # NaN and poisons every later forward, defeating the
+                        # NaN-skip optimizer guard's recovery.
+                        z_sq_mean = torch.where(
+                            torch.isfinite(z_sq_mean), z_sq_mean, self._bcm_threshold
+                        )
                         self._bcm_threshold.mul_(bcm_decay).add_(z_sq_mean * (1.0 - bcm_decay))
 
+                    # Epistemic value (latent information gain this step).
+                    if efe_active:
+                        info_gain = (
+                            (z_curr - z_prev_efe).norm(dim=-1).mean() * efe_inv_dim
+                        ).float()
+                        z_prev_efe = z_curr.detach()
+
                     # Dynamic termination based on energy stabilization
+                    curr_energy = None
+                    rel_delta_val = None
                     if self.feec is not None and velocity_curr is not None:
                         curr_energy = self.feec.energy(z_curr, velocity_curr)
                         if prev_energy is not None:
-                            rel_delta = (curr_energy - prev_energy).abs() / (curr_energy.abs() + 1e-6)
-                            if rel_delta < energy_tol:
-                                break
+                            rel_delta_val = (
+                                (curr_energy - prev_energy).abs() / (curr_energy.abs() + 1e-6)
+                            )
                         prev_energy = curr_energy
 
+                    # ── Divergence guard ─────────────────────────────────
+                    # The relaxation is the unbounded part of the model (FEEC
+                    # velocity / HPC precision feedback over up to
+                    # max_inference_steps). If the energy goes non-finite, abort
+                    # and fall back to the last finite latent so one bad batch
+                    # can't hand NaNs to the learning pass / the R3 meta probe.
+                    if curr_energy is not None and not torch.isfinite(curr_energy):
+                        z_curr = z_safe
+                        break
+                    z_safe = z_curr.detach()
+
+                    # ── R1 feature recording + eval early-halt ───────────
+                    if efe_active:
+                        if curr_energy is not None:
+                            settle = curr_energy.detach().float().mean()
+                        elif hpc_free_energy_t is not None:
+                            settle = hpc_free_energy_t.detach().float().reshape(())
+                        else:
+                            settle = z_curr.detach().float().pow(2).mean()
+                        rd = (
+                            rel_delta_val.detach().float().reshape(())
+                            if rel_delta_val is not None
+                            else torch.ones((), device=device, dtype=torch.float32)
+                        )
+                        progress = torch.tensor(
+                            t / max(max_inference_steps - 1, 1),
+                            device=device, dtype=torch.float32,
+                        )
+                        efe_feats.append(torch.stack([info_gain, rd, progress]))
+                        efe_settle.append(settle)
+                        # Eval/generate: let the controller end the relaxation early.
+                        if not self.training:
+                            lam = torch.sigmoid(
+                                self.efe_controller.halt_logit(info_gain, rd, progress)
+                            ).item()
+                            efe_cum_halt += efe_cum_continue * lam
+                            efe_cum_continue *= (1.0 - lam)
+                            if efe_cum_halt >= getattr(self.config, "efe_halt_threshold", 0.5):
+                                break
+
+                    if rel_delta_val is not None and rel_delta_val < energy_tol:
+                        break
+
             result["inference_steps"] = actual_inference_steps
+
+            # ── Diagnostic: stable rank of the equilibrium latent ──────────
+            # srank(Z) = ‖Z‖_F² / σ_max²  over the [B·S, d] latent matrix.
+            # If a dominant fixed bias (e.g. a saturated/anisotropic fast-weight
+            # carry) forces every position along one direction, the per-position
+            # latents collapse to ~1 effective dimension → flat, input-independent
+            # output → certainty cliff. This metric makes that visible: healthy ≫1,
+            # collapsed ≈1. Cheap (power-iteration σ_max, no full SVD).
+            with torch.no_grad():
+                _Z = z_curr.detach().reshape(-1, z_curr.shape[-1]).float()
+                _fro2 = _Z.pow(2).sum()
+                _v = torch.randn(_Z.shape[1], device=_Z.device)
+                _v = _v / (_v.norm() + 1e-12)
+                for _ in range(4):
+                    _u = _Z @ _v
+                    _u = _u / (_u.norm() + 1e-12)
+                    _v = _Z.t() @ _u
+                    _v = _v / (_v.norm() + 1e-12)
+                _smax2 = (_Z @ _v).pow(2).sum()
+                result["latent_srank"] = (_fro2 / _smax2.clamp_min(1e-12)).item()
 
             # ── Certainty at equilibrium (for NE modulation + logging) ──
             # The inference loop runs with compute_logits=False to save VRAM.
@@ -3898,12 +4360,23 @@ class CTMTransformer(nn.Module):
             # Hebbian fast-weights are updated at equilibrium only.
             # Pass the original (freshly-initialised) hebbian_states so
             # the single outer-product captures z* ⊗ a*.
-            
+            #
+            # R2 Burstprop: the apical credit signal for the consolidation
+            # write is the equilibrium PC error discovered during Phase 1
+            # (stashed in self._last_pc_errors). High top-down error at
+            # equilibrium → more bursting → stronger consolidation at that
+            # layer/position.
+            burst_eq_errors = (
+                getattr(self, "_last_pc_errors", None)
+                if getattr(self.config, "use_burstprop", False) else None
+            )
+
             step_res_learn = self._thought_step(
                 z_learn, 0, text_emb, key_padding_mask,
                 pre_states_learn, post_states_learn, velocity_learn, stream_states,
                 targets, teacher_log_probs, teacher_top_indices, distill_temp,
-                hebbian_states, clamped_target, 1, None
+                hebbian_states, clamped_target, 1, None,
+                burst_prev_errors=burst_eq_errors,
             )
 
             (z_learn, logits_t, _, _, velocity_learn, _,
@@ -3945,9 +4418,59 @@ class CTMTransformer(nn.Module):
                 loss = loss + amortized_weight * amortized_loss
                 result["amortized_loss"] = amortized_loss.detach()
 
+            # ── R1 (prospective): Expected-Free-Energy halting objective ─
+            # Re-run the controller (with grad) on the recorded inference-step
+            # features and train its halting distribution p_t to minimise the
+            # expected free energy Σ_t p_t·F_t (+ KL to a geometric prior). F_t
+            # is normalised per-call to [0,1] so the term is scale-free. The
+            # controller thereby learns to halt the relaxation at the
+            # low-free-energy (settled) step → fewer inference steps at eval.
+            if efe_active and len(efe_feats) > 0:
+                feats = torch.stack(efe_feats).to(self.efe_controller.mlp[0].weight.dtype)
+                halt_logits = self.efe_controller.mlp(feats).squeeze(-1).float()  # [n]
+                lambdas = torch.sigmoid(halt_logits)
+                n_steps = halt_logits.shape[0]
+                if n_steps > 1:
+                    lam = torch.cat([lambdas[:-1], lambdas.new_ones(1)])
+                else:
+                    lam = lambdas.new_ones(1)
+                one_minus = (1.0 - lam).clamp(min=1e-6)
+                cont = torch.cat([
+                    one_minus.new_ones(1), torch.cumprod(one_minus, dim=0)[:-1]
+                ])
+                p = lam * cont
+                p = p / p.sum().clamp(min=1e-6)
+                settle = torch.stack(efe_settle).float()           # [n]
+                s_min = settle.min()
+                s_rng = (settle.max() - s_min).clamp(min=1e-6)
+                settle_norm = (settle - s_min) / s_rng
+                efe_recon = (p * settle_norm).sum()
+                halt_prior = float(getattr(self.config, "efe_halt_prior", 0.1))
+                t_idx = torch.arange(n_steps, device=device, dtype=torch.float32)
+                g = halt_prior * (1.0 - halt_prior) ** t_idx
+                g = g / g.sum().clamp(min=1e-6)
+                efe_kl = (
+                    p * (torch.log(p.clamp(min=1e-6)) - torch.log(g.clamp(min=1e-6)))
+                ).sum()
+                kl_w = float(getattr(self.config, "efe_ponder_kl_weight", 0.01))
+                efe_w = float(getattr(self.config, "efe_weight", 0.1))
+                loss = loss + (efe_w * (efe_recon + kl_w * efe_kl)).to(loss.dtype)
+                result["efe_loss"] = efe_recon.detach()
+                result["efe_ponder_kl"] = efe_kl.detach()
+                with torch.no_grad():
+                    result["efe_expected_halt"] = float((p * t_idx).sum().item()) + 1.0
+
             result["loss"] = loss
             if logits_t is not None:
                 result["logits"] = logits_t
+
+            # R10: expose the grad-carrying consolidation latent for REM dreaming;
+            # add the adversarial REM loss in-graph during sleep replay.
+            if getattr(self.config, "use_rem_dreaming", False) and not self._meta_inner:
+                _rem_pool = z_learn.mean(dim=1)   # [B, d_latent]
+                result["rem_latent_pool"] = _rem_pool
+                if self._rem_sleep_active and self.rem_dreamer is not None:
+                    result["loss"] = result["loss"] + self.rem_loss(_rem_pool)
 
         else:
             # ── Legacy BPTT Thought Loop (Fallback) ─────────────────────
@@ -3957,6 +4480,22 @@ class CTMTransformer(nn.Module):
             all_hpc_fe: list = []
 
             prev_certainty = None
+            # R2 Burstprop: previous tick's per-layer PC errors (apical signal).
+            burst_prev_errors = None
+            burstprop_on = getattr(self.config, "use_burstprop", False)
+
+            # ── R1: EFE / PonderNet controller bookkeeping ──────────────
+            efe_active = (
+                getattr(self.config, "use_efe_controller", False)
+                and self.efe_controller is not None
+            )
+            efe_halt_logits: list = []
+            efe_ambiguities: list = []
+            efe_epistemics: list = []
+            z_prev_efe = z_curr.detach()
+            efe_inv_dim = 1.0 / math.sqrt(self.config.d_latent)
+            efe_cum_halt = 0.0       # cumulative halt prob (eval early-exit)
+            efe_cum_continue = 1.0   # running Π(1 − λ)
 
             for t in range(T):
                 if use_per_step_ckpt:
@@ -3966,6 +4505,7 @@ class CTMTransformer(nn.Module):
                         pre_states, post_states, velocity_curr, stream_states_curr,
                         targets, teacher_log_probs, teacher_top_indices, distill_temp,
                         hebbian_states_curr, None, T, prev_certainty,
+                        True, burst_prev_errors,
                         use_reentrant=False,
                     )
                 else:
@@ -3973,13 +4513,19 @@ class CTMTransformer(nn.Module):
                         z_curr, t, text_emb, key_padding_mask,
                         pre_states, post_states, velocity_curr, stream_states_curr,
                         targets, teacher_log_probs, teacher_top_indices, distill_temp,
-                        hebbian_states_curr, None, T, prev_certainty
+                        hebbian_states_curr, None, T, prev_certainty,
+                        burst_prev_errors=burst_prev_errors,
                     )
 
                 (z_curr, logits_t, pre_states, post_states, velocity_curr, stream_states_curr,
                  ce_loss_t, kl_loss_t, certainty_t, new_hebbian_states, pc_loss_t,
                  hebbian_lr_eff_t, hpc_local_loss_t, hpc_free_energy_t,
                  hpc_mean_precision_t, hpc_mean_error_norm_t) = step_res
+
+                # R2: hand this tick's PC errors to the next tick's burst signal.
+                # Read outside any checkpoint region → checkpoint-safe.
+                if burstprop_on:
+                    burst_prev_errors = getattr(self, "_last_pc_errors", None)
 
                 if certainty_t is not None:
                     prev_certainty = certainty_t
@@ -3989,13 +4535,84 @@ class CTMTransformer(nn.Module):
                     all_logits.append(logits_t)
                 if certainty_t is not None:
                     all_certainties.append(certainty_t)
-                
+
                 if new_hebbian_states and any(h is not None for h in new_hebbian_states):
                     hebbian_states_curr = new_hebbian_states
                 if hpc_free_energy_t is not None:
                     all_hpc_fe.append(hpc_free_energy_t.detach())
 
-            if per_tick_ce_losses:
+                # ── R1: EFE halting features (+ eval early-exit) ────────
+                if efe_active:
+                    with torch.no_grad():
+                        if certainty_t is not None:
+                            ambiguity = (1.0 - certainty_t).clamp(0.0, 1.0).mean().float()
+                        else:
+                            ambiguity = torch.zeros((), device=device, dtype=torch.float32)
+                        info_gain = (
+                            (z_curr - z_prev_efe).norm(dim=-1).mean() * efe_inv_dim
+                        ).float()
+                        progress = torch.tensor(
+                            t / max(T - 1, 1), device=device, dtype=torch.float32
+                        )
+                    z_prev_efe = z_curr.detach()
+                    halt_logit_t = self.efe_controller.halt_logit(
+                        ambiguity, info_gain, progress
+                    )
+                    efe_halt_logits.append(halt_logit_t)
+                    efe_ambiguities.append(ambiguity)
+                    efe_epistemics.append(info_gain)
+
+                    # Training always runs full T (the PonderNet distribution
+                    # must cover every tick); only eval / generate early-exits.
+                    if not self.training:
+                        lam = torch.sigmoid(halt_logit_t).item()
+                        efe_cum_halt += efe_cum_continue * lam
+                        efe_cum_continue *= (1.0 - lam)
+                        if efe_cum_halt >= getattr(self.config, "efe_halt_threshold", 0.5):
+                            break
+
+            # ── Loss assembly ────────────────────────────────────────────
+            if efe_active and per_tick_ce_losses:
+                n_ticks = len(per_tick_ce_losses)
+                halt_logits = torch.stack(efe_halt_logits[:n_ticks])
+                lambdas = torch.sigmoid(halt_logits)
+                # Force the final tick to absorb the remaining mass (λ_last = 1).
+                if n_ticks > 1:
+                    lam = torch.cat([lambdas[:-1], lambdas.new_ones(1)])
+                else:
+                    lam = lambdas.new_ones(1)
+                one_minus = (1.0 - lam).clamp(min=1e-6)
+                cont = torch.cat([
+                    one_minus.new_ones(1), torch.cumprod(one_minus, dim=0)[:-1]
+                ])
+                p = lam * cont
+                p = p / p.sum().clamp(min=1e-6)
+
+                ce_vec = torch.stack(per_tick_ce_losses)
+                recon = (p * ce_vec).sum()
+
+                # KL(p ‖ Geometric(halt_prior)) over the n ticks.
+                halt_prior = float(getattr(self.config, "efe_halt_prior", 0.1))
+                t_idx = torch.arange(n_ticks, device=device, dtype=torch.float32)
+                g = halt_prior * (1.0 - halt_prior) ** t_idx
+                g = g / g.sum().clamp(min=1e-6)
+                kl = (
+                    p * (torch.log(p.clamp(min=1e-6)) - torch.log(g.clamp(min=1e-6).to(p.dtype)))
+                ).sum()
+
+                # EFE shaping: pull halting mass toward low (ambiguity − epistemic).
+                amb_vec = torch.stack(efe_ambiguities[:n_ticks]).to(p.dtype)
+                epi_vec = torch.stack(efe_epistemics[:n_ticks]).to(p.dtype)
+                efe_term = (p * (amb_vec - epi_vec)).sum()
+
+                kl_w = float(getattr(self.config, "efe_ponder_kl_weight", 0.01))
+                efe_w = float(getattr(self.config, "efe_weight", 0.1))
+                result["loss"] = recon + kl_w * kl + efe_w * efe_term
+                result["efe_ponder_kl"] = kl.detach()
+                result["efe_loss"] = efe_term.detach()
+                with torch.no_grad():
+                    result["efe_expected_halt"] = float((p * t_idx).sum().item()) + 1.0
+            elif per_tick_ce_losses:
                 per_tick_loss_tensor = torch.stack(per_tick_ce_losses)
                 result["loss"] = per_tick_loss_tensor.mean()
             if all_logits:
@@ -4006,12 +4623,21 @@ class CTMTransformer(nn.Module):
             if all_hpc_fe:
                 result["hpc_free_energy"] = torch.stack(all_hpc_fe).mean()
 
+            # R10: expose the grad-carrying final latent for REM dreaming;
+            # add the adversarial REM loss in-graph during sleep replay.
+            if getattr(self.config, "use_rem_dreaming", False) and not self._meta_inner:
+                _rem_pool = z_curr.mean(dim=1)   # [B, d_latent]
+                result["rem_latent_pool"] = _rem_pool
+                if self._rem_sleep_active and self.rem_dreamer is not None:
+                    result["loss"] = result["loss"] + self.rem_loss(_rem_pool)
+
         # ── Update cross-batch Hebbian carry-over (sleep consolidation) ──
         # Persist the mean fast-weight state across batches so the next
         # forward pass warm-starts from accumulated associations rather
         # than zeros. Mean over (B, S) gives a compact [m, n] summary
         # that broadcasts correctly to any future (B', S') shape.
-        if getattr(self.config, "use_sleep_consolidation", False) and self.config.use_hebbian_synapse:
+        if (getattr(self.config, "use_sleep_consolidation", False)
+                and self.config.use_hebbian_synapse and not self._meta_inner):
             # In the BPTT path, hebbian_states_curr is updated each tick and
             # ends up holding the final-tick Hebbian states.
             # In the prospective path, hebbian_states_curr is never updated
@@ -4024,11 +4650,23 @@ class CTMTransformer(nn.Module):
             else:
                 final_heb = hebbian_states_curr
             if final_heb is not None:
+                # The carry is an integrator: forward() warm-starts M from it and
+                # re-saves mean(M_final) ≈ carry + ΔM, so without a bound it grows
+                # without limit across (especially frequent) sleeps — saturating
+                # the output distribution (certainty collapse) and eventually
+                # diverging to NaN. Clip each layer's carry to a max Frobenius
+                # norm (0 = off). feec_state_clip bounds z; this bounds M.
+                _carry_clip = getattr(self.config, "sleep_carry_max_norm", 0.0)
                 carry = []
                 for h in final_heb:
                     if h is not None:
                         # Mean over (batch, seq) → [m, n] on CPU
-                        carry.append(h.detach().float().mean(dim=(0, 1)).cpu())
+                        c = h.detach().float().mean(dim=(0, 1)).cpu()
+                        if _carry_clip and _carry_clip > 0.0:
+                            n = c.norm()
+                            if n > _carry_clip:
+                                c = c * (_carry_clip / n)
+                        carry.append(c)
                     else:
                         carry.append(None)
                 self._hebbian_carry = carry
@@ -4047,7 +4685,7 @@ class CTMTransformer(nn.Module):
         # path) or the last-tick latent (BPTT path) — both are meaningful semantic
         # summaries of the processed sequence.  Optionally truncated to
         # swil_embed_dim for storage efficiency.
-        if getattr(self.config, "use_swil", False):
+        if getattr(self.config, "use_swil", False) and not self._meta_inner:
             embed_dim = getattr(self.config, "swil_embed_dim", 64)
             _pool = z_curr.detach().float().mean(dim=1)   # [B, d_latent]
             if embed_dim > 0 and embed_dim < _pool.shape[-1]:
@@ -4058,7 +4696,7 @@ class CTMTransformer(nn.Module):
         # After a normal forward pass, cache the final latent when the model is
         # sufficiently certain. Future calls with the same (or near-identical)
         # input will bypass the thought loop and retrieve this cached latent.
-        if self.dnd is not None:
+        if self.dnd is not None and not self._meta_inner:
             _certs = result.get("certainties")
             if _certs is not None:
                 with torch.no_grad():
@@ -4156,3 +4794,24 @@ class CTMTransformer(nn.Module):
         sleep_weight = getattr(self.config, "sleep_loss_weight", 0.3)
         result["loss"] = result["loss"] * sleep_weight
         return result
+
+    def rem_loss(self, real_latents: torch.Tensor) -> torch.Tensor:
+        """R10 — adversarial REM dreaming loss (already scaled).
+
+        Meant to be added to the sleep-consolidation loss before backward, so
+        the GAN + backbone train in the same allreduced step.
+
+        Args:
+            real_latents: [n, d_latent] grad-carrying pooled latents from a
+                replay forward (``result["rem_latent_pool"]``).
+        Returns:
+            Scalar loss scaled by rem_loss_weight (0 if the dreamer is absent).
+        """
+        if self.rem_dreamer is None or real_latents is None:
+            ref = real_latents if real_latents is not None else self.z0
+            return torch.zeros((), device=ref.device, dtype=ref.dtype)
+        w = getattr(self.config, "rem_loss_weight", 0.1)
+        lam = getattr(self.config, "rem_grl_lambda", 1.0)
+        loss, acc = self.rem_dreamer.loss(real_latents, grl_lambda=lam)
+        self._last_rem_disc_acc = float(acc.item())
+        return w * loss
