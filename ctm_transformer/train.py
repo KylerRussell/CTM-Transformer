@@ -40,6 +40,7 @@ from ctm_transformer.biological import (
     PrioritizedReplayBuffer,
     StructuralPlasticityController,
     STCGradientGate,
+    AChNEController,
 )
 from ctm_transformer.validation import (
     compute_validation_metrics,
@@ -1642,6 +1643,19 @@ def train(
         if getattr(config, "use_precision_neuromod", False) else None
     )
 
+    # ── R9 ACh/NE dual-uncertainty controller ─────────────────────────────
+    achne_controller: AChNEController | None = (
+        AChNEController(
+            ach_decay=getattr(config, "achne_ach_decay", 0.8),
+            ne_decay=getattr(config, "achne_ne_decay", 0.95),
+            ne_threshold=getattr(config, "achne_ne_threshold", 3.0),
+            ne_baseline_decay=getattr(config, "achne_ne_baseline_decay", 0.999),
+            warmup=getattr(config, "achne_warmup", 50),
+            refractory=getattr(config, "achne_refractory", 20),
+            ach_baseline_decay=getattr(config, "achne_ach_baseline_decay", 0.999),
+        ) if getattr(config, "use_achne", False) else None
+    )
+
     # ── Synaptic Tagging and Capture gate ─────────────────────────────────
     stc_gate: STCGradientGate | None = (
         STCGradientGate(
@@ -1674,7 +1688,22 @@ def train(
         print(f"Phase profiling enabled (warmup={profile_warmup} steps, "
               f"report every {profile_interval} steps)")
 
+    _cp_frozen = False
+    _cp_pct = getattr(config, "critical_period_freeze_pct", 0.0)
     while step < config.max_steps:
+        # Quick-win #14: critical-period freeze of the early thought layers
+        # (begin_layers) past the configured fraction of training. No-op at pct=0.
+        if (not _cp_frozen and _cp_pct > 0.0
+                and step >= _cp_pct * config.max_steps
+                and getattr(_raw, "begin_layers", None) is not None):
+            _nf = 0
+            for _p in _raw.begin_layers.parameters():
+                _p.requires_grad_(False)
+                _nf += 1
+            _cp_frozen = True
+            print(f"  [critical-period] step {step}: froze begin_layers "
+                  f"({_nf} param tensors) — features locked in.", flush=True)
+
         # ── Two-Phase Curriculum Logic ──────────────────────────────────
         if use_curriculum:
             if current_phase == 1 and tokens_seen >= config.phase1_tokens:
@@ -1899,11 +1928,14 @@ def train(
             # Blocks slow-weight updates when local tag or global PRP is
             # below threshold — shields consolidated schemas from routine data.
             if stc_gate is not None:
-                _prp = 0.0
-                for _o in optimizers:
-                    if isinstance(_o, NeuroPlasticOptimizer) and _o._surprise_ema is not None:
-                        _prp = float(_o._surprise_ema)
-                        break
+                if getattr(config, "stc_prp_from_burst", False):
+                    _prp = _raw.mean_burst_prob()   # #6: gate by burst prob
+                else:
+                    _prp = 0.0
+                    for _o in optimizers:
+                        if isinstance(_o, NeuroPlasticOptimizer) and _o._surprise_ema is not None:
+                            _prp = float(_o._surprise_ema)
+                            break
                 stc_gate.apply(_stream_layers, _prp)
 
             with timer("grad_clip"):
@@ -1918,10 +1950,34 @@ def train(
             # that gates cortical plasticity proportional to prediction error.
             if last_result is not None:
                 certs = last_result.get("certainties")
-                if certs is not None:
-                    mean_cert = certs.detach().float().mean().item()
+                mean_cert = certs.detach().float().mean().item() if certs is not None else None
+
+                # R9 ACh/NE: update channels from this step's error signal
+                # (HPC free energy if available, else surprise = 1 - certainty).
+                if achne_controller is not None:
+                    _fe = last_result.get("hpc_free_energy")
+                    if _fe is not None:
+                        _err_sig = float(_fe.detach().float().mean().item()) if torch.is_tensor(_fe) else float(_fe)
+                    elif mean_cert is not None:
+                        _err_sig = 1.0 - mean_cert
+                    else:
+                        _err_sig = 0.0
+                    achne_controller.update(_err_sig)
+                    _raw._ach_level = achne_controller.ach_relative
+                    if achne_controller.should_reset():
+                        _raw.apply_ne_reset()
+
+                # LR modulation: NE-driven when ACh/NE active, else raw certainty.
+                if mean_cert is not None or achne_controller is not None:
                     for o in optimizers:
-                        if isinstance(o, NeuroPlasticOptimizer):
+                        if not isinstance(o, NeuroPlasticOptimizer):
+                            continue
+                        if achne_controller is not None:
+                            # NE (already scale-free) clipped to [0,1]; surprise →
+                            # 1-certainty so the optimizer LR rises on NE spikes.
+                            _ne_norm = min(max(achne_controller.ne_level, 0.0), 1.0)
+                            o.modulate(1.0 - _ne_norm)
+                        elif mean_cert is not None:
                             o.modulate(mean_cert)
 
             with timer("optimizer"):
@@ -2000,12 +2056,15 @@ def train(
                 _rem_on = getattr(config, "use_rem_dreaming", False)
                 if _rem_on:
                     _raw._rem_sleep_active = True
+                # Lean sleep forward: skip the DGN head (largest fp32 transient).
+                _raw._sleep_skip_dgn = True
                 try:
                     with torch.amp.autocast(device_type=device_type,
                                             dtype=amp_dtype, enabled=(amp_dtype != torch.float32)):
                         sleep_result = model(x_replay, targets=y_replay)
                         sleep_loss = sleep_result["loss"] * sleep_loss_weight
                 finally:
+                    _raw._sleep_skip_dgn = False
                     if _rem_on:
                         _raw._rem_sleep_active = False
                 sleep_loss.backward()
@@ -2166,6 +2225,26 @@ def train(
                 if isinstance(_o, NeuroPlasticOptimizer) and _o.alpha > 0:
                     bio_str += f" | NE {_o.current_scale:.3f}"
                     break
+            if achne_controller is not None:
+                bio_str += f" | AChr {achne_controller.ach_relative:.3f} ne {achne_controller.ne_level:.4f}"
+                if achne_controller._last_reset:
+                    bio_str += " RST"
+            if "dgn_blend" in result:
+                bio_str += f" | dgn {result['dgn_blend']:.3f}"
+            if "gfn_tb_loss" in result:
+                bio_str += f" | gfn_tb {result['gfn_tb_loss'].item():.3f}"
+            if "gfn_mode_entropy" in result:
+                bio_str += f" | gfn_H {result['gfn_mode_entropy']:.2f}"
+            if "burst_diff" in result:
+                bio_str += f" | bdiff {result['burst_diff']:.4f}"
+            if "l1_rate" in result:
+                bio_str += f" | l1 {result['l1_rate'].item():.4f}"
+            if "pc_var" in result:
+                bio_str += f" | zvar {result['pc_var'].item():.4f} zcov {result['pc_cov'].item():.4f}"
+            if "pc_var_hat" in result:
+                bio_str += f" | zhvar {result['pc_var_hat'].item():.4f}"
+            if "morphogen_loss" in result:
+                bio_str += f" | morpho {result['morphogen_loss'].item():.4f}"
             if plasticity is not None and _stream_layers:
                 counts = plasticity.active_counts(_stream_layers)
                 bio_str += f" | streams [{','.join(str(c) for c in counts)}]"
@@ -2222,6 +2301,13 @@ def train(
                     bio_str += " [HIT]"
                 elif "dnd_max_sim" in result:
                     bio_str += f" sim={result['dnd_max_sim']:.3f}"
+            _astro_obj = getattr(_raw, "astro", None)
+            if _astro_obj is not None:
+                bio_str += f" | astro {_astro_obj.n_stored}/{_astro_obj.capacity}"
+                if result.get("astro_hit"):
+                    bio_str += " [HIT]"
+                elif "astro_max_sim" in result:
+                    bio_str += f" sim={result['astro_max_sim']:.3f}"
             if "efe_expected_halt" in result:
                 bio_str += f" | halt {result['efe_expected_halt']:.2f}"
             if getattr(config, "use_burstprop", False) and _stream_layers:
@@ -2722,6 +2808,39 @@ def parse_args():
                           help="Add learned per-thought-step embeddings to "
                                "distinguish iterations in the thought loop.")
 
+    v2_group.add_argument("--use_theta_phase", action="store_true",
+                          help="R12: theta-clocked phase coding. Each latent unit gets a "
+                               "learnable preferred phase; the per-tick synaptic input is "
+                               "modulated by (1+amp·cos(phi_t-phi_d)), phi_t cycling across "
+                               "thought ticks. Encodes tick order on a continuous phase.")
+    v2_group.add_argument("--theta_cycle_len", type=int, default=8,
+                          help="Thought ticks per theta cycle (default 8).")
+    v2_group.add_argument("--theta_amplitude", type=float, default=0.5,
+                          help="Theta modulation depth; gate ∈ [1−amp, 1+amp] (default 0.5).")
+
+    v2_group.add_argument("--use_reread", action="store_true",
+                          help="R15: active-sensing re-read gate. Each thought tick soft-selects "
+                               "a span of the input and injects a gated re-read summary back into "
+                               "the thought state (standalone; gate starts ~0).")
+
+    v2_group.add_argument("--use_laminar_coupling", action="store_true",
+                          help="R13: canonical-microcircuit laminar coupling. Repurposes 2 "
+                               "MatrixResidualStream slots as error/prediction streams with a "
+                               "Rao-Ballard residual coupling each tick. Requires "
+                               "--use_matrix_streams with n_streams >= 2.")
+
+    v2_group.add_argument("--use_morphogen_init", action="store_true",
+                          help="R14: morphogenetic pre-pattern hypernetwork. A learned morphogen "
+                               "code → low-rank generators seed the inter-stream mixing matrices' "
+                               "init and softly anchor them (‖W−pre-pattern‖²). Requires "
+                               "--use_matrix_streams. Speculative.")
+    v2_group.add_argument("--morphogen_dim", type=int, default=32,
+                          help="Morphogen code dimensionality (default 32).")
+    v2_group.add_argument("--morphogen_rank", type=int, default=4,
+                          help="Low-rank of the generated pre-pattern (default 4).")
+    v2_group.add_argument("--morphogen_reg_weight", type=float, default=0.001,
+                          help="Anchor strength of the pre-pattern regularizer (default 0.001).")
+
     # Triton Acceleration
     v2_group.add_argument("--use_triton_attention", action="store_true",
                           help="Use Triton-accelerated tiled attention kernel.")
@@ -2886,6 +3005,24 @@ def parse_args():
     bio_group.add_argument("--stc_min_gate", type=float, default=0.01,
                            help="Gradient multiplier when gate is closed. "
                                 "0.01 = 1%% pass-through (Adam state still updates slowly).")
+    bio_group.add_argument("--stc_prp_from_burst", action="store_true",
+                           help="#6: gate STC by the Hebbian burst probability instead of the NPO surprise EMA.")
+    bio_group.add_argument("--l1_rate_weight", type=float, default=0.0,
+                           help="#13: L1 firing-rate penalty weight on the thought-loop latent (0.0 = off).")
+    bio_group.add_argument("--use_pc_var_reg", action="store_true",
+                           help="Anti-collapse: add variance-max + covariance-decorrelation on the latent.")
+    bio_group.add_argument("--pc_var_weight", type=float, default=0.1,
+                           help="lambda_var for the variance-maximization (A1) anti-collapse term.")
+    bio_group.add_argument("--pc_cov_weight", type=float, default=1e-3,
+                           help="lambda_cov for the off-diagonal covariance (A2) anti-collapse term (~1/d).")
+    bio_group.add_argument("--use_hypersphere_z", action="store_true",
+                           help="nGPT-style anti-collapse: project z onto a fixed-radius sphere each thought tick.")
+    bio_group.add_argument("--hypersphere_z_scale", type=float, default=0.3,
+                           help="Hypersphere radius = this * sqrt(d_latent) (default 0.3, matches the PC target).")
+    bio_group.add_argument("--critical_period_freeze_pct", type=float, default=0.0,
+                           help="#14: freeze begin_layers after this fraction of max_steps (0.0 = off).")
+    bio_group.add_argument("--force_gate_ne_mult", type=float, default=1.0,
+                           help="#12: NE-reset transiently multiplies the Hebbian force_gate by this (1.0 = off).")
 
     bio_group.add_argument("--use_dnd", action="store_true",
                            help="Episodic Differentiable Neural Dictionary: non-parametric "
@@ -2916,6 +3053,74 @@ def parse_args():
                            help="Minimum (1 - max_sim) required to accept a new DND write. "
                                 "0.05 = skip if an entry with sim > 0.95 already exists, "
                                 "preventing near-duplicate entries from filling capacity.")
+
+    bio_group.add_argument("--use_astro_memory", action="store_true",
+                           help="R7: Neuron–Astrocyte Dense Associative Memory. A long-term "
+                                "schema store alongside the DND, using a higher-order "
+                                "separation function softmax(β·relu(sim)^order) (Krotov-Hopfield "
+                                "dense memory; capacity ~ N^(order-1), order=4 ≈ N³) and "
+                                "astrocyte importance-trace eviction (retain frequently-recalled "
+                                "schemas). At bypass, routes to whichever of {DND, AstroDND} hits "
+                                "with lower retrieval entropy.")
+    bio_group.add_argument("--astro_capacity", type=int, default=4000,
+                           help="Max key-value pairs in the AstroDND (default 4000, larger "
+                                "than DND — long-term store).")
+    bio_group.add_argument("--astro_key_dim", type=int, default=64,
+                           help="Dimensionality of stored AstroDND keys (default 64).")
+    bio_group.add_argument("--astro_order", type=int, default=4,
+                           help="Separation-function order n; pattern capacity ~ N^(n-1). "
+                                "n=2 is Hopfield (linear), n=4 ≈ N³ (default 4).")
+    bio_group.add_argument("--astro_beta", type=float, default=8.0,
+                           help="Softmax inverse temperature for AstroDND retrieval. "
+                                "Sharper than DND (default 8.0).")
+    bio_group.add_argument("--astro_confidence_threshold", type=float, default=0.9,
+                           help="Cosine similarity to trigger AstroDND bypass. Looser than "
+                                "the DND (0.9 vs 0.98) — schema-level, not exact-match.")
+    bio_group.add_argument("--astro_write_confidence", type=float, default=0.85,
+                           help="Minimum mean token certainty ([0,1]) to write to AstroDND.")
+    bio_group.add_argument("--astro_trace_decay", type=float, default=0.99,
+                           help="EMA decay for astrocyte importance traces that drive "
+                                "eviction (default 0.99).")
+    bio_group.add_argument("--astro_min_novelty", type=float, default=0.02,
+                           help="Minimum (1 - max_sim) required to accept a new AstroDND write "
+                                "(default 0.02).")
+
+    bio_group.add_argument("--use_dgn_head", action="store_true",
+                           help="R5: Dendritic Gated Network parallel LM head. Each token routes "
+                                "to 1-of-K branches via a frozen random gate; the active branch's "
+                                "weights update by a local delta (log-loss) rule (no backprop) for "
+                                "forgetting resistance. Its logits blend into the main head via a "
+                                "learned gate (trained by a small CE aux loss).")
+    bio_group.add_argument("--dgn_n_branches", type=int, default=8,
+                           help="Number of DGN dendritic branches K (default 8).")
+    bio_group.add_argument("--dgn_proj_dim", type=int, default=32,
+                           help="Frozen random projection dim for the dendritic input. "
+                                "w is [K, proj_dim, vocab] (~134 MB at K=8, 32, vocab=131072).")
+    bio_group.add_argument("--dgn_eta", type=float, default=0.05,
+                           help="DGN local delta-rule learning rate (default 0.05).")
+    bio_group.add_argument("--dgn_aux_weight", type=float, default=0.1,
+                           help="Weight of the DGN CE aux loss that trains the blend gate "
+                                "(default 0.1).")
+
+    bio_group.add_argument("--use_gflownet", action="store_true",
+                           help="R8: GFlowNet thought-trajectory sampler. A learned policy "
+                                "samples one of M fixed random 'thought operators' per thought "
+                                "tick (a small latent perturbation), trained by a "
+                                "Trajectory-Balance loss with reward exp(-beta·seq_loss) so "
+                                "diverse high-reward latent reasoning paths are sampled ∝ reward.")
+    bio_group.add_argument("--gflownet_n_modes", type=int, default=4,
+                           help="Number of discrete thought operators M (default 4).")
+    bio_group.add_argument("--gflownet_op_scale", type=float, default=0.1,
+                           help="Operator perturbation magnitude added to the latent (default 0.1).")
+    bio_group.add_argument("--gflownet_hidden_dim", type=int, default=32,
+                           help="GFlowNet policy MLP hidden width (default 32).")
+    bio_group.add_argument("--gflownet_reward_beta", type=float, default=1.0,
+                           help="Reward temperature: logR = -beta · sequence_loss (default 1.0).")
+    bio_group.add_argument("--gflownet_tb_weight", type=float, default=0.1,
+                           help="Weight of the Trajectory-Balance loss in the total loss (default 0.1).")
+    bio_group.add_argument("--gflownet_tb_huber_delta", type=float, default=10.0,
+                           help="Robust-TB threshold: |residual|>delta uses a linear tail (bounded grad) "
+                                "to stop the squared TB loss exploding when CE is large in nats (default 10.0).")
 
     bio_group.add_argument("--use_neuromod_optimizer", action="store_true",
                            help="Wrap AdamW with surprise-modulated LR scaling. "
@@ -2981,6 +3186,37 @@ def parse_args():
     bio_group.add_argument("--bcm_loss_weight", type=float, default=0.1,
                            help="Weight of the BCM homeostatic penalty in the learning-phase loss.")
 
+    bio_group.add_argument("--use_achne", action="store_true",
+                           help="R9: ACh/NE dual-uncertainty channels (Yu & Dayan 2005). "
+                                "ACh (expected uncertainty, EMA of per-step error) down-weights "
+                                "HPC precision; NE (unexpected uncertainty, change-detector on "
+                                "ACh) drives the NeuroPlasticOptimizer LR and, on a spike, "
+                                "triggers a reset (flush Hebbian carry, warm-start, raise schema "
+                                "temperature). ACh→precision needs --use_hierarchical_pc; NE→LR "
+                                "needs --use_neuromod_optimizer; temp bump needs --use_schema_routing.")
+    bio_group.add_argument("--achne_ach_decay", type=float, default=0.8,
+                           help="EMA decay for the ACh (expected-uncertainty) channel (default 0.8).")
+    bio_group.add_argument("--achne_ne_decay", type=float, default=0.95,
+                           help="EMA decay for the NE deviation signal (default 0.95).")
+    bio_group.add_argument("--achne_ne_threshold", type=float, default=3.0,
+                           help="NE reset fires when NE > threshold × baseline (default 3.0).")
+    bio_group.add_argument("--achne_ne_baseline_decay", type=float, default=0.999,
+                           help="Slow EMA decay for the NE baseline (default 0.999).")
+    bio_group.add_argument("--achne_ach_baseline_decay", type=float, default=0.99,
+                           help="EMA decay for the ACh baseline; makes the ACh→precision "
+                                "coupling scale-free (relative to baseline) so a large absolute "
+                                "error can't collapse precision. 0.99 → precision recovers "
+                                "~70 steps after free energy stabilizes (default 0.99).")
+    bio_group.add_argument("--achne_warmup", type=int, default=50,
+                           help="Min steps before an NE reset can fire (default 50).")
+    bio_group.add_argument("--achne_refractory", type=int, default=20,
+                           help="Steps after an NE reset during which re-firing is blocked "
+                                "(phasic one-shot per context switch; default 20).")
+    bio_group.add_argument("--achne_ach_precision_scale", type=float, default=1.0,
+                           help="HPC precision_mod = 1/(1 + scale·ACh) (default 1.0).")
+    bio_group.add_argument("--achne_reset_temp_mult", type=float, default=3.0,
+                           help="Schema-router temperature × this on an NE reset (default 3.0).")
+
     bio_group.add_argument("--use_structural_plasticity", action="store_true",
                            help="Online grow/prune of MatrixResidualStream slots based on "
                                 "gate EMA utilization. Requires --use_matrix_streams.")
@@ -3015,6 +3251,17 @@ def parse_args():
     bio_group.add_argument("--schema_routing_btsp_scale", type=float, default=2.0,
                            help="Hebbian/BTSP lr_modulator boost at full schema match. "
                                 "lr *= (1 + scale * max_sim) (default 2.0).")
+    bio_group.add_argument("--use_successor_features", action="store_true",
+                           help="R6: Successor-Feature schema router. Replaces the "
+                                "raw-feature EMA prototypes with successor features "
+                                "ψ(s) ≈ φ(s) + γ·ψ(s'), so streams cluster on discounted "
+                                "future occupancy along the sequence rather than the "
+                                "instantaneous state. ψ is a gradient-free buffer trained "
+                                "by a local TD delta rule. Requires --use_schema_routing.")
+    bio_group.add_argument("--successor_gamma", type=float, default=0.95,
+                           help="SR discount over sequence positions (default 0.95).")
+    bio_group.add_argument("--successor_lr", type=float, default=0.05,
+                           help="Local TD learning rate for ψ (default 0.05).")
     bio_group.add_argument("--hebbian_n_compartments", type=int, default=1,
                            help="Number of dendritic compartments in HebbianSynapse. "
                                 ">1 partitions the bottleneck into K independent branches "
@@ -3179,6 +3426,13 @@ def parse_args():
 def main():
     args = parse_args()
 
+    # Debug hook: CTM_DETECT_ANOMALY=1 makes autograd raise at the exact op
+    # whose backward first produces a NaN/Inf, with the forward traceback.
+    # No-op unless set. Pair with CUDA_LAUNCH_BLOCKING=1.
+    if os.environ.get("CTM_DETECT_ANOMALY") == "1":
+        torch.autograd.set_detect_anomaly(True)
+        print("  [debug] torch.autograd anomaly detection ENABLED", flush=True)
+
     # ── Set up DDP (must happen BEFORE any CUDA allocations) ───────────
     # If we were launched by torchrun, this initializes the process
     # group, sets the right CUDA device per rank, and returns the rank
@@ -3290,6 +3544,15 @@ def main():
         hyperloop_n_end=args.hyperloop_n_end,
         hyperloop_middle_loops=args.hyperloop_middle_loops,
         use_loop_pos_emb=args.use_loop_pos_emb,
+        use_theta_phase=args.use_theta_phase,
+        theta_cycle_len=args.theta_cycle_len,
+        theta_amplitude=args.theta_amplitude,
+        use_reread=args.use_reread,
+        use_laminar_coupling=args.use_laminar_coupling,
+        use_morphogen_init=args.use_morphogen_init,
+        morphogen_dim=args.morphogen_dim,
+        morphogen_rank=args.morphogen_rank,
+        morphogen_reg_weight=args.morphogen_reg_weight,
         use_triton_attention=args.use_triton_attention,
         use_cuda_graphs=args.use_cuda_graphs,
         tiled_schedule=args.tiled_schedule,
@@ -3311,6 +3574,15 @@ def main():
         stc_threshold_tag=args.stc_threshold_tag,
         stc_threshold_prp=args.stc_threshold_prp,
         stc_min_gate=args.stc_min_gate,
+        stc_prp_from_burst=args.stc_prp_from_burst,
+        l1_rate_weight=args.l1_rate_weight,
+        use_pc_var_reg=args.use_pc_var_reg,
+        pc_var_weight=args.pc_var_weight,
+        pc_cov_weight=args.pc_cov_weight,
+        use_hypersphere_z=args.use_hypersphere_z,
+        hypersphere_z_scale=args.hypersphere_z_scale,
+        critical_period_freeze_pct=args.critical_period_freeze_pct,
+        force_gate_ne_mult=args.force_gate_ne_mult,
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
@@ -3377,6 +3649,27 @@ def main():
         dnd_write_confidence=args.dnd_write_confidence,
         dnd_hopfield_beta=args.dnd_hopfield_beta,
         dnd_min_novelty=args.dnd_min_novelty,
+        use_astro_memory=args.use_astro_memory,
+        astro_capacity=args.astro_capacity,
+        astro_key_dim=args.astro_key_dim,
+        astro_order=args.astro_order,
+        astro_beta=args.astro_beta,
+        astro_confidence_threshold=args.astro_confidence_threshold,
+        astro_write_confidence=args.astro_write_confidence,
+        astro_trace_decay=args.astro_trace_decay,
+        astro_min_novelty=args.astro_min_novelty,
+        use_dgn_head=args.use_dgn_head,
+        dgn_n_branches=args.dgn_n_branches,
+        dgn_proj_dim=args.dgn_proj_dim,
+        dgn_eta=args.dgn_eta,
+        dgn_aux_weight=args.dgn_aux_weight,
+        use_gflownet=args.use_gflownet,
+        gflownet_n_modes=args.gflownet_n_modes,
+        gflownet_op_scale=args.gflownet_op_scale,
+        gflownet_hidden_dim=args.gflownet_hidden_dim,
+        gflownet_reward_beta=args.gflownet_reward_beta,
+        gflownet_tb_weight=args.gflownet_tb_weight,
+        gflownet_tb_huber_delta=args.gflownet_tb_huber_delta,
         use_neuromod_optimizer=args.use_neuromod_optimizer,
         neuromod_alpha=args.neuromod_alpha,
         neuromod_min_scale=args.neuromod_min_scale,
@@ -3390,6 +3683,16 @@ def main():
         use_bcm_threshold=args.use_bcm_threshold,
         bcm_ema_decay=args.bcm_ema_decay,
         bcm_loss_weight=args.bcm_loss_weight,
+        use_achne=args.use_achne,
+        achne_ach_decay=args.achne_ach_decay,
+        achne_ne_decay=args.achne_ne_decay,
+        achne_ne_threshold=args.achne_ne_threshold,
+        achne_ne_baseline_decay=args.achne_ne_baseline_decay,
+        achne_ach_baseline_decay=args.achne_ach_baseline_decay,
+        achne_warmup=args.achne_warmup,
+        achne_refractory=args.achne_refractory,
+        achne_ach_precision_scale=args.achne_ach_precision_scale,
+        achne_reset_temp_mult=args.achne_reset_temp_mult,
         use_precision_neuromod=args.use_precision_neuromod,
         precision_neuromod_min_scale=args.precision_neuromod_min_scale,
         precision_neuromod_max_scale=args.precision_neuromod_max_scale,
@@ -3399,6 +3702,9 @@ def main():
         schema_routing_temperature=args.schema_routing_temperature,
         schema_routing_novelty_threshold=args.schema_routing_novelty_threshold,
         schema_routing_btsp_scale=args.schema_routing_btsp_scale,
+        use_successor_features=args.use_successor_features,
+        successor_gamma=args.successor_gamma,
+        successor_lr=args.successor_lr,
         hebbian_n_compartments=args.hebbian_n_compartments,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,
@@ -3444,6 +3750,13 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
     """
     if runtime_kwargs is None:
         runtime_kwargs = {}
+    # Debug hook: CTM_DETECT_ANOMALY=1 makes autograd raise at the exact op
+    # whose backward first produces a NaN/Inf, with the forward traceback.
+    # No-op unless set. Pair with CUDA_LAUNCH_BLOCKING=1 and a single GPU.
+    if os.environ.get("CTM_DETECT_ANOMALY") == "1":
+        torch.autograd.set_detect_anomaly(True)
+        if rank == 0:
+            print("  [debug] torch.autograd anomaly detection ENABLED", flush=True)
     # ── Setup process group ────────────────────────────────────────────
     # Try NCCL first (much faster for GPU tensors), fall back to gloo.
     # The user's original DDP issue was backward-integrated allreduce,
@@ -3536,6 +3849,19 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
         if getattr(config, "use_precision_neuromod", False) else None
     )
 
+    # ── R9 ACh/NE dual-uncertainty controller ─────────────────────────────
+    achne_controller: AChNEController | None = (
+        AChNEController(
+            ach_decay=getattr(config, "achne_ach_decay", 0.8),
+            ne_decay=getattr(config, "achne_ne_decay", 0.95),
+            ne_threshold=getattr(config, "achne_ne_threshold", 3.0),
+            ne_baseline_decay=getattr(config, "achne_ne_baseline_decay", 0.999),
+            warmup=getattr(config, "achne_warmup", 50),
+            refractory=getattr(config, "achne_refractory", 20),
+            ach_baseline_decay=getattr(config, "achne_ach_baseline_decay", 0.999),
+        ) if getattr(config, "use_achne", False) else None
+    )
+
     # ── Synaptic Tagging and Capture gate ─────────────────────────────────
     stc_gate: STCGradientGate | None = (
         STCGradientGate(
@@ -3581,16 +3907,36 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
     cache_root = Path(config.teacher_cache_dir)
     phase_dir = (cache_root / "phase1") if config.use_two_phase_curriculum else cache_root
 
+    # Teacher-free toggle: when --use_cached_teacher is OFF, stream the
+    # downloaded curriculum corpus (./data_cache) instead of the pre-tokenized
+    # teacher cache. CurriculumDataset honors config.seq_len (so long-context
+    # training works) and yields plain (input, target) next-token pairs — the
+    # model learns purely from CE / its own PC objective, no distillation.
+    _use_cached = getattr(config, "use_cached_teacher", False)
+
     # Each worker gets different shards
-    train_ds = CachedTeacherDataset(
-        cache_dir=str(phase_dir),
-        rank=rank, world_size=world_size,
-    )
-    train_loader = torch.utils.data.DataLoader(
-        train_ds, batch_size=config.batch_size,
-        collate_fn=cached_teacher_collate,
-        num_workers=1, pin_memory=True,
-    )
+    if _use_cached:
+        train_ds = CachedTeacherDataset(
+            cache_dir=str(phase_dir),
+            rank=rank, world_size=world_size,
+        )
+        train_loader = torch.utils.data.DataLoader(
+            train_ds, batch_size=config.batch_size,
+            collate_fn=cached_teacher_collate,
+            num_workers=1, pin_memory=True,
+        )
+    else:
+        train_ds = CurriculumDataset(
+            tokenizer=tokenizer, seq_len=config.seq_len,
+            datasets=config.phase1_datasets,
+            subsets=config.phase1_dataset_subsets,
+            weights=config.phase1_dataset_weights,
+            rank=rank, world_size=world_size, is_eval=False,
+        )
+        train_loader = torch.utils.data.DataLoader(
+            train_ds, batch_size=config.batch_size,
+            num_workers=1, pin_memory=True,
+        )
     train_iter = iter(train_loader)
 
     def get_batch():
@@ -3610,16 +3956,28 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
     eval_loader_factory = None
     if rank == 0:
         def _make_eval_loader():
-            eval_ds = CachedTeacherDataset(
-                cache_dir=str(phase_dir),
-                rank=0, world_size=1,
-                is_eval=True,
-                eval_fraction=0.05,
-                shuffle_shards=False,
+            if _use_cached:
+                eval_ds = CachedTeacherDataset(
+                    cache_dir=str(phase_dir),
+                    rank=0, world_size=1,
+                    is_eval=True,
+                    eval_fraction=0.05,
+                    shuffle_shards=False,
+                )
+                return torch.utils.data.DataLoader(
+                    eval_ds, batch_size=config.batch_size,
+                    collate_fn=cached_teacher_collate,
+                    num_workers=1, pin_memory=True,
+                )
+            eval_ds = CurriculumDataset(
+                tokenizer=tokenizer, seq_len=config.seq_len,
+                datasets=config.phase2_datasets,
+                subsets=config.phase2_dataset_subsets,
+                weights=config.phase2_dataset_weights,
+                rank=0, world_size=1, is_eval=True,
             )
             return torch.utils.data.DataLoader(
                 eval_ds, batch_size=config.batch_size,
-                collate_fn=cached_teacher_collate,
                 num_workers=1, pin_memory=True,
             )
         eval_loader_factory = _make_eval_loader
@@ -3671,9 +4029,27 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
 
     optimizer.zero_grad()
     prev_T = None
+    _cp_frozen = False
+    _cp_pct = getattr(config, "critical_period_freeze_pct", 0.0)
     for step in range(start_step, config.max_steps):
         with timer.step():
             t0 = time.perf_counter()
+
+            # Quick-win #14: critical-period freeze. Once past the configured
+            # fraction of training, freeze the EARLY thought layers (begin_layers)
+            # so their features lock in while later layers stay plastic. Step-based
+            # → identical on every rank (no allreduce desync). No-op at pct=0.
+            if (not _cp_frozen and _cp_pct > 0.0
+                    and step >= _cp_pct * config.max_steps
+                    and getattr(model, "begin_layers", None) is not None):
+                _nf = 0
+                for _p in model.begin_layers.parameters():
+                    _p.requires_grad_(False)
+                    _nf += 1
+                _cp_frozen = True
+                if rank == 0:
+                    print(f"  [critical-period] step {step}: froze begin_layers "
+                          f"({_nf} param tensors) — features locked in.", flush=True)
 
             # Sync _train_step BEFORE forward so loss-side schedules
             # (mono_penalty decay, etc.) read the current step.
@@ -3696,18 +4072,26 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
 
             with timer("data"):
                 batch = get_batch()
-                ids, tgt, top_idx, top_val, _res, tz = batch
-                ids = ids.to(device)
-                tgt = tgt.to(device)
-                top_idx = top_idx.to(device)
-                top_val = top_val.to(device)
-                # teacher_z is only present when the cache was built
-                # with --include_hidden_states (see scripts/extend_teacher_cache_with_z.py).
-                # Empty tensor → no PC signal this batch.
-                if tz.numel() > 0:
-                    tz = tz.to(device)
+                if _use_cached:
+                    ids, tgt, top_idx, top_val, _res, tz = batch
+                    ids = ids.to(device)
+                    tgt = tgt.to(device)
+                    top_idx = top_idx.to(device)
+                    top_val = top_val.to(device)
+                    # teacher_z is only present when the cache was built
+                    # with --include_hidden_states (see scripts/extend_teacher_cache_with_z.py).
+                    # Empty tensor → no PC signal this batch.
+                    if tz.numel() > 0:
+                        tz = tz.to(device)
+                    else:
+                        tz = None
                 else:
-                    tz = None
+                    # CurriculumDataset → plain (input, target); no teacher signal,
+                    # so the forward runs CE / PC only (KL is gated off downstream).
+                    ids, tgt = batch
+                    ids = ids.to(device)
+                    tgt = tgt.to(device)
+                    top_idx = top_val = tz = None
 
             lr = get_lr(step, config)
             for pg in optimizer.param_groups:
@@ -3733,7 +4117,17 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
 
                 # ── All-reduce gradients (single flattened call) ────────────────
                 # PyTorch's native C++ flattening minimizes kernel launch overhead.
-                grads = [p.grad for p in model.parameters() if p.grad is not None]
+                # Use a FIXED param set (all trainable, deterministic order) and
+                # materialize a zero grad for any a data-dependent module left as
+                # None. Otherwise the two ranks can flatten DIFFERENT-sized grad
+                # buffers (a module gets a grad on one rank's micro-batch but not
+                # the other's) → the allreduce sizes mismatch → NCCL hangs → 600s
+                # watchdog timeout → SIGABRT. This mirrors DDP's all-params reduce.
+                _ar_params = [p for p in model.parameters() if p.requires_grad]
+                for _p in _ar_params:
+                    if _p.grad is None:
+                        _p.grad = torch.zeros_like(_p)
+                grads = [p.grad for p in _ar_params]
                 if grads:
                     with timer("sync_wait"):
                         # Barrier isolates compute desync from actual communication time
@@ -3763,9 +4157,12 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
 
                 # ── STC gradient gate ─────────────────────────────────────────
                 if stc_gate is not None:
-                    _prp = 0.0
-                    if isinstance(optimizer, NeuroPlasticOptimizer) and optimizer._surprise_ema is not None:
-                        _prp = float(optimizer._surprise_ema)
+                    if getattr(config, "stc_prp_from_burst", False):
+                        _prp = model.mean_burst_prob()   # #6: gate by burst prob
+                    else:
+                        _prp = 0.0
+                        if isinstance(optimizer, NeuroPlasticOptimizer) and optimizer._surprise_ema is not None:
+                            _prp = float(optimizer._surprise_ema)
                     stc_gate.apply(_stream_layers, _prp)
 
                 # ── Gradient clipping ────────────────────────────────────────
@@ -3775,10 +4172,30 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                     )
 
                 # ── Neuromodulation: scale LR by surprise ────────────────────
+                certs = result.get("certainties")
+                _mean_cert = certs.detach().float().mean().item() if certs is not None else None
+
+                # R9 ACh/NE channels (model is the raw per-rank model here).
+                if achne_controller is not None:
+                    _fe = result.get("hpc_free_energy")
+                    if _fe is not None:
+                        _err_sig = float(_fe.detach().float().mean().item()) if torch.is_tensor(_fe) else float(_fe)
+                    elif _mean_cert is not None:
+                        _err_sig = 1.0 - _mean_cert
+                    else:
+                        _err_sig = 0.0
+                    achne_controller.update(_err_sig)
+                    model._ach_level = achne_controller.ach_relative
+                    if achne_controller.should_reset():
+                        model.apply_ne_reset()
+
                 if isinstance(optimizer, NeuroPlasticOptimizer):
-                    certs = result.get("certainties")
-                    if certs is not None:
-                        optimizer.modulate(certs.detach().float().mean().item())
+                    if achne_controller is not None:
+                        _ne_norm = min(max(
+                            achne_controller.ne_level, 0.0), 1.0)
+                        optimizer.modulate(1.0 - _ne_norm)
+                    elif _mean_cert is not None:
+                        optimizer.modulate(_mean_cert)
 
                 # ── Optimizer step ───────────────────────────────────────────
                 # NaN-guard: last_grad_norm is computed from the *allreduced*
@@ -3788,10 +4205,58 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 with timer("optimizer"):
                     if torch.isfinite(last_grad_norm):
                         optimizer.step()
-                    elif rank == 0:
-                        print(f"  [NaN-guard] step {step}: non-finite grad "
-                              f"({float(last_grad_norm):.3g}) — optimizer step skipped.",
-                              flush=True)
+                    else:
+                        # A transient NaN can latch into persistent state OUTSIDE
+                        # the optimizer's reach, making it permanent (every later
+                        # forward re-produces NaN — the "grad stays nan forever").
+                        # The optimizer-skip only blocks NaN-grad weight updates; it
+                        # does NOT undo: (a) PARAMS written in-forward by local rules
+                        # (DGN self.w, Hebbian/BTSP fast-weights), (b) homeostatic
+                        # BUFFERS (ip_bias, prototypes, EMAs), or (c) plain-attribute
+                        # CARRIES warm-started into the next forward (_hebbian_carry,
+                        # _last_pc_errors — not registered buffers). Sanitize all of
+                        # them (on ALL ranks). nan_to_num is a no-op on finite
+                        # tensors and only the actually-poisoned entries reset, so
+                        # the finite learned weights are preserved. Rare-skip only.
+                        with torch.no_grad():
+                            for _t in model.parameters():
+                                if _t.is_floating_point():
+                                    torch.nan_to_num_(_t.data, nan=0.0, posinf=0.0, neginf=0.0)
+                            for _b in model.buffers():
+                                if _b.is_floating_point():
+                                    torch.nan_to_num_(_b, nan=0.0, posinf=0.0, neginf=0.0)
+                            for _attr in ("_hebbian_carry", "_last_pc_errors"):
+                                _lst = getattr(model, _attr, None)
+                                if _lst is not None:
+                                    for _c in _lst:
+                                        if torch.is_tensor(_c) and _c.is_floating_point():
+                                            torch.nan_to_num_(_c, nan=0.0, posinf=0.0, neginf=0.0)
+                        if rank == 0:
+                            # Diagnostic: group the non-finite grads by module path
+                            # (collapsing numeric layer indices, begin_layers.3.stream
+                            # → begin_layers.#.stream) so the SAME param across layers
+                            # tallies into one key — names the offending module/param.
+                            nan_mods: dict = {}
+                            inf_mods: dict = {}
+                            for _n, _p in model.named_parameters():
+                                _g = _p.grad
+                                if _g is None:
+                                    continue
+                                _key = ".".join(
+                                    "#" if _c.isdigit() else _c for _c in _n.split(".")
+                                )
+                                if torch.isnan(_g).any():
+                                    nan_mods[_key] = nan_mods.get(_key, 0) + 1
+                                elif torch.isinf(_g).any():
+                                    inf_mods[_key] = inf_mods.get(_key, 0) + 1
+                            _fmt = lambda d: f"{len(d)} keys: " + ", ".join(
+                                f"{k}×{v}" for k, v in
+                                sorted(d.items(), key=lambda x: -x[1])[:25]
+                            )
+                            print(f"  [NaN-guard] step {step}: non-finite grad "
+                                  f"({float(last_grad_norm):.3g}) — skipped. "
+                                  f"nan@[{_fmt(nan_mods)}] inf@[{_fmt(inf_mods)}]",
+                                  flush=True)
                     optimizer.zero_grad()
 
             t1 = time.perf_counter()
@@ -3823,7 +4288,22 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 episodic_buffer.append(ids[0].detach().cpu())
 
             min_buffer = max(2, _sleep_buf_size // 4)
-            if len(episodic_buffer) >= min_buffer and _opt_step % sleep_interval == 0:
+            # The sleep decision MUST be identical across ranks. The step-modulo
+            # is symmetric (opt-step count is synced), but len(episodic_buffer) is
+            # PER-RANK (each rank has its own buffer). A rank-local decision lets
+            # one rank run the 621M sleep allreduce while the other skips it →
+            # collective desync → NCCL watchdog timeout → SIGABRT. Sync readiness
+            # (MIN = require ALL ranks ready) at the symmetric step boundary.
+            _sleep_now = False
+            if _opt_step % sleep_interval == 0:
+                _ready = torch.tensor(
+                    1.0 if len(episodic_buffer) >= min_buffer else 0.0,
+                    device=device,
+                )
+                if dist.is_initialized():
+                    dist.all_reduce(_ready, op=dist.ReduceOp.MIN)
+                _sleep_now = _ready.item() >= 1.0
+            if _sleep_now:
                 _rem_on = getattr(config, "use_rem_dreaming", False)
                 # Optimizer-state isolation: snapshot the main optimizer's
                 # momentum/variance so the sleep replay steps can't pollute the
@@ -3853,15 +4333,29 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                     # flat-allreduce (kept in sync across ranks).
                     if _rem_on:
                         model._rem_sleep_active = True
+                    # Lean sleep forward: skip the DGN head (its full-vocab fp32
+                    # logits/softmax/aux-CE is the largest transient and OOM'd the
+                    # second forward+backward). Set on the raw module; identical on
+                    # every rank so the flat-allreduce stays in sync.
+                    model._sleep_skip_dgn = True
                     try:
                         sleep_result = model(x_replay, targets=y_replay)
                         sleep_loss = sleep_result["loss"] * sleep_loss_weight
                     finally:
+                        model._sleep_skip_dgn = False
                         if _rem_on:
                             model._rem_sleep_active = False
                     sleep_loss.backward()
                     # Flat-allreduce the sleep gradients (mirror the main loop).
-                    s_grads = [p.grad for p in model.parameters() if p.grad is not None]
+                    # Fixed all-trainable-params set + zero-materialized missing
+                    # grads, so both ranks flatten an identical-size buffer (see
+                    # the main-loop allreduce note: a None-grad mismatch desyncs
+                    # the collective → NCCL timeout → SIGABRT).
+                    _s_params = [p for p in model.parameters() if p.requires_grad]
+                    for _p in _s_params:
+                        if _p.grad is None:
+                            _p.grad = torch.zeros_like(_p)
+                    s_grads = [p.grad for p in _s_params]
                     if s_grads and dist.is_initialized():
                         flat = torch._utils._flatten_dense_tensors(s_grads)
                         dist.all_reduce(flat, op=dist.ReduceOp.SUM)
@@ -4043,6 +4537,26 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                 bio_str += f" | π_scale {precision_scaler.mean_scale:.3f}"
             if isinstance(optimizer, NeuroPlasticOptimizer) and optimizer.alpha > 0:
                 bio_str += f" | NE {optimizer.current_scale:.3f}"
+            if achne_controller is not None:
+                bio_str += f" | AChr {achne_controller.ach_relative:.3f} ne {achne_controller.ne_level:.4f}"
+                if achne_controller._last_reset:
+                    bio_str += " RST"
+            if "dgn_blend" in result:
+                bio_str += f" | dgn {result['dgn_blend']:.3f}"
+            if "gfn_tb_loss" in result:
+                bio_str += f" | gfn_tb {result['gfn_tb_loss'].item():.3f}"
+            if "gfn_mode_entropy" in result:
+                bio_str += f" | gfn_H {result['gfn_mode_entropy']:.2f}"
+            if "burst_diff" in result:
+                bio_str += f" | bdiff {result['burst_diff']:.4f}"
+            if "l1_rate" in result:
+                bio_str += f" | l1 {result['l1_rate'].item():.4f}"
+            if "pc_var" in result:
+                bio_str += f" | zvar {result['pc_var'].item():.4f} zcov {result['pc_cov'].item():.4f}"
+            if "pc_var_hat" in result:
+                bio_str += f" | zhvar {result['pc_var_hat'].item():.4f}"
+            if "morphogen_loss" in result:
+                bio_str += f" | morpho {result['morphogen_loss'].item():.4f}"
             if plasticity is not None and _stream_layers:
                 counts = plasticity.active_counts(_stream_layers)
                 bio_str += f" | streams [{','.join(str(c) for c in counts)}]"
@@ -4095,6 +4609,13 @@ def worker_multi_gpu(rank, world_size, config_dict, runtime_kwargs=None):
                     bio_str += " [HIT]"
                 elif "dnd_max_sim" in result:
                     bio_str += f" sim={result['dnd_max_sim']:.3f}"
+            _astro_obj = getattr(model, "astro", None)
+            if _astro_obj is not None:
+                bio_str += f" | astro {_astro_obj.n_stored}/{_astro_obj.capacity}"
+                if result.get("astro_hit"):
+                    bio_str += " [HIT]"
+                elif "astro_max_sim" in result:
+                    bio_str += f" sim={result['astro_max_sim']:.3f}"
             if "efe_expected_halt" in result:
                 bio_str += f" | halt {result['efe_expected_halt']:.2f}"
             if getattr(config, "use_burstprop", False) and _stream_layers:
@@ -4268,6 +4789,15 @@ def main_multi_gpu():
         hyperloop_n_end=args.hyperloop_n_end,
         hyperloop_middle_loops=args.hyperloop_middle_loops,
         use_loop_pos_emb=args.use_loop_pos_emb,
+        use_theta_phase=args.use_theta_phase,
+        theta_cycle_len=args.theta_cycle_len,
+        theta_amplitude=args.theta_amplitude,
+        use_reread=args.use_reread,
+        use_laminar_coupling=args.use_laminar_coupling,
+        use_morphogen_init=args.use_morphogen_init,
+        morphogen_dim=args.morphogen_dim,
+        morphogen_rank=args.morphogen_rank,
+        morphogen_reg_weight=args.morphogen_reg_weight,
         use_triton_attention=args.use_triton_attention,
         use_cuda_graphs=args.use_cuda_graphs,
         tiled_schedule=args.tiled_schedule,
@@ -4289,6 +4819,15 @@ def main_multi_gpu():
         stc_threshold_tag=args.stc_threshold_tag,
         stc_threshold_prp=args.stc_threshold_prp,
         stc_min_gate=args.stc_min_gate,
+        stc_prp_from_burst=args.stc_prp_from_burst,
+        l1_rate_weight=args.l1_rate_weight,
+        use_pc_var_reg=args.use_pc_var_reg,
+        pc_var_weight=args.pc_var_weight,
+        pc_cov_weight=args.pc_cov_weight,
+        use_hypersphere_z=args.use_hypersphere_z,
+        hypersphere_z_scale=args.hypersphere_z_scale,
+        critical_period_freeze_pct=args.critical_period_freeze_pct,
+        force_gate_ne_mult=args.force_gate_ne_mult,
         use_prospective_config=args.use_prospective_config,
         max_inference_steps=args.max_inference_steps,
         inference_energy_tol=args.inference_energy_tol,
@@ -4355,6 +4894,27 @@ def main_multi_gpu():
         dnd_write_confidence=args.dnd_write_confidence,
         dnd_hopfield_beta=args.dnd_hopfield_beta,
         dnd_min_novelty=args.dnd_min_novelty,
+        use_astro_memory=args.use_astro_memory,
+        astro_capacity=args.astro_capacity,
+        astro_key_dim=args.astro_key_dim,
+        astro_order=args.astro_order,
+        astro_beta=args.astro_beta,
+        astro_confidence_threshold=args.astro_confidence_threshold,
+        astro_write_confidence=args.astro_write_confidence,
+        astro_trace_decay=args.astro_trace_decay,
+        astro_min_novelty=args.astro_min_novelty,
+        use_dgn_head=args.use_dgn_head,
+        dgn_n_branches=args.dgn_n_branches,
+        dgn_proj_dim=args.dgn_proj_dim,
+        dgn_eta=args.dgn_eta,
+        dgn_aux_weight=args.dgn_aux_weight,
+        use_gflownet=args.use_gflownet,
+        gflownet_n_modes=args.gflownet_n_modes,
+        gflownet_op_scale=args.gflownet_op_scale,
+        gflownet_hidden_dim=args.gflownet_hidden_dim,
+        gflownet_reward_beta=args.gflownet_reward_beta,
+        gflownet_tb_weight=args.gflownet_tb_weight,
+        gflownet_tb_huber_delta=args.gflownet_tb_huber_delta,
         use_neuromod_optimizer=args.use_neuromod_optimizer,
         neuromod_alpha=args.neuromod_alpha,
         neuromod_min_scale=args.neuromod_min_scale,
@@ -4368,6 +4928,16 @@ def main_multi_gpu():
         use_bcm_threshold=args.use_bcm_threshold,
         bcm_ema_decay=args.bcm_ema_decay,
         bcm_loss_weight=args.bcm_loss_weight,
+        use_achne=args.use_achne,
+        achne_ach_decay=args.achne_ach_decay,
+        achne_ne_decay=args.achne_ne_decay,
+        achne_ne_threshold=args.achne_ne_threshold,
+        achne_ne_baseline_decay=args.achne_ne_baseline_decay,
+        achne_ach_baseline_decay=args.achne_ach_baseline_decay,
+        achne_warmup=args.achne_warmup,
+        achne_refractory=args.achne_refractory,
+        achne_ach_precision_scale=args.achne_ach_precision_scale,
+        achne_reset_temp_mult=args.achne_reset_temp_mult,
         use_precision_neuromod=args.use_precision_neuromod,
         precision_neuromod_min_scale=args.precision_neuromod_min_scale,
         precision_neuromod_max_scale=args.precision_neuromod_max_scale,
@@ -4377,6 +4947,9 @@ def main_multi_gpu():
         schema_routing_temperature=args.schema_routing_temperature,
         schema_routing_novelty_threshold=args.schema_routing_novelty_threshold,
         schema_routing_btsp_scale=args.schema_routing_btsp_scale,
+        use_successor_features=args.use_successor_features,
+        successor_gamma=args.successor_gamma,
+        successor_lr=args.successor_lr,
         hebbian_n_compartments=args.hebbian_n_compartments,
         use_structural_plasticity=args.use_structural_plasticity,
         plasticity_prune_threshold=args.plasticity_prune_threshold,

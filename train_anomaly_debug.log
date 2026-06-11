@@ -1,0 +1,235 @@
+Spawning 2 workers...
+  [debug] torch.autograd anomaly detection ENABLED
+archlinux:1257375:1257375 [0] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1257375:1257375 [0] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1257375:1257375 [0] NCCL INFO cudaDriverVersion 13020
+archlinux:1257376:1257376 [1] NCCL INFO ENV/Plugin: Could not find: libnccl-env.so
+archlinux:1257376:1257376 [1] NCCL INFO cudaDriverVersion 13020
+archlinux:1257375:1257375 [0] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1257376:1257376 [1] NCCL INFO Bootstrap: Using enp11s0:192.168.86.31<0>
+archlinux:1257376:1257376 [1] NCCL INFO NCCL version 2.28.9+cuda13.0
+archlinux:1257375:1257375 [0] NCCL INFO Comm config Blocking set to 1
+archlinux:1257376:1257376 [1] NCCL INFO Comm config Blocking set to 1
+archlinux:1257375:1257375 [0] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1257375:1257375 [0] NCCL INFO NET/IB : No device found.
+archlinux:1257375:1257375 [0] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1257375:1257375 [0] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1257375:1257375 [0] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1257375:1257375 [0] NCCL INFO Initialized NET plugin Socket
+archlinux:1257375:1257375 [0] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1257375:1257375 [0] NCCL INFO Using network Socket
+archlinux:1257375:1257375 [0] NCCL INFO ncclCommInitRankConfig comm 0x55c9b842ee70 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0xf8f49c8e50e82aac - Init START
+archlinux:1257376:1257376 [1] NCCL INFO NET/Plugin: Could not find: libnccl-net.so
+archlinux:1257376:1257376 [1] NCCL INFO NET/IB : No device found.
+archlinux:1257376:1257376 [1] NCCL INFO NET/IB : Using [RO]; OOB enp11s0:192.168.86.31<0>
+archlinux:1257376:1257376 [1] NCCL INFO Failed to initialize NET plugin IB
+archlinux:1257376:1257376 [1] NCCL INFO NET/Socket : Using [0]enp11s0:192.168.86.31<0> [1]tailscale0:100.117.13.102<0>
+archlinux:1257376:1257376 [1] NCCL INFO Initialized NET plugin Socket
+archlinux:1257376:1257376 [1] NCCL INFO Assigned NET plugin Socket to comm
+archlinux:1257376:1257376 [1] NCCL INFO Using network Socket
+archlinux:1257376:1257376 [1] NCCL INFO ncclCommInitRankConfig comm 0x55fce01dcfe0 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0xf8f49c8e50e82aac - Init START
+archlinux:1257376:1257376 [1] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1257375:1257375 [0] NCCL INFO RAS client listening socket at ::1<28028>
+archlinux:1257376:1257376 [1] NCCL INFO Bootstrap timings total 0.001855 (create 0.000017, send 0.000087, recv 0.000088, ring 0.001203, delay 0.000000)
+archlinux:1257375:1257375 [0] NCCL INFO Bootstrap timings total 0.088765 (create 0.000015, send 0.000066, recv 0.086993, ring 0.000015, delay 0.000000)
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 1 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1257376:1257376 [1] NCCL INFO NVLS multicast support is not available on dev 1 (NVLS_NCHANNELS 0)
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO ncclTopoGetCpuAffinity: Affinity for GPU 0 is empty, ignoring. (GPU affinity =  ; CPU affinity = 0-31).
+archlinux:1257375:1257375 [0] NCCL INFO NVLS multicast support is not available on dev 0 (NVLS_NCHANNELS 0)
+archlinux:1257375:1257375 [0] NCCL INFO comm 0x55c9b842ee70 rank 0 nRanks 2 nNodes 1 localRanks 2 localRank 0 MNNVL 0
+archlinux:1257376:1257376 [1] NCCL INFO comm 0x55fce01dcfe0 rank 1 nRanks 2 nNodes 1 localRanks 2 localRank 1 MNNVL 0
+archlinux:1257375:1257375 [0] NCCL INFO Channel 00/02 : 0 1
+archlinux:1257376:1257376 [1] NCCL INFO Trees [0] -1/-1/-1->1->0 [1] -1/-1/-1->1->0
+archlinux:1257375:1257375 [0] NCCL INFO Channel 01/02 : 0 1
+archlinux:1257376:1257376 [1] NCCL INFO P2P Chunksize set to 131072
+archlinux:1257375:1257375 [0] NCCL INFO Trees [0] 1/-1/-1->0->-1 [1] 1/-1/-1->0->-1
+archlinux:1257375:1257375 [0] NCCL INFO P2P Chunksize set to 131072
+archlinux:1257375:1257375 [0] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1257376:1257376 [1] NCCL INFO PROFILER/Plugin: Could not find: libnccl-profiler.so
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1257376:1257376 [1] NCCL INFO Check P2P Type isAllDirectP2p 0 directMode 0 isAllCudaP2p 0
+archlinux:1257376:1257468 [0] NCCL INFO [Proxy Service] Device 1 CPU core 24
+archlinux:1257375:1257467 [0] NCCL INFO [Proxy Service] Device 0 CPU core 18
+archlinux:1257376:1257470 [0] NCCL INFO [Proxy Service UDS] Device 1 CPU core 15
+archlinux:1257375:1257469 [0] NCCL INFO [Proxy Service UDS] Device 0 CPU core 4
+archlinux:1257375:1257375 [0] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1257376:1257376 [1] NCCL INFO TUNER/Plugin: Could not find: libnccl-tuner.so
+archlinux:1257375:1257375 [0] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1257376:1257376 [1] NCCL INFO threadThresholds 8/8/64 | 16/8/64 | 512 | 512
+archlinux:1257375:1257375 [0] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1257376:1257376 [1] NCCL INFO 2 coll channels, 2 collnet channels, 0 nvls channels, 2 p2p channels, 2 p2p channels per peer
+archlinux:1257375:1257375 [0] NCCL INFO CC Off, workFifoBytes 1048576
+archlinux:1257375:1257375 [0] NCCL INFO ncclCommInitRankConfig comm 0x55c9b842ee70 rank 0 nranks 2 cudaDev 0 nvmlDev 0 busId 1000 commId 0xf8f49c8e50e82aac - Init COMPLETE
+archlinux:1257376:1257376 [1] NCCL INFO ncclCommInitRankConfig comm 0x55fce01dcfe0 rank 1 nranks 2 cudaDev 1 nvmlDev 1 busId a000 commId 0xf8f49c8e50e82aac - Init COMPLETE
+archlinux:1257375:1257375 [0] NCCL INFO Init timings - ncclCommInitRankConfig: rank 0 nranks 2 total 0.16 (kernels 0.06, alloc 0.00, bootstrap 0.09, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+archlinux:1257376:1257376 [1] NCCL INFO Init timings - ncclCommInitRankConfig: rank 1 nranks 2 total 0.16 (kernels 0.15, alloc 0.00, bootstrap 0.00, allgathers 0.00, topo 0.01, graphs 0.00, connections 0.00, rest 0.00)
+[worker 0] Building model on cuda:0...
+Model: 652.4M params × 2 workers
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO Channel 00 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1257375:1257375 [0] NCCL INFO P2P is disabled between connected GPUs 0 and 1. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257375:1257375 [0] NCCL INFO Channel 01 : 0[0] -> 1[1] via SHM/direct/direct
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO Channel 00 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1257376:1257376 [1] NCCL INFO P2P is disabled between connected GPUs 1 and 0. You can repress this message with NCCL_IGNORE_DISABLED_P2P=1.
+archlinux:1257376:1257376 [1] NCCL INFO Channel 01 : 1[1] -> 0[0] via SHM/direct/direct
+archlinux:1257376:1257376 [1] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+archlinux:1257375:1257375 [0] NCCL INFO Connected all rings, use ring PXN 0 GDR 1
+  Optimizer: AdamW8bit (8-bit moments) + NeuroPlasticOptimizer
+[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128[CachedTeacherDataset/train] 190 shards (of 199 total) under teacher_cache/phase1 | seq_len=512 top_k=128
+
+
+============================================================
+CTM-Transformer Dual-GPU Training (nccl, no DDP)
+  Steps: 0 → 10000000
+  Batch: 2 × 512 tokens
+  Thought ticks: 100
+  Gradient checkpointing: True
+============================================================
+
+step      0 | loss 29.4353 | lr 0.00e+00 | grad 0.00 | 0.3k tok/s (avg 0.3k) | cert 0.02→0.02 | hpc_loss 5.094 | F 5.094 | inf_steps 16 | srank 1.5 | amort 2.2031 | π_scale 1.000 | NE 1.000 | AChr 0.000 ne 0.0000 | dgn 0.119 | gfn_tb 102.780 | morpho 0.0000 | bcm 0.0000 | θ_M 1.328 | dnd 0/1000 sim=0.000 | astro 0/4000 sim=0.000 | halt 2.00 | meta 0.100 | swr 0/0 | ETA 11308.1h
+step     10 | loss 74.4416 | lr 1.50e-06 | grad 0.00 | 0.4k tok/s (avg 0.4k) | cert 0.02→0.02 | hpc_loss 5.094 | F 5.094 | inf_steps 31 | srank 1.4 | amort 2.8906 | π_scale 1.000 | NE 1.000 | AChr 0.000 ne 0.0000 | dgn 0.119 | gfn_tb 519.123 | morpho 0.0000 | bcm 0.0000 | θ_M 4.656 | dnd 0/1000 sim=0.000 | astro 0/4000 sim=0.000 | halt 2.00 | meta 0.100 | swr 0/0 | ETA 8062.8h
+step     20 | loss 50.0194 | lr 3.00e-06 | grad 2.61 | 0.2k tok/s (avg 0.3k) | cert 0.02→0.02 | hpc_loss 5.094 | F 5.094 | inf_steps 23 | srank 1.2 | amort 3.0000 | π_scale 1.093 | NE 1.000 | AChr 0.000 ne 0.0000 | dgn 0.119 | gfn_tb 298.053 | morpho 0.0000 | bcm 0.0000 | θ_M 4.375 | dnd 0/1000 sim=0.000 | astro 0/4000 sim=0.000 | halt 2.00 | meta 0.100 | swr 0/1 | ETA 10558.0h
+step     30 | loss 29.0742 | lr 4.50e-06 | grad 2.61 | 0.4k tok/s (avg 0.3k) | cert 0.02→0.02 | hpc_loss 5.094 | F 5.125 | inf_steps 15 | srank 1.0 | amort 14.2500 | π_scale 1.093 | NE 1.000 | AChr 0.000 ne 0.0000 | dgn 0.119 | gfn_tb 77.953 | morpho 0.0000 | bcm 0.0000 | θ_M 5.812 | dnd 0/1000 sim=0.000 | astro 0/4000 sim=0.000 | halt 2.00 | meta 0.100 | swr 0/1 | ETA 9267.7h
+step     40 | loss 30.8507 | lr 6.00e-06 | grad 3.44 | 0.2k tok/s (avg 0.3k) | cert 0.02→0.02 | hpc_loss 5.156 | F 5.156 | inf_steps 13 | srank 1.0 | amort 14.3750 | π_scale 1.093 | NE 1.000 | AChr 0.005 ne 0.0012 | dgn 0.119 | gfn_tb 35.630 | morpho 0.0000 | bcm 0.0000 | θ_M 5.688 | dnd 0/1000 sim=0.000 | astro 0/4000 sim=0.000 | halt 2.00 | meta 0.100 | swr 0/2 | ETA 10540.4h
+step     50 | loss 44.1814 | lr 7.50e-06 | grad 2.91 | 0.2k tok/s (avg 0.3k) | cert 0.02→0.02 | hpc_loss 5.500 | F 5.469 | inf_steps 17 | srank 1.0 | amort 14.2500 | π_scale 1.093 | NE 1.000 | AChr 0.008 ne 0.0021 | dgn 0.119 | gfn_tb 129.224 | morpho 0.0000 | bcm 0.0000 | θ_M 7.156 | dnd 0/1000 sim=0.000 | astro 0/4000 sim=0.000 | halt 2.00 | meta 0.100 | swr 0/3 | ETA 10721.4h
+/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/autograd/graph.py:869: UserWarning: Error detected in NativeLayerNormBackward0. Traceback of forward call that caused the error:
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(tracker_fd=20, pipe_handle=22)
+  File "/usr/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+  File "/usr/lib/python3.14/multiprocessing/spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+  File "/usr/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.14/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 87, in _wrap
+    fn(i, *args)
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 3986, in worker_multi_gpu
+    result = model(
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/model.py", line 5065, in forward
+    step_res_learn = self._thought_step(
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/model.py", line 4293, in _thought_step
+    z_out, _sync_repr, new_layer_stream, new_layer_heb, layer_lr_eff = layer(
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/model.py", line 3014, in forward
+    post_activations = self.post_norm(pre_activations)
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/modules/normalization.py", line 229, in forward
+    return F.layer_norm(
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/nn/functional.py", line 2935, in layer_norm
+    return torch.layer_norm(
+ (Triggered internally at /pytorch/torch/csrc/autograd/python_anomaly_mode.cpp:122.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank0]:[W524 16:51:04.579003619 ProcessGroupNCCL.cpp:1575] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+archlinux:1257375:1258029 [0] NCCL INFO comm 0x55c9b842ee70 rank 0 nRanks 2 cudaDev 0 busId 1000 - Abort START
+archlinux:1257375:1258029 [0] NCCL INFO misc/socket.cc:64 -> 3
+archlinux:1257375:1258029 [0] NCCL INFO misc/socket.cc:81 -> 3
+archlinux:1257375:1258029 [0] NCCL INFO misc/socket.cc:868 -> 3
+archlinux:1257375:1258029 [0] NCCL INFO misc/socket.cc:64 -> 3
+archlinux:1257375:1258029 [0] NCCL INFO misc/socket.cc:81 -> 3
+archlinux:1257375:1258029 [0] NCCL INFO misc/socket.cc:868 -> 3
+archlinux:1257375:1257467 [0] NCCL INFO misc/socket.cc:943 -> 3
+archlinux:1257375:1258029 [0] NCCL INFO comm 0x55c9b842ee70 rank 0 nranks 2 cudaDev 0 busId 1000 - Abort COMPLETE
+archlinux:1257375:1257375 [0] NCCL INFO ENV/Plugin: Closing env plugin ncclEnvDefault
+[rank1]:[W524 16:51:05.554922789 TCPStore.cpp:125] [c10d] recvValue failed on SocketImpl(fd=56, addr=[::ffff:127.0.0.1]:53696, remote=[::ffff:127.0.0.1]:29501): Failed to recv, got 0 bytes. Connection was likely closed. Did the remote server shutdown or crash?
+Exception raised from recvBytes at /pytorch/torch/csrc/distributed/c10d/Utils.hpp:682 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x7fb4b977305d in /home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/lib/libc10.so)
+frame #1: <unknown function> + 0x6a914bd (0x7fb422c914bd in /home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/lib/libtorch_cpu.so)
+frame #2: c10d::TCPStore::check(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) + 0x273 (0x7fb422c8f413 in /home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/lib/libtorch_cpu.so)
+frame #3: c10d::ProcessGroupNCCL::HeartbeatMonitor::runLoop() + 0x4a5 (0x7fb4052ff8c5 in /home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/lib/libtorch_cuda.so)
+frame #4: <unknown function> + 0xe55a4 (0x7fb489ee55a4 in /usr/lib/libstdc++.so.6)
+frame #5: <unknown function> + 0x9697a (0x7fb4ba89697a in /usr/lib/libc.so.6)
+frame #6: <unknown function> + 0x11a2bc (0x7fb4ba91a2bc in /usr/lib/libc.so.6)
+
+[rank1]:[W524 16:51:05.557105278 ProcessGroupNCCL.cpp:1826] [PG ID 0 PG GUID 0(default_pg) Rank 1] Failed to check the "should dump" flag on TCPStore, (maybe TCPStore server has shut down too early), with error: Failed to recv, got 0 bytes. Connection was likely closed. Did the remote server shutdown or crash?
+W0524 16:51:05.857000 1257297 torch/multiprocessing/spawn.py:165] Terminating process 1257376 via signal SIGTERM
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 4805, in <module>
+    main_multi_gpu()
+    ~~~~~~~~~~~~~~^^
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 4783, in main_multi_gpu
+    mp.spawn(worker_multi_gpu, args=(world_size, config_dict, runtime_kwargs),
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             nprocs=world_size, join=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 340, in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 296, in start_processes
+    while not context.join():
+              ~~~~~~~~~~~~^^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 211, in join
+    raise ProcessRaisedException(msg, error_index, failed_process.pid)
+torch.multiprocessing.spawn.ProcessRaisedException: 
+
+-- Process 0 terminated with the following error:
+Traceback (most recent call last):
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/multiprocessing/spawn.py", line 87, in _wrap
+    fn(i, *args)
+    ~~^^^^^^^^^^
+  File "/home/kyler/Documents/CTM-Transformer/ctm_transformer/train.py", line 3997, in worker_multi_gpu
+    loss.backward()
+    ~~~~~~~~~~~~~^^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/_tensor.py", line 631, in backward
+    torch.autograd.backward(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        self, gradient, retain_graph, create_graph, inputs=inputs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/autograd/__init__.py", line 381, in backward
+    _engine_run_backward(
+    ~~~~~~~~~~~~~~~~~~~~^
+        tensors,
+        ^^^^^^^^
+    ...<5 lines>...
+        accumulate_grad=True,
+        ^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/kyler/Documents/OpenMythos/venv_nv/lib/python3.14/site-packages/torch/autograd/graph.py", line 869, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        t_outputs, *args, **kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )  # Calls into the C++ engine to run the backward pass
+    ^
+RuntimeError: Function 'NativeLayerNormBackward0' returned nan values in its 0th output.
+
+/usr/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 11 leaked semaphore objects to clean up at shutdown: {'/loky-1257376-vmzna4wg', '/loky-1257376-z2xnwbn1', '/loky-1257376-j3d8f_i3', '/loky-1257376-lswy7doh', '/loky-1257376-h5wz35yq', '/loky-1257376-lhy47gkw', '/loky-1257376-ad1y0qbi', '/loky-1257376-x8rid3ak', '/loky-1257376-rl42cekx', '/loky-1257376-yni_zc9r', '/loky-1257376-qz57gyja'}
+  warnings.warn(

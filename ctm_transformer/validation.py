@@ -111,9 +111,12 @@ def compute_validation_metrics(
     for batch in eval_loader:
         if n_batches >= max_batches:
             break
-        # Robust to both 5-tuple (legacy) and 6-tuple (with teacher_z)
-        # collate outputs — we only need the first 4 elements here.
-        ids, tgt, top_idx, top_val = batch[0], batch[1], batch[2], batch[3]
+        # Robust to teacher-free 2-tuples (CurriculumDataset → (x, y)) as well
+        # as the 5/6-tuple cached-teacher collate. We only need x/y for CE; the
+        # teacher top-k (if present) drives the optional alignment metric below.
+        ids, tgt = batch[0], batch[1]
+        top_idx = batch[2] if len(batch) > 2 else None
+        top_val = batch[3] if len(batch) > 3 else None
         ids = ids.to(device, non_blocking=True)
         tgt = tgt.to(device, non_blocking=True)
 

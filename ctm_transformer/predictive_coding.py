@@ -280,12 +280,17 @@ class PrecisionComputer(nn.Module):
         self,
         error: torch.Tensor,
         mu: torch.Tensor,
+        precision_mod: float = 1.0,
     ) -> torch.Tensor:
         """Compute precision weight from local activity statistics.
 
         Args:
             error: [B, S, d_latent] — prediction error at this layer.
             mu:    [B, S, d_latent] — value at this layer.
+            precision_mod: multiplicative scale on the final precision (R9 ACh
+                channel passes <1 here to down-weight precision under high
+                expected uncertainty — up-weighting bottom-up evidence). 1.0 =
+                no-op.
 
         Returns:
             precision: [B, S, 1] — positive scalar per token per layer.
@@ -308,6 +313,8 @@ class PrecisionComputer(nn.Module):
         adjustment = self.precision_net(stats)  # [B, S, 1]
         log_pi = self.log_precision_baseline + adjustment
         precision = F.softplus(log_pi)  # [B, S, 1], always positive
+        if precision_mod != 1.0:
+            precision = precision * precision_mod
 
         return precision
 
@@ -480,6 +487,7 @@ class PCLayer(nn.Module):
         self,
         mu_current: torch.Tensor,
         mu_above: torch.Tensor,
+        precision_mod: float = 1.0,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Compute prediction error and precision at this layer.
 
@@ -502,7 +510,7 @@ class PCLayer(nn.Module):
         prediction, error = self.error_computer(mu_curr_det, mu_above_det)
         # We pass the unnormalized error to the precision computer.
         # LayerNorming the error forces it to variance 1.0, destroying magnitude info!
-        pi = self.precision(error, mu_curr_det)
+        pi = self.precision(error, mu_curr_det, precision_mod=precision_mod)
 
         return prediction, error, pi
 

@@ -176,6 +176,11 @@ class HebbianSynapse(nn.Module):
         # collect gradient from elsewhere) but is not consulted in the
         # readout multiplication.
         self.force_gate = force_gate
+        # Quick-win #12: an NE reset can transiently raise force_gate above this
+        # base via ne_boost_force_gate(); it relaxes back toward the base each
+        # forward. No-op unless boosted (base == current → unchanged).
+        self._force_gate_base = force_gate
+        self._force_gate_relax = 0.85
 
         # ── Dendritic compartmentalization ──────────────────────────────
         # When n_compartments > 1, the bottleneck space is partitioned
@@ -402,6 +407,10 @@ class HebbianSynapse(nn.Module):
                 ratio = (bursts.abs().mean() / e_mean).clamp(0.0, 1.0)
                 a = 1.0 / self.burstprop_tau
                 self._burst_p_bar.mul_(1.0 - a).add_(ratio.float() * a)
+                # R2 telemetry: magnitude of the burst credit signal (burst_p − P̄).
+                # If this pins near 0, the PC errors are spatially uniform and
+                # Burstprop is silently a no-op (no varying credit → no plasticity).
+                self._last_burst_diff = float((burst_p - p_bar_val).abs().mean())
         return bursts - p_bar_val * events
 
     def _btsp_kernel(
@@ -449,6 +458,12 @@ class HebbianSynapse(nn.Module):
                 delta = delta * p
         return delta
 
+    def ne_boost_force_gate(self, mult: float) -> None:
+        """Quick-win #12: NE-reset broadcast — transiently open the force_gate
+        (clamped ≤1.0). Relaxes back toward the base in subsequent forwards."""
+        if self._force_gate_base is not None:
+            self.force_gate = min(float(self._force_gate_base) * float(mult), 1.0)
+
     def forward(
         self,
         prev_state: torch.Tensor,
@@ -483,6 +498,15 @@ class HebbianSynapse(nn.Module):
                             after modulation. Used for logging only.
         """
         B, S, _ = prev_state.shape
+
+        # Quick-win #12: relax a NE-boosted force_gate back toward its base.
+        # No-op unless ne_boost_force_gate() raised it (base == current).
+        if (self.force_gate is not None and self._force_gate_base is not None
+                and self.force_gate != self._force_gate_base):
+            self.force_gate = (
+                self._force_gate_base
+                + (self.force_gate - self._force_gate_base) * self._force_gate_relax
+            )
 
         if self.is_compartmentalized:
             return self._forward_compartmentalized(
@@ -934,6 +958,166 @@ class NeuroPlasticOptimizer:
     def current_scale(self) -> float:
         """Current LR scale factor (for logging)."""
         return self._current_scale
+
+
+# ════════════════════════════════════════════════════════════════════════
+# ACh / NE Dual-Uncertainty Controller (R9)
+# ════════════════════════════════════════════════════════════════════════
+
+class AChNEController:
+    """Dual neuromodulatory uncertainty channels (Yu & Dayan, Neuron 2005).
+
+    Splits a single scalar error/surprise signal into two channels:
+
+      - **ACh** (*expected* uncertainty): an EMA of the error magnitude — the
+        level of noise the model has learned to expect in the current context.
+        High ACh → the prior is unreliable, so bottom-up evidence should be
+        up-weighted (here: HPC precision is down-weighted).
+
+      - **NE** (*unexpected* uncertainty): a change detector on ACh — the
+        positive deviation of the current error above the ACh expectation,
+        smoothed. A sharp NE rise signals a *context switch / model failure*
+        and (a) drives the global learning-rate up and (b) triggers a network
+        reset broadcast (flush fast weights, warm-start, raise routing
+        temperature) so the model abandons a now-wrong prior instead of
+        "sticking" to it.
+
+    All state is plain Python floats (no tensors / no grad); the controller is
+    driven once per optimizer step by the training loop, exactly like
+    :class:`NeuroPlasticOptimizer`.
+
+    Args:
+        ach_decay:          EMA decay for the ACh (expected-uncertainty) channel.
+                            Lower = shorter window = more reactive expectation.
+        ne_decay:           EMA decay for smoothing the NE deviation signal.
+        ne_threshold:       NE fires a reset when NE > ne_threshold × baseline.
+        ne_baseline_decay:  Slow EMA decay for the NE baseline (the "normal" NE
+                            level the spike is measured against).
+        warmup:             Min #updates before a reset can fire (avoids spurious
+                            early resets while the baseline is still forming).
+        refractory:         Steps after a reset during which no further reset can
+                            fire — makes the reset a phasic one-shot per context
+                            switch rather than a continuous flush while the slow
+                            baseline catches up to the elevated NE.
+    """
+
+    def __init__(
+        self,
+        ach_decay: float = 0.8,
+        ne_decay: float = 0.95,
+        ne_threshold: float = 3.0,
+        ne_baseline_decay: float = 0.999,
+        warmup: int = 50,
+        refractory: int = 20,
+        ach_baseline_decay: float = 0.999,
+    ):
+        self.ach_decay = ach_decay
+        self.ne_decay = ne_decay
+        self.ne_threshold = ne_threshold
+        self.ne_baseline_decay = ne_baseline_decay
+        self.warmup = warmup
+        self.refractory = refractory
+        self.ach_baseline_decay = ach_baseline_decay
+
+        self._ach: float | None = None
+        self._ach_baseline: float | None = None  # slow baseline (normal level)
+        self._ne: float = 0.0
+        self._ne_baseline: float = 0.0
+        self._n_updates: int = 0
+        self._refractory: int = 0
+        self._last_reset: bool = False
+
+    def update(self, error_signal: float) -> tuple[float, float]:
+        """Ingest one error/surprise observation; return (ACh_relative, NE).
+
+        All quantities are made **scale-invariant** by normalizing against a
+        slow baseline of the error: the raw error magnitude (e.g. HPC free
+        energy ~50) is irrelevant — only *relative* elevation matters. This
+        prevents the ACh→precision coupling from collapsing precision toward 0
+        when the error signal is large in absolute terms.
+        """
+        e = float(error_signal)
+        if not math.isfinite(e):
+            return self.ach_relative, self._ne
+        self._n_updates += 1
+        if self._ach is None:
+            self._ach = e
+            self._ach_baseline = e
+            return self.ach_relative, self._ne
+        prev_ach = self._ach
+        # ACh = fast EMA of the error (expected uncertainty); baseline = slow EMA.
+        self._ach = self.ach_decay * self._ach + (1.0 - self.ach_decay) * e
+        self._ach_baseline = (
+            self.ach_baseline_decay * self._ach_baseline
+            + (1.0 - self.ach_baseline_decay) * e
+        )
+        base = max(self._ach_baseline, 1e-6)
+        # NE = smoothed positive deviation of the error above the (lagging) ACh
+        # expectation, normalized by the baseline so it is scale-free.
+        delta = max(0.0, e - prev_ach) / base
+        self._ne = self.ne_decay * self._ne + (1.0 - self.ne_decay) * delta
+        # Slow baseline the NE spike is thresholded against.
+        self._ne_baseline = (
+            self.ne_baseline_decay * self._ne_baseline
+            + (1.0 - self.ne_baseline_decay) * self._ne
+        )
+        return self.ach_relative, self._ne
+
+    def should_reset(self) -> bool:
+        """True on a phasic NE spike (NE > ne_threshold × baseline).
+
+        One-shot per context switch: after firing, the NE burst is consumed
+        (set to baseline) and a refractory window blocks re-firing while the
+        slow baseline catches up — otherwise the elevated NE would re-trigger
+        a reset every step until the baseline rose.
+        """
+        self._last_reset = False
+        if self._refractory > 0:
+            self._refractory -= 1
+            return False
+        if self._n_updates < self.warmup:
+            return False
+        base = max(self._ne_baseline, 1e-6)
+        if self._ne > self.ne_threshold * base:
+            self._last_reset = True
+            self._ne = base               # consume the phasic burst
+            self._refractory = self.refractory
+        return self._last_reset
+
+    @property
+    def ach_level(self) -> float:
+        """Raw ACh EMA (diagnostic; tracks the error magnitude)."""
+        return self._ach if self._ach is not None else 0.0
+
+    @property
+    def ach_relative(self) -> float:
+        """Scale-free expected-uncertainty: how much ACh exceeds its slow
+        baseline, ∈ [0, ∞). 0 when at/below baseline. This is what the
+        precision coupling uses (precision_mod = 1/(1 + scale·ach_relative)),
+        so a large *absolute* error never collapses precision — only a
+        *relative* rise in expected uncertainty does."""
+        if self._ach is None or self._ach_baseline is None:
+            return 0.0
+        base = max(self._ach_baseline, 1e-6)
+        return max(0.0, self._ach / base - 1.0)
+
+    @property
+    def ne_level(self) -> float:
+        return self._ne
+
+    def state_dict(self) -> dict:
+        return {
+            "ach": self._ach, "ach_baseline": self._ach_baseline,
+            "ne": self._ne, "ne_baseline": self._ne_baseline,
+            "n_updates": self._n_updates,
+        }
+
+    def load_state_dict(self, sd: dict) -> None:
+        self._ach = sd.get("ach")
+        self._ach_baseline = sd.get("ach_baseline")
+        self._ne = sd.get("ne", 0.0)
+        self._ne_baseline = sd.get("ne_baseline", 0.0)
+        self._n_updates = sd.get("n_updates", 0)
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -1590,6 +1774,10 @@ class EpisodicDND:
         # Diagnostics (updated by push/query)
         self._last_max_sim: float = 0.0
         self._last_hit: bool = False
+        # Normalized retrieval entropy of the last query's Hopfield softmax,
+        # used to route between DND and AstroDND (lower entropy = more
+        # confident pattern-completion).  0.0 when no hit / empty.
+        self._last_entropy: float = 0.0
 
     def _init_buffers(self, device: torch.device, dtype: torch.dtype) -> None:
         if self._keys is None:
@@ -1644,6 +1832,7 @@ class EpisodicDND:
         if self._n_stored == 0 or self._keys is None:
             self._last_hit = False
             self._last_max_sim = 0.0
+            self._last_entropy = 0.0
             return None, 0.0
 
         key = key.float()
@@ -1657,9 +1846,195 @@ class EpisodicDND:
 
         if max_sim < self.confidence_threshold:
             self._last_hit = False
+            self._last_entropy = 0.0
             return None, max_sim
 
         attn = torch.softmax(self.hopfield_beta * sims, dim=0)           # [n]
+        # Normalized retrieval entropy ∈ [0, 1] for DND/Astro routing.
+        ent = -(attn * (attn + 1e-12).log()).sum()
+        self._last_entropy = float(ent.item()) / math.log(max(self._n_stored, 2))
+        v_out = attn @ self._values[:self._n_stored]                     # [d_latent]
+        self._last_hit = True
+        return v_out, max_sim
+
+    @property
+    def n_stored(self) -> int:
+        return self._n_stored
+
+
+class AstroDenseMemory:
+    """
+    Neuron–astrocyte Dense Associative Memory (R7).
+
+    Biological motivation
+    ---------------------
+    Kozachkov, Slotine & Krotov (PNAS 122:e2417788122, 2025) show that
+    tripartite neuron–astrocyte networks implement a *dense* associative memory
+    whose pattern capacity scales supralinearly — K_max ∝ N³ — versus the
+    linear N scaling of classical Hopfield networks.  The astrocyte's slow
+    process integrates co-activation over a long time constant and
+    multiplicatively gates the associative readout.
+
+    This module augments the (short-term, FIFO) EpisodicDND with a long-term
+    *schema* store realized by two ingredients:
+
+      1. **Higher-order separation function.**  Retrieval uses
+         attn = softmax(β · relu(sim)^order) over the stored pattern bank.
+         This is the Krotov–Hopfield Dense-Associative-Memory rule, whose
+         capacity scales K_max ∝ N^(order-1) — order=4 reproduces the N³
+         (supralinear) regime.  Raising the overlap to a power sharpens
+         pattern separation, letting far more keys be stored without crosstalk.
+
+      2. **Astrocyte importance traces.**  Each slot carries a slow EMA trace
+         of how strongly it is retrieved.  When the bank is full, eviction
+         removes the *lowest-trace* slot (least-consolidated) rather than the
+         oldest (FIFO), so frequently-recalled schemas persist as long-term
+         memory.
+
+    Interface mirrors EpisodicDND (push / query / n_stored) so the model can
+    treat the two banks uniformly and route between them by retrieval entropy.
+
+    NOTE on the literal "N³ tensor": the source write-up's
+    ``A = outer(k, outer(k, v))`` is a [d, d, d_v] coupling tensor — d³ floats,
+    infeasible at LM scale (≈17 GB at d_latent=1024).  The N³ result is a
+    *pattern-capacity* statement, not a materialized weight tensor; it is
+    realized here via the separation function over an M×d pattern bank
+    (storage M·(key_dim + d_latent), same order as DND).
+
+    Args:
+        capacity:             Max stored key-value pairs (larger than DND).
+        key_dim:              Dimensionality of stored keys.
+        d_latent:             Dimensionality of stored values.
+        confidence_threshold: Cosine sim to trigger bypass.  Looser than DND
+                              (0.9 vs 0.98): schema-level, not exact-match.
+        beta:                 Softmax inverse temperature (sharper than DND).
+        order:                Separation order n; capacity ~ N^(n-1).
+        trace_decay:          EMA decay for the astrocyte importance traces.
+        min_novelty:          Min (1 − max_sim) required to accept a write.
+    """
+
+    def __init__(
+        self,
+        capacity: int = 4000,
+        key_dim: int = 64,
+        d_latent: int = 64,
+        confidence_threshold: float = 0.9,
+        beta: float = 8.0,
+        order: int = 4,
+        trace_decay: float = 0.99,
+        min_novelty: float = 0.02,
+    ):
+        self.capacity = capacity
+        self.key_dim = key_dim
+        self.d_latent = d_latent
+        self.confidence_threshold = confidence_threshold
+        self.beta = beta
+        self.order = max(int(order), 1)
+        self.trace_decay = trace_decay
+        self.min_novelty = min_novelty
+
+        # Lazily initialized on first push/query (device not known yet).
+        self._keys: torch.Tensor | None = None    # [capacity, key_dim]
+        self._values: torch.Tensor | None = None  # [capacity, d_latent]
+        self._traces: torch.Tensor | None = None   # [capacity] astrocyte traces
+        self._n_stored: int = 0
+
+        # Diagnostics
+        self._last_max_sim: float = 0.0
+        self._last_hit: bool = False
+        self._last_entropy: float = 0.0
+
+    def _init_buffers(self, device: torch.device, dtype: torch.dtype) -> None:
+        if self._keys is None:
+            self._keys = torch.zeros(
+                self.capacity, self.key_dim, device=device, dtype=dtype
+            )
+            self._values = torch.zeros(
+                self.capacity, self.d_latent, device=device, dtype=dtype
+            )
+            self._traces = torch.zeros(self.capacity, device=device, dtype=dtype)
+
+    def push(self, key: torch.Tensor, value: torch.Tensor) -> bool:
+        """Write key/value to the bank.
+
+        While capacity remains, append.  Once full, evict the slot with the
+        lowest astrocyte importance trace (least-consolidated schema).
+
+        Returns:
+            True if written, False if skipped (too similar to an existing key).
+        """
+        key = key.float()
+        value = value.float()
+        self._init_buffers(key.device, key.dtype)
+
+        if self._n_stored > 0 and self.min_novelty > 0.0:
+            k_norm = F.normalize(key.unsqueeze(0), dim=-1)             # [1, key_dim]
+            K_norm = F.normalize(self._keys[:self._n_stored], dim=-1)  # [n, key_dim]
+            max_sim = float((k_norm @ K_norm.T).squeeze(0).max().item())
+            if max_sim >= (1.0 - self.min_novelty):
+                return False  # Too similar — skip near-duplicate.
+
+        if self._n_stored < self.capacity:
+            idx = self._n_stored
+            self._n_stored += 1
+            # Seed the new slot's trace at the current mean so it isn't
+            # evicted before it has had a chance to be retrieved.
+            seed = (
+                float(self._traces[:self._n_stored - 1].mean().item())
+                if self._n_stored > 1 else 0.0
+            )
+            self._traces[idx] = seed
+        else:
+            idx = int(torch.argmin(self._traces).item())
+            self._traces[idx] = float(self._traces.mean().item())
+
+        self._keys[idx] = key
+        self._values[idx] = value
+        return True
+
+    def query(self, key: torch.Tensor) -> tuple:
+        """Dense associative retrieval with higher-order separation.
+
+        Computes attn = softmax(β · relu(sim)^order) over stored patterns,
+        updates the astrocyte importance traces, and (if the best match clears
+        confidence_threshold) returns the attention-weighted value blend.
+
+        Returns:
+            (value: [d_latent] | None, max_sim: float)
+        """
+        if self._n_stored == 0 or self._keys is None:
+            self._last_hit = False
+            self._last_max_sim = 0.0
+            self._last_entropy = 0.0
+            return None, 0.0
+
+        key = key.float()
+        self._init_buffers(key.device, key.dtype)
+
+        k_norm = F.normalize(key.unsqueeze(0), dim=-1)                   # [1, key_dim]
+        K_norm = F.normalize(self._keys[:self._n_stored], dim=-1)        # [n, key_dim]
+        sims = (k_norm @ K_norm.T).squeeze(0)                            # [n]
+        max_sim = float(sims.max().item())
+        self._last_max_sim = max_sim
+
+        # Higher-order separation: rectify then raise to `order` so only the
+        # closest patterns survive — the dense-memory capacity mechanism.
+        scores = sims.clamp(min=0.0).pow(self.order)                     # [n]
+        attn = torch.softmax(self.beta * scores, dim=0)                  # [n]
+
+        # Astrocyte trace integration (slow EMA of retrieval co-activation).
+        self._traces[:self._n_stored].mul_(self.trace_decay).add_(
+            (1.0 - self.trace_decay) * attn.to(self._traces.dtype)
+        )
+
+        # Normalized retrieval entropy ∈ [0, 1] for DND/Astro routing.
+        ent = -(attn * (attn + 1e-12).log()).sum()
+        self._last_entropy = float(ent.item()) / math.log(max(self._n_stored, 2))
+
+        if max_sim < self.confidence_threshold:
+            self._last_hit = False
+            return None, max_sim
+
         v_out = attn @ self._values[:self._n_stored]                     # [d_latent]
         self._last_hit = True
         return v_out, max_sim

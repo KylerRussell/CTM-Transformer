@@ -109,6 +109,46 @@ class CTMConfig:
     # Each thought step gets a learned embedding added to the latent state.
     use_loop_pos_emb: bool = False       # Master switch
 
+    # ── Theta-clocked phase coding on thought-step index (R12) ──────────
+    # A theta phase φ_t = 2π·(t mod cycle)/cycle is cycled across thought
+    # ticks; each latent unit d has a learnable preferred phase φ_d, and the
+    # tick's synaptic input is multiplicatively modulated by
+    # (1 + amplitude·cos(φ_t − φ_d)). Phase precession encodes tick order on a
+    # continuous variable (Lisman & Jensen 2013; O'Keefe & Recce 1993). Applied
+    # to the *transient* per-layer input (not the persisted latent) so it does
+    # not compound across ticks.
+    use_theta_phase: bool = False
+    theta_cycle_len: int = 8             # ticks per theta cycle
+    theta_amplitude: float = 0.5         # modulation depth (gate ∈ [1−amp, 1+amp])
+
+    # ── Active-sensing re-read gate (R15) ───────────────────────────────
+    # Per thought tick, soft-attend over the input embeddings to select a span
+    # and inject a gated re-read summary back into the thought state — the
+    # embodied 'active sensing' ingredient (rereading to clarify a referent).
+    # Standalone (the EFE halting controller has no action set); gate starts
+    # near zero (no-op) and the re-read is added to the transient per-layer
+    # input so it does not compound across ticks.
+    use_reread: bool = False
+
+    # ── Canonical-microcircuit laminar coupling (R13) ───────────────────
+    # Repurpose two MatrixResidualStream slots as an 'error' stream (0) and a
+    # 'prediction' stream (1), coupled each tick by a Rao-Ballard residual
+    # (error ← error − g·f(pred); pred ← pred + g·error). Lightweight: reuses
+    # existing slots (no memory doubling), trained end-to-end (no extra loss).
+    # Requires use_matrix_streams with n_streams ≥ 2.
+    use_laminar_coupling: bool = False
+
+    # ── Morphogenetic pre-pattern hypernetwork init (R14) ───────────────
+    # A small hypernetwork (learned 'morphogen code' → low-rank generators)
+    # produces a structural pre-pattern for the inter-stream mixing matrices:
+    # it seeds their init AND acts as a soft anchor (‖W − generate‖² regularizer)
+    # so weights relax toward the (adapting) low-rank pre-pattern. Requires
+    # use_matrix_streams. Speculative (Levin/Pezzulo bioelectric prior).
+    use_morphogen_init: bool = False
+    morphogen_dim: int = 32              # morphogen code dimensionality
+    morphogen_rank: int = 4              # low-rank of the generated pre-pattern
+    morphogen_reg_weight: float = 0.001  # anchor strength (‖W − pre-pattern‖²)
+
     # ── CTM-v2: Triton Acceleration ─────────────────────────────────────
     use_triton_attention: bool = False   # Use Triton tiled attention kernel
     use_cuda_graphs: bool = False        # Wrap thought loop in CUDA Graph
@@ -244,6 +284,16 @@ class CTMConfig:
     schema_routing_temperature: float = 0.1     # Softmax temperature (lower = sharper)
     schema_routing_novelty_threshold: float = 0.1  # Max-sim below this → try wake dormant
     schema_routing_btsp_scale: float = 2.0      # Hebbian/BTSP LR boost at full match
+
+    # Successor-Feature Schema Router (R6): replace the raw-feature EMA
+    # prototypes with successor features ψ(s) ≈ φ(s) + γ·ψ(s'), so streams
+    # cluster on *where states lead* (discounted future occupancy along the
+    # sequence) rather than where they currently are.  ψ is a gradient-free
+    # buffer matrix trained by a local TD delta rule; routing prototypes are
+    # the EMA of ψ.  Requires use_schema_routing=True.
+    use_successor_features: bool = False
+    successor_gamma: float = 0.95               # SR discount over sequence positions
+    successor_lr: float = 0.05                  # local TD learning rate for ψ
 
     # ── Training ────────────────────────────────────────────────────────
     batch_size: int = 4
@@ -604,6 +654,9 @@ class CTMConfig:
     stc_threshold_tag: float = 0.05   # Tag norm threshold; below → layer is "stale"
     stc_threshold_prp: float = 0.3    # PRP (surprise EMA) threshold; below → routine input
     stc_min_gate: float = 0.01        # Gradient multiplier when gate is closed
+    # Quick-win #6: gate STC by the Hebbian BURST probability (apical credit)
+    # instead of the NPO surprise EMA. False → legacy surprise-EMA gating.
+    stc_prp_from_burst: bool = False
 
     # ── Similarity-Weighted Interleaved Learning (SWIL / CLS Priority #3) ──
     # Augments the PrioritizedReplayBuffer with semantic indexing so sleep
@@ -647,6 +700,59 @@ class CTMConfig:
     dnd_hopfield_beta: float = 4.0    # Softmax inverse temperature for Hopfield retrieval
     dnd_min_novelty: float = 0.05     # Min (1 - max_sim) required to write (skip near-dupes)
 
+    # ── Neuron–Astrocyte Dense Associative Memory (R7) ────────────────────
+    # Long-term schema memory alongside the (short-term) DND.  Retrieval uses a
+    # higher-order separation function softmax(β·relu(sim)^order) — the
+    # Krotov–Hopfield dense-associative-memory rule whose pattern capacity
+    # scales K_max ∝ N^(order-1) (order=4 ≈ N³, the supralinear neuron–astrocyte
+    # regime of Kozachkov, Slotine & Krotov, PNAS 2025).  Eviction is driven by
+    # astrocyte importance traces (a slow EMA of retrieval co-activation), so
+    # frequently-recalled schemas persist rather than being evicted FIFO.  At
+    # the bypass point the model routes to whichever of {DND, AstroDND} hits
+    # with the lower normalized retrieval entropy.
+    #
+    # NOTE: the literal [d,d,d_v] coupling tensor from the source write-up is
+    # infeasible (d³ floats); the N³ figure is a *capacity* result and is
+    # realized here via the separation function over an M×d pattern bank.
+    use_astro_memory: bool = False
+    astro_capacity: int = 4000         # Larger than DND — long-term schema store
+    astro_key_dim: int = 64            # Key dim (first N dims of mean-pooled text embedding)
+    astro_order: int = 4               # Separation order; capacity ~ N^(order-1)
+    astro_beta: float = 8.0            # Softmax inverse temperature (sharper than DND)
+    astro_confidence_threshold: float = 0.9   # Cosine sim to bypass (schema-level, looser than DND)
+    astro_write_confidence: float = 0.85      # Min mean certainty to write a new entry
+    astro_trace_decay: float = 0.99    # Astrocyte importance-trace EMA decay
+    astro_min_novelty: float = 0.02    # Min (1 - max_sim) required to write (skip near-dupes)
+
+    # ── Dendritic Gated Network parallel head (R5, Sezener et al. 2021) ───
+    # A parallel LM head where each token routes to 1-of-K dendritic branches
+    # via a frozen random gate; the active branch's weights are updated by a
+    # local delta (log-loss) rule (no backprop) for forgetting resistance. Its
+    # logits are added to the main head scaled by a learned blend gate, and a
+    # small CE aux loss on the blended logits trains the blend. The dendritic
+    # input is a frozen random projection to dgn_proj_dim to keep w feasible
+    # (w[K, proj_dim, vocab]; ~134 MB at K=8, proj_dim=32, vocab=131072).
+    use_dgn_head: bool = False
+    dgn_n_branches: int = 8
+    dgn_proj_dim: int = 32
+    dgn_eta: float = 0.05              # local delta-rule learning rate
+    dgn_aux_weight: float = 0.1        # weight of the DGN CE aux loss (trains blend)
+
+    # ── GFlowNet thought-trajectory sampler (R8, E. Bengio et al. 2021) ───
+    # A stochastic policy samples one of M learned "thought operators" per
+    # thought tick (a small learned perturbation of the latent), trained by a
+    # Trajectory-Balance loss with reward R(τ)=exp(−β·seq_loss) so diverse
+    # high-reward latent reasoning paths are sampled ∝ reward. Modes are sampled
+    # (no_grad) during the inference relaxation and the policy is re-run with
+    # grad afterward for the TB loss (mirrors the EFE controller). Default off.
+    use_gflownet: bool = False
+    gflownet_n_modes: int = 4          # M discrete thought operators
+    gflownet_op_scale: float = 0.1     # operator perturbation magnitude
+    gflownet_hidden_dim: int = 32      # policy MLP hidden width
+    gflownet_reward_beta: float = 1.0  # logR = −beta · sequence_loss
+    gflownet_tb_weight: float = 0.1    # weight of the Trajectory-Balance loss
+    gflownet_tb_huber_delta: float = 10.0  # robust-TB threshold: |residual|>delta → linear (bounded grad)
+
     # ── Thalamic Multiplicative Gating ─────────────────────────────────────
     # Intercepts cross-attention output and scales by an entropy-derived gain.
     # Low entropy (focused attention) → gain ≈ 1 (signal passes).
@@ -688,6 +794,32 @@ class CTMConfig:
     amortized_inference_steps: int = 5      # relaxation steps after warm-start
     amortized_hidden_dim: int = 0           # 0 → auto (2 × d_model)
     amortized_aux_loss_weight: float = 0.1  # weight on MSE(z_hat, z*) auxiliary loss
+    # Quick-win #13: L1 firing-rate penalty on the thought-loop latent (sparsity).
+    # 0.0 = OFF (no-op). Small values (~1e-4–1e-3) encourage sparse activations.
+    l1_rate_weight: float = 0.0
+    # Quick-win #14: critical-period freeze. After this fraction of max_steps,
+    # freeze the EARLY thought layers (begin_layers) so their learned features
+    # lock in while later layers stay plastic. 0.0 = OFF (never freezes).
+    critical_period_freeze_pct: float = 0.0
+    # Anti-collapse regularization (Halvagal & Zenke 2023 / VICReg) on the
+    # thought-loop latent — counters the BYOL/SimSiam-class representational
+    # collapse (srank→1, |z|→0) that pure-local PC against a detached target
+    # admits. A1 = variance-maximization (−log var), A2 = off-diagonal covariance
+    # decorrelation. False = OFF (no-op). Added to the loss (Phase-2 weight update).
+    use_pc_var_reg: bool = False
+    pc_var_weight: float = 0.1      # λ_var (A1): variance-maximization weight
+    pc_cov_weight: float = 1e-3     # λ_cov (A2): off-diagonal covariance weight (≈1/d)
+
+    # ── Hypersphere latent constraint (nGPT-style anti-collapse experiment) ──
+    # When on, project the latent thought-state z onto a fixed-radius hypersphere
+    # at the end of every thought tick (radius = hypersphere_z_scale·√d_latent,
+    # matching the PC clamp target's radius). Removes the magnitude degree of
+    # freedom so the (possibly over-damped) relaxation keeps z at the scale the
+    # generative dynamics expect, giving z* a chance to reach the diverse
+    # token-distinct target directions instead of decaying into a low-norm
+    # rank-1 attractor. Magnitude-only constraint — does NOT save memory.
+    use_hypersphere_z: bool = False
+    hypersphere_z_scale: float = 0.3  # radius = this · √d_latent (matches clamped_target)
 
     # ── BCM Sliding Threshold (metaplasticity for the EM loop) ─────────────
     # Tracks EMA of mean squared latent magnitude during the inference phase.
@@ -713,6 +845,30 @@ class CTMConfig:
     precision_neuromod_min_scale: float = 0.2   # floor for per-layer gradient multiplier
     precision_neuromod_max_scale: float = 5.0   # ceiling for per-layer gradient multiplier
     precision_neuromod_ema_decay: float = 0.95  # EMA smoothing of per-layer π readings
+
+    # ── ACh / NE Dual-Uncertainty Channels (R9, Yu & Dayan 2005) ──────────
+    # ACh (expected uncertainty) = EMA of the per-step error → down-weights HPC
+    # precision (up-weights bottom-up evidence). NE (unexpected uncertainty) =
+    # change-detector on ACh → drives the NeuroPlasticOptimizer LR and, on a
+    # spike (context switch), triggers a reset broadcast: flush the Hebbian
+    # carry, warm-start from the amortized net, and transiently raise the
+    # schema-router temperature. Each coupling is optional:
+    #   ACh→precision needs use_hierarchical_pc; NE→LR needs
+    #   use_neuromod_optimizer; the temperature bump needs use_schema_routing.
+    use_achne: bool = False
+    achne_ach_decay: float = 0.8           # EMA decay for ACh (expected uncertainty)
+    achne_ne_decay: float = 0.95           # EMA decay for the NE deviation signal
+    achne_ne_threshold: float = 3.0        # reset fires when NE > threshold × baseline
+    achne_ne_baseline_decay: float = 0.999  # slow baseline the NE spike is measured against
+    achne_ach_baseline_decay: float = 0.99   # ACh baseline → scale-free relative ACh (precision recovers ~70 steps after FE stabilizes)
+    achne_warmup: int = 50                 # min steps before a reset can fire
+    achne_refractory: int = 20             # steps after a reset blocking re-fire
+    achne_ach_precision_scale: float = 1.0  # precision_mod = 1/(1 + scale·ACh)
+    achne_reset_temp_mult: float = 3.0     # schema-router temperature × this on NE reset
+    # Quick-win #12: on an NE reset, transiently raise the Hebbian force_gate by
+    # this factor (clamped ≤1.0), relaxing back over the next forwards — mirrors
+    # the schema-temperature bump. 1.0 = OFF (no-op). Requires hebbian_force_gate set.
+    force_gate_ne_mult: float = 1.0
 
     prospective_beta: float = 2.0           # [DEPRECATED]
     # Certainty-modulated learning rate ("neurochemical modulation"):

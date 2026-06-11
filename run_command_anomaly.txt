@@ -1,45 +1,28 @@
-# ── Dual-GPU Training (NCCL, no DDP) — consolidated layout ──────────────
-# Same as before, but the entry-point module is now `ctm_transformer.train`
-# with the `--multi_gpu` flag (replaces the old `ctm_transformer.train_offload`).
-# Internally this still runs the dual-GPU NCCL-with-flat-allreduce path
-# (worker_multi_gpu spawned via mp.spawn) — only the dispatch lives in train.py.
+# ── ANOMALY-DEBUG variant of run_command_offload.txt ───────────────────
+# Identical dual-GPU (NCCL, no DDP) command, EXCEPT:
+#   • CTM_DETECT_ANOMALY=1 → torch.autograd.set_detect_anomaly(True) in each
+#     worker, so the backward RAISES at the exact op that first produces a
+#     NaN/Inf grad, printing the FORWARD traceback (the line we need).
+#   • logs to train_anomaly_debug.log (won't clobber the main log).
+# This run is EXPECTED to crash with a RuntimeError + traceback once the NaN
+# fires (localized to MatrixResidualStream). Paste me the traceback.
 #
-# Two model replicas process different micro-batches in parallel.
-# Gradients flattened + allreduced via NCCL AFTER backward (no DDP).
-# Effective batch size = 2 (1 per GPU).
+# Notes:
+#   • Slower than normal (anomaly detection synchronizes + re-checks every
+#     backward node). It must reach a long-relaxation spike step (NaN onset
+#     was step 47 and step 303 in the two prior runs — stochastic).
+#   • With --gradient_checkpointing_min_T 1 the traceback may point into the
+#     checkpoint recomputation, but it will still NAME the op.
+#   • If the traceback is unclear, prepend CUDA_LAUNCH_BLOCKING=1 (slower, and
+#     can be finicky with NCCL, so try without it first).
 #
-# Throughput: ~0.8k tok/s (2× single GPU)
-#
-# To stop:
-# pkill -9 -f "venv_nv/bin/python" && echo "Killed training processes" || echo "No training process found"
-# fuser -k -9 29501/tcp && echo "Freed PyTorch distributed port" || echo "Port already free"
-#
-# NOTE on R1/R2/R3 (2026-05-21): all three are integrated with Prospective
-# Configuration (the memory-safe EM regime — KEEP --use_prospective_config here;
-# the BPTT path at --max_thought_steps 100 OOMs on full-vocab per-tick logits).
-#   R1 (--use_efe_controller): PonderNet halting adapted to the EM inference
-#     relaxation — learns to stop the loop at the low-free-energy step
-#     (objective Σ p_t·F_t + KL prior), early-exits the relaxation at eval.
-#   R2 (--use_burstprop): the consolidation (learning) pass's Hebbian write is
-#     burst-gated by the equilibrium PC error (apical credit). Needs HPC+Hebbian.
-#   R3 (--use_meta_rl): prev-token reward/action input channel; adds a ~2x fwd
-#     cost (a no_grad pre-pass; cheap here since amortized inference = 5 steps).
-#
-# NOTE on R4/R10/R11 (2026-05-22):
-#   R11 (--btsp_weight_dependent): lives in HebbianSynapse → runs in the dual-GPU
-#     path. Bidirectional weight-dependent + stochastic + (delay_shape=0 →
-#     immediate) BTSP. Preserves plain --use_btsp when off.
-#   R4 (--use_swr_tagging) + R10 (--use_rem_dreaming): the sleep micro-cycle is
-#     now PORTED into the dual-GPU worker, so these — and --use_sleep_consolidation
-#     / --use_swil / --use_prioritized_replay — run under --multi_gpu. Each rank
-#     keeps its own episodic buffer; the sleep backward flat-allreduces its grads
-#     (same as the main loop) so replica weights stay bit-identical. R10's REM
-#     loss is folded into the sleep loss in-graph (gradient-reversal GAN) so the
-#     generator/discriminator grads ride the same allreduce.
+# STOP THE CURRENT (stalled) RUN FIRST so the GPUs are free:
+#   pkill -9 -f "venv_nv/bin/python" && echo "Killed training processes" || echo "No training process found"
+#   fuser -k -9 29501/tcp && echo "Freed PyTorch distributed port" || echo "Port already free"
 
 cd /home/kyler/Documents/CTM-Transformer && \
   source /home/kyler/Documents/OpenMythos/venv_nv/bin/activate && \
-  CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python \
+  CUDA_VISIBLE_DEVICES=0,1 PYTHONUNBUFFERED=1 CTM_DETECT_ANOMALY=1 python \
     -m ctm_transformer.train \
     --multi_gpu \
     --d_model 1024 \
@@ -50,11 +33,10 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --history_len 100 \
     --max_thought_steps 100 \
     --use_hyperloop \
-    --hyperloop_n_begin 2 \
-    --hyperloop_n_middle 22 \
-    --hyperloop_n_end 2 \
+    --hyperloop_n_begin 4 \
+    --hyperloop_n_middle 18 \
+    --hyperloop_n_end 4 \
     --hyperloop_middle_loops 1 \
-    --seq_len 1024 \
     --batch_size 1 \
     --gradient_accumulation_steps 16 \
     --warmup_steps 2000 \
@@ -69,13 +51,16 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --checkpoint_dir checkpoints_PC_dual \
     --use_feec \
     --feec_state_clip 4.0 \
-    --feec_damping_init 0.9 \
     --use_matrix_streams \
     --use_loop_pos_emb \
     --use_triton_attention \
     --tiled_schedule \
     --synapse_type dendritic \
     --dendritic_n_branches 8 \
+    --use_two_phase_curriculum \
+    --use_distillation \
+    --use_cached_teacher \
+    --teacher_cache_dir ./teacher_cache \
     --tokenizer "hf:nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16" \
     --pure_pc_mode \
     --use_shared_head_film \
@@ -89,11 +74,6 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --use_amortized_inference \
     --amortized_inference_steps 5 \
     --amortized_aux_loss_weight 0.1 \
-    --use_pc_var_reg \
-    --pc_var_weight 0.05 \
-    --pc_cov_weight 1e-2 \
-    --use_hypersphere_z \
-    --hypersphere_z_scale 0.3 \
     --use_hierarchical_pc \
     --hpc_error_as_loss_weight \
     --use_precision_neuromod \
@@ -121,7 +101,6 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --stc_threshold_tag 0.05 \
     --stc_threshold_prp 0.3 \
     --stc_min_gate 0.01 \
-    --stc_prp_from_burst \
     --use_swil \
     --swil_sim_weight 1.0 \
     --swil_embed_dim 64 \
@@ -143,7 +122,7 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --astro_min_novelty 0.02 \
     --use_critical_init \
     --use_spectral_renorm \
-    --spectral_renorm_target 0.9 \
+    --spectral_renorm_target 0.99 \
     --spectral_renorm_interval 100 \
     --use_multi_rate_streams \
     --use_efe_controller \
@@ -172,7 +151,6 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --achne_ach_baseline_decay 0.99 \
     --achne_ach_precision_scale 1.0 \
     --achne_reset_temp_mult 3.0 \
-    --force_gate_ne_mult 1.5 \
     --use_dgn_head \
     --dgn_n_branches 8 \
     --dgn_proj_dim 32 \
@@ -192,5 +170,5 @@ cd /home/kyler/Documents/CTM-Transformer && \
     --morphogen_dim 32 \
     --morphogen_rank 4 \
     --morphogen_reg_weight 0.001 \
-    > train_dual_gpu_prospect_config.log 2>&1 &
-echo "Dual-GPU Training PID: $!"
+    > train_anomaly_debug.log 2>&1 &
+echo "Dual-GPU ANOMALY-DEBUG Training PID: $!"
