@@ -37,3 +37,18 @@ GPU0 queue: CTM seed23, CTM seed31, Transformer seeds23/29/31. GPU1 queue: CTM s
 ### Interpretation
 
 The paired training intervention estimates the effect of fixed shuffled presentation at these existing recipes and budgets. One shuffle realization per map does not characterize generator variability, every possible edge order, or the benefit of online augmentation. Recipes selected under ordered training may not be optimal for shuffled training. Keep optimizer retuning, temporal schedules, online shuffling, multistep composition and scaling as separately declared studies. Any later confirmatory claim needs a new locked evaluation plan.
+
+## Infrastructure interruption and restart-safe relaunch — 2026-09-24
+
+The first launch (attempt 1, started 14:09 UTC) stopped at about 14:26 UTC when the whole container was killed; the host rebooted at 14:47. Training, logging and the agent session stopped together, and no worker error or `*.failure.json` was produced. Only the first two cells had started: `ctm_shuffled_seed23` (last complete update 1,831) and `ctm_shuffled_seed29` (1,722). The restart also removed the temporary environment under `/tmp`.
+
+No declared cell is replaced or dropped. Training is deterministic, so each interrupted cell is rerun from scratch with its declared seeds. Its partial outputs are moved unchanged to `research/runs/presentation_control_v1_interrupted/attempt1/`, and the attempt-1 logs and continuation state are moved to `research/results/presentation_control_v1/interrupted_attempt1/`. `interruption_replay.json` compares each rerun with the updates its interrupted predecessor completed (all logged fields except wall time). A mismatch is reported as a reproducibility finding; it does not invalidate the from-scratch rerun.
+
+Orchestration only changed; every file in `pre_run_source.json` is unchanged and verified before each attempt. `scripts/supervise_presentation_control.py` runs the frozen worker `scripts.run_registry_trials` for the unfinished cells in the declared queue order. Its summaries record the same `worker_source_sha256` that the freeze audit requires. The same frozen freeze, evaluation and summary modules follow, in the evaluation grouping of `complete_presentation_control.py`. It additionally:
+
+- runs preflight checks: frozen hashes, dataset validation, torch 2.6.0+cu124, idle GPUs, free disk, and the five frozen checks, including exact archived-trainer replay on both GPUs;
+- keeps completed cells and reruns only unfinished ones, so repeated launches are safe; a lock prevents concurrent supervisors;
+- records a nonzero worker exit as `<cell>.failure.json` and never retries it; a signal-killed worker is an infrastructure interruption and is resumed on the next launch;
+- records every attempt and phase in `supervisor_state.json`.
+
+Start or resume with `research/launch_presentation_control.sh`. The environment is now under `$HOME` (`~/.venvs/ctm-research`, installed from `research/readout-comparison-environment.txt`; driver libraries in `~/.local/share/ctm-nvidia-driver`), which persists across container restarts. The script detaches the supervisor from the terminal. An XDG autostart entry (`~/.config/autostart/ctm-presentation-control.desktop`) relaunches it when the desktop session starts after a restart. The supervisor deletes that entry when the study completes.

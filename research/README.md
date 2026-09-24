@@ -4,6 +4,8 @@
 
 Verified two RTX 3090 GPUs, each with 24 GiB VRAM, and approximately 629 GiB system RAM. `nvidia-smi topo -m` reports a PCIe host-bridge connection (PHB), not NVLink. Plan independent pilot runs/seeds on the two GPUs initially; each has its own 24 GiB memory budget. Use RAM for data preparation and caching. Profile before introducing CPU parameter offload or multi-GPU training.
 
+**Update 2026-09-24:** `/tmp` is cleared when the container restarts. The persistent environment is now `~/.venvs/ctm-research` (installed from `research/readout-comparison-environment.txt` with the cu124 index), with driver libraries in `~/.local/share/ctm-nvidia-driver/usr/lib/x86_64-linux-gnu`. Substitute these paths in the commands below.
+
 The isolated Python environment for this session is `/tmp/ctm-research-venv`. It contains PyTorch 2.6.0 with CUDA 12.4, pytest, and the repository dependencies. This wheel is listed in the [official PyTorch installation instructions](https://docs.pytorch.org/get-started/previous-versions/). The environment is temporary; recreate it after `/tmp` is cleared.
 
 Both devices were visible through NVML, but `libcuda.so` was absent from the container. The host runs driver 550.144.03. The matching `libnvidia-compute-550_550.144.03-0ubuntu1_amd64.deb` was downloaded from the [NVIDIA Ubuntu 22.04 repository](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/) and extracted, without system installation, under `/tmp/ctm-nvidia-driver`. Actual CUDA matrix multiplication succeeded on both GPUs after setting the library path below. No kernel driver was changed.
@@ -235,7 +237,10 @@ See [protocol](RECURRENT_TEMPORAL_CONTROL.md), [results](results/recurrent_tempo
 - [ ] Finish training, freeze all18 final checkpoints, and evaluate paired ordered/shuffled validation maps.
 - [ ] Report paired training-condition differences, seed variability, secondary ordered-selection diagnostics, and archived provenance.
 
-See [protocol](PRESENTATION_CONTROL.md). This is development on existing maps, with fixed per-map shuffles rather than online augmentation. Completed tests remain closed.
+- [x] Record the attempt-1 infrastructure interruption (container killed at about 14:26 UTC, 2026-09-24; two CTM cells partially trained); move its partial outputs aside unchanged.
+- [x] Rebuild the pinned environment under `$HOME` so it survives container restarts, and relaunch through a restart-safe supervisor that uses only frozen study code and resumes automatically after a restart.
+
+See [protocol](PRESENTATION_CONTROL.md). This is development on existing maps, with fixed per-map shuffles rather than online augmentation. Completed tests remain closed. See the interruption section of the protocol for the relaunch procedure.
 
 ## Next tasks, in order
 
