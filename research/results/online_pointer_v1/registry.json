@@ -1,0 +1,775 @@
+{
+  "schema_version": 1,
+  "name": "online_pointer_v1",
+  "entries": [
+    {
+      "cell": "ctm_repeated_seed23",
+      "seed": 23,
+      "model_family": "ctm",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/ctm_repeated_seed23.json",
+      "config_sha256": "e5bdc9a868befc4a1179b0196eea32b49a4ded1ac4364564a8c2dfdd597647f1",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed23/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_repeated_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_fresh_seed23",
+      "seed": 23,
+      "model_family": "ctm",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/ctm_fresh_seed23.json",
+      "config_sha256": "77393f3bf168abc4b7626af06fd20f64c2c4575538d343d23781bb60ab2ecfc8",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed23/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_fresh_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_multihop_seed23",
+      "seed": 23,
+      "model_family": "ctm",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/ctm_multihop_seed23.json",
+      "config_sha256": "f277433a0800f619dbb4b081de70f964cbdfba94f74c2919a9c1abbac3170028",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed23/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_multihop_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "transformer_repeated_seed23",
+      "seed": 23,
+      "model_family": "transformer",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/transformer_repeated_seed23.json",
+      "config_sha256": "df17d77a6366cb1cff2b2ea83384e9bc4dbfe643fd02fa4ce3b052d77d684624",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed23/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_repeated_seed23.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_fresh_seed23",
+      "seed": 23,
+      "model_family": "transformer",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/transformer_fresh_seed23.json",
+      "config_sha256": "b7b1e7f7dbe4c930f3ba9ea038c56a8b6109063125e80eb725822458f77a3d81",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed23/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_fresh_seed23.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_seed23",
+      "seed": 23,
+      "model_family": "transformer",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/transformer_multihop_seed23.json",
+      "config_sha256": "4282fa0fb5ddb39343f2934103bb1c7af6818f3c7833c0982bdaa23f5723ae50",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed23/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_multihop_seed23.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "recurrent_depth_repeated_seed23",
+      "seed": 23,
+      "model_family": "recurrent_depth",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_repeated_seed23.json",
+      "config_sha256": "f05a95d6c1fd010cdc53b3523a56b56f9ce0db3f7b9de3c21fecf1ae19010ea2",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed23/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_repeated_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "recurrent_depth_fresh_seed23",
+      "seed": 23,
+      "model_family": "recurrent_depth",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_fresh_seed23.json",
+      "config_sha256": "bc5ade1b0733e22a294c07d5f8bdd6636841ba3823025cb9d5f97c2e73019ef2",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed23/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_fresh_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "recurrent_depth_multihop_seed23",
+      "seed": 23,
+      "model_family": "recurrent_depth",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_multihop_seed23.json",
+      "config_sha256": "8da6258e700e8412156b8d5f2f605dcfb2a60e07356b8c056f5db76b85c48de0",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed23/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_multihop_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_repeated_seed29",
+      "seed": 29,
+      "model_family": "ctm",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/ctm_repeated_seed29.json",
+      "config_sha256": "cf3967d4b554edda3c813487dc46aa0c4000f92728126fd1f61389795ea97924",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed29/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_repeated_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_fresh_seed29",
+      "seed": 29,
+      "model_family": "ctm",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/ctm_fresh_seed29.json",
+      "config_sha256": "451c5dc2797028de26cdcab2e7936dc4c9ed5dacab770b453a0ef55df30eb99d",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed29/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_fresh_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_multihop_seed29",
+      "seed": 29,
+      "model_family": "ctm",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/ctm_multihop_seed29.json",
+      "config_sha256": "8c4b97b09615e25ff2e7930f1a9b724835dfba57dc62eb5e839a9d29af858d90",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed29/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_multihop_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "transformer_repeated_seed29",
+      "seed": 29,
+      "model_family": "transformer",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/transformer_repeated_seed29.json",
+      "config_sha256": "a2d52a623acf102ecbad65f5308fd34d4d05a8c61c179cbf76a24a9173ea6344",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed29/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_repeated_seed29.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_fresh_seed29",
+      "seed": 29,
+      "model_family": "transformer",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/transformer_fresh_seed29.json",
+      "config_sha256": "492fbf5747df09ac31abf5e13e13945e332e2420f601b35218808155a9beb7a6",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed29/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_fresh_seed29.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_seed29",
+      "seed": 29,
+      "model_family": "transformer",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/transformer_multihop_seed29.json",
+      "config_sha256": "ac3a63cd87708056fb1351c595faa6ac4b9740e4322d66fd44a27d0672f06cc6",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed29/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_multihop_seed29.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "recurrent_depth_repeated_seed29",
+      "seed": 29,
+      "model_family": "recurrent_depth",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_repeated_seed29.json",
+      "config_sha256": "676d1824ed32f92936ad234cecdb8710d82458e42c56577232c713fab679477f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed29/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_repeated_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "recurrent_depth_fresh_seed29",
+      "seed": 29,
+      "model_family": "recurrent_depth",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_fresh_seed29.json",
+      "config_sha256": "2c7feab563692a418a9f55dcef5baad028bce4a3148f534c49105847e14061ce",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed29/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_fresh_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "recurrent_depth_multihop_seed29",
+      "seed": 29,
+      "model_family": "recurrent_depth",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_multihop_seed29.json",
+      "config_sha256": "3317b6e1b416032b9d1890cac425d834cbea4df8e35de356eb7845965dd30726",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed29.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed29/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_multihop_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_repeated_seed31",
+      "seed": 31,
+      "model_family": "ctm",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/ctm_repeated_seed31.json",
+      "config_sha256": "74e3ca6bd320e7def6da5643d30bd75017e5bdf3a974cb33c39077ade9d91467",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed31/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_repeated_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_fresh_seed31",
+      "seed": 31,
+      "model_family": "ctm",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/ctm_fresh_seed31.json",
+      "config_sha256": "67177ad591a97b4cd9cce2354ee94b4121135cef25a5ad2210d4b6488c5b540d",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed31/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_fresh_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "ctm_multihop_seed31",
+      "seed": 31,
+      "model_family": "ctm",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/ctm_multihop_seed31.json",
+      "config_sha256": "f06db7fc69201f097cf08ad808dc91728b2896ec8eb0dd2439b25aa5ef03fbbc",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed31/ctm",
+      "summary_path": "research/results/online_pointer_v1/ctm_multihop_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "transformer_repeated_seed31",
+      "seed": 31,
+      "model_family": "transformer",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/transformer_repeated_seed31.json",
+      "config_sha256": "8d80dad28ca322ca11d9a9bf2c82014fb95ba2fb7296571923ad71e8583a35be",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed31/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_repeated_seed31.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_fresh_seed31",
+      "seed": 31,
+      "model_family": "transformer",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/transformer_fresh_seed31.json",
+      "config_sha256": "c6541adb3b92654ab6ef28ca4955c7e390d8dbf2f82ba5a4199c5a13df8e34a2",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed31/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_fresh_seed31.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_seed31",
+      "seed": 31,
+      "model_family": "transformer",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/transformer_multihop_seed31.json",
+      "config_sha256": "d0ff12dc240e71ce66e591937ff02954b096f58bfa396f8d82c26b5565d18b2f",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed31/transformer",
+      "summary_path": "research/results/online_pointer_v1/transformer_multihop_seed31.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "recurrent_depth_repeated_seed31",
+      "seed": 31,
+      "model_family": "recurrent_depth",
+      "condition": "repeated",
+      "reused": false,
+      "train_split": "train_repeated_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl",
+      "train_sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_repeated_seed31.json",
+      "config_sha256": "e2f94a3ff83d88bd863bf530ce107a1969eb96d8b2897287aeb9279497f69d04",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/repeated/seed31/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_repeated_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "recurrent_depth_fresh_seed31",
+      "seed": 31,
+      "model_family": "recurrent_depth",
+      "condition": "fresh",
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_fresh_seed31.json",
+      "config_sha256": "a81ffd40c52abb867ae1b0eca884a7c26b5521ebccd09cffc99d6c8ee617b8bf",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/fresh/seed31/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_fresh_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "recurrent_depth_multihop_seed31",
+      "seed": 31,
+      "model_family": "recurrent_depth",
+      "condition": "multihop",
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "config": "research/configs/online_pointer_v1/recurrent_depth_multihop_seed31.json",
+      "config_sha256": "af06f009675f9c91ba88d8a04705a685afe01a9ad0f5a6f730df67868e6886c3",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed31.json",
+      "run_directory": "research/runs/online_pointer_v1/multihop/seed31/recurrent_depth",
+      "summary_path": "research/results/online_pointer_v1/recurrent_depth_multihop_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    }
+  ],
+  "seeds": [
+    23,
+    29,
+    31
+  ],
+  "role": "development study of training-data regime and multi-hop depth; fixed-update primary endpoint; no test set",
+  "dataset": "research/data/online_pointer_v1",
+  "dataset_manifest_sha256": "a238a60053a44cda081a13855a089aa289347cfcc1e8eafce93cfb07af1b8370",
+  "validation_path": "research/data/online_pointer_v1/pointer/validation.jsonl",
+  "validation_sha256": "2f5067a4b1f46ed3133885ffff7730532eaccd8d5734c71a961de87ff287d134",
+  "evaluation_splits": [
+    "eval_id",
+    "eval_depth"
+  ],
+  "training_source_sha256": {
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25"
+  },
+  "primary_checkpoint_step": 3000,
+  "chance_accuracy": 0.09090909090909091,
+  "gpu_queues": {
+    "cuda:0": [
+      "transformer_fresh_seed23",
+      "transformer_fresh_seed29",
+      "transformer_fresh_seed31",
+      "transformer_repeated_seed23",
+      "transformer_repeated_seed29",
+      "transformer_repeated_seed31",
+      "ctm_fresh_seed23",
+      "ctm_repeated_seed23",
+      "ctm_fresh_seed31",
+      "ctm_repeated_seed31",
+      "recurrent_depth_fresh_seed31",
+      "recurrent_depth_repeated_seed31",
+      "transformer_multihop_seed23",
+      "transformer_multihop_seed29",
+      "transformer_multihop_seed31",
+      "ctm_multihop_seed23",
+      "recurrent_depth_multihop_seed31"
+    ],
+    "cuda:1": [
+      "ctm_fresh_seed29",
+      "ctm_repeated_seed29",
+      "recurrent_depth_fresh_seed23",
+      "recurrent_depth_repeated_seed23",
+      "recurrent_depth_fresh_seed29",
+      "recurrent_depth_repeated_seed29",
+      "ctm_multihop_seed29",
+      "ctm_multihop_seed31",
+      "recurrent_depth_multihop_seed23",
+      "recurrent_depth_multihop_seed29"
+    ]
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "ctm_repeated_seed23",
+      "ctm_fresh_seed23",
+      "ctm_multihop_seed23",
+      "ctm_repeated_seed31",
+      "ctm_fresh_seed31",
+      "ctm_multihop_seed31",
+      "transformer_repeated_seed23",
+      "transformer_fresh_seed23",
+      "transformer_multihop_seed23",
+      "transformer_repeated_seed29",
+      "transformer_fresh_seed29",
+      "transformer_multihop_seed29",
+      "transformer_repeated_seed31",
+      "transformer_fresh_seed31",
+      "transformer_multihop_seed31"
+    ],
+    "cuda:1": [
+      "ctm_repeated_seed29",
+      "ctm_fresh_seed29",
+      "ctm_multihop_seed29",
+      "recurrent_depth_repeated_seed23",
+      "recurrent_depth_fresh_seed23",
+      "recurrent_depth_multihop_seed23",
+      "recurrent_depth_repeated_seed29",
+      "recurrent_depth_fresh_seed29",
+      "recurrent_depth_multihop_seed29",
+      "recurrent_depth_repeated_seed31",
+      "recurrent_depth_fresh_seed31",
+      "recurrent_depth_multihop_seed31"
+    ]
+  }
+}

@@ -8,3 +8,5 @@ checkpoints*/
 data_cache*/
 teacher_cache*/
 research/results/*/.supervisor.lock
+research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl
+research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl

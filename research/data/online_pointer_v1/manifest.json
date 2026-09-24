@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "name": "online_pointer_v1",
+  "seed": 20260925,
+  "nodes": 12,
+  "role": "development only; no locked test split",
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "generator_sha256": "8526911ab73fc20b1483f31ba885cb5ceaa82298712d31016ba78e85995b2ea0",
+  "prior_data_root": "research/data",
+  "prior_files": {
+    "research/data/algorithmic_v1/pointer/ood_joint.jsonl": {
+      "sha256": "307ac9426b8103aa5bceeb2cdd02ce8603b30be72156bcfd4fa53a88341be467",
+      "maps": 256
+    },
+    "research/data/algorithmic_v1/pointer/ood_length.jsonl": {
+      "sha256": "e81ace838f9226edb3c6b97dab7e8e39b4b5cecf30447362693190fe8a13797e",
+      "maps": 256
+    }
+  },
+  "excluded_prior_maps": 512,
+  "split_policy": "Every map appears in one split only, except train_repeated_onehop, which is the first 2,048 records of train_fresh_onehop. Presentations are random per example and never canonical. Hop counts are balanced within each split.",
+  "tasks": {
+    "pointer": {
+      "train_fresh_onehop": {
+        "path": "pointer/train_fresh_onehop.jsonl",
+        "examples": 96000,
+        "sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+        "steps": {
+          "1": 96000
+        }
+      },
+      "train_fresh_multihop": {
+        "path": "pointer/train_fresh_multihop.jsonl",
+        "examples": 96000,
+        "sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+        "steps": {
+          "1": 32000,
+          "2": 32000,
+          "3": 32000
+        }
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "examples": 384,
+        "sha256": "2f5067a4b1f46ed3133885ffff7730532eaccd8d5734c71a961de87ff287d134",
+        "steps": {
+          "1": 128,
+          "2": 128,
+          "3": 128
+        }
+      },
+      "eval_id": {
+        "path": "pointer/eval_id.jsonl",
+        "examples": 768,
+        "sha256": "94b253f62d291aee0accb0eed4ff2b7ebe3a0512a7b7503b77a2c90817bb50b6",
+        "steps": {
+          "1": 256,
+          "2": 256,
+          "3": 256
+        }
+      },
+      "eval_depth": {
+        "path": "pointer/eval_depth.jsonl",
+        "examples": 1280,
+        "sha256": "d1fa3efb6ff270cf9e38133b743b4af08661a7177282bdffdcd77bbe0d5cf7ed",
+        "steps": {
+          "4": 256,
+          "5": 256,
+          "6": 256,
+          "7": 256,
+          "8": 256
+        }
+      },
+      "train_repeated_onehop": {
+        "path": "pointer/train_repeated_onehop.jsonl",
+        "examples": 2048,
+        "sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+        "steps": {
+          "1": 2048
+        }
+      }
+    }
+  }
+}
