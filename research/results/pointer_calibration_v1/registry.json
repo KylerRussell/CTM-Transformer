@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "name": "pointer_calibration_v1",
+  "entries": [
+    {
+      "cell": "transformer_onehop_lr3e-4_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.0003,
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "f87644fe347fa0acea19343b696ef34f560ec177a52eab0f545141ffa8162fd9",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-4_seed41.json",
+      "config_sha256": "ca621645d6223a370d01c9bbacdcaa79a8470602924499169cacf52404855eb8",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-4/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-4_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr1e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.001,
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "f87644fe347fa0acea19343b696ef34f560ec177a52eab0f545141ffa8162fd9",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr1e-3_seed41.json",
+      "config_sha256": "012f2c402c3711c33a5f5efb5860365b400daecb4ad9b850d1dc85ad61393223",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr1e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr1e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr3e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.003,
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "f87644fe347fa0acea19343b696ef34f560ec177a52eab0f545141ffa8162fd9",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-3_seed41.json",
+      "config_sha256": "83e7b34dfcbc8f5265637f4ef3180aa34cbde93ffe57e26eea10f117b54f292d",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-4_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.0003,
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "e10f3f7da15c0c5b3db71cefa95d13496a55cbcb2c9e458201a402eaf7b58b44",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-4_seed41.json",
+      "config_sha256": "81445a186304ca90ddddb9747d78a33a5684e0684bfcf351c9b7cff432c58133",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-4/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-4_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr1e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.001,
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "e10f3f7da15c0c5b3db71cefa95d13496a55cbcb2c9e458201a402eaf7b58b44",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr1e-3_seed41.json",
+      "config_sha256": "1c28571177ba2a31c61c035fbae6ed6c0f9de60d5e20b59db1b2cdc1fb2f4946",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr1e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr1e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.003,
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "e10f3f7da15c0c5b3db71cefa95d13496a55cbcb2c9e458201a402eaf7b58b44",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-3_seed41.json",
+      "config_sha256": "b4a452ece32d3c93cae9600d5f0905f980f2e6462b49d05c33ae56a5e9807f6e",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr3e-4_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.0003,
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "f87644fe347fa0acea19343b696ef34f560ec177a52eab0f545141ffa8162fd9",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-4_seed43.json",
+      "config_sha256": "e8f77c6e0db61e2bf0ccd348f87b926134533f89a55f6414ac180dabaf27e9fd",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-4/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-4_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr1e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.001,
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "f87644fe347fa0acea19343b696ef34f560ec177a52eab0f545141ffa8162fd9",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr1e-3_seed43.json",
+      "config_sha256": "4578eb29044093c135ec0da9b444a6da2674026959549d5c24aab3fdb20e1b85",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr1e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr1e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr3e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.003,
+      "reused": false,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "f87644fe347fa0acea19343b696ef34f560ec177a52eab0f545141ffa8162fd9",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-3_seed43.json",
+      "config_sha256": "6252620f9a5d8fd11ed087eacc7f12a6dedbe4d7ad97c39b62fdf62d9b8ba77a",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-4_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.0003,
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "e10f3f7da15c0c5b3db71cefa95d13496a55cbcb2c9e458201a402eaf7b58b44",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-4_seed43.json",
+      "config_sha256": "6b368c9e6e7e987fdeb91e125e4ce39e1cf11649766d5bcdaf13652f0fd5c295",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-4/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-4_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr1e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.001,
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "e10f3f7da15c0c5b3db71cefa95d13496a55cbcb2c9e458201a402eaf7b58b44",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr1e-3_seed43.json",
+      "config_sha256": "46d33b05dc63ce800bbb30a55de2494fd812f27a07176ea2ccde02483acaf3c3",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr1e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr1e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.003,
+      "reused": false,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "e10f3f7da15c0c5b3db71cefa95d13496a55cbcb2c9e458201a402eaf7b58b44",
+      "train_examples": 960000,
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-3_seed43.json",
+      "config_sha256": "ae2eceb18a86fa44e46a9cfdaf2871c12c46d72f0e45e643b7e8a0efc357f271",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    }
+  ],
+  "seeds": [
+    41,
+    43
+  ],
+  "role": "Stage 1a Transformer optimizer/budget calibration; development only; no test set",
+  "dataset": "research/data/pointer_calibration_v1",
+  "dataset_manifest_sha256": "1451d0a91bbba7859026a4e78c0c27241d9d78f475f2466f903aa1a3b0e47c6e",
+  "validation_path": "research/data/pointer_calibration_v1/pointer/validation.jsonl",
+  "validation_sha256": "1f3a59df69579cc51cd28b3871df86550b713ae1340c6ef7a29be34bc1546f26",
+  "evaluation_splits": [
+    "eval_id",
+    "eval_depth"
+  ],
+  "training_source_sha256": {
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25"
+  },
+  "primary_checkpoint_step": 30000,
+  "warmup_steps": 300,
+  "eval_interval": 1000,
+  "chance_accuracy": 0.09090909090909091,
+  "gpu_queues": {
+    "cuda:0": [
+      "transformer_onehop_lr3e-4_seed41",
+      "transformer_onehop_lr1e-3_seed41",
+      "transformer_onehop_lr3e-3_seed41",
+      "transformer_multihop_lr3e-4_seed41",
+      "transformer_multihop_lr1e-3_seed41",
+      "transformer_multihop_lr3e-3_seed41"
+    ],
+    "cuda:1": [
+      "transformer_onehop_lr3e-4_seed43",
+      "transformer_onehop_lr1e-3_seed43",
+      "transformer_onehop_lr3e-3_seed43",
+      "transformer_multihop_lr3e-4_seed43",
+      "transformer_multihop_lr1e-3_seed43",
+      "transformer_multihop_lr3e-3_seed43"
+    ]
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "transformer_onehop_lr3e-4_seed41",
+      "transformer_onehop_lr1e-3_seed41",
+      "transformer_onehop_lr3e-3_seed41",
+      "transformer_multihop_lr3e-4_seed41",
+      "transformer_multihop_lr1e-3_seed41",
+      "transformer_multihop_lr3e-3_seed41"
+    ],
+    "cuda:1": [
+      "transformer_onehop_lr3e-4_seed43",
+      "transformer_onehop_lr1e-3_seed43",
+      "transformer_onehop_lr3e-3_seed43",
+      "transformer_multihop_lr3e-4_seed43",
+      "transformer_multihop_lr1e-3_seed43",
+      "transformer_multihop_lr3e-3_seed43"
+    ]
+  }
+}

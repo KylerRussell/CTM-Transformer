@@ -83,3 +83,18 @@ The GPU queues are fixed in `registry.json`. One-hop cells run first so the data
 ### Interpretation limits
 
 One query per map and answer-only supervision are kept, because the frozen dataset format allows one record per map. Training on several queries per sequence, larger node sets and optimizer retuning remain separate studies. The fresh–repeated contrast changes only map diversity at a fixed update budget. It cannot separate the benefit of diversity from the regularizing effect of never repeating an example. Equal exposure and approximate parameter matching do not equalize compute: a CTM run costs about 20 times a Transformer run. Tick-sweep results beyond T16 are exploratory extrapolation, not a trained condition.
+
+## Stopped at user direction — 2026-09-24, 19:00 UTC
+
+The study was stopped after 4 of 27 cells. The first completed cells showed that 3,000 updates is too short for this task format. No summary or evaluation was run, and no result from this study is reported as an endpoint. The observations that prompted the stop come from training-time validation of the completed Transformer cells:
+
+| Cell | Final training CE (last 100 updates) | Hop-1 validation accuracy at 3,000 | Best hop-1 across 30 checks |
+|---|---:|---:|---:|
+| Transformer, fresh, seed 23 | 1.2058 | 7.81% | 14.06% |
+| Transformer, fresh, seed 29 | 1.2049 | 10.16% | 14.84% |
+| Transformer, fresh, seed 31 | 1.2048 | 8.59% | 13.28% |
+| Transformer, repeated, seed 23 | 0.0000 | 3.91% | 13.28% |
+
+A training CE of 1.20 per supervised token is exactly the loss of guessing uniformly among 11 answers when EOS is predicted perfectly (ln 11 / 2 = 1.199). With fresh maps, the Transformer stays on this plateau and cannot memorize. With repeated maps, it memorizes and does not generalize. Running the remaining cells, most of them expensive CTM and recurrent runs, would probably have produced the same plateau.
+
+Partial outputs remain under `research/runs/online_pointer_v1` (including CTM fresh seed 29 at update 605). They are not reused. The follow-up is the [pointer calibration study](POINTER_CALIBRATION.md): a Transformer optimizer/budget sweep with operating-point rules chosen so that the later CTM–recurrent-depth comparison avoids both ceiling and floor.

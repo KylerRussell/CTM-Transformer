@@ -1,0 +1,65 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "started_utc": "2026-09-24T18:52:31.736228+00:00",
+      "pid": 18173,
+      "supervisor_sha256": "d9e0eb79113c3be6491f9748e3a805ba37505cbd01b98a12c828aba41d84d14f",
+      "events": [
+        {
+          "phase": "preflight",
+          "time_utc": "2026-09-24T18:52:31.737696+00:00"
+        },
+        {
+          "phase": "training",
+          "time_utc": "2026-09-24T18:53:05.799170+00:00",
+          "workers": {
+            "cuda:0": {
+              "pid": 18555,
+              "cells": [
+                "transformer_fresh_seed23",
+                "transformer_fresh_seed29",
+                "transformer_fresh_seed31",
+                "transformer_repeated_seed23",
+                "transformer_repeated_seed29",
+                "transformer_repeated_seed31",
+                "ctm_fresh_seed23",
+                "ctm_repeated_seed23",
+                "ctm_fresh_seed31",
+                "ctm_repeated_seed31",
+                "recurrent_depth_fresh_seed31",
+                "recurrent_depth_repeated_seed31",
+                "transformer_multihop_seed23",
+                "transformer_multihop_seed29",
+                "transformer_multihop_seed31",
+                "ctm_multihop_seed23",
+                "recurrent_depth_multihop_seed31"
+              ]
+            },
+            "cuda:1": {
+              "pid": 18556,
+              "cells": [
+                "ctm_fresh_seed29",
+                "ctm_repeated_seed29",
+                "recurrent_depth_fresh_seed23",
+                "recurrent_depth_repeated_seed23",
+                "recurrent_depth_fresh_seed29",
+                "recurrent_depth_repeated_seed29",
+                "ctm_multihop_seed29",
+                "ctm_multihop_seed31",
+                "recurrent_depth_multihop_seed23",
+                "recurrent_depth_multihop_seed29"
+              ]
+            }
+          }
+        },
+        {
+          "phase": "stopped",
+          "time_utc": "2026-09-24T19:00:58.319461+00:00",
+          "error": "SystemExit('Supervisor terminated')"
+        }
+      ]
+    }
+  ],
+  "phase": "stopped"
+}

@@ -10,3 +10,5 @@ teacher_cache*/
 research/results/*/.supervisor.lock
 research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl
 research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl
+research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl
+research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl

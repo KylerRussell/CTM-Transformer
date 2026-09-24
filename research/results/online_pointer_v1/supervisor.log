@@ -1,0 +1,8 @@
+2026-09-24T18:52:31.738570+00:00 preflight 
+......                                                                   [100%]
+6 passed, 3 deselected in 15.92s
+..                                                                       [100%]
+2 passed, 3 deselected in 13.09s
+2026-09-24T18:53:05.799953+00:00 training {"workers": {"cuda:0": {"pid": 18555, "cells": ["transformer_fresh_seed23", "transformer_fresh_seed29", "transformer_fresh_seed31", "transformer_repeated_seed23", "transformer_repeated_seed29", "transformer_repeated_seed31", "ctm_fresh_seed23", "ctm_repeated_seed23", "ctm_fresh_seed31", "ctm_repeated_seed31", "recurrent_depth_fresh_seed31", "recurrent_depth_repeated_seed31", "transformer_multihop_seed23", "transformer_multihop_seed29", "transformer_multihop_seed31", "ctm_multihop_seed23", "recurrent_depth_multihop_seed31"]}, "cuda:1": {"pid": 18556, "cells": ["ctm_fresh_seed29", "ctm_repeated_seed29", "recurrent_depth_fresh_seed23", "recurrent_depth_repeated_seed23", "recurrent_depth_fresh_seed29", "recurrent_depth_repeated_seed29", "ctm_multihop_seed29", "ctm_multihop_seed31", "recurrent_depth_multihop_seed23", "recurrent_depth_multihop_seed29"]}}}
+2026-09-24T19:00:58.320333+00:00 stopped {"error": "SystemExit('Supervisor terminated')"}
+Supervisor terminated

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "name": "pointer_calibration_v1",
+  "seed": 20260926,
+  "nodes": 12,
+  "design": {
+    "train_fresh_onehop": [
+      960000,
+      [
+        1
+      ]
+    ],
+    "train_fresh_multihop": [
+      240000,
+      [
+        1,
+        2,
+        3,
+        4
+      ]
+    ],
+    "validation": [
+      96,
+      [
+        1,
+        2,
+        3,
+        4
+      ]
+    ],
+    "eval_id": [
+      256,
+      [
+        1,
+        2,
+        3,
+        4
+      ]
+    ],
+    "eval_depth": [
+      256,
+      [
+        5,
+        6,
+        7,
+        8
+      ]
+    ]
+  },
+  "role": "development only; no locked test split",
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "generator_sha256": "cd1245b3e51f9187cee284b0cc52f7c03fabbca42c63b55a9c3a67c41daa6e24",
+  "prior_data_root": "research/data",
+  "prior_files": {
+    "research/data/algorithmic_v1/pointer/ood_joint.jsonl": {
+      "sha256": "307ac9426b8103aa5bceeb2cdd02ce8603b30be72156bcfd4fa53a88341be467",
+      "maps": 256
+    },
+    "research/data/algorithmic_v1/pointer/ood_length.jsonl": {
+      "sha256": "e81ace838f9226edb3c6b97dab7e8e39b4b5cecf30447362693190fe8a13797e",
+      "maps": 256
+    },
+    "research/data/online_pointer_v1/pointer/eval_depth.jsonl": {
+      "sha256": "d1fa3efb6ff270cf9e38133b743b4af08661a7177282bdffdcd77bbe0d5cf7ed",
+      "maps": 1280
+    },
+    "research/data/online_pointer_v1/pointer/eval_id.jsonl": {
+      "sha256": "94b253f62d291aee0accb0eed4ff2b7ebe3a0512a7b7503b77a2c90817bb50b6",
+      "maps": 768
+    },
+    "research/data/online_pointer_v1/pointer/train_fresh_multihop.jsonl": {
+      "sha256": "6436230f3fbf6f1843ed75e3e42e7c7af61e16df10298bcc950bab6246ba53bf",
+      "maps": 96000
+    },
+    "research/data/online_pointer_v1/pointer/train_fresh_onehop.jsonl": {
+      "sha256": "038fab45bd6b2a1c00fd84328d21dd7bfde2061cb86bfb74f036945e6b36faa6",
+      "maps": 96000
+    },
+    "research/data/online_pointer_v1/pointer/train_repeated_onehop.jsonl": {
+      "sha256": "ca9474260b94e28620c91ef9bfb3b8df3059565fbcb043f26f18083528c22f32",
+      "maps": 2048
+    },
+    "research/data/online_pointer_v1/pointer/validation.jsonl": {
+      "sha256": "2f5067a4b1f46ed3133885ffff7730532eaccd8d5734c71a961de87ff287d134",
+      "maps": 384
+    }
+  },
+  "excluded_prior_maps": 194944,
+  "split_policy": "Every map appears in exactly one split and in no earlier 12-node data. Presentations are random and noncanonical. Hop counts are balanced and interleaved before shuffling.",
+  "tasks": {
+    "pointer": {
+      "train_fresh_onehop": {
+        "path": "pointer/train_fresh_onehop.jsonl",
+        "examples": 960000,
+        "sha256": "f87644fe347fa0acea19343b696ef34f560ec177a52eab0f545141ffa8162fd9",
+        "steps": {
+          "1": 960000
+        }
+      },
+      "train_fresh_multihop": {
+        "path": "pointer/train_fresh_multihop.jsonl",
+        "examples": 960000,
+        "sha256": "e10f3f7da15c0c5b3db71cefa95d13496a55cbcb2c9e458201a402eaf7b58b44",
+        "steps": {
+          "1": 240000,
+          "2": 240000,
+          "3": 240000,
+          "4": 240000
+        }
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "examples": 384,
+        "sha256": "1f3a59df69579cc51cd28b3871df86550b713ae1340c6ef7a29be34bc1546f26",
+        "steps": {
+          "1": 96,
+          "2": 96,
+          "3": 96,
+          "4": 96
+        }
+      },
+      "eval_id": {
+        "path": "pointer/eval_id.jsonl",
+        "examples": 1024,
+        "sha256": "31dd4aa6d146ec52bf6225952f5703108bb5f76f4b9ef37d7204030f44d187f3",
+        "steps": {
+          "1": 256,
+          "2": 256,
+          "3": 256,
+          "4": 256
+        }
+      },
+      "eval_depth": {
+        "path": "pointer/eval_depth.jsonl",
+        "examples": 1024,
+        "sha256": "0d3131953d196ff729a5eb1ea1ee799e18837add84ad12e835dcfcb00250ac20",
+        "steps": {
+          "5": 256,
+          "6": 256,
+          "7": 256,
+          "8": 256
+        }
+      }
+    }
+  }
+}
