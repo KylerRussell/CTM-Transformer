@@ -1,0 +1,99 @@
+{
+  "attempts": [
+    {
+      "attempt": 2,
+      "started_utc": "2026-09-24T15:41:15.358395+00:00",
+      "pid": 4406,
+      "supervisor_sha256": "e58744398e0386ac840a746090bc9e8f28208657d6958fde5064723bc85b6af9",
+      "events": [
+        {
+          "phase": "preflight",
+          "time_utc": "2026-09-24T15:41:15.359123+00:00"
+        },
+        {
+          "phase": "archived_interrupted_outputs",
+          "time_utc": "2026-09-24T15:41:53.221513+00:00",
+          "archive": "research/results/presentation_control_v1/interrupted_attempt1",
+          "moved": [
+            "research/results/presentation_control_v1/continuation.json",
+            "research/results/presentation_control_v1/continuation.log",
+            "research/results/presentation_control_v1/gpu0.log",
+            "research/results/presentation_control_v1/gpu1.log",
+            "research/runs/presentation_control_v1/seed23/ctm",
+            "research/runs/presentation_control_v1/seed29/ctm"
+          ]
+        },
+        {
+          "phase": "training",
+          "time_utc": "2026-09-24T15:41:53.228035+00:00",
+          "workers": {
+            "cuda:0": {
+              "pid": 4757,
+              "cells": [
+                "ctm_shuffled_seed23",
+                "ctm_shuffled_seed31",
+                "transformer_shuffled_seed23",
+                "transformer_shuffled_seed29",
+                "transformer_shuffled_seed31"
+              ]
+            },
+            "cuda:1": {
+              "pid": 4758,
+              "cells": [
+                "ctm_shuffled_seed29",
+                "recurrent_depth_shuffled_seed23",
+                "recurrent_depth_shuffled_seed29",
+                "recurrent_depth_shuffled_seed31"
+              ]
+            }
+          }
+        },
+        {
+          "phase": "training_complete",
+          "time_utc": "2026-09-24T17:14:30.119572+00:00"
+        },
+        {
+          "phase": "replay_audit_passed",
+          "time_utc": "2026-09-24T17:14:30.554362+00:00",
+          "runs": 2,
+          "mismatched": []
+        },
+        {
+          "phase": "auditing_and_freezing_final_checkpoints",
+          "time_utc": "2026-09-24T17:14:30.568160+00:00"
+        },
+        {
+          "phase": "paired_validation_evaluation",
+          "time_utc": "2026-09-24T17:14:38.988735+00:00",
+          "worker_pids": [
+            10342,
+            10343
+          ]
+        },
+        {
+          "phase": "summarizing",
+          "time_utc": "2026-09-24T17:15:08.862529+00:00"
+        },
+        {
+          "phase": "complete_pending_documentation_and_archive",
+          "time_utc": "2026-09-24T17:15:22.796822+00:00"
+        }
+      ]
+    }
+  ],
+  "phase": "complete_pending_documentation_and_archive",
+  "interrupted_runs": [
+    {
+      "cell": "ctm_shuffled_seed23",
+      "moved_from": "research/runs/presentation_control_v1/seed23/ctm",
+      "moved_to": "research/runs/presentation_control_v1_interrupted/attempt1/seed23/ctm",
+      "last_complete_step": 1831
+    },
+    {
+      "cell": "ctm_shuffled_seed29",
+      "moved_from": "research/runs/presentation_control_v1/seed29/ctm",
+      "moved_to": "research/runs/presentation_control_v1_interrupted/attempt1/seed29/ctm",
+      "last_complete_step": 1722
+    }
+  ]
+}

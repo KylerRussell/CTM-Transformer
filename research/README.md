@@ -228,25 +228,28 @@ See [protocol](CTM_LR_CONFIRMATION.md), [CTM LR results](results/ctm_lr_v1/RESUL
 
 See [protocol](RECURRENT_TEMPORAL_CONTROL.md), [results](results/recurrent_temporal_v1/RESULTS.md), and [interpretation](results/recurrent_temporal_v1/INTERPRETATION.md). At fixed LR0.001, mean validation accuracy is 66.93% ± 4.30 points for final CE, 56.77% ± 14.18 for uniform, and 57.03% ± 20.83 for dynamic. Neither auxiliary objective improves the mean; training time rises from 15.8 to 24.8–25.6 minutes per run. This is development using previously examined seeds and original validation maps. Completed tests remain closed; objective-specific optimizer tuning and shuffled training are separate controls.
 
-## Paired shuffled-training control in progress
+## Paired shuffled-training control completed
 
 - [x] Generate one fixed noncanonical presentation per existing training/validation map, preserving semantic example order, queries, answers, target masks and token counts.
 - [x] Pass five new data/replay checks, including exact archived CTM/Transformer GPU replay; retain the earlier recurrent replay evidence.
 - [x] Freeze nine new shuffled-training runs and nine ordered controls at seeds23/29/31 with unchanged family recipes.
 - [x] Start both GPU queues; declare the primary endpoint at exactly3,000 updates for every model.
-- [ ] Finish training, freeze all18 final checkpoints, and evaluate paired ordered/shuffled validation maps.
-- [ ] Report paired training-condition differences, seed variability, secondary ordered-selection diagnostics, and archived provenance.
+- [x] Finish training, freeze all18 final checkpoints, and evaluate paired ordered/shuffled validation maps.
+- [x] Report paired training-condition differences, seed variability, secondary ordered-selection diagnostics, and archived provenance.
 
 - [x] Record the attempt-1 infrastructure interruption (container killed at about 14:26 UTC, 2026-09-24; two CTM cells partially trained); move its partial outputs aside unchanged.
 - [x] Rebuild the pinned environment under `$HOME` so it survives container restarts, and relaunch through a restart-safe supervisor that uses only frozen study code and resumes automatically after a restart.
 
-See [protocol](PRESENTATION_CONTROL.md). This is development on existing maps, with fixed per-map shuffles rather than online augmentation. Completed tests remain closed. See the interruption section of the protocol for the relaunch procedure.
+- [x] Verify that both interrupted CTM cells rerun exactly (1,831 and 1,722 matching updates) and audit all54,000 updates.
+
+See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_v1/RESULTS.md), and [interpretation](results/presentation_control_v1/INTERPRETATION.md). Chance is 1/7 (14.29%) because every map is a single 8-cycle. After shuffled training, ordered-evaluation accuracy is 19.79% (CTM), 19.53% (Transformer) and 16.41% (recurrent depth); shuffled-evaluation accuracy is 15.36–16.15%. Every family is therefore near chance. Shuffled training costs 51–80 points on ordered maps and gains only 1–4 points on shuffled maps. The shuffled-trained Transformer reaches about 0.002 training CE, which is memorization of the 2,048 fixed examples (about 47 passes each). CTM and recurrent depth remain underfit (about 0.69 CE). Ordered-trained models score at or below chance on shuffled presentation, consistent with a positional shortcut. This is development on existing maps with fixed per-map shuffles, not online augmentation. Completed tests remain closed. See the interruption section of the protocol for the relaunch procedure.
 
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Complete the active paired shuffled-training control, retaining the current family recipes and pairing semantic maps, queries, exposure and seeds. Preserve completed test comparisons as closed. Revisit objective-specific optimizer/schedule tuning only in a separately declared development study. Keep composition behind reliable lookup; the existing models fail order transfer.
-2. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
+1. Establish a retrieval task and data regime in which at least the ordinary Transformer reliably learns order-independent one-hop lookup. Candidates are online-generated maps (no repeated examples), several queries per sequence, and a larger node vocabulary. Declare it as a new development study. Revisit objective-specific optimizer/schedule tuning only in a separately declared study.
+2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
+3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 
-The controlled-task development comparison, compact fresh-map three-seed confirmation, and recurrent temporal-supervision control are complete. No paper-scale training run has been launched. See `../RESEARCH_PLAN.md` for the overall study design.
+The controlled-task development comparison, compact fresh-map three-seed confirmation, recurrent temporal-supervision control, and paired presentation control are complete. No paper-scale training run has been launched. See `../RESEARCH_PLAN.md` for the overall study design.

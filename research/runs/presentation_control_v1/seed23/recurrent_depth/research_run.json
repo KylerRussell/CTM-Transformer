@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "runner": "shared_research_v2",
+  "data_format": "algorithmic",
+  "created_utc": "2026-09-24T16:17:46.199873+00:00",
+  "model_family": "recurrent_depth",
+  "config_identity": {
+    "name": "recurrent_depth_shuffled_seed23_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+    "sha256": "a5a91cbf3b2747beeccccb0deb6d9dca05e1602ad08aeec8e048fcb224c6240e"
+  },
+  "effective_config": {
+    "model_family": "recurrent_depth",
+    "vocab_size": 71,
+    "d_model": 96,
+    "n_heads": 4,
+    "n_layers": 0,
+    "ffn_hidden_dim": 288,
+    "prelude_layers": 1,
+    "core_layers": 2,
+    "coda_layers": 1,
+    "max_thought_steps": 16,
+    "train_depth_min": 16,
+    "train_depth_max": 16,
+    "norm_eps": 1e-05,
+    "init_std": 0.02,
+    "dropout": 0.0,
+    "use_positional_encoding": true,
+    "max_seq_len": 128,
+    "tie_embeddings": false,
+    "gradient_checkpointing": false,
+    "batch_size": 32,
+    "seq_len": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.1,
+    "adam_beta1": 0.9,
+    "adam_beta2": 0.95,
+    "optimizer": "adamw",
+    "use_8bit_adam": false,
+    "grad_clip": 1.0,
+    "gradient_accumulation_steps": 1,
+    "max_steps": 3000,
+    "warmup_steps": 30,
+    "eval_interval": 100,
+    "log_interval": 50,
+    "dtype": "bfloat16",
+    "bf16_autocast": true,
+    "tokenizer": "algorithmic_char_v1",
+    "dataset": "",
+    "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/presentation_control_v1/pointer/train.jsonl",
+    "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/presentation_control_v1/pointer/validation.jsonl",
+    "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/presentation_control_v1/seed23/recurrent_depth",
+    "device": "cuda:1"
+  },
+  "seed": 23,
+  "data_seed": 24,
+  "depth_seed": 25,
+  "data": {
+    "training": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/presentation_control_v1/pointer/train.jsonl",
+      "sha256": "0f3f8c8422b8e40057513e460923981f357d885f916e29e7b72d703cae5d63f6",
+      "examples": 2048,
+      "max_input_length": 54,
+      "supervised_tokens": 4096,
+      "task": "pointer",
+      "splits": [
+        "train"
+      ]
+    },
+    "evaluation": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/presentation_control_v1/pointer/validation.jsonl",
+      "sha256": "de96f18ddbee31406a1b3dc1c91a946bb2fc37759f438a87a9f44c2f05209d96",
+      "examples": 128,
+      "max_input_length": 54,
+      "supervised_tokens": 256,
+      "task": "pointer",
+      "splits": [
+        "validation"
+      ]
+    },
+    "policy": "independent examples; BOS and EOS; answer and EOS supervision only; right padding masked; train shuffled each epoch; final partial training batch dropped"
+  },
+  "tokenizer_sha256": "edf3adec5e7b77a05f83c45dd2fb04de20a4e7d40b7dfe1fc39745b57fab4404",
+  "code_sha256": {
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25"
+  },
+  "packages": {
+    "torch": "2.6.0+cu124",
+    "numpy": "2.2.6",
+    "tiktoken": "0.14.0"
+  },
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "cuda_runtime": "12.4",
+  "precision": "FP32 parameters and AdamW moments; BF16 autocast",
+  "parameters": {
+    "total": 525984,
+    "token_embedding": 6816,
+    "position_embedding": 12288,
+    "readout": 6816,
+    "other": 500064
+  },
+  "training_objective": {
+    "type": "final_ce",
+    "direct_ce_tick_weights_at_max_depth": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "validation_metric": "final-tick supervised-token CE, independent of training objective",
+    "dynamic_rule": null
+  },
+  "checkpoint_selection": {
+    "readouts": [
+      "confidence"
+    ],
+    "criterion": "minimum supervised-token validation CE across declared readouts and checkpoints; policy list breaks ties; earlier checkpoint retained on ties",
+    "save_every_validation": true
+  },
+  "learning_rate_schedule": "linear warmup then cosine to 10% of peak; indexed by completed update count",
+  "depth_sampling": "uniform inclusive range per update"
+}

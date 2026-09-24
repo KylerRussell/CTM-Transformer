@@ -1,0 +1,17 @@
+{
+  "complete": true,
+  "new_runs": 9,
+  "reused_controls": 9,
+  "new_updates_audited": 27000,
+  "all_updates_audited": 54000,
+  "primary_checkpoints": 18,
+  "primary_checkpoint_step": 3000,
+  "paired_validation_maps": 128,
+  "new_checks_passed": 5,
+  "retained_checkpoints": 594,
+  "pre_run_files_verified": 42,
+  "archive_files": 166,
+  "no_test_evaluation": true,
+  "source_snapshot_sha256": "6cfde356d8f5e8684d54c70a5f6ff9d0775a7cb78321f22d33ef7c8ce42a9e16",
+  "checkpoint_manifest_sha256": "40779fcc084dfa176e8b7b680224717f6ac004f5a98bab6a550cd044ffad1b41"
+}

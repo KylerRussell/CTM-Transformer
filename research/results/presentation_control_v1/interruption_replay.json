@@ -1,0 +1,22 @@
+{
+  "runs": [
+    {
+      "cell": "ctm_shuffled_seed23",
+      "moved_from": "research/runs/presentation_control_v1/seed23/ctm",
+      "moved_to": "research/runs/presentation_control_v1_interrupted/attempt1/seed23/ctm",
+      "last_complete_step": 1831,
+      "compared_steps": 1831,
+      "mismatched_steps": [],
+      "exact": true
+    },
+    {
+      "cell": "ctm_shuffled_seed29",
+      "moved_from": "research/runs/presentation_control_v1/seed29/ctm",
+      "moved_to": "research/runs/presentation_control_v1_interrupted/attempt1/seed29/ctm",
+      "last_complete_step": 1722,
+      "compared_steps": 1722,
+      "mismatched_steps": [],
+      "exact": true
+    }
+  ]
+}

@@ -52,3 +52,7 @@ Orchestration only changed; every file in `pre_run_source.json` is unchanged and
 - records every attempt and phase in `supervisor_state.json`.
 
 Start or resume with `research/launch_presentation_control.sh`. The environment is now under `$HOME` (`~/.venvs/ctm-research`, installed from `research/readout-comparison-environment.txt`; driver libraries in `~/.local/share/ctm-nvidia-driver`), which persists across container restarts. The script detaches the supervisor from the terminal. An XDG autostart entry (`~/.config/autostart/ctm-presentation-control.desktop`) relaunches it when the desktop session starts after a restart. The supervisor deletes that entry when the study completes.
+
+## Outcome
+
+Completed 2026-09-24 at 17:15 UTC; all 18 primary endpoints were evaluated. See [results](results/presentation_control_v1/RESULTS.md) and [interpretation](results/presentation_control_v1/INTERPRETATION.md).

@@ -1,0 +1,12 @@
+transformer_ordered_seed23 {'validation': 1.0, 'validation_shuffled': 0.1328125}
+transformer_shuffled_seed23 {'validation': 0.1875, 'validation_shuffled': 0.15625}
+recurrent_depth_ordered_seed23 {'validation': 0.7421875, 'validation_shuffled': 0.15625}
+recurrent_depth_shuffled_seed23 {'validation': 0.125, 'validation_shuffled': 0.140625}
+transformer_ordered_seed29 {'validation': 1.0, 'validation_shuffled': 0.109375}
+transformer_shuffled_seed29 {'validation': 0.1953125, 'validation_shuffled': 0.1171875}
+recurrent_depth_ordered_seed29 {'validation': 0.671875, 'validation_shuffled': 0.1328125}
+recurrent_depth_shuffled_seed29 {'validation': 0.1796875, 'validation_shuffled': 0.15625}
+transformer_ordered_seed31 {'validation': 1.0, 'validation_shuffled': 0.125}
+transformer_shuffled_seed31 {'validation': 0.203125, 'validation_shuffled': 0.203125}
+recurrent_depth_ordered_seed31 {'validation': 0.6171875, 'validation_shuffled': 0.1328125}
+recurrent_depth_shuffled_seed31 {'validation': 0.1875, 'validation_shuffled': 0.1640625}

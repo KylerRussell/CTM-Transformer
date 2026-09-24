@@ -1,0 +1,29 @@
+2026-09-24T15:41:15.359581+00:00 preflight 
+.....                                                                    [100%]
+5 passed in 19.90s
+..                                                                       [100%]
+2 passed, 3 deselected in 12.76s
+2026-09-24T15:41:53.222401+00:00 archived_interrupted_outputs {"archive": "research/results/presentation_control_v1/interrupted_attempt1", "moved": ["research/results/presentation_control_v1/continuation.json", "research/results/presentation_control_v1/continuation.log", "research/results/presentation_control_v1/gpu0.log", "research/results/presentation_control_v1/gpu1.log", "research/runs/presentation_control_v1/seed23/ctm", "research/runs/presentation_control_v1/seed29/ctm"]}
+2026-09-24T15:41:53.228545+00:00 training {"workers": {"cuda:0": {"pid": 4757, "cells": ["ctm_shuffled_seed23", "ctm_shuffled_seed31", "transformer_shuffled_seed23", "transformer_shuffled_seed29", "transformer_shuffled_seed31"]}, "cuda:1": {"pid": 4758, "cells": ["ctm_shuffled_seed29", "recurrent_depth_shuffled_seed23", "recurrent_depth_shuffled_seed29", "recurrent_depth_shuffled_seed31"]}}}
+2026-09-24T17:14:30.120761+00:00 training_complete 
+2026-09-24T17:14:30.555409+00:00 replay_audit_passed {"runs": 2, "mismatched": []}
+2026-09-24T17:14:30.569416+00:00 auditing_and_freezing_final_checkpoints 
+Audited 54,000 updates and froze all 18 final checkpoints before paired validation evaluation.
+2026-09-24T17:14:38.989322+00:00 paired_validation_evaluation {"worker_pids": [10342, 10343]}
+2026-09-24T17:15:08.863925+00:00 summarizing 
+# Paired training-presentation control
+
+All nine shuffled-training runs completed. Nine ordered-training runs are reused unchanged. Primary results use the checkpoint at exactly3,000 updates for every run, with family recipes/readouts fixed. Evaluation uses the same128 existing validation maps in ordered and shuffled presentations. No test set was evaluated.
+
+## Primary: fixed-update validation accuracy
+
+| Family | Training presentation | Ordered evaluation, mean ± SD | Shuffled evaluation, mean ± SD | Training min/run |
+|---|---|---:|---:|---:|
+| ctm | ordered | 85.16% ± 11.08 points | 14.58% ± 2.74 points | 31.9 |
+| ctm | shuffled | 19.79% ± 6.07 points | 16.15% ± 3.69 points | 35.2 |
+| transformer | ordered | 100.00% ± 0.00 points | 12.24% ± 1.19 points | 1.9 |
+| transformer | shuffled | 19.53% ± 0.78 points | 15.89% ± 4.30 points | 1.6 |
+| recurrent_depth | ordered | 67.71% ± 6.27 points | 14.06% ± 1.35 points | 15.8 |
+| recurrent_depth | shuffled | 16.41% ± 3.41 points | 15.36% ± 1.19 points | 18.1 |
+
+2026-09-24T17:15:22.798100+00:00 complete_pending_documentation_and_archive 
