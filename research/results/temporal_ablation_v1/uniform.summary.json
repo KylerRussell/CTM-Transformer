@@ -1,0 +1,410 @@
+{
+  "complete": true,
+  "recipe": "uniform",
+  "seed": 17,
+  "objective": {
+    "type": "ramp_mono",
+    "direct_ce_tick_weights_at_max_depth": [
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ],
+    "validation_metric": "final-tick supervised-token CE, independent of training objective"
+  },
+  "training": {
+    "complete": true,
+    "model_family": "ctm",
+    "steps": 3000,
+    "tokens_seen": 5184000,
+    "supervised_tokens_seen": 192000,
+    "examples_seen": 96000,
+    "padded_token_positions": 5184000,
+    "token_block_applications": 41472000,
+    "depth_counts": {
+      "4": 3000
+    },
+    "training_seconds": 509.8233942312654,
+    "training_tokens_per_second": 10168.226995186575,
+    "wall_seconds": 519.0972736260155,
+    "best_validation_loss": 0.3324536755681038,
+    "peak_allocated_bytes": 701654016,
+    "parameters": {
+      "total": 544839,
+      "token_embedding": 9088,
+      "position_embedding": 16384,
+      "readout": 42311,
+      "other": 477056
+    },
+    "config_identity": {
+      "name": "ctm_temporal_uniform_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_temporal_uniform_v1.json",
+      "sha256": "3bbf163d8168d554de426d60989a7c0adc1b9bbf606fbbf4f3f22b8c772d194f"
+    }
+  },
+  "checkpoint": {
+    "model_family": "ctm",
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/temporal_ablation_v1/seed17/uniform/best.pt",
+    "sha256": "91d2f0e1a795d7d1d34ee009e45033f19f3ecab71fce803472e6378febeef98a",
+    "size_bytes": 6638930,
+    "training_config": {
+      "use_feature_encoder": false,
+      "vocab_size": 71,
+      "d_model": 128,
+      "d_latent": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "nlm_hidden_dim": 16,
+      "history_len": 8,
+      "max_thought_steps": 4,
+      "t_curriculum": false,
+      "t_curriculum_stages": [
+        [
+          2,
+          0.3
+        ],
+        [
+          4,
+          0.6
+        ],
+        [
+          8,
+          1.0
+        ]
+      ],
+      "max_seq_len": 128,
+      "use_positional_encoding": true,
+      "dropout": 0.0,
+      "use_attention_residuals": false,
+      "nlm_groups": 128,
+      "use_feec": false,
+      "feec_dt_init": 0.1,
+      "feec_damping_init": 0.1,
+      "feec_clamp_dt": 1.0,
+      "feec_energy_penalty_weight": 0.0,
+      "use_matrix_streams": false,
+      "n_streams": 4,
+      "stream_gating": "diagonal",
+      "use_dssa": false,
+      "dssa_n_partitions": 32,
+      "dssa_top_k": 8,
+      "dssa_block_size": 64,
+      "dssa_top_k_blocks": 4,
+      "use_hyperloop": false,
+      "hyperloop_n_begin": 2,
+      "hyperloop_n_middle": 4,
+      "hyperloop_n_end": 2,
+      "hyperloop_middle_loops": 2,
+      "use_loop_pos_emb": false,
+      "use_triton_attention": false,
+      "use_cuda_graphs": false,
+      "tiled_schedule": false,
+      "per_tick_heads": false,
+      "use_shared_head_film": false,
+      "tie_embeddings": false,
+      "sync_method": "sparse_decay",
+      "sync_rank": 32,
+      "sync_sparse_pairs": 128,
+      "synapse_type": "mlp",
+      "use_ternary": false,
+      "ternary_only_modules": [],
+      "use_engram": false,
+      "engram_ngram_orders": [
+        2,
+        3
+      ],
+      "engram_n_heads": 8,
+      "engram_slots_per_table": 65521,
+      "engram_d_head": 64,
+      "engram_bos_id": 0,
+      "engram_layers": [],
+      "engram_use_conv": true,
+      "engram_conv_kernel": 4,
+      "engram_conv_dilation": 3,
+      "engram_lr_mult": 5.0,
+      "engram_weight_decay": 0.0,
+      "batch_size": 32,
+      "learning_rate": 0.001,
+      "weight_decay": 0.1,
+      "max_steps": 3000,
+      "warmup_steps": 30,
+      "gradient_checkpointing": false,
+      "gradient_checkpointing_min_T": 5,
+      "gradient_accumulation_steps": 1,
+      "bf16_autocast": true,
+      "dtype": "bfloat16",
+      "grad_clip": 1.0,
+      "eval_interval": 100,
+      "log_interval": 50,
+      "optimizer": "adamw",
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.95,
+      "use_8bit_adam": false,
+      "adamuon_beta": 0.95,
+      "adamuon_eps": 1e-08,
+      "adamuon_ns_steps": 5,
+      "adamuon_rms_target": 0.2,
+      "adamuon_weight_decay": 0.1,
+      "temporal_loss_type": "ramp_mono",
+      "tick_ramp_start": 1.0,
+      "tick_ramp_end": 1.0,
+      "mono_penalty_weight": 0.0,
+      "mono_penalty_min_frac": 0.1,
+      "mono_penalty_decay_until_frac": 0.0,
+      "aux_loss_weight": 0.0,
+      "min_loss_weight": 0.0,
+      "max_cert_weight": 0.0,
+      "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+      "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+      "seq_len": 128,
+      "tokenizer": "algorithmic_char_v1",
+      "dataset": "",
+      "dataset_subset": "sample-10BT",
+      "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/temporal_ablation_v1/seed17/uniform",
+      "use_two_phase_curriculum": false,
+      "phase1_tokens": 500000000,
+      "phase1_datasets": [
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-CC-Math-v1"
+      ],
+      "phase1_dataset_subsets": [
+        "Nemotron-Pretraining-RQA",
+        "Nemotron-Pretraining-InfiniByte-Reasoning",
+        "Nemotron-Pretraining-Wiki-Rewrite",
+        "Nemotron-Pretraining-Scientific-Coding",
+        "Nemotron-Pretraining-Math-Textbooks",
+        "Nemotron-Pretraining-STEM-SFT",
+        "Nemotron-Pretraining-Code-Concepts",
+        "Nemotron-Pretraining-Unconditional-Algorithmic",
+        "Nemotron-Pretraining-Formal-Logic",
+        "Nemotron-Pretraining-Economics",
+        "Nemotron-Pretraining-Multiple-Choice",
+        "4plus_MIND"
+      ],
+      "phase1_dataset_weights": [
+        0.1,
+        0.1,
+        0.05,
+        0.05,
+        0.1,
+        0.1,
+        0.1,
+        0.05,
+        0.1,
+        0.05,
+        0.1,
+        0.1
+      ],
+      "phase2_datasets": [
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-CC-Math-v1"
+      ],
+      "phase2_dataset_subsets": [
+        "Nemotron-Pretraining-RQA",
+        "Nemotron-Pretraining-InfiniByte-Reasoning",
+        "Nemotron-Pretraining-Wiki-Rewrite",
+        "Nemotron-Pretraining-Scientific-Coding",
+        "Nemotron-Pretraining-Math-Textbooks",
+        "Nemotron-Pretraining-STEM-SFT",
+        "Nemotron-Pretraining-Code-Concepts",
+        "Nemotron-Pretraining-Unconditional-Algorithmic",
+        "Nemotron-Pretraining-Formal-Logic",
+        "Nemotron-Pretraining-Economics",
+        "Nemotron-Pretraining-Multiple-Choice",
+        "4plus_MIND"
+      ],
+      "phase2_dataset_weights": [
+        0.05,
+        0.05,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.05,
+        0.05,
+        0.1,
+        0.1
+      ],
+      "use_distillation": false,
+      "teacher_model_name": "nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16",
+      "teacher_d_model": 3136,
+      "distill_logit_weight": 0.0,
+      "distill_feature_weight": 0.0,
+      "teacher_device": "auto",
+      "distill_temperature": 4.0,
+      "distill_tick_aggregation": "all",
+      "distill_feature_method": "cosine",
+      "distill_top_k": 256,
+      "use_cached_teacher": false,
+      "teacher_cache_dir": "",
+      "device": "cuda:1"
+    },
+    "config_overrides": {},
+    "training_counters": {
+      "step": 3000,
+      "tokens_seen": 5184000
+    }
+  },
+  "validation_ticks": {
+    "1": {
+      "examples": 128,
+      "correct": 80,
+      "exact_match": 0.625,
+      "terminated": 128,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 128,
+          "correct": 80,
+          "exact_match": 0.625,
+          "terminated": 128
+        }
+      },
+      "answer_token_ce": 0.504830852150917,
+      "supervised_tokens": 256
+    },
+    "2": {
+      "examples": 128,
+      "correct": 104,
+      "exact_match": 0.8125,
+      "terminated": 128,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 128,
+          "correct": 104,
+          "exact_match": 0.8125,
+          "terminated": 128
+        }
+      },
+      "answer_token_ce": 0.2956407777965069,
+      "supervised_tokens": 256
+    },
+    "3": {
+      "examples": 128,
+      "correct": 103,
+      "exact_match": 0.8046875,
+      "terminated": 128,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 128,
+          "correct": 103,
+          "exact_match": 0.8046875,
+          "terminated": 128
+        }
+      },
+      "answer_token_ce": 0.30801472440361977,
+      "supervised_tokens": 256
+    },
+    "4": {
+      "examples": 128,
+      "correct": 99,
+      "exact_match": 0.7734375,
+      "terminated": 128,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 128,
+          "correct": 99,
+          "exact_match": 0.7734375,
+          "terminated": 128
+        }
+      },
+      "answer_token_ce": 0.3324536755681038,
+      "supervised_tokens": 256
+    }
+  },
+  "all_query_dataset_manifest_sha256": "265b2f4a1e5b7e08e4bd9173d9e4ac620a5385a55b11c67c38537094a37c92bd",
+  "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+  "source_sha256": {
+    "scripts/run_temporal_ablation.py": "98d41dbdc506064722099509c46acbfea2b81b1e3e7b77a566b1b1cacaeea55f",
+    "ctm_transformer/experiment.py": "3b9a97c47371ea44ed766addcad847ce5962f07b76d5dd0b781177ac26f6a8f0",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c"
+  },
+  "metrics": {
+    "train": {
+      "examples": 2048,
+      "correct": 1865,
+      "exact_match": 0.91064453125,
+      "terminated": 2048,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 2048,
+          "correct": 1865,
+          "exact_match": 0.91064453125,
+          "terminated": 2048
+        }
+      },
+      "answer_token_ce": 0.13594356569228694,
+      "supervised_tokens": 4096
+    },
+    "validation": {
+      "examples": 128,
+      "correct": 99,
+      "exact_match": 0.7734375,
+      "terminated": 128,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 128,
+          "correct": 99,
+          "exact_match": 0.7734375,
+          "terminated": 128
+        }
+      },
+      "answer_token_ce": 0.3324536755681038,
+      "supervised_tokens": 256
+    },
+    "train_probe": {
+      "examples": 256,
+      "correct": 237,
+      "exact_match": 0.92578125,
+      "terminated": 256,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 256,
+          "correct": 237,
+          "exact_match": 0.92578125,
+          "terminated": 256
+        }
+      },
+      "answer_token_ce": 0.11650715535506606,
+      "supervised_tokens": 512
+    },
+    "train_new_query": {
+      "examples": 256,
+      "correct": 197,
+      "exact_match": 0.76953125,
+      "terminated": 256,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 256,
+          "correct": 197,
+          "exact_match": 0.76953125,
+          "terminated": 256
+        }
+      },
+      "answer_token_ce": 0.3880647122859955,
+      "supervised_tokens": 512
+    }
+  }
+}

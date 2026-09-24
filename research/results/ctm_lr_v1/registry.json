@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "name": "ctm_lr_v1",
+  "entries": [
+    {
+      "cell": "ctm_uniform_lr_low",
+      "objective": "uniform",
+      "learning_rate": 0.0003,
+      "model_family": "ctm",
+      "seed": 17,
+      "config": "research/configs/ctm_lr_v1/ctm_uniform_lr_low.json",
+      "config_sha256": "c8f5ad7abd74a3d5e3485469a347e21f64a17e7a4aec5f1b5a4dca91fbd264bd",
+      "run_directory": "research/runs/ctm_lr_v1/seed17/ctm_uniform_lr_low",
+      "summary_path": "research/results/ctm_lr_v1/ctm_uniform_lr_low.summary.json",
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ],
+      "reused": false,
+      "reused_summary_sha256": null
+    },
+    {
+      "cell": "ctm_uniform_lr_mid",
+      "objective": "uniform",
+      "learning_rate": 0.001,
+      "model_family": "ctm",
+      "seed": 17,
+      "config": "research/configs/readout_comparison_v1/ctm_uniform.json",
+      "config_sha256": "9ced36970efcda5dcbd6675a329c74e41baa398c4ac879a129920c2e7eac21c3",
+      "run_directory": "research/runs/readout_comparison_v1/seed17/ctm_uniform",
+      "summary_path": "research/results/readout_comparison_v1/ctm_uniform.summary.json",
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ],
+      "reused": true,
+      "reused_summary_sha256": "3b75ae9c2423aa630d7c8f95884cf21484f3016012192141e630f0972b3f28e5"
+    },
+    {
+      "cell": "ctm_uniform_lr_high",
+      "objective": "uniform",
+      "learning_rate": 0.003,
+      "model_family": "ctm",
+      "seed": 17,
+      "config": "research/configs/ctm_lr_v1/ctm_uniform_lr_high.json",
+      "config_sha256": "331df0fa17e6f8eafcdad72c839317912068b57705df57a3e74effff66b5189b",
+      "run_directory": "research/runs/ctm_lr_v1/seed17/ctm_uniform_lr_high",
+      "summary_path": "research/results/ctm_lr_v1/ctm_uniform_lr_high.summary.json",
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ],
+      "reused": false,
+      "reused_summary_sha256": null
+    },
+    {
+      "cell": "ctm_dynamic_lr_low",
+      "objective": "dynamic",
+      "learning_rate": 0.0003,
+      "model_family": "ctm",
+      "seed": 17,
+      "config": "research/configs/ctm_lr_v1/ctm_dynamic_lr_low.json",
+      "config_sha256": "0b2b27787275fcdac07e27404f8bda000b8a73722272fe8170d79d6ebffb9842",
+      "run_directory": "research/runs/ctm_lr_v1/seed17/ctm_dynamic_lr_low",
+      "summary_path": "research/results/ctm_lr_v1/ctm_dynamic_lr_low.summary.json",
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ],
+      "reused": false,
+      "reused_summary_sha256": null
+    },
+    {
+      "cell": "ctm_dynamic_lr_mid",
+      "objective": "dynamic",
+      "learning_rate": 0.001,
+      "model_family": "ctm",
+      "seed": 17,
+      "config": "research/configs/readout_comparison_v1/ctm_dynamic.json",
+      "config_sha256": "a236f18ff7b16cce01f7db4f8264c650dc25b6d96178198f65b9b4439e4f8977",
+      "run_directory": "research/runs/readout_comparison_v1/seed17/ctm_dynamic",
+      "summary_path": "research/results/readout_comparison_v1/ctm_dynamic.summary.json",
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ],
+      "reused": true,
+      "reused_summary_sha256": "27d1ee80ba6a52c49b98292c22d52907a01e03087c15f2863d242066387eac43"
+    },
+    {
+      "cell": "ctm_dynamic_lr_high",
+      "objective": "dynamic",
+      "learning_rate": 0.003,
+      "model_family": "ctm",
+      "seed": 17,
+      "config": "research/configs/ctm_lr_v1/ctm_dynamic_lr_high.json",
+      "config_sha256": "36eadebb8a36912d1a28e535f897a5c4a306ca0b30242aa3a220a6ac934151af",
+      "run_directory": "research/runs/ctm_lr_v1/seed17/ctm_dynamic_lr_high",
+      "summary_path": "research/results/ctm_lr_v1/ctm_dynamic_lr_high.summary.json",
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ],
+      "reused": false,
+      "reused_summary_sha256": null
+    }
+  ],
+  "train_path": "research/data/ordered_pointer_v1/pointer/train.jsonl",
+  "validation_path": "research/data/ordered_pointer_v1/pointer/validation.jsonl",
+  "training_source_sha256": {
+    "ctm_transformer/experiment.py": "32b4e1db01fc1447564b5296b07e46cebffc8d3d3eb951f8615958c7c4ea3dad",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25"
+  },
+  "baseline_selection_path": "research/results/readout_comparison_v1/selection.json",
+  "baseline_selection_sha256": "660b4954831b4c6a0153b16ee2f1efcf626e8eb3a1a1c0e8aedba47222ff2938",
+  "confirmation_seeds": [
+    23,
+    29,
+    31
+  ],
+  "confirmation_readout_rule": "Freeze the seed17-selected readout across all seeds; select each seed checkpoint by validation CE under that one policy.",
+  "development_seed": 17,
+  "reference_seed": 17
+}

@@ -1,0 +1,18 @@
+{
+  "complete": true,
+  "pre_run_files_verified": {
+    "research/results/ctm_lr_v1": 90,
+    "research/results/fresh_confirmation_v1": 25
+  },
+  "retained_checkpoints": 568,
+  "archived_files": 219,
+  "checkpoint_manifest_sha256": "a138e32d6c27ae3822dd3f787ee813e8f5ca198051623bbf119a2c5b6348605c",
+  "archive_manifest_sha256": "6e6904875bcc678978292bb3057dd46082e22726769095bc2668477ab1c3f3a8",
+  "fresh_manifest_sha256": "05549a65630c847143a1bad123e8fa6030d613f1e933be7b0ea43664231dff3f",
+  "independent_confirmation_runs": 9,
+  "new_lr_runs": 4,
+  "new_training_updates": 39000,
+  "reused_ctm_development_controls": 2,
+  "separate_development_references": 3,
+  "training_scope": "Four new optimizer-development runs plus nine independent-seed confirmations; each audited for 3000 updates and fixed exposure. Checkpoint files are hashed in place, not duplicated into the source archive."
+}

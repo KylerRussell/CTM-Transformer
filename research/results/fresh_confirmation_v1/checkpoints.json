@@ -1,0 +1,556 @@
+{
+  "complete": true,
+  "recipes_sha256": "0366c130b039665c256a4387e743ea26e68c86999f78064a1107456b4799aec5",
+  "registry_sha256": "2bad3627c619c58b147a91fcb4e45b85a59b97dea5b2deeadfe267e47279dd76",
+  "source_sha256": {
+    "ctm_transformer/experiment.py": "32b4e1db01fc1447564b5296b07e46cebffc8d3d3eb951f8615958c7c4ea3dad",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "scripts/freeze_fresh_confirmation.py": "ce8270475b3b0c5799b4bc5b5072c5a0f3544ae7d856cf5291a995673424c81d",
+    "scripts/confirmation_common.py": "d169dc8f587e8d8d37f24c5a4cc741707df76f1a5b9eaebf252c36c95a6a7c9e",
+    "scripts/evaluate_fresh_confirmation.py": "5958a45cbf67174f6a488493eee9642b163f8cfd82d86a01619623c6c20e9158",
+    "scripts/eval_harness.py": "36e7fdc362701bc7eb573405f790321a7605248e7d71c3e648bc01205d2600e6",
+    "ctm_transformer/fresh_pointer.py": "0a4e44e5a4ed447a6d2ad33564355ae38fc7139adb866cca072038213c5a3e74"
+  },
+  "source_archive_sha256": "1df81e0da62c3ee4d16bd14ae396398c3879b77fcc4bf8dbf6d850488cab86e7",
+  "fresh_dataset": "research/data/fresh_pointer_confirmation_v1",
+  "fresh_manifest_sha256": "05549a65630c847143a1bad123e8fa6030d613f1e933be7b0ea43664231dff3f",
+  "no_fresh_test_forward_before_freeze": true,
+  "models": [
+    {
+      "cell": "ctm_seed23",
+      "seed": 23,
+      "model_family": "ctm",
+      "objective": "ramp_mono",
+      "learning_rate": 0.0003,
+      "readout": "confidence",
+      "step": 2900,
+      "validation_ce": 0.34706319123506546,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 104,
+        "exact_match": 0.8125,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 104,
+            "exact_match": 0.8125,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed23/ctm/best.pt",
+      "checkpoint_sha256": "1e09d767190e064b159dc9c3b512454674f01b34d88a013a2910b09b8a39b386",
+      "config": "research/configs/fresh_confirmation_v1/ctm_seed23.json",
+      "config_sha256": "fdbd628a1e0064b7814ec092722c375a12fa9270d8a602d56716552a4a8f504e",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed23/ctm",
+      "summary_path": "research/results/fresh_confirmation_v1/ctm_seed23.summary.json",
+      "summary_sha256": "6ccb8972ffcc86b767f5a5c396bbd8712aff15dbd793f3d329fb1c1280c3829d",
+      "metrics_sha256": "c24a61907e73d1cc4b09f8efb4e823512c2022d891ce989320b449f5aa56ec2b",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 1886.8557280534296,
+      "wall_seconds": 1951.1257465729723,
+      "peak_allocated_bytes": 2473619456,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "transformer_seed23",
+      "seed": 23,
+      "model_family": "transformer",
+      "objective": "final_ce",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "step": 2300,
+      "validation_ce": 1.862645010453079e-09,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed23/transformer/best.pt",
+      "checkpoint_sha256": "aa18fcd93520dc285d099a5aae4b414c2034e5d203ec1f66eaa690f6943316e5",
+      "config": "research/configs/fresh_confirmation_v1/transformer_seed23.json",
+      "config_sha256": "93ac74edad7b37b64f75f8de474fb088c4e8c7698dbf4e5985fccd9553d72da7",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed23/transformer",
+      "summary_path": "research/results/fresh_confirmation_v1/transformer_seed23.summary.json",
+      "summary_sha256": "0d2c54a0d2b7ea2f751ff05931e1364cf0722dd310a8e35f35583717494b1268",
+      "metrics_sha256": "9d8ff28e1a91277c7fe8bea27be5ef44ce7d498c2a6e6b2269e26b14017df044",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 116.79354846535716,
+      "wall_seconds": 123.73286683199694,
+      "peak_allocated_bytes": 63479808,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "recurrent_depth_seed23",
+      "seed": 23,
+      "model_family": "recurrent_depth",
+      "objective": "final_ce",
+      "learning_rate": 0.001,
+      "readout": "confidence",
+      "step": 2000,
+      "validation_ce": 0.3697482533752918,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 92,
+        "exact_match": 0.71875,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 92,
+            "exact_match": 0.71875,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed23/recurrent_depth/best.pt",
+      "checkpoint_sha256": "dd3d8530a901a7e5cfcab5664e342d0cc12ff27bd4c57578d5463ec6b6c121a6",
+      "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed23.json",
+      "config_sha256": "3b225a13dfd7b88ffa3941064d3e6ae1e013d879d4b841d751da262a21706555",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed23/recurrent_depth",
+      "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed23.summary.json",
+      "summary_sha256": "4650bbb32d56e50dc99da3e36361bdb0db7e51906b3e1c3f4de542eff8af4f75",
+      "metrics_sha256": "11d67769008bd32ede9c55adb1f45d074d10f789e4be1cc2419c70e859be13ee",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 935.1424479767447,
+      "wall_seconds": 979.9641115609556,
+      "peak_allocated_bytes": 449267200,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "ctm_seed29",
+      "seed": 29,
+      "model_family": "ctm",
+      "objective": "ramp_mono",
+      "learning_rate": 0.0003,
+      "readout": "confidence",
+      "step": 2000,
+      "validation_ce": 0.03982560214353725,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 126,
+        "exact_match": 0.984375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 126,
+            "exact_match": 0.984375,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed29/ctm/best.pt",
+      "checkpoint_sha256": "610505566fffc8d5ba7b6999b78f5bf9b72881ce86edc700ddefe120941eec6c",
+      "config": "research/configs/fresh_confirmation_v1/ctm_seed29.json",
+      "config_sha256": "89d845bc749c4b78e6c77c241e6dfe0efcd6d589098f2dd9a36c49bbce78e583",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed29/ctm",
+      "summary_path": "research/results/fresh_confirmation_v1/ctm_seed29.summary.json",
+      "summary_sha256": "311b4f1a64fd3d44ebcd332049f4ec07e510a92d855389e1df52f284af6bfadb",
+      "metrics_sha256": "7d0a730114975ef8d98fc0a3e69a6728f541238a884346c4d932cf86f230ca09",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 1944.4094011958223,
+      "wall_seconds": 2009.448769136041,
+      "peak_allocated_bytes": 2473619456,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "transformer_seed29",
+      "seed": 29,
+      "model_family": "transformer",
+      "objective": "final_ce",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "step": 3000,
+      "validation_ce": 2.7939675295574062e-09,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed29/transformer/best.pt",
+      "checkpoint_sha256": "9f6de807843f2ecc5e1fac5477a707a7b7b52fa36b29bd198c76fc978aaed0a9",
+      "config": "research/configs/fresh_confirmation_v1/transformer_seed29.json",
+      "config_sha256": "a3c72fc0bb7ffc7bd72889a33e37e06e7ae53c90b07b2c7616c6cc9d4d79c6ec",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed29/transformer",
+      "summary_path": "research/results/fresh_confirmation_v1/transformer_seed29.summary.json",
+      "summary_sha256": "b1d72afe3a72586460d59e43a1534725fee5ba01520d071e38521d31e0be328a",
+      "metrics_sha256": "9893de32fb6b3c467376544273804c3511feffe9b235b0481c274836e069e489",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 110.49534313037293,
+      "wall_seconds": 117.47477978601819,
+      "peak_allocated_bytes": 63479808,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "recurrent_depth_seed29",
+      "seed": 29,
+      "model_family": "recurrent_depth",
+      "objective": "final_ce",
+      "learning_rate": 0.001,
+      "readout": "confidence",
+      "step": 2500,
+      "validation_ce": 0.5263568013906479,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 83,
+        "exact_match": 0.6484375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 83,
+            "exact_match": 0.6484375,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed29/recurrent_depth/best.pt",
+      "checkpoint_sha256": "fb97322b49171cbb20829056db2d894bf030d1735c3193dccf3141743a33c251",
+      "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed29.json",
+      "config_sha256": "e7d3e143c550d4df83e776ef25d8b5f1a0ca89e1b5b702dde9be7ea6d550e06d",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed29/recurrent_depth",
+      "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed29.summary.json",
+      "summary_sha256": "3c2871802138e31b44b7588543900af6ba443f2cd959a1240bfbd4a746409863",
+      "metrics_sha256": "a50899fa35553adcb75ff237e8ee85a3b1e3e689487d0b84dd9be52708b55edb",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 924.670415514498,
+      "wall_seconds": 969.6511137039633,
+      "peak_allocated_bytes": 449267200,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "ctm_seed31",
+      "seed": 31,
+      "model_family": "ctm",
+      "objective": "ramp_mono",
+      "learning_rate": 0.0003,
+      "readout": "confidence",
+      "step": 2200,
+      "validation_ce": 0.3184874653816223,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 98,
+        "exact_match": 0.765625,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 98,
+            "exact_match": 0.765625,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed31/ctm/best.pt",
+      "checkpoint_sha256": "a61708e28a7b5688cb46569d6b78296f7310dea1d8ee641bde1e41e637e8874e",
+      "config": "research/configs/fresh_confirmation_v1/ctm_seed31.json",
+      "config_sha256": "f3ab1910d8e2a1dca1d82a4cdccd3ab8fb3195d5806f3234df8d6d1f33d2f75f",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed31/ctm",
+      "summary_path": "research/results/fresh_confirmation_v1/ctm_seed31.summary.json",
+      "summary_sha256": "7f7358845766a95d36dbf8ecb0ea70deb27a59eb4e961e1a1bfa0a4702f23c18",
+      "metrics_sha256": "492949540e409101705999796d0b88fd8e482d50afc6924d560cba7fdb4c26c7",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 1911.0708737323293,
+      "wall_seconds": 1975.9941894370131,
+      "peak_allocated_bytes": 2482270208,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "transformer_seed31",
+      "seed": 31,
+      "model_family": "transformer",
+      "objective": "final_ce",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "step": 3000,
+      "validation_ce": 1.392326964833046e-07,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed31/transformer/best.pt",
+      "checkpoint_sha256": "daa55736aa66361bc752916cba93b0111390388b6dde87541f3235e50d673635",
+      "config": "research/configs/fresh_confirmation_v1/transformer_seed31.json",
+      "config_sha256": "cd50c3d2e62711c9034842d719104754e1c558e83c645a6217ba4664e153981e",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed31/transformer",
+      "summary_path": "research/results/fresh_confirmation_v1/transformer_seed31.summary.json",
+      "summary_sha256": "8b6cfed55d20f5e6bdac5be46d5b24df5f04c6326cbeff5e5fdab587be5a90aa",
+      "metrics_sha256": "53e9cbf7098fecde2d5829ffb9544b8b120a1826f211506695e4b8868bb8ca7f",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 112.47132669953862,
+      "wall_seconds": 119.41212185099721,
+      "peak_allocated_bytes": 63479808,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "recurrent_depth_seed31",
+      "seed": 31,
+      "model_family": "recurrent_depth",
+      "objective": "final_ce",
+      "learning_rate": 0.001,
+      "readout": "confidence",
+      "step": 2500,
+      "validation_ce": 0.5427123010158539,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 82,
+        "exact_match": 0.640625,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 82,
+            "exact_match": 0.640625,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed31/recurrent_depth/best.pt",
+      "checkpoint_sha256": "7c7b99e47965e0c8a58c6d3bcf800666ecf714ffc87c786cc5b868234c24b199",
+      "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed31.json",
+      "config_sha256": "780f10a76b95639e2488adea5757a1b39ed4e3cbbebb0d25f9cbea1248b3a5b5",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed31/recurrent_depth",
+      "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed31.summary.json",
+      "summary_sha256": "2317ba222bb0a650b95420d15aca1c80975452627dbc037b7fe9b3a3f9b45663",
+      "metrics_sha256": "99f7a05f52614b3168f1ef9b228646d90028b6e1d65c9a2a9062911e1e8e766e",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 980.6296414602548,
+      "wall_seconds": 1026.0953474199632,
+      "peak_allocated_bytes": 449267200,
+      "reused": false,
+      "role": "independent_confirmation"
+    },
+    {
+      "cell": "ctm_seed17_reference",
+      "seed": 17,
+      "model_family": "ctm",
+      "objective": "uniform",
+      "learning_rate": 0.0003,
+      "readout": "confidence",
+      "step": 2700,
+      "validation_ce": 0.00031375124672194943,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ctm_lr_v1/seed17/ctm_uniform_lr_low/best.pt",
+      "checkpoint_sha256": "546155aab0573c9831b0fadab64b5acdd81ad1d16d2b988b44f7f9d4cebadb96",
+      "config": "research/configs/ctm_lr_v1/ctm_uniform_lr_low.json",
+      "config_sha256": "c8f5ad7abd74a3d5e3485469a347e21f64a17e7a4aec5f1b5a4dca91fbd264bd",
+      "run_directory": "research/runs/ctm_lr_v1/seed17/ctm_uniform_lr_low",
+      "summary_path": "research/results/ctm_lr_v1/ctm_uniform_lr_low.summary.json",
+      "summary_sha256": "61849cf720cb84f0205393f2de916900bd95255d38431ab08ce4483ff3754c1b",
+      "metrics_sha256": "0995d4d2a7bed72a8caea20b8a152e6ac9a53878be5110cb6e1b698b8119f6fe",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 1963.5834100396023,
+      "wall_seconds": 2067.3671003879863,
+      "peak_allocated_bytes": 2473619456,
+      "reused": false,
+      "role": "development_reference"
+    },
+    {
+      "cell": "transformer_seed17_reference",
+      "seed": 17,
+      "model_family": "transformer",
+      "objective": "final_ce",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "step": 2900,
+      "validation_ce": 6.0535962909114005e-09,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/transformer_lr_low/best.pt",
+      "checkpoint_sha256": "4f6c2d279c65a00b08e43b7d06517cb4259abc0cca1f5b0bc9f7e941b77235b3",
+      "config": "research/configs/readout_comparison_v1/transformer_lr_low.json",
+      "config_sha256": "c2dc3bcd50cc5c308ea6682b7cccf8f2e1ba2f0d4c69b4f373854e06dd4281c3",
+      "run_directory": "research/runs/readout_comparison_v1/seed17/transformer_lr_low",
+      "summary_path": "research/results/readout_comparison_v1/transformer_lr_low.summary.json",
+      "summary_sha256": "abdf828123ff7da145872a822f49dffda2617fb48f5ee19d0205a1030a403320",
+      "metrics_sha256": "f72fcfbca894239af1bec38c082251d456ce031fd56ea87274841b1157c81780",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 112.20865191149642,
+      "wall_seconds": 118.93902152299415,
+      "peak_allocated_bytes": 63479808,
+      "reused": true,
+      "role": "development_reference"
+    },
+    {
+      "cell": "recurrent_depth_seed17_reference",
+      "seed": 17,
+      "model_family": "recurrent_depth",
+      "objective": "final_ce",
+      "learning_rate": 0.001,
+      "readout": "confidence",
+      "step": 3000,
+      "validation_ce": 3.678723814459772e-08,
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/best.pt",
+      "checkpoint_sha256": "aa70dcc852afe9367efd518647524e5275a8b9d58ade0135e22f77fd19f0c435",
+      "config": "research/configs/readout_comparison_v1/recurrent_depth_lr_mid.json",
+      "config_sha256": "cd0fcbc462de47dd906e6589bc5448d5ef0bda2b1c9155ebb178a38a23bb67bd",
+      "run_directory": "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid",
+      "summary_path": "research/results/readout_comparison_v1/recurrent_depth_lr_mid.summary.json",
+      "summary_sha256": "ddd8e29720d4eb9efe0c9bb8df84a76cde0e3fab1b0abadcb5f9a8632b62463a",
+      "metrics_sha256": "1c32252dc8c047a7f40c0aa4da60e40806c972a113127343fb2d68c13796d01d",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 892.4084753303614,
+      "wall_seconds": 954.0136875440076,
+      "peak_allocated_bytes": 449267200,
+      "reused": true,
+      "role": "development_reference"
+    }
+  ]
+}

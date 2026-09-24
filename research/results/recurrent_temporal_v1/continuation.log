@@ -1,0 +1,15 @@
+training {}
+auditing_and_summarizing {}
+# Recurrent temporal-supervision control
+
+All six new auxiliary-objective runs completed. Three final-CE runs are reused unchanged. Each objective uses the same recurrent architecture, LR0.001, T16, data exposure, paired seeds23/29/31 and confidence readout. Results below use original validation data only. No test forward was performed.
+
+## Selected validation results
+
+| Objective | Accuracy, mean ± SD | CE, mean ± SD | Training min/run, mean ± SD |
+|---|---:|---:|---:|
+| final_ce | 66.93% ± 4.30 points | 0.479606 ± 0.0955 | 15.8 ± 0.5 |
+| uniform | 56.77% ± 14.18 points | 0.555137 ± 0.182 | 24.8 ± 0.8 |
+| dynamic_aggregate | 57.03% ± 20.83 points | 0.610493 ± 0.298 | 25.6 ± 0.6 |
+
+complete_pending_documentation_and_archive {}

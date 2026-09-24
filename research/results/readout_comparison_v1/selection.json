@@ -1,0 +1,495 @@
+{
+  "complete": true,
+  "rule": "minimum validation CE over declared checkpoints/readouts/trials; earlier step, then final readout, then registry trial order for exact ties",
+  "no_test_forward_before_selection": true,
+  "registry_sha256": "2625fb412af4862657f7d59540f54d65c2b375c6c46f5132d47e53d389f695e3",
+  "pre_run_source_sha256": "61d38f4dcacd6e1b9e48e020115c650412b2b756a54255d553041d144551008b",
+  "selection_source_sha256": "8377f3bd55d66aee82abf48e55243db720342a295b62d7ff1623280255055c9e",
+  "audits": "All 27000 updates, exposure/LR counters, 270 validation checkpoints, declared policies, checkpoint identities, and frozen training sources verified.",
+  "data": {
+    "training": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+      "sha256": "45c38743cebf47573da1ba604defe42754e5c2fb1b09116e99edd7cbb4236ba9",
+      "examples": 2048,
+      "max_input_length": 54,
+      "supervised_tokens": 4096,
+      "task": "pointer",
+      "splits": [
+        "train"
+      ]
+    },
+    "evaluation": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+      "sha256": "de96f18ddbee31406a1b3dc1c91a946bb2fc37759f438a87a9f44c2f05209d96",
+      "examples": 128,
+      "max_input_length": 54,
+      "supervised_tokens": 256,
+      "task": "pointer",
+      "splits": [
+        "validation"
+      ]
+    },
+    "policy": "independent examples; BOS and EOS; answer and EOS supervision only; right padding masked; train shuffled each epoch; final partial training batch dropped"
+  },
+  "tokenizer_sha256": "edf3adec5e7b77a05f83c45dd2fb04de20a4e7d40b7dfe1fc39745b57fab4404",
+  "training_source_sha256": {
+    "ctm_transformer/experiment.py": "32b4e1db01fc1447564b5296b07e46cebffc8d3d3eb951f8615958c7c4ea3dad",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25"
+  },
+  "trials": [
+    {
+      "cell": "ctm_uniform",
+      "model_family": "ctm",
+      "validation_ce": 0.3050350546836853,
+      "step": 3000,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/ctm_uniform/best.pt",
+      "checkpoint_sha256": "d7459b0ac9ef549a88570b4e9db52c3a86ca45937c57585666b6c29f607bb4dd",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 98,
+        "exact_match": 0.765625,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 98,
+            "exact_match": 0.765625,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "9ced36970efcda5dcbd6675a329c74e41baa398c4ac879a129920c2e7eac21c3",
+      "summary_sha256": "3b75ae9c2423aa630d7c8f95884cf21484f3016012192141e630f0972b3f28e5",
+      "metrics_sha256": "a5590c5bf8d51792a78dc7023fea278bbf5dda5354ddda2117290cbab9dfe2e7",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 2004.4054297026887,
+      "wall_seconds": 2111.805049591989,
+      "peak_allocated_bytes": 2482270208,
+      "token_block_applications": 165888000
+    },
+    {
+      "cell": "ctm_dynamic",
+      "model_family": "ctm",
+      "validation_ce": 0.4184333011507988,
+      "step": 2700,
+      "readout": "confidence",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/ctm_dynamic/best.pt",
+      "checkpoint_sha256": "d99bf986ccbea6af4007c2b0b856d3e56b8fc4224b6b743113df3126729e5c17",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 94,
+        "exact_match": 0.734375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 94,
+            "exact_match": 0.734375,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "a236f18ff7b16cce01f7db4f8264c650dc25b6d96178198f65b9b4439e4f8977",
+      "summary_sha256": "27d1ee80ba6a52c49b98292c22d52907a01e03087c15f2863d242066387eac43",
+      "metrics_sha256": "17eb11a27e075551068ea21c375d69f528db5a462f37bf99ca67b09fb6401c83",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 1982.252124694729,
+      "wall_seconds": 2084.5211206910026,
+      "peak_allocated_bytes": 2473719296,
+      "token_block_applications": 165888000
+    },
+    {
+      "cell": "ctm_dynamic_mono",
+      "model_family": "ctm",
+      "validation_ce": 0.5480629131197929,
+      "step": 3000,
+      "readout": "confidence",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/best.pt",
+      "checkpoint_sha256": "069fe70b135e70ea5f6f3d4376a1949fcc0c6b8667f63dc1e4693f1c3b8d0c4e",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 82,
+        "exact_match": 0.640625,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 82,
+            "exact_match": 0.640625,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "578e5a3007793efa14780bf92ae2e8882427667beaf91ce066338d2858418488",
+      "summary_sha256": "c2acc05671ecdf5963656ae522bbda8463e662df20187f09764928b8e8a5c5f8",
+      "metrics_sha256": "766afe1b316391075d8f4f95901b9a7dc7057e589de836c20ffa2cf4dfb7c3a0",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 2003.0460482141061,
+      "wall_seconds": 2106.2128687469813,
+      "peak_allocated_bytes": 2473719296,
+      "token_block_applications": 165888000
+    },
+    {
+      "cell": "transformer_lr_low",
+      "model_family": "transformer",
+      "validation_ce": 6.0535962909114005e-09,
+      "step": 2900,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/transformer_lr_low/best.pt",
+      "checkpoint_sha256": "4f6c2d279c65a00b08e43b7d06517cb4259abc0cca1f5b0bc9f7e941b77235b3",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "c2dc3bcd50cc5c308ea6682b7cccf8f2e1ba2f0d4c69b4f373854e06dd4281c3",
+      "summary_sha256": "abdf828123ff7da145872a822f49dffda2617fb48f5ee19d0205a1030a403320",
+      "metrics_sha256": "f72fcfbca894239af1bec38c082251d456ce031fd56ea87274841b1157c81780",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 112.20865191149642,
+      "wall_seconds": 118.93902152299415,
+      "peak_allocated_bytes": 63479808,
+      "token_block_applications": 10368000
+    },
+    {
+      "cell": "transformer_lr_mid",
+      "model_family": "transformer",
+      "validation_ce": 0.47823328524827957,
+      "step": 2500,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/transformer_lr_mid/best.pt",
+      "checkpoint_sha256": "712466ddfcb07ab2590d1634c6c6e0e64f482dc7a3292e594cdf74d940d2f106",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 79,
+        "exact_match": 0.6171875,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 79,
+            "exact_match": 0.6171875,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "7e12a469f97568fa0a5c206c9601c4163693d5069952824a7901b64983c4a490",
+      "summary_sha256": "3fc2777d646b574569481fae62047b5a66c00c954f47a0e050e90011daf773a6",
+      "metrics_sha256": "551ef6049b9f8acff794a474f84781d6be2bd71db062d3c9aeedc020848b06e0",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 113.13914947918965,
+      "wall_seconds": 119.87600349300192,
+      "peak_allocated_bytes": 63479808,
+      "token_block_applications": 10368000
+    },
+    {
+      "cell": "transformer_lr_high",
+      "model_family": "transformer",
+      "validation_ce": 1.0309365093708038,
+      "step": 3000,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/transformer_lr_high/best.pt",
+      "checkpoint_sha256": "c601215782e82a5250f482ba58e57ed2414d6c359872db31fc9171af20137f98",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 18,
+        "exact_match": 0.140625,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 18,
+            "exact_match": 0.140625,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "1754405204da1bf759458b33adc0a76b571b8b4dfe5ff5ebe8f240b04c8926dc",
+      "summary_sha256": "a62e1e758f54885e32c5abd2fa72f42d2f5559348d7e7cd88ca82b2d7116bf20",
+      "metrics_sha256": "3418e6455f57ae8f4ab5fee53f18bbe6d78907011dd5a96f6ccdb5b9f4c8714a",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 112.53522129156045,
+      "wall_seconds": 118.18059850900318,
+      "peak_allocated_bytes": 63479808,
+      "token_block_applications": 10368000
+    },
+    {
+      "cell": "recurrent_depth_lr_low",
+      "model_family": "recurrent_depth",
+      "validation_ce": 0.4434668868780136,
+      "step": 3000,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/best.pt",
+      "checkpoint_sha256": "0175521a98615efcb7bf5f012dfcf15ab1dbac488be307755b569ef6e84f4c36",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 83,
+        "exact_match": 0.6484375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 83,
+            "exact_match": 0.6484375,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "a60b3b95ac380b1625d3457bea26621960113a87e3584071a378212f3c8c021a",
+      "summary_sha256": "83c113fc5b04ed136fb7e46387e09e07e13f5e3364878f236ccc1db834a4bbd5",
+      "metrics_sha256": "d46e1a340e187a9eaf389c5b740b5e78fb0b73c89e6dbbe3edf33adc855ee17b",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 906.9036747959908,
+      "wall_seconds": 967.4282378680073,
+      "peak_allocated_bytes": 449267200,
+      "token_block_applications": 176256000
+    },
+    {
+      "cell": "recurrent_depth_lr_mid",
+      "model_family": "recurrent_depth",
+      "validation_ce": 3.678723814459772e-08,
+      "step": 3000,
+      "readout": "confidence",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/best.pt",
+      "checkpoint_sha256": "aa70dcc852afe9367efd518647524e5275a8b9d58ade0135e22f77fd19f0c435",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "cd0fcbc462de47dd906e6589bc5448d5ef0bda2b1c9155ebb178a38a23bb67bd",
+      "summary_sha256": "ddd8e29720d4eb9efe0c9bb8df84a76cde0e3fab1b0abadcb5f9a8632b62463a",
+      "metrics_sha256": "1c32252dc8c047a7f40c0aa4da60e40806c972a113127343fb2d68c13796d01d",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 892.4084753303614,
+      "wall_seconds": 954.0136875440076,
+      "peak_allocated_bytes": 449267200,
+      "token_block_applications": 176256000
+    },
+    {
+      "cell": "recurrent_depth_lr_high",
+      "model_family": "recurrent_depth",
+      "validation_ce": 1.0381294190883636,
+      "step": 300,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/best.pt",
+      "checkpoint_sha256": "218bbb0af790afe70397a4cb7b42a05ad727c4cc79bc48a4552a3d770f170afa",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 17,
+        "exact_match": 0.1328125,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 17,
+            "exact_match": 0.1328125,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "e7d3c854b7682c145f44f606190b6d0365a080032a7dacc1f4e1f98a2ad06a86",
+      "summary_sha256": "ec761bdc72382334e3f3979bc14bfb5809a616fbaadb3b05272511e74b2de8d5",
+      "metrics_sha256": "8934b957993b5161b0b7eec0375ab1b664ca5d5dfd4e1a51f43f9067d0df80e5",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 921.4057302584988,
+      "wall_seconds": 979.5019453790155,
+      "peak_allocated_bytes": 449267200,
+      "token_block_applications": 176256000
+    }
+  ],
+  "winners": {
+    "ctm": {
+      "cell": "ctm_uniform",
+      "model_family": "ctm",
+      "validation_ce": 0.3050350546836853,
+      "step": 3000,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/ctm_uniform/best.pt",
+      "checkpoint_sha256": "d7459b0ac9ef549a88570b4e9db52c3a86ca45937c57585666b6c29f607bb4dd",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 98,
+        "exact_match": 0.765625,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 98,
+            "exact_match": 0.765625,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "9ced36970efcda5dcbd6675a329c74e41baa398c4ac879a129920c2e7eac21c3",
+      "summary_sha256": "3b75ae9c2423aa630d7c8f95884cf21484f3016012192141e630f0972b3f28e5",
+      "metrics_sha256": "a5590c5bf8d51792a78dc7023fea278bbf5dda5354ddda2117290cbab9dfe2e7",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "training_seconds": 2004.4054297026887,
+      "wall_seconds": 2111.805049591989,
+      "peak_allocated_bytes": 2482270208,
+      "token_block_applications": 165888000
+    },
+    "transformer": {
+      "cell": "transformer_lr_low",
+      "model_family": "transformer",
+      "validation_ce": 6.0535962909114005e-09,
+      "step": 2900,
+      "readout": "final",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/transformer_lr_low/best.pt",
+      "checkpoint_sha256": "4f6c2d279c65a00b08e43b7d06517cb4259abc0cca1f5b0bc9f7e941b77235b3",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "c2dc3bcd50cc5c308ea6682b7cccf8f2e1ba2f0d4c69b4f373854e06dd4281c3",
+      "summary_sha256": "abdf828123ff7da145872a822f49dffda2617fb48f5ee19d0205a1030a403320",
+      "metrics_sha256": "f72fcfbca894239af1bec38c082251d456ce031fd56ea87274841b1157c81780",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 112.20865191149642,
+      "wall_seconds": 118.93902152299415,
+      "peak_allocated_bytes": 63479808,
+      "token_block_applications": 10368000
+    },
+    "recurrent_depth": {
+      "cell": "recurrent_depth_lr_mid",
+      "model_family": "recurrent_depth",
+      "validation_ce": 3.678723814459772e-08,
+      "step": 3000,
+      "readout": "confidence",
+      "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/best.pt",
+      "checkpoint_sha256": "aa70dcc852afe9367efd518647524e5275a8b9d58ade0135e22f77fd19f0c435",
+      "validation_generation": {
+        "examples": 128,
+        "correct": 128,
+        "exact_match": 1.0,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 128,
+            "exact_match": 1.0,
+            "terminated": 128
+          }
+        }
+      },
+      "config_sha256": "cd0fcbc462de47dd906e6589bc5448d5ef0bda2b1c9155ebb178a38a23bb67bd",
+      "summary_sha256": "ddd8e29720d4eb9efe0c9bb8df84a76cde0e3fab1b0abadcb5f9a8632b62463a",
+      "metrics_sha256": "1c32252dc8c047a7f40c0aa4da60e40806c972a113127343fb2d68c13796d01d",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "training_seconds": 892.4084753303614,
+      "wall_seconds": 954.0136875440076,
+      "peak_allocated_bytes": 449267200,
+      "token_block_applications": 176256000
+    }
+  }
+}

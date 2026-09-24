@@ -1,108 +1,71 @@
-"""
-Run lm-evaluation-harness against a trained CTM-Transformer checkpoint.
+"""Evaluate CTM and baseline checkpoints with lm-eval 0.4.9.1 and auditable output.
 
-Default task suite is small-model-friendly: log-likelihood scoring on
-LAMBADA, HellaSwag, PIQA, ARC-Easy. None of these need open-ended
-generation, so we only have to implement `loglikelihood`.
+Run from the repository root, for example:
+  python -m scripts.eval_harness --checkpoint model.pt --t_sweep 1,4,8
 
-Reference points for ~500M-param models (fully trained) so you know
-what "alive" looks like:
-    LAMBADA      Pythia 410M ~52% acc;  GPT-2 medium ~43%
-    HellaSwag    Pythia 410M ~40%;      random 25%
-    PIQA         Pythia 410M ~68%;      random 50%
-    ARC-Easy     Pythia 410M ~52%;      random 25%
-
-You're undertrained relative to those; expect lower numbers and use the
-deltas over training as the signal.
-
-Usage:
-
-    # Single-T eval at config default
-    python -m scripts.eval_harness \\
-        --checkpoint checkpoints_v2_dual/latest.pt \\
-        --tasks lambada_openai,hellaswag,piqa,arc_easy \\
-        --device cuda:0 --batch_size 4
-
-    # Quick smoke test on a handful of examples per task
-    python -m scripts.eval_harness ... --limit 100
-
-    # T-ablation (deliverable #4)
-    python -m scripts.eval_harness ... --t_sweep 1,4,8 \\
-        --output eval_t_sweep.json
-
-The adapter handles both lm-eval 0.4.x (Instance objects) and 0.3.x
-(tuple) APIs because the package's API changed at 0.4.0 and there are
-both versions in the wild.
+Scoring preserves all continuation tokens. Only context is left-truncated;
+continuations longer than the model input window are rejected. Outputs use
+schema version 2: metadata, per-depth results, and full harness evaluations
+(including per-example responses and task definitions).
 """
 from __future__ import annotations
 
 import argparse
+import base64
+from dataclasses import asdict
+from datetime import datetime, timezone
+import hashlib
+from importlib.metadata import version
 import json
-import sys
+import os
 from pathlib import Path
+import subprocess
 from typing import Optional
 
 import torch
 import torch.nn.functional as F
-
-# ── lm-eval API compat ────────────────────────────────────────────
-try:
-    from lm_eval.api.model import LM
-    from lm_eval.api.instance import Instance
-    _LM_EVAL_API = "0.4"
-except ImportError:
-    try:
-        from lm_eval.base import LM  # type: ignore
-        Instance = None
-        _LM_EVAL_API = "0.3"
-    except ImportError as e:
-        raise ImportError(
-            "lm-evaluation-harness not installed.\n"
-            "  pip install lm-eval\n"
-            f"(import failed: {e})"
-        ) from e
+from lm_eval.api.model import LM
 
 
 class CTMTransformerLM(LM):
-    """lm-eval-harness adapter for CTMTransformer.
+    """Causal likelihood adapter; tokenization uses no automatic BOS/EOS."""
 
-    Implements `loglikelihood` only; the four tasks in our default suite
-    (lambada_openai, hellaswag, piqa, arc_easy) all use likelihood
-    scoring, not generation.
-    """
-
-    def __init__(
-        self,
-        model,
-        tokenizer,
-        device: str = "cuda:0",
-        batch_size: int = 4,
-        max_thought_steps: Optional[int] = None,
-        max_seq_len: int = 512,
-    ):
+    def __init__(self, model, tokenizer, device="cuda:0", batch_size=4,
+                 max_thought_steps: Optional[int] = None, max_seq_len=512,
+                 prefix_token_id: Optional[int] = None):
         super().__init__()
-        self.model = model
-        self.model.eval()
+        if batch_size <= 0 or max_seq_len <= 0:
+            raise ValueError("batch_size and max_seq_len must be positive")
+        self.model = model.eval()
         self.tokenizer = tokenizer
         self._device = torch.device(device)
         self._batch_size = batch_size
         self._max_thought_steps = max_thought_steps
         self._max_seq_len = max_seq_len
-
-        # Resolve EOT token id across tokenizer types
-        eot = getattr(tokenizer, "eot_token", None)
-        if eot is None:
-            inner = getattr(tokenizer, "tokenizer", None)
-            if inner is not None and getattr(inner, "eos_token_id", None) is not None:
-                eot = int(inner.eos_token_id)
-            else:
-                eot = 0
-        self._eot_token_id = int(eot)
-
-    # ── lm-eval API surface ───────────────────────────────────────
+        if max_seq_len > model.config.max_seq_len:
+            raise ValueError("max_seq_len exceeds the model's configured input window")
+        inner = getattr(tokenizer, "tokenizer", tokenizer)
+        if prefix_token_id is None:
+            for owner, field in ((tokenizer, "eot_token"), (inner, "eos_token_id"),
+                                 (inner, "bos_token_id")):
+                prefix_token_id = getattr(owner, field, None)
+                if prefix_token_id is not None:
+                    break
+        if prefix_token_id is None:
+            raise ValueError("Tokenizer has no EOS/BOS token; specify prefix_token_id explicitly")
+        self._eot_token_id = int(prefix_token_id)
+        if not 0 <= self._eot_token_id < model.config.vocab_size:
+            raise ValueError("prefix_token_id is outside the model vocabulary")
+        vocab_size = getattr(tokenizer, "n_vocab", None)
+        if vocab_size is not None and vocab_size > model.config.vocab_size:
+            raise ValueError("Tokenizer vocabulary is larger than the checkpoint vocabulary")
 
     @property
     def eot_token_id(self):
+        return self._eot_token_id
+
+    @property
+    def prefix_token_id(self):
         return self._eot_token_id
 
     @property
@@ -121,322 +84,322 @@ class CTMTransformerLM(LM):
     def device(self):
         return self._device
 
-    def tok_encode(self, string: str):
+    def tok_encode(self, string, **kwargs):
         return self.tokenizer.encode(string)
 
     def tok_decode(self, tokens):
         return self.tokenizer.decode(tokens)
 
-    # ── Forward helpers ──────────────────────────────────────────
+    def _encode_pair(self, context, continuation):
+        # Moving whitespace retains its BPE association with the next word.
+        trimmed = context.rstrip()
+        continuation = context[len(trimmed):] + continuation
+        context_tokens = self.tok_encode(trimmed) if trimmed else []
+        joined = self.tok_encode(trimmed + continuation)
+        if joined[:len(context_tokens)] != context_tokens:
+            raise ValueError(
+                "Context/continuation boundary falls inside a merged token. "
+                "Use a token-aligned boundary (normally put the word-leading space "
+                "in the continuation); an exact conditional score is ambiguous here."
+            )
+        continuation_tokens = joined[len(context_tokens):]
+        if not context_tokens:
+            context_tokens = [self.prefix_token_id]
+            # Match the reference harness's explicitly supplied prefix convention.
+            if continuation_tokens and continuation_tokens[0] == self.prefix_token_id:
+                continuation_tokens = continuation_tokens[1:]
+        return context_tokens, continuation_tokens
 
     @torch.no_grad()
-    def _model_call(self, ids: torch.Tensor) -> torch.Tensor:
-        """Run model forward, return logits [B, S, V]."""
-        result = self.model(ids, max_thought_steps=self._max_thought_steps)
-        return result["logits"]
-
-    # ── loglikelihood ────────────────────────────────────────────
+    def _model_call(self, ids):
+        return self.model(ids, max_thought_steps=self._max_thought_steps)["logits"]
 
     @torch.no_grad()
-    def loglikelihood(self, requests, disable_tqdm: bool = False):
-        """Score each (context, continuation) pair.
-
-        Returns: list of (log_likelihood, is_greedy) tuples in input order.
-        """
-        # Normalize input: lm-eval 0.4 passes Instance objects, 0.3 passes tuples
-        if Instance is not None and len(requests) > 0 and isinstance(requests[0], Instance):
-            req_args = [r.args for r in requests]
-        else:
-            req_args = list(requests)
-
-        # ── Tokenize all pairs ────────────────────────────────────
+    def loglikelihood(self, requests, disable_tqdm=False):
+        pairs = [request.args if hasattr(request, "args") else request for request in requests]
+        results = [None] * len(pairs)
         encoded = []
-        for context, continuation in req_args:
-            ctx_toks = self.tok_encode(context) if context else []
-            cont_toks = self.tok_encode(continuation)
-            if len(cont_toks) == 0:
-                # Degenerate: no continuation. Score 0.0, mark non-greedy.
-                encoded.append(([self._eot_token_id], 1, 0))
+        for index, (context, continuation) in enumerate(pairs):
+            # The probability of an empty continuation is 1.
+            if continuation == "":
+                results[index] = (0.0, True)
                 continue
-            full = ctx_toks + cont_toks
-
-            # Truncate from the LEFT (drop oldest context) so we always
-            # preserve the continuation. If the continuation alone
-            # exceeds max_seq_len, truncate it from the right (rare).
-            if len(full) > self._max_seq_len:
-                drop = len(full) - self._max_seq_len
-                if len(ctx_toks) >= drop:
-                    ctx_toks = ctx_toks[drop:]
-                    full = ctx_toks + cont_toks
-                else:
-                    cont_toks = cont_toks[: self._max_seq_len]
-                    ctx_toks = []
-                    full = cont_toks
-            encoded.append((full, len(ctx_toks), len(cont_toks)))
-
-        # ── Length-bucketed batching ──────────────────────────────
-        order = sorted(range(len(encoded)), key=lambda i: -len(encoded[i][0]))
-        results = [None] * len(encoded)
-
-        try:
-            from tqdm.auto import tqdm
-            iter_chunks = tqdm(
-                range(0, len(order), self._batch_size),
-                disable=disable_tqdm,
-                desc=f"loglikelihood (T={self._max_thought_steps or 'cfg'})",
-            )
-        except ImportError:
-            iter_chunks = range(0, len(order), self._batch_size)
-
-        for batch_start in iter_chunks:
-            batch_idxs = order[batch_start: batch_start + self._batch_size]
-            batch = [encoded[i] for i in batch_idxs]
-            max_len = max(len(b[0]) for b in batch)
-
-            # Right-pad with EOT. We only score continuation positions,
-            # which are by construction non-padding, so padding doesn't
-            # contaminate the scores.
-            ids = torch.full(
-                (len(batch), max_len), self._eot_token_id,
-                dtype=torch.long, device=self._device,
-            )
-            for i, (full, _, _) in enumerate(batch):
-                ids[i, :len(full)] = torch.tensor(full, dtype=torch.long, device=self._device)
-
-            logits = self._model_call(ids)  # [B, max_len, V]
-            log_probs = F.log_softmax(logits.float(), dim=-1)
-
-            for i, (full, ctx_len, cont_len) in enumerate(batch):
-                if cont_len == 0:
-                    results[batch_idxs[i]] = (0.0, False)
-                    continue
-
-                # Predictions for token at position p come from logits at p-1.
-                # Continuation occupies [ctx_len, ctx_len + cont_len).
-                # If ctx_len == 0, we lose the first continuation token's
-                # score (no logits to predict it from); same convention as
-                # the standard HF lm-eval adapter.
-                if ctx_len == 0:
-                    pred_start = 0
-                    target_start = 1
-                    n_score = cont_len - 1
-                else:
-                    pred_start = ctx_len - 1
-                    target_start = ctx_len
-                    n_score = cont_len
-
-                if n_score <= 0:
-                    results[batch_idxs[i]] = (0.0, True)
-                    continue
-
-                target_ids = torch.tensor(
-                    full[target_start: target_start + n_score],
-                    dtype=torch.long, device=self._device,
+            ctx, cont = self._encode_pair(context, continuation)
+            if not cont:
+                results[index] = (0.0, True)
+                continue
+            if len(cont) > self.max_length:
+                raise ValueError(
+                    f"Continuation has {len(cont)} tokens, exceeding max_seq_len="
+                    f"{self.max_length}; refusing to discard scored tokens."
                 )
-                slice_lp = log_probs[i, pred_start: pred_start + n_score]  # [n, V]
-                gathered = slice_lp.gather(1, target_ids.unsqueeze(-1)).squeeze(-1)  # [n]
-                ll = float(gathered.sum().item())
-
-                argmax_ids = slice_lp.argmax(dim=-1)
-                is_greedy = bool((argmax_ids == target_ids).all().item())
-
-                results[batch_idxs[i]] = (ll, is_greedy)
-
+            if min(ctx + cont) < 0 or max(ctx + cont) >= self.model.config.vocab_size:
+                raise ValueError("Token ID is outside the checkpoint vocabulary")
+            # The last target is never an input. Keep one context token even when
+            # the continuation occupies the entire input window.
+            inputs = (ctx + cont)[-(self.max_length + 1):][:-1]
+            encoded.append((index, inputs, cont))
+        encoded.sort(key=lambda item: -len(item[1]))
+        for offset in range(0, len(encoded), self.batch_size):
+            batch = encoded[offset:offset + self.batch_size]
+            width = max(len(inputs) for _, inputs, _ in batch)
+            ids = torch.full((len(batch), width), self.eot_token_id,
+                             dtype=torch.long, device=self.device)
+            for row, (_, inputs, _) in enumerate(batch):
+                ids[row, :len(inputs)] = torch.tensor(inputs, device=self.device)
+            # Right padding is causally inaccessible to all scored positions.
+            log_probs = F.log_softmax(self._model_call(ids).float(), dim=-1)
+            for row, (index, inputs, cont) in enumerate(batch):
+                predictions = log_probs[row, len(inputs) - len(cont):len(inputs)]
+                targets = torch.tensor(cont, dtype=torch.long, device=self.device)
+                score = predictions.gather(-1, targets[:, None]).sum()
+                if not torch.isfinite(score):
+                    raise RuntimeError("Non-finite continuation log-likelihood")
+                results[index] = (float(score), bool((predictions.argmax(-1) == targets).all()))
+        for pair, result in zip(pairs, results):
+            self.cache_hook.add_partial("loglikelihood", pair, result)
         return results
 
-    # ── Required by API but not used by our suite ────────────────
+    def loglikelihood_rolling(self, requests, disable_tqdm=False):
+        raise NotImplementedError("Rolling corpus likelihood is not implemented; use conditional likelihood tasks")
 
-    @torch.no_grad()
-    def loglikelihood_rolling(self, requests, disable_tqdm: bool = False):
-        raise NotImplementedError(
-            "loglikelihood_rolling not implemented; not needed for "
-            "lambada_openai/hellaswag/piqa/arc_easy. "
-            "Implement if you add wikitext or similar PPL tasks."
-        )
-
-    def generate_until(self, requests, disable_tqdm: bool = False):
-        raise NotImplementedError(
-            "generate_until not implemented; the small-model suite uses "
-            "loglikelihood scoring. For GSM8K-style generation tasks, "
-            "wire this through to model.generate()."
-        )
+    def generate_until(self, requests, disable_tqdm=False):
+        raise NotImplementedError("Generation tasks are not implemented in this adapter")
 
 
-# ──────────────────────────────────────────────────────────────────
-# Checkpoint loading
-# ──────────────────────────────────────────────────────────────────
+def _sha256_file(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as source:
+        for chunk in iter(lambda: source.read(8 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
 
 def _load_checkpoint(checkpoint_path, config_overrides=None):
-    """Load a saved checkpoint and return (model, config)."""
-    from ctm_transformer.config import CTMConfig
-    from ctm_transformer.model import CTMTransformer
+    """Load local training checkpoints strictly; never evaluate partial weights."""
+    from ctm_transformer.research import config_from_dict, build_model
 
-    print(f"  Loading state dict from {checkpoint_path} ...")
-    ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
-
-    if "config" in ckpt:
-        config_dict = (
-            ckpt["config"] if isinstance(ckpt["config"], dict)
-            else ckpt["config"].__dict__
-        )
-    else:
-        raise RuntimeError(
-            f"Checkpoint {checkpoint_path} has no 'config' field. "
-            "Reconstruct CTMConfig manually and load only state_dict if needed."
-        )
-
+    checkpoint_path = Path(checkpoint_path)
+    # Training checkpoints include configuration objects and optimizer metadata.
+    # Hash and deserialize the same open file, even if a training process
+    # replaces a `latest.pt` path during evaluation.
+    with checkpoint_path.open("rb") as source:
+        before = os.fstat(source.fileno())
+        digest = hashlib.sha256()
+        for chunk in iter(lambda: source.read(8 * 1024 * 1024), b""):
+            digest.update(chunk)
+        source.seek(0)
+        checkpoint = torch.load(source, map_location="cpu", weights_only=False)
+        after = os.fstat(source.fileno())
+    if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+        raise RuntimeError("Checkpoint changed while loading; evaluate a stable snapshot")
+    if not isinstance(checkpoint, dict) or "config" not in checkpoint:
+        raise ValueError("Checkpoint must include its training config")
+    saved_config = checkpoint["config"]
+    config_dict = dict(saved_config if isinstance(saved_config, dict) else vars(saved_config))
     if config_overrides:
-        config_dict = {**config_dict, **config_overrides}
-
-    # Filter to known fields (defensive against config schema drift)
-    known = set(CTMConfig.__dataclass_fields__.keys())
-    filtered = {k: v for k, v in config_dict.items() if k in known}
-    config = CTMConfig(**filtered)
-
-    print(f"  Building model (n_layers={config.n_layers}, "
-          f"d_model={config.d_model}, T={config.max_thought_steps})")
-    model = CTMTransformer(config)
-
-    # Strip wrapper prefixes from compile/DDP saves
-    state = (
-        ckpt.get("model")
-        or ckpt.get("model_state_dict")
-        or ckpt.get("state_dict")
-        or ckpt
-    )
+        config_dict.update(config_overrides)
+    family = checkpoint.get("model_family", "ctm")
+    try:
+        config = config_from_dict(config_dict, family, require_all=family != 'ctm')
+    except ValueError as error:
+        raise ValueError(f"Unknown or invalid checkpoint configuration fields require explicit migration: {error}") from error
+    state = next((checkpoint[key] for key in ("model", "model_state_dict", "state_dict")
+                  if key in checkpoint), None)
+    if not isinstance(state, dict):
+        raise ValueError("Checkpoint must contain a named model state dictionary")
     fixed = {}
-    for k, v in state.items():
-        if k.startswith("_orig_mod."):
-            k = k[len("_orig_mod."):]
-        if k.startswith("module."):
-            k = k[len("module."):]
-        fixed[k] = v
-
-    missing, unexpected = model.load_state_dict(fixed, strict=False)
-    if missing:
-        print(f"  [load] {len(missing)} missing keys (e.g. {missing[:3]})")
-    if unexpected:
-        print(f"  [load] {len(unexpected)} unexpected keys (e.g. {unexpected[:3]})")
-
+    for name, tensor in state.items():
+        clean = name
+        while clean.startswith(("module.", "_orig_mod.")):
+            clean = clean.split(".", 1)[1]
+        if clean in fixed:
+            raise ValueError(f"Checkpoint wrapper-prefix collision for {clean}")
+        fixed[clean] = tensor
+    if config.tie_embeddings and (family != "ctm" or config.use_shared_head_film):
+        embedding, head = fixed.get("token_embedding.weight"), fixed.get("lm_head.weight")
+        if embedding is not None and head is not None and not torch.equal(embedding, head):
+            raise ValueError("Checkpoint contains inconsistent tied embedding/head weights")
+    model = build_model(config)
+    model.load_state_dict(fixed, strict=True)
+    model._checkpoint_metadata = {
+        "model_family": family,
+        "path": str(checkpoint_path.resolve()), "sha256": digest.hexdigest(),
+        "size_bytes": after.st_size,
+        "training_config": saved_config if isinstance(saved_config, dict) else vars(saved_config),
+        "config_overrides": config_overrides or {},
+        "training_counters": {key: checkpoint[key] for key in
+                              ("step", "tokens_seen", "tokens_processed", "total_tokens") if key in checkpoint},
+    }
     return model, config
 
 
-# ──────────────────────────────────────────────────────────────────
-# Main
-# ──────────────────────────────────────────────────────────────────
+def _json_default(value):
+    if hasattr(value, "tolist"):
+        return value.tolist()
+    if isinstance(value, Path):
+        return str(value)
+    return str(value)
+
+
+def _write_json(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(json.dumps(data, indent=2, default=_json_default) + "\n")
+    temporary.replace(path)
+
+
+def _tokenizer_snapshot(tokenizer):
+    """Save effective tokenization rules, not only a mutable model name."""
+    inner = getattr(tokenizer, "tokenizer", tokenizer)
+    if hasattr(inner, "_mergeable_ranks"):
+        return {
+            "kind": "tiktoken", "name": inner.name, "pattern": inner._pat_str,
+            "mergeable_ranks": [[base64.b64encode(token).decode("ascii"), rank]
+                                for token, rank in sorted(inner._mergeable_ranks.items(), key=lambda x: x[1])],
+            "special_tokens": inner._special_tokens,
+        }
+    if hasattr(inner, "backend_tokenizer"):
+        return {"kind": "huggingface_fast", "backend": json.loads(inner.backend_tokenizer.to_str()),
+                "special_tokens_map": inner.special_tokens_map,
+                "name_or_path": inner.name_or_path,
+                "revision": inner.init_kwargs.get("_commit_hash"), "add_special_tokens": False}
+    # A vocabulary alone cannot reproduce a slow tokenizer's segmentation rules.
+    raise ValueError("Evaluation provenance requires tiktoken or a HuggingFace fast tokenizer")
+
+
+def _dataset_metadata(task_dict):
+    records = {}
+    for name, task in task_dict.items():
+        if isinstance(task, dict):
+            records.update(_dataset_metadata(task))
+            continue
+        splits = {}
+        for split, dataset in getattr(task, "dataset", {}).items():
+            info = getattr(dataset, "info", None)
+            splits[str(split)] = {
+                "fingerprint": getattr(dataset, "_fingerprint", None),
+                "num_rows": getattr(dataset, "num_rows", None),
+                "version": str(info.version) if info and info.version is not None else None,
+                "dataset_name": getattr(info, "dataset_name", None),
+            }
+        config = task.dump_config()
+        records[str(name)] = {"dataset_path": config.get("dataset_path"),
+                              "dataset_name": config.get("dataset_name"),
+                              "dataset_kwargs": config.get("dataset_kwargs"), "splits": splits}
+    return records
+
+
+def _code_metadata():
+    root = Path(__file__).resolve().parent.parent
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+        status = subprocess.check_output(["git", "status", "--porcelain"], cwd=root, text=True)
+    except (OSError, subprocess.CalledProcessError):
+        commit, status = None, None
+    paths = [Path(__file__), *sorted((root / "ctm_transformer").glob("*.py"))]
+    return {"commit": commit, "worktree_status": status,
+            "source_sha256": {str(p.relative_to(root)): _sha256_file(p) for p in paths}}
+
 
 def main():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    parser.add_argument("--checkpoint", required=True,
-                        help="Path to a saved CTMTransformer checkpoint")
-    parser.add_argument("--tokenizer", default=None,
-                        help="Override tokenizer string; defaults to checkpoint config")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--checkpoint", required=True)
+    parser.add_argument("--tokenizer", help="Explicit tokenizer override; recorded in provenance")
+    parser.add_argument("--tokenizer_revision", help="HuggingFace tokenizer revision (prefer a commit SHA)")
     parser.add_argument("--tasks", default="lambada_openai,hellaswag,piqa,arc_easy")
-    parser.add_argument("--thought_steps", type=int, default=None,
-                        help="Override max_thought_steps (single-T eval)")
-    parser.add_argument("--t_sweep", default=None,
-                        help="Comma-separated T values for ablation, e.g. 1,4,8. "
-                             "Overrides --thought_steps if set.")
+    parser.add_argument("--include_path", help="Directory containing additional lm-eval task definitions")
+    parser.add_argument("--thought_steps", type=int)
+    parser.add_argument("--t_sweep")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--max_seq_len", type=int, help="Default: minimum of training and model window sizes")
+    parser.add_argument("--prefix_token_id", type=int)
     parser.add_argument("--num_fewshot", type=int, default=0)
-    parser.add_argument("--limit", type=int, default=None,
-                        help="Limit examples per task (for quick smoke tests)")
-    parser.add_argument("--output", default=None,
-                        help="Write results JSON to this path")
-    parser.add_argument("--dtype", default="bfloat16",
-                        choices=("bfloat16", "float16", "float32"))
+    parser.add_argument("--limit", type=int)
+    parser.add_argument("--seed", type=int, default=17)
+    parser.add_argument("--output", type=Path, help="Default: <checkpoint>.eval.json")
+    parser.add_argument("--dtype", default="bfloat16", choices=("bfloat16", "float16", "float32"))
     args = parser.parse_args()
-
-    print(f"lm-eval-harness adapter for CTM-Transformer (lm-eval API {_LM_EVAL_API})")
-    print(f"  Checkpoint:  {args.checkpoint}")
-    print(f"  Tasks:       {args.tasks}")
-    print(f"  Device:      {args.device}")
-    print(f"  Dtype:       {args.dtype}")
-    print(f"  Batch size:  {args.batch_size}")
-
-    # ── Load model ─────────────────────────────────────────────────
+    if args.limit is not None and args.limit <= 0:
+        parser.error("limit must be positive")
     model, config = _load_checkpoint(args.checkpoint)
-    dtype = getattr(torch, args.dtype)
-    device = torch.device(args.device)
-    model = model.to(device, dtype)
-    model.eval()
-
-    # ── Tokenizer ──────────────────────────────────────────────────
-    if args.tokenizer is not None:
-        config.tokenizer = args.tokenizer
-    # Reuse training tokenizer factory for consistency
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from ctm_transformer.train import get_tokenizer
-    tokenizer = get_tokenizer(config)
-    print(f"  Tokenizer:   {config.tokenizer} (vocab={tokenizer.n_vocab})")
-
-    # ── T values ───────────────────────────────────────────────────
-    if args.t_sweep:
-        t_values = [int(x) for x in args.t_sweep.split(",") if x.strip()]
-    elif args.thought_steps is not None:
-        t_values = [args.thought_steps]
+    model.to(torch.device(args.device), getattr(torch, args.dtype)).eval()
+    tokenizer_name = args.tokenizer or config.tokenizer
+    if tokenizer_name.startswith("hf:"):
+        from transformers import AutoTokenizer
+        from ctm_transformer.train import HFTokenizerWrapper
+        tokenizer = HFTokenizerWrapper(AutoTokenizer.from_pretrained(
+            tokenizer_name[3:], revision=args.tokenizer_revision, use_fast=True,
+            trust_remote_code=False,
+        ))
     else:
-        t_values = [None]
-
-    # ── Run ────────────────────────────────────────────────────────
-    from lm_eval import simple_evaluate
-
+        if args.tokenizer_revision:
+            parser.error("tokenizer_revision only applies to HuggingFace tokenizers")
+        import tiktoken
+        tokenizer = tiktoken.get_encoding(tokenizer_name)
+    output = args.output or Path(args.checkpoint).with_suffix(".eval.json")
+    tokenizer_path = output.with_suffix(".tokenizer.json")
+    if Path(args.checkpoint).resolve() in (output.resolve(), tokenizer_path.resolve()):
+        parser.error("evaluation output must not overwrite the checkpoint")
+    _write_json(tokenizer_path, _tokenizer_snapshot(tokenizer))
+    t_values = ([int(t.strip()) for t in args.t_sweep.split(",") if t.strip()]
+                if args.t_sweep is not None else [args.thought_steps or config.max_thought_steps])
+    if not t_values or any(t <= 0 for t in t_values) or len(set(t_values)) != len(t_values):
+        parser.error("thought budgets must be nonempty, positive, and unique")
+    if args.thought_steps is not None and args.thought_steps <= 0:
+        parser.error("thought_steps must be positive")
+    if max(t_values) > config.max_thought_steps and (
+        any(getattr(config, key, False) for key in ("per_tick_heads", "use_shared_head_film", "use_loop_pos_emb"))
+    ):
+        parser.error("thought budget exceeds max_thought_steps for tick-indexed parameters")
+    if getattr(config, 'model_family', 'ctm') == 'transformer' and t_values != [1]:
+        parser.error('Standard Transformer has fixed layer depth; use T=1')
+    max_seq_len = args.max_seq_len if args.max_seq_len is not None else min(config.max_seq_len, config.seq_len)
     tasks = [t.strip() for t in args.tasks.split(",") if t.strip()]
-    max_seq_len = getattr(config, "max_seq_len", None) or getattr(config, "seq_len", 512)
+    if not tasks:
+        parser.error("at least one task is required")
+    from lm_eval import simple_evaluate
+    from lm_eval.tasks import TaskManager
 
-    all_results: dict = {}
+    class RecordingTaskManager(TaskManager):
+        def load_task_or_group(self, task_list):
+            self.loaded_tasks = super().load_task_or_group(task_list)
+            return self.loaded_tasks
+
+    manager = RecordingTaskManager(include_path=args.include_path)
+    metadata = {
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "checkpoint": model._checkpoint_metadata, "effective_config": asdict(config),
+        "tokenizer": {"identifier": tokenizer_name, "override": args.tokenizer,
+                      "requested_revision": args.tokenizer_revision, "snapshot": str(tokenizer_path.resolve()),
+                      "sha256": _sha256_file(tokenizer_path)},
+        "code": _code_metadata(),
+        "packages": {name: version(name) for name in ("torch", "lm-eval", "transformers", "datasets", "tiktoken")},
+        "device": args.device, "dtype": args.dtype, "cuda_runtime": torch.version.cuda,
+        "gpu": torch.cuda.get_device_name(args.device) if torch.device(args.device).type == "cuda" else None,
+        "batch_size": args.batch_size, "max_seq_len": max_seq_len, "seed": args.seed,
+        "tasks": tasks, "include_path": args.include_path, "num_fewshot": args.num_fewshot, "limit": args.limit, "thought_budgets": t_values,
+        "scoring": "joint tokenization; explicit prefix; context-only truncation; FP32 log_softmax",
+    }
+    report = {"schema_version": 2, "metadata": metadata, "results": {}, "evaluations": {}, "complete": False}
     for T in t_values:
-        T_label = T if T is not None else config.max_thought_steps
-        print(f"\n{'='*60}\nEvaluating at T={T_label}\n{'='*60}")
-
-        lm = CTMTransformerLM(
-            model=model, tokenizer=tokenizer,
-            device=args.device, batch_size=args.batch_size,
-            max_thought_steps=T, max_seq_len=max_seq_len,
+        lm = CTMTransformerLM(model, tokenizer, args.device, args.batch_size, T, max_seq_len, args.prefix_token_id)
+        metadata["prefix_token_id"] = lm.prefix_token_id
+        evaluated = simple_evaluate(
+            model=lm, tasks=tasks, task_manager=manager, num_fewshot=args.num_fewshot,
+            limit=args.limit, batch_size=args.batch_size, log_samples=True,
+            random_seed=args.seed, numpy_random_seed=args.seed, torch_random_seed=args.seed,
+            fewshot_random_seed=args.seed,
         )
-
-        eval_out = simple_evaluate(
-            model=lm,
-            tasks=tasks,
-            num_fewshot=args.num_fewshot,
-            limit=args.limit,
-            batch_size=args.batch_size,
-        )
-        per_task = eval_out.get("results", {}) if isinstance(eval_out, dict) else {}
-        all_results[str(T_label)] = per_task
-
-        for task_name, task_results in per_task.items():
-            print(f"  {task_name}:")
-            for metric, value in task_results.items():
-                if isinstance(value, (int, float)):
-                    print(f"    {metric}: {value:.4f}")
-
-    # ── T-sweep summary ────────────────────────────────────────────
-    if len(t_values) > 1:
-        print(f"\n{'='*60}\nT-ablation summary\n{'='*60}")
-        first_T = next(iter(all_results.keys()))
-        for task_name in all_results[first_T].keys():
-            metrics = all_results[first_T][task_name]
-            primary = next(
-                (m for m in ("acc_norm,none", "acc,none", "acc_norm", "acc")
-                 if m in metrics), None,
-            )
-            if primary is None:
-                continue
-            row = "  ".join(
-                f"T={T}:{all_results[T][task_name].get(primary, float('nan')):.3f}"
-                for T in all_results.keys()
-            )
-            print(f"  {task_name:20s} ({primary:>14s}):  {row}")
-
-    # ── Save ───────────────────────────────────────────────────────
-    if args.output:
-        with open(args.output, "w") as f:
-            json.dump(all_results, f, indent=2, default=str)
-        print(f"\nWrote results to {args.output}")
+        report["results"][str(T)] = evaluated["results"]
+        report["evaluations"][str(T)] = evaluated
+        metadata["datasets"] = _dataset_metadata(manager.loaded_tasks)
+        report["complete"] = len(report["evaluations"]) == len(t_values)
+        _write_json(output, report)
+        print(f"T={T}: {json.dumps(evaluated['results'], default=_json_default)}")
+    print(f"Wrote evaluation and provenance to {output}")
 
 
 if __name__ == "__main__":

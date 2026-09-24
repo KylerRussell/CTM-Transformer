@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="3.545" timestamp="2026-09-23T15:36:56.307447+00:00" hostname="claude-code-vm-0"><testcase classname="tests.test_fresh_pointer" name="test_fresh_maps_exclusion_pairing_and_reproducibility" time="0.226" /></testsuite></testsuites>

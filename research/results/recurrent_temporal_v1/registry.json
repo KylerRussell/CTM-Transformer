@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "name": "recurrent_temporal_v1",
+  "role": "paired development objective control; no test evaluation",
+  "entries": [
+    {
+      "cell": "final_ce_seed23",
+      "objective": "final_ce",
+      "seed": 23,
+      "model_family": "recurrent_depth",
+      "reused": true,
+      "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed23.json",
+      "config_sha256": "3b225a13dfd7b88ffa3941064d3e6ae1e013d879d4b841d751da262a21706555",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed23/recurrent_depth",
+      "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": {
+        "cell": "recurrent_depth_seed23",
+        "seed": 23,
+        "model_family": "recurrent_depth",
+        "objective": "final_ce",
+        "learning_rate": 0.001,
+        "readout": "confidence",
+        "step": 2000,
+        "validation_ce": 0.3697482533752918,
+        "validation_generation": {
+          "examples": 128,
+          "correct": 92,
+          "exact_match": 0.71875,
+          "terminated": 128,
+          "by_difficulty": {
+            "nodes=8,steps=1": {
+              "examples": 128,
+              "correct": 92,
+              "exact_match": 0.71875,
+              "terminated": 128
+            }
+          }
+        },
+        "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed23/recurrent_depth/best.pt",
+        "checkpoint_sha256": "dd3d8530a901a7e5cfcab5664e342d0cc12ff27bd4c57578d5463ec6b6c121a6",
+        "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed23.json",
+        "config_sha256": "3b225a13dfd7b88ffa3941064d3e6ae1e013d879d4b841d751da262a21706555",
+        "run_directory": "research/runs/fresh_confirmation_v1/seed23/recurrent_depth",
+        "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed23.summary.json",
+        "summary_sha256": "4650bbb32d56e50dc99da3e36361bdb0db7e51906b3e1c3f4de542eff8af4f75",
+        "metrics_sha256": "11d67769008bd32ede9c55adb1f45d074d10f789e4be1cc2419c70e859be13ee",
+        "parameters": {
+          "total": 525984,
+          "token_embedding": 6816,
+          "position_embedding": 12288,
+          "readout": 6816,
+          "other": 500064
+        },
+        "training_seconds": 935.1424479767447,
+        "wall_seconds": 979.9641115609556,
+        "peak_allocated_bytes": 449267200,
+        "reused": false,
+        "role": "independent_confirmation"
+      },
+      "control_run_manifest_sha256": "84733451cbe1f7d56e58009965e60d9e1648bb6d81a29ff6d8fb3913966d76e7"
+    },
+    {
+      "cell": "uniform_seed23",
+      "objective": "uniform",
+      "seed": 23,
+      "model_family": "recurrent_depth",
+      "reused": false,
+      "config": "research/configs/recurrent_temporal_v1/uniform_seed23.json",
+      "config_sha256": "3a905db50454fd52a6a9a400f02f94dd5bcdb472b995af2a3ba2d99581530319",
+      "run_directory": "research/runs/recurrent_temporal_v1/seed23/uniform",
+      "summary_path": "research/results/recurrent_temporal_v1/uniform_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": null,
+      "control_run_manifest_sha256": null
+    },
+    {
+      "cell": "dynamic_aggregate_seed23",
+      "objective": "dynamic_aggregate",
+      "seed": 23,
+      "model_family": "recurrent_depth",
+      "reused": false,
+      "config": "research/configs/recurrent_temporal_v1/dynamic_aggregate_seed23.json",
+      "config_sha256": "84e84d591753c427061726a6b543ba03d076efc153bb637b95b8f3237e299632",
+      "run_directory": "research/runs/recurrent_temporal_v1/seed23/dynamic_aggregate",
+      "summary_path": "research/results/recurrent_temporal_v1/dynamic_aggregate_seed23.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": null,
+      "control_run_manifest_sha256": null
+    },
+    {
+      "cell": "final_ce_seed29",
+      "objective": "final_ce",
+      "seed": 29,
+      "model_family": "recurrent_depth",
+      "reused": true,
+      "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed29.json",
+      "config_sha256": "e7d3e143c550d4df83e776ef25d8b5f1a0ca89e1b5b702dde9be7ea6d550e06d",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed29/recurrent_depth",
+      "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": {
+        "cell": "recurrent_depth_seed29",
+        "seed": 29,
+        "model_family": "recurrent_depth",
+        "objective": "final_ce",
+        "learning_rate": 0.001,
+        "readout": "confidence",
+        "step": 2500,
+        "validation_ce": 0.5263568013906479,
+        "validation_generation": {
+          "examples": 128,
+          "correct": 83,
+          "exact_match": 0.6484375,
+          "terminated": 128,
+          "by_difficulty": {
+            "nodes=8,steps=1": {
+              "examples": 128,
+              "correct": 83,
+              "exact_match": 0.6484375,
+              "terminated": 128
+            }
+          }
+        },
+        "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed29/recurrent_depth/best.pt",
+        "checkpoint_sha256": "fb97322b49171cbb20829056db2d894bf030d1735c3193dccf3141743a33c251",
+        "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed29.json",
+        "config_sha256": "e7d3e143c550d4df83e776ef25d8b5f1a0ca89e1b5b702dde9be7ea6d550e06d",
+        "run_directory": "research/runs/fresh_confirmation_v1/seed29/recurrent_depth",
+        "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed29.summary.json",
+        "summary_sha256": "3c2871802138e31b44b7588543900af6ba443f2cd959a1240bfbd4a746409863",
+        "metrics_sha256": "a50899fa35553adcb75ff237e8ee85a3b1e3e689487d0b84dd9be52708b55edb",
+        "parameters": {
+          "total": 525984,
+          "token_embedding": 6816,
+          "position_embedding": 12288,
+          "readout": 6816,
+          "other": 500064
+        },
+        "training_seconds": 924.670415514498,
+        "wall_seconds": 969.6511137039633,
+        "peak_allocated_bytes": 449267200,
+        "reused": false,
+        "role": "independent_confirmation"
+      },
+      "control_run_manifest_sha256": "e923f8281891c35e2de3d3a07e5adb380c91966a03618e66d84b67a3b465a543"
+    },
+    {
+      "cell": "uniform_seed29",
+      "objective": "uniform",
+      "seed": 29,
+      "model_family": "recurrent_depth",
+      "reused": false,
+      "config": "research/configs/recurrent_temporal_v1/uniform_seed29.json",
+      "config_sha256": "5dfc5d67feb70088be6643d126cb8f3428cade630525ab0de92e776d9d186eaf",
+      "run_directory": "research/runs/recurrent_temporal_v1/seed29/uniform",
+      "summary_path": "research/results/recurrent_temporal_v1/uniform_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": null,
+      "control_run_manifest_sha256": null
+    },
+    {
+      "cell": "dynamic_aggregate_seed29",
+      "objective": "dynamic_aggregate",
+      "seed": 29,
+      "model_family": "recurrent_depth",
+      "reused": false,
+      "config": "research/configs/recurrent_temporal_v1/dynamic_aggregate_seed29.json",
+      "config_sha256": "ad8c32a99982463e198fef8c80258f7d9de07e86ae6931063a5fa4ba4af217dc",
+      "run_directory": "research/runs/recurrent_temporal_v1/seed29/dynamic_aggregate",
+      "summary_path": "research/results/recurrent_temporal_v1/dynamic_aggregate_seed29.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": null,
+      "control_run_manifest_sha256": null
+    },
+    {
+      "cell": "final_ce_seed31",
+      "objective": "final_ce",
+      "seed": 31,
+      "model_family": "recurrent_depth",
+      "reused": true,
+      "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed31.json",
+      "config_sha256": "780f10a76b95639e2488adea5757a1b39ed4e3cbbebb0d25f9cbea1248b3a5b5",
+      "run_directory": "research/runs/fresh_confirmation_v1/seed31/recurrent_depth",
+      "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": {
+        "cell": "recurrent_depth_seed31",
+        "seed": 31,
+        "model_family": "recurrent_depth",
+        "objective": "final_ce",
+        "learning_rate": 0.001,
+        "readout": "confidence",
+        "step": 2500,
+        "validation_ce": 0.5427123010158539,
+        "validation_generation": {
+          "examples": 128,
+          "correct": 82,
+          "exact_match": 0.640625,
+          "terminated": 128,
+          "by_difficulty": {
+            "nodes=8,steps=1": {
+              "examples": 128,
+              "correct": 82,
+              "exact_match": 0.640625,
+              "terminated": 128
+            }
+          }
+        },
+        "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/fresh_confirmation_v1/seed31/recurrent_depth/best.pt",
+        "checkpoint_sha256": "7c7b99e47965e0c8a58c6d3bcf800666ecf714ffc87c786cc5b868234c24b199",
+        "config": "research/configs/fresh_confirmation_v1/recurrent_depth_seed31.json",
+        "config_sha256": "780f10a76b95639e2488adea5757a1b39ed4e3cbbebb0d25f9cbea1248b3a5b5",
+        "run_directory": "research/runs/fresh_confirmation_v1/seed31/recurrent_depth",
+        "summary_path": "research/results/fresh_confirmation_v1/recurrent_depth_seed31.summary.json",
+        "summary_sha256": "2317ba222bb0a650b95420d15aca1c80975452627dbc037b7fe9b3a3f9b45663",
+        "metrics_sha256": "99f7a05f52614b3168f1ef9b228646d90028b6e1d65c9a2a9062911e1e8e766e",
+        "parameters": {
+          "total": 525984,
+          "token_embedding": 6816,
+          "position_embedding": 12288,
+          "readout": 6816,
+          "other": 500064
+        },
+        "training_seconds": 980.6296414602548,
+        "wall_seconds": 1026.0953474199632,
+        "peak_allocated_bytes": 449267200,
+        "reused": false,
+        "role": "independent_confirmation"
+      },
+      "control_run_manifest_sha256": "875bb1283230684fd5cc6200f478bbb79b75fae055fa229d9d30d954c13d6972"
+    },
+    {
+      "cell": "uniform_seed31",
+      "objective": "uniform",
+      "seed": 31,
+      "model_family": "recurrent_depth",
+      "reused": false,
+      "config": "research/configs/recurrent_temporal_v1/uniform_seed31.json",
+      "config_sha256": "1397689734e2fb607f9ce0264a736912f8891d46afc63f9af389fa25d69e59d3",
+      "run_directory": "research/runs/recurrent_temporal_v1/seed31/uniform",
+      "summary_path": "research/results/recurrent_temporal_v1/uniform_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": null,
+      "control_run_manifest_sha256": null
+    },
+    {
+      "cell": "dynamic_aggregate_seed31",
+      "objective": "dynamic_aggregate",
+      "seed": 31,
+      "model_family": "recurrent_depth",
+      "reused": false,
+      "config": "research/configs/recurrent_temporal_v1/dynamic_aggregate_seed31.json",
+      "config_sha256": "9bcd5e21d2fd8bfaba2379227926489ea43dd9f9e36054582b80ab1829b8f26d",
+      "run_directory": "research/runs/recurrent_temporal_v1/seed31/dynamic_aggregate",
+      "summary_path": "research/results/recurrent_temporal_v1/dynamic_aggregate_seed31.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "reference_control": null,
+      "control_run_manifest_sha256": null
+    }
+  ],
+  "seeds": [
+    23,
+    29,
+    31
+  ],
+  "train_path": "research/data/ordered_pointer_v1/pointer/train.jsonl",
+  "validation_path": "research/data/ordered_pointer_v1/pointer/validation.jsonl",
+  "training_source_sha256": {
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "ctm_transformer/recurrent_temporal.py": "eeac710115d501f4bc04a91e691e99abada0aee5d5531022da9b8380792790ea"
+  },
+  "control_source_archive": "research/results/fresh_confirmation_v1/pre_run_source.zip",
+  "control_source_archive_sha256": "0df3b6109b66e9b98869ed3bac7c55a2e7780b220cb5dcea7f9cb8d17de9c30f",
+  "control_checkpoint_freeze": "research/results/fresh_confirmation_v1/checkpoints.json",
+  "control_checkpoint_freeze_sha256": "29c7d722b4c8aa0a3439c909a317bc8104f37ade72ab2872ca10cf293dfe4826",
+  "gpu_queues": {
+    "cuda:0": [
+      "uniform_seed23",
+      "dynamic_aggregate_seed29",
+      "uniform_seed31"
+    ],
+    "cuda:1": [
+      "dynamic_aggregate_seed23",
+      "uniform_seed29",
+      "dynamic_aggregate_seed31"
+    ]
+  },
+  "train_sha256": "45c38743cebf47573da1ba604defe42754e5c2fb1b09116e99edd7cbb4236ba9",
+  "validation_sha256": "de96f18ddbee31406a1b3dc1c91a946bb2fc37759f438a87a9f44c2f05209d96"
+}

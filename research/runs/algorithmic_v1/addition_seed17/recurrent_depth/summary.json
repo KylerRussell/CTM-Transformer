@@ -1,0 +1,31 @@
+{
+  "complete": true,
+  "model_family": "recurrent_depth",
+  "steps": 600,
+  "tokens_seen": 257240,
+  "supervised_tokens_seen": 65836,
+  "examples_seen": 19200,
+  "padded_token_positions": 268800,
+  "token_block_applications": 2688000,
+  "depth_counts": {
+    "4": 600
+  },
+  "training_seconds": 50.39022408978781,
+  "training_tokens_per_second": 5104.958444749858,
+  "wall_seconds": 51.539482752996264,
+  "best_validation_loss": 0.03902257932557,
+  "peak_allocated_bytes": 74350592,
+  "parameters": {
+    "total": 922496,
+    "token_embedding": 9088,
+    "position_embedding": 16384,
+    "readout": 9088,
+    "other": 887936
+  },
+  "config_identity": {
+    "name": "recurrent_depth_algorithmic_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_depth_algorithmic_v1.json",
+    "sha256": "e041662c5752650ec080057ebb655039e90ecabcdc897aed5f22150f8e34f682"
+  }
+}

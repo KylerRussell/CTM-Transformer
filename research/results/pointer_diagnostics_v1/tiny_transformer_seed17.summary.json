@@ -1,0 +1,278 @@
+{
+  "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+  "mode": "tiny",
+  "seed": 17,
+  "training": {
+    "complete": true,
+    "model_family": "transformer",
+    "steps": 600,
+    "tokens_seen": 1036800,
+    "supervised_tokens_seen": 38400,
+    "examples_seen": 19200,
+    "padded_token_positions": 1036800,
+    "token_block_applications": 2073600,
+    "depth_counts": {
+      "1": 600
+    },
+    "training_seconds": 18.459365509159397,
+    "training_tokens_per_second": 56166.610899250445,
+    "wall_seconds": 18.888146865996532,
+    "best_validation_loss": 2.466275155544281,
+    "peak_allocated_bytes": 55506432,
+    "parameters": {
+      "total": 461696,
+      "token_embedding": 9088,
+      "position_embedding": 16384,
+      "readout": 9088,
+      "other": 427136
+    },
+    "config_identity": {
+      "name": "transformer_algorithmic_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/transformer_algorithmic_v1.json",
+      "sha256": "6f1a0da5101665e1a31fce3fce23bc403e19e32e01e43cbd3371c8a5f904d242"
+    }
+  },
+  "selection": "Final checkpoint after the fixed 600-update budget; primary endpoint is training-set memorization",
+  "checkpoint": {
+    "model_family": "transformer",
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/pointer_diagnostics_v1/tiny_seed17/transformer/final.pt",
+    "sha256": "0394ad3bbdf529bb74acf66c8a3e34146eb3fa253599a6a0b759b8d997e21d14",
+    "size_bytes": 5574094,
+    "training_config": {
+      "model_family": "transformer",
+      "vocab_size": 71,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "ffn_hidden_dim": 384,
+      "prelude_layers": 0,
+      "core_layers": 0,
+      "coda_layers": 0,
+      "max_thought_steps": 1,
+      "train_depth_min": 1,
+      "train_depth_max": 1,
+      "norm_eps": 1e-05,
+      "init_std": 0.02,
+      "dropout": 0.0,
+      "use_positional_encoding": true,
+      "max_seq_len": 128,
+      "tie_embeddings": false,
+      "gradient_checkpointing": false,
+      "batch_size": 32,
+      "seq_len": 128,
+      "learning_rate": 0.001,
+      "weight_decay": 0.1,
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.95,
+      "optimizer": "adamw",
+      "use_8bit_adam": false,
+      "grad_clip": 1.0,
+      "gradient_accumulation_steps": 1,
+      "max_steps": 600,
+      "warmup_steps": 30,
+      "eval_interval": 100,
+      "log_interval": 50,
+      "dtype": "bfloat16",
+      "bf16_autocast": true,
+      "tokenizer": "algorithmic_char_v1",
+      "dataset": "",
+      "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/tiny/pointer/train.jsonl",
+      "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/tiny/pointer/validation.jsonl",
+      "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/pointer_diagnostics_v1/tiny_seed17/transformer",
+      "device": "cuda:0"
+    },
+    "config_overrides": {},
+    "training_counters": {
+      "step": 600,
+      "tokens_seen": 1036800
+    }
+  },
+  "dataset_manifest_sha256": "83c1f14b9776795abc41269b9ac594a298d3026bcb1df8e9047eb7132591b754",
+  "diagnostic_source_sha256": {
+    "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+    "scripts/run_pointer_diagnostic.py": "e300fd291bc2b23b1e22d21f57d623a529402364997079b91033e54650b1673a"
+  },
+  "metrics": {
+    "train": {
+      "1": {
+        "examples": 32,
+        "correct": 32,
+        "exact_match": 1.0,
+        "terminated": 32,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 12,
+            "correct": 12,
+            "exact_match": 1.0,
+            "terminated": 12
+          },
+          "nodes=8,steps=2": {
+            "examples": 8,
+            "correct": 8,
+            "exact_match": 1.0,
+            "terminated": 8
+          },
+          "nodes=8,steps=3": {
+            "examples": 12,
+            "correct": 12,
+            "exact_match": 1.0,
+            "terminated": 12
+          }
+        },
+        "answer_token_ce": 4.172324281626061e-07,
+        "supervised_tokens": 64
+      }
+    },
+    "validation": {
+      "1": {
+        "examples": 128,
+        "correct": 14,
+        "exact_match": 0.109375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 43,
+            "correct": 6,
+            "exact_match": 0.13953488372093023,
+            "terminated": 43
+          },
+          "nodes=8,steps=2": {
+            "examples": 43,
+            "correct": 4,
+            "exact_match": 0.09302325581395349,
+            "terminated": 43
+          },
+          "nodes=8,steps=3": {
+            "examples": 42,
+            "correct": 4,
+            "exact_match": 0.09523809523809523,
+            "terminated": 42
+          }
+        },
+        "answer_token_ce": 5.934065580368042,
+        "supervised_tokens": 256
+      }
+    },
+    "test_id": {
+      "1": {
+        "examples": 128,
+        "correct": 19,
+        "exact_match": 0.1484375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 43,
+            "correct": 7,
+            "exact_match": 0.16279069767441862,
+            "terminated": 43
+          },
+          "nodes=8,steps=2": {
+            "examples": 43,
+            "correct": 6,
+            "exact_match": 0.13953488372093023,
+            "terminated": 43
+          },
+          "nodes=8,steps=3": {
+            "examples": 42,
+            "correct": 6,
+            "exact_match": 0.14285714285714285,
+            "terminated": 42
+          }
+        },
+        "answer_token_ce": 5.717701315879822,
+        "supervised_tokens": 256
+      }
+    },
+    "train_probe": {
+      "1": {
+        "examples": 32,
+        "correct": 32,
+        "exact_match": 1.0,
+        "terminated": 32,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 12,
+            "correct": 12,
+            "exact_match": 1.0,
+            "terminated": 12
+          },
+          "nodes=8,steps=2": {
+            "examples": 8,
+            "correct": 8,
+            "exact_match": 1.0,
+            "terminated": 8
+          },
+          "nodes=8,steps=3": {
+            "examples": 12,
+            "correct": 12,
+            "exact_match": 1.0,
+            "terminated": 12
+          }
+        },
+        "answer_token_ce": 4.172324281626061e-07,
+        "supervised_tokens": 64
+      }
+    },
+    "train_reordered": {
+      "1": {
+        "examples": 32,
+        "correct": 8,
+        "exact_match": 0.25,
+        "terminated": 32,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 12,
+            "correct": 4,
+            "exact_match": 0.3333333333333333,
+            "terminated": 12
+          },
+          "nodes=8,steps=2": {
+            "examples": 8,
+            "correct": 2,
+            "exact_match": 0.25,
+            "terminated": 8
+          },
+          "nodes=8,steps=3": {
+            "examples": 12,
+            "correct": 2,
+            "exact_match": 0.16666666666666666,
+            "terminated": 12
+          }
+        },
+        "answer_token_ce": 4.8030829429626465,
+        "supervised_tokens": 64
+      }
+    },
+    "train_new_query": {
+      "1": {
+        "examples": 32,
+        "correct": 2,
+        "exact_match": 0.0625,
+        "terminated": 32,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 12,
+            "correct": 0,
+            "exact_match": 0.0,
+            "terminated": 12
+          },
+          "nodes=8,steps=2": {
+            "examples": 8,
+            "correct": 1,
+            "exact_match": 0.125,
+            "terminated": 8
+          },
+          "nodes=8,steps=3": {
+            "examples": 12,
+            "correct": 1,
+            "exact_match": 0.08333333333333333,
+            "terminated": 12
+          }
+        },
+        "answer_token_ce": 7.114691734313965,
+        "supervised_tokens": 64
+      }
+    }
+  }
+}

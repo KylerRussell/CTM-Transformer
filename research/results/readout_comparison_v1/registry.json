@@ -1,0 +1,156 @@
+{
+  "seed": 17,
+  "trials_per_family": 3,
+  "entries": [
+    {
+      "cell": "ctm_uniform",
+      "model_family": "ctm",
+      "config": "research/configs/readout_comparison_v1/ctm_uniform.json",
+      "config_sha256": "9ced36970efcda5dcbd6675a329c74e41baa398c4ac879a129920c2e7eac21c3",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ]
+    },
+    {
+      "cell": "ctm_dynamic",
+      "model_family": "ctm",
+      "config": "research/configs/readout_comparison_v1/ctm_dynamic.json",
+      "config_sha256": "a236f18ff7b16cce01f7db4f8264c650dc25b6d96178198f65b9b4439e4f8977",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ]
+    },
+    {
+      "cell": "ctm_dynamic_mono",
+      "model_family": "ctm",
+      "config": "research/configs/readout_comparison_v1/ctm_dynamic_mono.json",
+      "config_sha256": "578e5a3007793efa14780bf92ae2e8882427667beaf91ce066338d2858418488",
+      "parameters": {
+        "total": 544839,
+        "token_embedding": 9088,
+        "position_embedding": 16384,
+        "readout": 42311,
+        "other": 477056
+      },
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ]
+    },
+    {
+      "cell": "transformer_lr_low",
+      "model_family": "transformer",
+      "config": "research/configs/readout_comparison_v1/transformer_lr_low.json",
+      "config_sha256": "c2dc3bcd50cc5c308ea6682b7cccf8f2e1ba2f0d4c69b4f373854e06dd4281c3",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "selection_readouts": [
+        "final"
+      ]
+    },
+    {
+      "cell": "transformer_lr_mid",
+      "model_family": "transformer",
+      "config": "research/configs/readout_comparison_v1/transformer_lr_mid.json",
+      "config_sha256": "7e12a469f97568fa0a5c206c9601c4163693d5069952824a7901b64983c4a490",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "selection_readouts": [
+        "final"
+      ]
+    },
+    {
+      "cell": "transformer_lr_high",
+      "model_family": "transformer",
+      "config": "research/configs/readout_comparison_v1/transformer_lr_high.json",
+      "config_sha256": "1754405204da1bf759458b33adc0a76b571b8b4dfe5ff5ebe8f240b04c8926dc",
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "selection_readouts": [
+        "final"
+      ]
+    },
+    {
+      "cell": "recurrent_depth_lr_low",
+      "model_family": "recurrent_depth",
+      "config": "research/configs/readout_comparison_v1/recurrent_depth_lr_low.json",
+      "config_sha256": "a60b3b95ac380b1625d3457bea26621960113a87e3584071a378212f3c8c021a",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ]
+    },
+    {
+      "cell": "recurrent_depth_lr_mid",
+      "model_family": "recurrent_depth",
+      "config": "research/configs/readout_comparison_v1/recurrent_depth_lr_mid.json",
+      "config_sha256": "cd0fcbc462de47dd906e6589bc5448d5ef0bda2b1c9155ebb178a38a23bb67bd",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ]
+    },
+    {
+      "cell": "recurrent_depth_lr_high",
+      "model_family": "recurrent_depth",
+      "config": "research/configs/readout_comparison_v1/recurrent_depth_lr_high.json",
+      "config_sha256": "e7d3c854b7682c145f44f606190b6d0365a080032a7dacc1f4e1f98a2ad06a86",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "selection_readouts": [
+        "final",
+        "confidence"
+      ]
+    }
+  ]
+}

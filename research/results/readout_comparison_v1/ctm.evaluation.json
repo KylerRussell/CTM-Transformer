@@ -1,0 +1,4917 @@
+{
+  "complete": true,
+  "selection_sha256": "660b4954831b4c6a0153b16ee2f1efcf626e8eb3a1a1c0e8aedba47222ff2938",
+  "winner": {
+    "cell": "ctm_uniform",
+    "model_family": "ctm",
+    "validation_ce": 0.3050350546836853,
+    "step": 3000,
+    "readout": "final",
+    "checkpoint": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/ctm_uniform/best.pt",
+    "checkpoint_sha256": "d7459b0ac9ef549a88570b4e9db52c3a86ca45937c57585666b6c29f607bb4dd",
+    "validation_generation": {
+      "examples": 128,
+      "correct": 98,
+      "exact_match": 0.765625,
+      "terminated": 128,
+      "by_difficulty": {
+        "nodes=8,steps=1": {
+          "examples": 128,
+          "correct": 98,
+          "exact_match": 0.765625,
+          "terminated": 128
+        }
+      }
+    },
+    "config_sha256": "9ced36970efcda5dcbd6675a329c74e41baa398c4ac879a129920c2e7eac21c3",
+    "summary_sha256": "3b75ae9c2423aa630d7c8f95884cf21484f3016012192141e630f0972b3f28e5",
+    "metrics_sha256": "a5590c5bf8d51792a78dc7023fea278bbf5dda5354ddda2117290cbab9dfe2e7",
+    "parameters": {
+      "total": 544839,
+      "token_embedding": 9088,
+      "position_embedding": 16384,
+      "readout": 42311,
+      "other": 477056
+    },
+    "training_seconds": 2004.4054297026887,
+    "wall_seconds": 2111.805049591989,
+    "peak_allocated_bytes": 2482270208,
+    "token_block_applications": 165888000
+  },
+  "checkpoint": {
+    "model_family": "ctm",
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/ctm_uniform/best.pt",
+    "sha256": "d7459b0ac9ef549a88570b4e9db52c3a86ca45937c57585666b6c29f607bb4dd",
+    "size_bytes": 6638994,
+    "training_config": {
+      "use_feature_encoder": false,
+      "vocab_size": 71,
+      "d_model": 128,
+      "d_latent": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "nlm_hidden_dim": 16,
+      "history_len": 8,
+      "max_thought_steps": 16,
+      "t_curriculum": false,
+      "t_curriculum_stages": [
+        [
+          2,
+          0.3
+        ],
+        [
+          4,
+          0.6
+        ],
+        [
+          8,
+          1.0
+        ]
+      ],
+      "max_seq_len": 128,
+      "use_positional_encoding": true,
+      "dropout": 0.0,
+      "use_attention_residuals": false,
+      "nlm_groups": 128,
+      "use_feec": false,
+      "feec_dt_init": 0.1,
+      "feec_damping_init": 0.1,
+      "feec_clamp_dt": 1.0,
+      "feec_energy_penalty_weight": 0.0,
+      "use_matrix_streams": false,
+      "n_streams": 4,
+      "stream_gating": "diagonal",
+      "use_dssa": false,
+      "dssa_n_partitions": 32,
+      "dssa_top_k": 8,
+      "dssa_block_size": 64,
+      "dssa_top_k_blocks": 4,
+      "use_hyperloop": false,
+      "hyperloop_n_begin": 2,
+      "hyperloop_n_middle": 4,
+      "hyperloop_n_end": 2,
+      "hyperloop_middle_loops": 2,
+      "use_loop_pos_emb": false,
+      "use_triton_attention": false,
+      "use_cuda_graphs": false,
+      "tiled_schedule": false,
+      "per_tick_heads": false,
+      "use_shared_head_film": false,
+      "tie_embeddings": false,
+      "sync_method": "sparse_decay",
+      "sync_rank": 32,
+      "sync_sparse_pairs": 128,
+      "synapse_type": "mlp",
+      "use_ternary": false,
+      "ternary_only_modules": [],
+      "use_engram": false,
+      "engram_ngram_orders": [
+        2,
+        3
+      ],
+      "engram_n_heads": 8,
+      "engram_slots_per_table": 65521,
+      "engram_d_head": 64,
+      "engram_bos_id": 0,
+      "engram_layers": [],
+      "engram_use_conv": true,
+      "engram_conv_kernel": 4,
+      "engram_conv_dilation": 3,
+      "engram_lr_mult": 5.0,
+      "engram_weight_decay": 0.0,
+      "batch_size": 32,
+      "learning_rate": 0.001,
+      "weight_decay": 0.1,
+      "max_steps": 3000,
+      "warmup_steps": 30,
+      "gradient_checkpointing": false,
+      "gradient_checkpointing_min_T": 5,
+      "gradient_accumulation_steps": 1,
+      "bf16_autocast": true,
+      "dtype": "bfloat16",
+      "grad_clip": 1.0,
+      "eval_interval": 100,
+      "log_interval": 50,
+      "optimizer": "adamw",
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.95,
+      "use_8bit_adam": false,
+      "adamuon_beta": 0.95,
+      "adamuon_eps": 1e-08,
+      "adamuon_ns_steps": 5,
+      "adamuon_rms_target": 0.2,
+      "adamuon_weight_decay": 0.1,
+      "temporal_loss_type": "ramp_mono",
+      "tick_ramp_start": 1.0,
+      "tick_ramp_end": 1.0,
+      "mono_penalty_weight": 0.0,
+      "mono_penalty_min_frac": 0.1,
+      "mono_penalty_decay_until_frac": 0.0,
+      "aux_loss_weight": 0.0,
+      "min_loss_weight": 0.0,
+      "max_cert_weight": 0.0,
+      "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+      "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+      "seq_len": 128,
+      "tokenizer": "algorithmic_char_v1",
+      "dataset": "",
+      "dataset_subset": "sample-10BT",
+      "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/readout_comparison_v1/seed17/ctm_uniform",
+      "use_two_phase_curriculum": false,
+      "phase1_tokens": 500000000,
+      "phase1_datasets": [
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-CC-Math-v1"
+      ],
+      "phase1_dataset_subsets": [
+        "Nemotron-Pretraining-RQA",
+        "Nemotron-Pretraining-InfiniByte-Reasoning",
+        "Nemotron-Pretraining-Wiki-Rewrite",
+        "Nemotron-Pretraining-Scientific-Coding",
+        "Nemotron-Pretraining-Math-Textbooks",
+        "Nemotron-Pretraining-STEM-SFT",
+        "Nemotron-Pretraining-Code-Concepts",
+        "Nemotron-Pretraining-Unconditional-Algorithmic",
+        "Nemotron-Pretraining-Formal-Logic",
+        "Nemotron-Pretraining-Economics",
+        "Nemotron-Pretraining-Multiple-Choice",
+        "4plus_MIND"
+      ],
+      "phase1_dataset_weights": [
+        0.1,
+        0.1,
+        0.05,
+        0.05,
+        0.1,
+        0.1,
+        0.1,
+        0.05,
+        0.1,
+        0.05,
+        0.1,
+        0.1
+      ],
+      "phase2_datasets": [
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+        "nvidia/Nemotron-CC-Math-v1"
+      ],
+      "phase2_dataset_subsets": [
+        "Nemotron-Pretraining-RQA",
+        "Nemotron-Pretraining-InfiniByte-Reasoning",
+        "Nemotron-Pretraining-Wiki-Rewrite",
+        "Nemotron-Pretraining-Scientific-Coding",
+        "Nemotron-Pretraining-Math-Textbooks",
+        "Nemotron-Pretraining-STEM-SFT",
+        "Nemotron-Pretraining-Code-Concepts",
+        "Nemotron-Pretraining-Unconditional-Algorithmic",
+        "Nemotron-Pretraining-Formal-Logic",
+        "Nemotron-Pretraining-Economics",
+        "Nemotron-Pretraining-Multiple-Choice",
+        "4plus_MIND"
+      ],
+      "phase2_dataset_weights": [
+        0.05,
+        0.05,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.05,
+        0.05,
+        0.1,
+        0.1
+      ],
+      "use_distillation": false,
+      "teacher_model_name": "nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16",
+      "teacher_d_model": 3136,
+      "distill_logit_weight": 0.0,
+      "distill_feature_weight": 0.0,
+      "teacher_device": "auto",
+      "distill_temperature": 4.0,
+      "distill_tick_aggregation": "all",
+      "distill_feature_method": "cosine",
+      "distill_top_k": 256,
+      "use_cached_teacher": false,
+      "teacher_cache_dir": "",
+      "device": "cuda:0"
+    },
+    "config_overrides": {},
+    "training_counters": {
+      "step": 3000,
+      "tokens_seen": 5184000
+    }
+  },
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "device": "cuda:0",
+  "results": {
+    "validation": {
+      "dataset": {
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+        "sha256": "de96f18ddbee31406a1b3dc1c91a946bb2fc37759f438a87a9f44c2f05209d96",
+        "examples": 128,
+        "max_input_length": 54,
+        "supervised_tokens": 256,
+        "task": "pointer",
+        "splits": [
+          "validation"
+        ]
+      },
+      "metrics": {
+        "loss": 0.3050350546836853,
+        "target_tokens": 256,
+        "thought_steps": 16,
+        "token_accuracy": 0.8828125,
+        "generation": {
+          "examples": 128,
+          "correct": 98,
+          "exact_match": 0.765625,
+          "terminated": 128,
+          "by_difficulty": {
+            "nodes=8,steps=1": {
+              "examples": 128,
+              "correct": 98,
+              "exact_match": 0.765625,
+              "terminated": 128
+            }
+          }
+        },
+        "predictions": [
+          {
+            "id": "eb24d17b255713b491fca1be622427f0ffba665f7ca1b88a194fe949b49dbd09",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3dbb5d3b926c9d0a38dd2135d537a39ba665d98762907e55acde6c57ec9f8e32",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "62f04d36b688cb6fa9f41ff580c32111928b3fc8dde9cac31adb5b024bf325df",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4227cf15bf9fec82a8aab193e80afc75f8e37f97c26867a9b07ba63c6be652c5",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "059d5bedc96500aab46a85a5fbb05a35b66c3f9902a91b8a7d7bfae8c5a9c8c8",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d0374434bd455551e96c326899bab04e0dd305b6ef27ebaea6557f8cca252301",
+            "prediction": "F",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f6a664176ec5111addf55de3b6fc6945b2d1bdea3eac5f97f9b98ca95c3315da",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1aaf2216564ed09b11866ca077647bdd078ef1b29b85153b6d7a8e8138978856",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3b600bc60355762da7f15740d33efa8aa4d7d378865f91fe5aa415b1a7562e83",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c773bd4c98095e9ed162181146df34800a877f8da694f25478880d158a3e15b8",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "282b409ac14203f0bbb3a585d24155a14715d0a0f49fa9cf89ab096d976e2fda",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "87985f7c9746252c35d7cc68a006b2303d4ce30093fdffb7f258b3269b4ca858",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3162d3c2c6b51bd309836aa667270feb8a4f72c841add8a528ef1cf8f090ee32",
+            "prediction": "C",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "908a4096c13f367df422ebf8e4c9ff2e2ddbf1dbd654017e79ac4029fd3ca9d3",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "fcc1196f3c8f5a5b1c905e84bfce9d2cd241088180ce11f288fdd5cba41951ba",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "73839e84f64e27cab86fc50b0a20b6e517a9d4733718cb1dae024b4a82df77d1",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3b09f4e89ad5452c4373bec27cb72c5c3791a1ab75fe1782c9387be6f26b4239",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9045198b924382e63b6eca8771adfcf55e07fde09006fc34d7c945e8439fa158",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b4134438cc534a6d4b0fc918830c094f7170716580b6d7f3f29f9ce4ff5af91c",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a31508d2b64db18bd94e2b11b804380ce99ccd17a1055f7f3b07ec796d71a45a",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "47570cdd6be4c0ac0712c667191788f4e30b3ef964ccce512d941199440cf9d3",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a05c9fcc4e78f9c5f7a657049349d22bd7bfa0b888d3542242c852dd09fd796b",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "182a2b9ab668a14a5f2ee9cd4387a71d0b7f5bec795c22b4d17f826af56b326f",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b6220365b876694b35b4db8314de0755fd2dae0a5a6dbd2bc8ce5b1d7d715010",
+            "prediction": "H",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0418c9c2abeec0a87b724484f3fade56edf1ce003babb327ed92a3d15a8285da",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f1752b994cac6f35bb36e7e2669cdd9057fc037cc62412bdcfb823940aa6ee32",
+            "prediction": "C",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7bcb757d15a37c6a16e2041def1b1d6ea91f2762c72679e40c07d3ef0e05cef5",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "21b9f2366b8a7a41ed82decd0dbb99e67d357d11c926b606d76e781cdd8afb2c",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "16f0494c1b84d1ecf36377fc1715e2bdbfd8563b1c1e75bcf61d134b3c68d7af",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b91d99f57700aad7459f6dc2f9b034b5115a00c631b890fcdba068233fc84718",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ea2271fb71d56d73f45e8191515f6106b5188cc9087914cf737a906a55e5e298",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ba43affa594c9cd7b4629b37882cb88f1a344c51d6bf906d82b583ca2db989c2",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "655b13b65115cbb5ecf45b4b11dc7b29b23597ee3fe21290aa59b5589e94ae47",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d3a9580e7187814af5774b00d59d7c051fde7384b17991fcc73b782c0e89c822",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "fedab7797fc6c2d6602e7c9092d9b6f8884ada70ea8654e4360c03304253d8ab",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "cabf4b5e8b469b35a88477734ae93862a0ae0441f79a5d9e76701196dee8c06f",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "6f289dbc43e09643f136519c4deda331150348384025b2da355e5aae33910d44",
+            "prediction": "E",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ce52a57a820828f67eefa8363aefe3eb3b13cd6cc0c8603be8d1548fb59c64e9",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "63367b9ac264406c47afced3006c49929c7efa8f63791a98486b24f21d89eef7",
+            "prediction": "H",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0f856326db5def8eff9338434fc7e79e889c2628fbad81a5e47b2ac16210601d",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c4a8efb3335fcbd2266aed5321d91b3fa28891181092a711c6a78034010eac33",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "799ed7f93b66a2881d58680c64d07026d38fcc0d63ae086a286548b83ff56137",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8892ba5a4cd62a5293a48038192202d4448b39bc9b5c39a5b4409d25775637e1",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9e032ef3232c595c0c4dd4a3b82af939e0bf2c432194701210f83e31f91f7a4c",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "18eacd45babf2bda333be9b3bfa692c5a06a5c4953d3a857f442d2074f909288",
+            "prediction": "G",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f9bd713b32bbae01342b6195d8fd527f3aea7a742a4573939b6aae8e4a406c56",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "04ae3f6b91858a3b9ca5876089036d3916c76bfdc55516a668b483bceb6a08b8",
+            "prediction": "E",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f300f78c3fb8eb33c2d42dc16765fa52a4cfb63bf863db900b388d03b9216d81",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "323015c9a88c1f3758d76916edeaf52b112cd926c46b984d55a1d2e8245cd6bf",
+            "prediction": "G",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0c81f5486bf2b7471a3faa4e9e2ac9014297356fdc0eaab02bd1d802fc2f00cd",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8b126e2eb64bb8c8f2734f85b19d9cd4b0fb7ed0ae93e78eaa5f6f4893ee67b7",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "95d872b518d663efec6176f7f49319c1be3d92e4d0e836f5a2b6a0ce493f6d4c",
+            "prediction": "C",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "44505c53bb0ad79ad69d2a017ec85c64f97b4649433f468ad86a7503dd5ed169",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "dd58c24569b61a283169f9892005cd369db556eca210a139a83ab89f582d4aca",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c10167e44f93ed90b9561f65bca4fa87d4a1beb176194be266fc30efa38e876e",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5a8afa6bce45182a241f6330a9d608c15b3af1d3695bca9d53ca324c497778f3",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3e9dc696e574062e44b3066fbd4ec989521d1bedb672e9e2dd0e8bfb26b0e414",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a790a820fd4687f82fbff85149a5e38ccb3231cf530f991c0337666b47eead44",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "bf353eab68880baedece138c729a1bddb92e80326cd704fa2a6c7f1c4b6e291e",
+            "prediction": "H",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7fab2cb6da667f5bb423d5005a395b1f9a9fd8fd46d6d6ed4f6716525ad07eb8",
+            "prediction": "E",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7bb09060a140d653c2eebddecf2b15e24ad0b1004fa193ff94ed09c0ba21617f",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f81927dd8af2f2b0524af93d2995584a9c9fa1f0fc214b91ce115c4a67ec26cd",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "535bda1a89fd6a548f55155b3bfaffe8bd84fe57310c38429fe03c0e17b09e8b",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3948d231b3b8a3a5d1232d3c83ec17fa0af68f13fe3437944954b481d7353ecf",
+            "prediction": "C",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9a0882eb13cc51405f8b59833f3a246025cde5d4a44f71cbbc08e974908541ce",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "63013e1be5f7dc561b863d6f8ecd09288c43820e01e93c0a0dbf5fb000cabab0",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "600c256894d44ccf3ef119c9cf52cab8b840a92ace46773cec99f4d4d3162905",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ff48078d07da179581e72ad24b5ad6017b2487db13e8284413312c3788f3a44d",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4188232a62a80894c6f7c93ded23f01b13c4f1edd1c57b6cbcd39a25a52394ad",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "292697523066313269784adc64792c641d141226ef32879b29f13ca93bac6c66",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7a4f8e87d4413b0273b4478af6a8925545464e54c7d205a17373c6a8bcac1529",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3301f6ab1523a5249f2d29d2ebd47444df55dfadba7e63549d8cd3a250e1db2f",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8168e59b155f3bc6478197979571a5f417364758d2ab4f4b5947a69a133e4285",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f7936b4a8a28d04eae45c3e1dcd3f60dfaf2ac5f8a53ca5562463961446f1261",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "05bb4e1269f8912aec32ea53ddff3e34f66fe11ac0255abb89a21048489e8a77",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "2e932d0f8a425a3eef4cacee65417a91fa11e4e3c0342c83ef4099d114ecfb3d",
+            "prediction": "H",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "adde764d96aa084a27e115c8f1f44330722421a2d150e4ab148daa03fdf1a8da",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1c8f72b59d73a63c6b6dd3ea339b491bc372f8369e43990944d8d401b38ea8e2",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3713e12924921ad0be31b97ec4b831f10de3d3cd4e114c8bf651c19204d5277d",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "6982e3d23b297a77af6baedec4bfdb8649e15ebf382fb3ecb66275e5476fefc6",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "62bba8071fb046b69abffb1c4a138c4118ebe8e5deb7195e176132da6f04864b",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "508f562068b5d4413275e866b91b75785f69286c7244bf7d7f57f62d2e7a0bba",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "915026e97fcc0b446a5672302c920b189e21ffa5d03ad1d43c8e6845774cf7fa",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "bccdff46be7e0153b850941c5704abc687fdc224041b8c5a23a0159fc02fe14f",
+            "prediction": "A",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f6a8c9755b4cac357afb4846ce0d5fb83cfdec6b2074ccc4c28b63f530af589a",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "779e9eaf04743cb3896cb57b009a2841419ec5444b9afc0ba9f357ad1a3a257e",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e9c45252b6ab4e59afcdefbed372c5959c4230357b33476f0610bcbdf2278f56",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "94be6c4682e63ee5e158aeba6c6c549fc66f5636e098158106d572c3dc287add",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "064fac94f82544ddcf2b1b3234e441867556c33b8f680825c31598fe43b6ba47",
+            "prediction": "C",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b253bfc6795138f43beff0e57dc71d399b893a459721eb309add419cc43cf410",
+            "prediction": "E",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ae843f88cf5e6b4a3d98d49ff79d80551ada6c9bc2324a520c939d0b0d38871f",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "85d51154f624c09ec46e70a827db323660bb338f473e93d06944f75d05ed8cd7",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "850ae90fbbab156a66e9e4bae1f02f7f80649d3a23bae97b92ddde430b00f81d",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "05528697e38e648daaba6e7b6299a91b05e3f200e0194916b3ee7397a053556e",
+            "prediction": "H",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "42a2dc6732444853fd767d1b051a856eaa6c7dfd0ba036b638101b1acec94bc5",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c5571dc1a8ebd18688f3924bd5b1fbece60db2b5a24ae16f6097048e0e36b5b1",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "6c86bef558126f5b2abd4a0b9bb7f6c7f8847a563565ffcff7d32ce6ddae76a7",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "652cea337263a5285996fb96bbbd844b8f2c27b476e2492169a765f224da4e4e",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "47ab14fccc4c95d3dce8078945dc70ff4c3b75c9f4802d23e02e336f4c1a71b1",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e5da5f0dc684913a61c8a8d5659a42a199d53998da9892c76a5bf11dc0bf849d",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1c2cc0d290e61003c88c21da658f9af2cf8c96362b67e009d68d930a59f22144",
+            "prediction": "F",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f3709a1a2f194cbf9736c897c43517eff3c80b0c01884ebf53d82c6ca60864cb",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "cea9ec69dbdb51c54ca17938a6b0f3c180e0ecc07e6967bcd815b23f8455b442",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3591668c0ae90590aa140bdc0f93c5df3f1f4bc19176ec1b544a42afe2b0509c",
+            "prediction": "F",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "30d1f5a034ebe7ec86187f61593a0f9748b69974d1b3d43c1537ac527bcd36ed",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1eed5dfea102a93342c448703cc4f86ec0911ff39fe9b1eabf5ff8f3f157b2f0",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "144e15fe661c670fc513cd88c058062b847e00bf9643d02f15e53e9a3542cc9a",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a9dbd0300d65f5e10b2829de632b21d665e8c22158bd9ed106cf8744010b9469",
+            "prediction": "G",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c82bf4b5f5bd416c3befb9daae806a929f5eb7728f9b974ad3fcbd6426d7919a",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8aafcd06203bbfd63fb271c79668efece87a8233c387fd3b790901ccfedcf503",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "eaaac7f8bcfc047194e2e5dd4d0a802f540e1fa6a30cff293a4dd2886ff6b194",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "cada9139cf29d6e98950dffd9adf2861c3b28a98324668203f6cb2be7632974a",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "fa9e2a89876d6501689340ff650ae4237fa19b1332104cf4fd98db8a5cfee00f",
+            "prediction": "F",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d0d61435de285656214c3650f631ea59eb109828751ff49da81ecbd117a6f09f",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "eb9206d469f1703af14739250ba17b4b4c2e3a64117f882cee85fc4e54a51363",
+            "prediction": "B",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "2ca71d849083994ff753b101a94daea89a5d524bec4891b8f938624b68cfcc40",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c46d65659ce407152367510a7802adcf06cbd8779ec2118452c48caa0bc5077b",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "39e1564ed16e6ca9b7c0f3df8b5c24bc146e765421e069f302a2816afae4b292",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "fc2a9ed8ee71e85442fb7c46c48340fd038d99b50b5b1ee168da2f8f5e62201e",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "151ea73a8c17d0a6f3f77381134a9ab491553cc0b65b232c693fc08e44c180f7",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "441286d31d385999a2fa4bf50ea41d2384c75415c054b0ed02b7f7bb9bc2e231",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "97f8cdf9082105091eebb20700f3228277a5cf7aa23617c1406e1a2d87fa0778",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3d08ad2a335ec49ffde78cc7f0fdf372a6a65371cf9f9af386ba9aca868e7737",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "635347266c99f0ab998b6072c350b0b0686e3d48286f8ca0f77acddc1827ac10",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ed31e5e178bb55c0cb1f429c6c66d24707921349b04e9999897082bb6e470678",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "52f84900d7af5a883f626ff38561bb0227dfb15eeac8e3f1bae1492f18cfc872",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b04429921225f79b46891cab4003aa8543442f6f3168fd224e811126f8689189",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d0093bb932e90a370809c28830026ba0ecf6d554c449271bc28b4152c5b4afde",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          }
+        ]
+      },
+      "diagnostics": {
+        "raw_tick_ce": [
+          0.724070131778717,
+          0.30761000514030457,
+          0.2980867028236389,
+          0.29608651995658875,
+          0.29344600439071655,
+          0.2906535267829895,
+          0.29074564576148987,
+          0.2919628918170929,
+          0.29186517000198364,
+          0.29212623834609985,
+          0.2957625985145569,
+          0.29238277673721313,
+          0.2953324615955353,
+          0.298298180103302,
+          0.30182287096977234,
+          0.3050350546836853
+        ],
+        "raw_tick_token_accuracy": [
+          0.69921875,
+          0.87890625,
+          0.8828125,
+          0.8828125,
+          0.8828125,
+          0.88671875,
+          0.89453125,
+          0.88671875,
+          0.890625,
+          0.8828125,
+          0.8828125,
+          0.88671875,
+          0.8828125,
+          0.8828125,
+          0.8828125,
+          0.8828125
+        ],
+        "gold_aware_min_ce_so_far": [
+          0.724070131778717,
+          0.25856417417526245,
+          0.24057871103286743,
+          0.23411044478416443,
+          0.23018482327461243,
+          0.22697216272354126,
+          0.22461247444152832,
+          0.22299781441688538,
+          0.22165288031101227,
+          0.22114475071430206,
+          0.22044140100479126,
+          0.21910232305526733,
+          0.21849513053894043,
+          0.21819843351840973,
+          0.21801632642745972,
+          0.2177010476589203
+        ],
+        "gold_aware_any_correct_so_far": [
+          0.69921875,
+          0.8984375,
+          0.90234375,
+          0.90625,
+          0.90625,
+          0.90625,
+          0.9140625,
+          0.9140625,
+          0.921875,
+          0.921875,
+          0.921875,
+          0.921875,
+          0.921875,
+          0.921875,
+          0.921875,
+          0.921875
+        ],
+        "confidence_tick_histogram": [
+          110,
+          23,
+          24,
+          15,
+          16,
+          4,
+          5,
+          2,
+          11,
+          7,
+          6,
+          4,
+          3,
+          3,
+          5,
+          18
+        ],
+        "note": "Supervised answer/EOS token diagnostics; gold-aware envelopes are not deployment scores and do not select checkpoints."
+      }
+    },
+    "test_id": {
+      "dataset": {
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/test_id.jsonl",
+        "sha256": "bc62b713a43dbe88887cf2e1c13e411b34feb3b92cc1e185e7d859cded71e96a",
+        "examples": 128,
+        "max_input_length": 54,
+        "supervised_tokens": 256,
+        "task": "pointer",
+        "splits": [
+          "test_id"
+        ]
+      },
+      "metrics": {
+        "loss": 0.2991174906492233,
+        "target_tokens": 256,
+        "thought_steps": 16,
+        "token_accuracy": 0.875,
+        "generation": {
+          "examples": 128,
+          "correct": 96,
+          "exact_match": 0.75,
+          "terminated": 128,
+          "by_difficulty": {
+            "nodes=8,steps=1": {
+              "examples": 128,
+              "correct": 96,
+              "exact_match": 0.75,
+              "terminated": 128
+            }
+          }
+        },
+        "predictions": [
+          {
+            "id": "36d154e7669a3c053047a7798bde155f6f83455219c0dda61e6152feaa01623d",
+            "prediction": "E",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7e414488f0a1fac7ef84289d44332f25ddb2fdcd4ee5704348fd5aab1c263a78",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5c84b19473a75ff81775ec2def9bc1a395d2f75bfa8d55ba79c956175c4c79ee",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "743d93e882ab7ef6f9ca15927abdcda205c52ad72232d2514323b36fb4c9ade8",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "451d541c782919f389f9aada98bf40db4e51553f8a15e55cab559ca7719aafe3",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "923b16585c6c16a834f854dd624d30ef64e8a883278dd13855e4e22e4bd05dcb",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ebec32cf7e1d9454cc2027e314a6734b61166e09b69135bbe3cbe7afabe2a73c",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "2ffed9dbc7376859c118e186db0f02660fd9e15c2fa0483ed46abde9e726e8ef",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "bd28de2a188c392c33daf6d8fd9289ffd7e51712c77f336bf686b6f9d8ff530e",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d85da7d0fc1710d1c2e14927fc9c9a7eaaf5118258ba004080e83adf1f98e2f4",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d14275d26d6906283941ce6232b3b8888928fc5d0904c6d34f8deffaf5a4ea56",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d0565af40c72f9629b2dbde28740ee5f5887961331fda70e7fef42b04f0f2ed1",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "29ba64f0581e22514a772b08f5c9e04b641e310162157053660f6386287ec468",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4e7e65b29d032828c82fc8d0cc268f8a3013621c48979f88a9716acfab51a0bd",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ec07131f210a19117cbc814b68736c619007bf4fc7962074031bbe433e479e90",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "13cb6efebef8b285dbf4bd2e42c9bf42c5036e76b47ac98920cb99514df90e5e",
+            "prediction": "G",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "39186e06df6ce0842df7071b8735021de7fce89ec00fb35dab8f28413c5b9e97",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "144963b159238103b03e19ee7fa66c4441a1a1ffd4a98a0890a81fe9e8519416",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "71fe22be95ab6182ac60df3fd6b6d9e5a6ae43a9ce182925d8f3805da4222f30",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8e5bb5aba5ae66f72e58ca82063087501e59b78c7cf0e1b95fe3abde1612f79c",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d5d99c83e4ca56dba8c95f7233a8f0c4541cd8ff51fb6a5a08159eda37be35ce",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e379be35ff6ce141bca5e71501e7d305424b55b1c3927dab4ded97f9cc917913",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "59819bf7d13c92b9729b759d3431b00fc186c26eee5d83a55bff1a8eebf2e53f",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "94b64e065284a77721221e5860a9c1f96d1c90c8718a2a76d453f1dba38aaea1",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c7c5634b57d43c96341d395e5aa78c6d3d8d790b48ff59f7c04f9577884cbc03",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "732aa429c5dd6bc09484528ea95d8971c38a868841bf033c2ce2941dba568eca",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "35213eae559b59a7ec161e4094d60fcb9d2fc4f375d0498bd33294c32d3b24b9",
+            "prediction": "E",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "33ad5450711d1ced276846a246e39afdb75bf2a023bbb2fefa2e951652f8fc44",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d33d370c3d10cec5e24e3fa82541a21a312a8a6dbf018b84a44646dd6303f135",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f4d3a577a04db29739dc69adf95b0234fb78ef62df8adcf9d142ebe9290df2ce",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "eddd276336d4c4df39b0c6dbf60ec793c1a56772746d372601ac4db9fbd3b5fe",
+            "prediction": "G",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f74ad17128a8c9de1dfc4fa9a83cc1a14cd4041ae7ae50e2341b7c381bc4c3be",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8f450242f58a3a4891d25a70d6eb13188065c6ec56b984f22cb35838bcff16cc",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "be2d8bcb6256e34c159f8f6326494b83f69ea02acb8cd366b4cbfa09be2c5bad",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d3e8308f455744bde4674e6e856a657728ebc09ae54ef01c961d1fbbeef4124a",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1de1bfeebf2e7c93d04fd58e89c2a53432323a21c17bb4dcadd7424bcd503bad",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0cf497885c8cd2cb92f4bd286262331d63f6eabfbfbbb68d46afecb927b68425",
+            "prediction": "G",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "dd67815cb9821ad4146e2fdba2d59bc7e7797d2169d528ffdad68de58ff9eade",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b711013372e791cf7268a6194a379a81b5f7a781bbf544643c29593745aaae7e",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "25dbc28cf0fc6091936d308ff2a487d9e370e33a7ddf29890693539ef33fe040",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "79ab6740f587704bf85450271b0c765b96260f9e2cb80aafc8a0184fc5b46a00",
+            "prediction": "H",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "33764acde3529c5266c2304f9b22b92c8b8599f56fc42dc3f5ddfc8c9f8cd2a8",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "dd237dd39cfc8338cc560c5eee03454f25957b55126f966e76ac9d908d8538ec",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "293c714d869bbbc877b0d1968549d2d874ce16b956ffd96fd2651c70a4b94580",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "14737719fd7c7fa505267bfa3bb0347a220011ac0a3e8807a5caf6f0955ceedd",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "42f7526cfa7fb87f630e73b7dacb17df3039ad4750b4c1811346b698451cfcda",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "dc585344dcb45e25d3b1805e00ef3e365aef04075330158a6ecfc5d52bd8886e",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a476dc858444989f4052268e881e0924463c369f257ab92b74eb96ff70f2aeef",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3fdc3f3bb27eb7649593a8aa08bbbc96d329e0333d0de1a0b0290201afa5d5a3",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d66b3ebdac4f651b182424d601b30e185e52ee3f5b92c0b55965d1a3c84750f3",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ad3a086c93ad9068826707812c406b552f80e3bd3fdc9600794825ea83d50a1c",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7e1b5d4b91b19625385a209a4c62e18fe6db15073de6ec2d4803f71671f2617b",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0ebbeb0981338de162e7ac09732c420b8cf2a5bc8481dbd437973fd6b3ec9207",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "62d5f65f405ead1d5084ac2590637868019ed10b9c5520e86c007aaf4cc690f6",
+            "prediction": "F",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4ac9b1b7c68c5a6a41750dd60ddba690757296bfc18c83a5aab88569ec00bfbc",
+            "prediction": "E",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ec65960561c8fc78721e965a8cda21b514b4382bf16b1ec69c5e454abd228e85",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3a636e0c8eb45f0bcf0c287c498b87076bfb7b0d9a2cae2c0cfc7dcf815596da",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f56e827dd2122a2767fa3c4f376cc78d75e5177144939c8e1c241087fa1b369e",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "31adc6ac843100a3605225be73f1f35270c3bc96a4910f9ac0a9c79dff951f2c",
+            "prediction": "C",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5ec4df14972540c04bd49f58b750ff756db62300e99b05d390434da5af275d2c",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b7322cbde778a45b9c9fac30d03aadda0316bfcde7d7c053e1871c4aaa79d3aa",
+            "prediction": "C",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1dfd0e9ab22f961f1635c0964409b280daa0df8aa67db8c1b9496086d3650043",
+            "prediction": "H",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4add7f2ea4461d8178861883dca59551a58e9cf21a7b8c2742b6cb2d1fe1d547",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7bf7df68ff1173c047805aa632321bacbe2be39a10d7059b5746d46415879954",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ea0bcf6d9e566c1931ebd6144f0649d9a3f383909d1aff9d1396e56eff73bbae",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a5b9993fe85cb54dc6b732157491a5c1d91b32246987dc315c129e08b8ffb7dc",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7c851727306a1470af0998ebd3dc1f769190c9340cecd6746aaf76e46d523d88",
+            "prediction": "C",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "13f282f9de3a35e5419850c35fabcfe20f44c41b63729a446b3d2551af027dd3",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "cbf2bcb732faf1d97559e6454c1b52ce7cdee35b0eaa4ee0e05e6430105eedc3",
+            "prediction": "H",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "03fd78c52fa41ba38a60a602658f5fc49e2c87c586badc6438cac0010eac1cbb",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "65e3c9e45b803ad2694cc491c07e8a2772fb2423d76cde514240f3da3222bdce",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5f4f5c3e9ff71ad49067a42827d15e226f82592d497ae4679b223f3cddb2bd41",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "283188e1d2e854dec523ab8b27f004ec45c5dd7ecc4d824c7f1928c9fb3277ff",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "831448193c7cc8df2ba2257665bc9afee0b8edea71c20792c82efbc518a86762",
+            "prediction": "G",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a21f791abf2757db98c149b9afd9a3423a61efb6a3c13456aabccf75f43883c4",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5f6b8c640d0d925bf8c9b47ea1caffa48397f33be0420345c16ab943ab8a5da6",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1c44ab28fed9513d7a2f394533fb3ab5201a1a9e486599573487059089f79b9e",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "acdc199f113c6d096b1573cc92900c7c4f4283b05c6bd72032e5758433f277bd",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "955d72b33feac3a96823bb930329a67ef982b8ea635cbc7b5844256716196c05",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e8c7c0e0fc122ef46a50e6cf9abdc5bebe492cb9457f66bbc7f16b4a15ad9a0e",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ec4bd6cf027aafe6dc5ff48bb005f67d5076f1877cd29aed729f99bcfbd8d5dd",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "2ef29aecdf4b2337e80dc3e17aa0b73b106844f85757e63ac85e8a3c98a64587",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "64e1793c8c7e628d391faac32c743d537f3a0486925e507c21c3a9aa90945db4",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "cdd40f896f8174656d74dbeeddeb70366846afe4d4dadac9ffd7769a143914e3",
+            "prediction": "C",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "aa700c43e1309f8e4c215011d7b63171fdfab33c0c5a9f85b4515986453f6e35",
+            "prediction": "H",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b7c68eea2f159e2fda7a022beed083479d8563dd1a2eedb9f761f0f94ff2c6f1",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "23a3042900ab5505071d8989d112878e1897c59fa76cfb2fa1c3da8694e47816",
+            "prediction": "B",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "787f4ea99962a711b705392655045e44b8e36bb60ec8d7836b6156f182dd67b1",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b2f34501db06c7d0bc2456d44053014ee5aaf7d2cb56615f6195fdb0773e58b5",
+            "prediction": "E",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "883ea2f4b1113eaee049bf349bc45f116aff648038de5f1acc06cb14944b57a2",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "fd1b2e6ae50592677a475434a7c9629b6f2e4691a73b058d4f36da761c941a8f",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "348689eb50ffd2fbe051bd326dd98dca6324406841d204c53912a633cdb601ce",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8391c9f9789cbb79d741bcaa98aba6dcafbde0d8c29ca8f24d931e7057c53ef9",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4b0ec225b1f9a19ff1f28757d2bc7671fdf5dae7a3c0aa88b14b9fc63cf5c6de",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b8346d9ae8a70ca187d1b297d067e9e5b27fb838071879edc5278440fc3a9c41",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "866fcec977a006d00afb282ebcd1e6a30634ca8fe2a6a5ccc8eca663415d92a1",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0595fa1be670bf8e9dfd1ce2a59d421803fbe61a607222dc496d25bf5afc91df",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8e3de1bad049a8d5c3a2aca18c0208f62402105d9960ee57bfebbedd0fd6404a",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "bac03e0f0015134017618dfd55e6982a550d947b0439e2ce0d965b082333c537",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "83bc2de3dcbb8aa15ef842ae1ff9ecec4f296d8752d957a7358a759ce65cf576",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "31d23a85818923fcdf7aa8bf0f27f80c1b7ed3725bc1ce9a214fc2a07aa9c851",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "16794171630de3df8162ec73c24c22d52e44e0e1666b186f801a1416a9479cc8",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "719a98bb1b212ceb6f28d5a846ce1f4c2a65015dfa0868a3fc1c09390fdae512",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "561271ab4cab1e5b8ecf63eede71b652b5f138e941f93491f948fa62899dd382",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d17c267b9de30516a2e98988eb26c5e6dc1bbc445f85935c23f1721eef03c245",
+            "prediction": "C",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "02894a6d30e8f2bde92337a65abce170e62764dcf22acca3db0fb2bf75e692cf",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "79e90395408de745320e92b3f43663cf803e9bd813d23ca3598abdea5a187c6c",
+            "prediction": "C",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3bc27bc48336403d2833ed8d5c2b40432826dabb291fa8836576815eff157e84",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c0a2d5f0250728add7b9c1705309a06707345909b5168536a0cfc12f27eb4fc5",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "18f185e23451d0df7135d497dd77043209109d23e3bb180cc45adf3d89a1b159",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "81b7353de2adf7c56153ac02a7fe0d25f8b4a78f3ab15cf64853a60465834423",
+            "prediction": "H",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0996fb84ea8c9af9c0ad0abf44cbaa2574e59ea96d33eaf92689facf11459d10",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e722717daa6504eac8d19bf74bd1d3fdba3ee82d3efb443ad3df8a3e9dd3d05d",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c72bc14d2d3e19c3a19ca273e91dd10fed6cbb9b1380c8eb8bf7d957de7f27d0",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "220d579d41992134b67111fbc9d81710711827c30cadb72dc8aad4575b4bcef4",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "36409d1eb1740da8e2c549136f73b9909ba723848179553602d983f4504c8011",
+            "prediction": "B",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "6d741d921cda512586c624e6683c132c58e41d1bc1ab76753aeb570d198eca05",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "15015e446b7c28b93fefd642a26c54090e9dd4e68ea608ef8026db1f25e62cf3",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "122a2f98eab13de8e729822ce8d3a9078b7b6b4484ca7a6bdc0f15c411a1a86a",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9a1d7fc530de376076f7f8d0060055ce3c225ffbab851aee69e804e5f6f0b18a",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e32fedf41a349ab797e771395cc515ff68c8413a96c4befa51594ae58236af7c",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "6730e5738d704b876d6ae32b480cb68fae86b0d5a81dd540dd374f7d98ab943f",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9cd64ef77ad4b81bab668a2293abce30a47973a72fe569014f43e464ade16aae",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8b3b3e913d0f64addef9c50e64ee948d5bba56771b8168a1f1a2b673375c35c1",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0ee50a3e6c8894b213830aaf7567d8ddd4af0fe8a26480d5d415725572c37750",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "00153fd72b86df1dd2aa1c95f931ca978c0c71bab6507f106e2c2ec9207e44af",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "71e6e9cc172b870c3c95fa4632f2c95019c2e62e679b375aaab7be590ec7b3f5",
+            "prediction": "F",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9903a25ee6a6d2da5ae00fcd85008fc8177d33c85c3fc662735b3ebe35f24930",
+            "prediction": "H",
+            "answer": "H",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          }
+        ]
+      },
+      "diagnostics": {
+        "raw_tick_ce": [
+          0.7240429520606995,
+          0.33745211362838745,
+          0.29942506551742554,
+          0.2887718081474304,
+          0.28724926710128784,
+          0.28846806287765503,
+          0.29087433218955994,
+          0.2915269732475281,
+          0.29063743352890015,
+          0.2958875298500061,
+          0.2998696565628052,
+          0.30227091908454895,
+          0.30336087942123413,
+          0.3038404583930969,
+          0.30195924639701843,
+          0.2991175055503845
+        ],
+        "raw_tick_token_accuracy": [
+          0.67578125,
+          0.87109375,
+          0.8828125,
+          0.890625,
+          0.8828125,
+          0.88671875,
+          0.87890625,
+          0.8828125,
+          0.87890625,
+          0.87890625,
+          0.875,
+          0.875,
+          0.875,
+          0.875,
+          0.875,
+          0.875
+        ],
+        "gold_aware_min_ce_so_far": [
+          0.7240429520606995,
+          0.30119362473487854,
+          0.262803852558136,
+          0.2527924180030823,
+          0.2508935332298279,
+          0.2501482367515564,
+          0.24965976178646088,
+          0.24941261112689972,
+          0.24905799329280853,
+          0.24709753692150116,
+          0.2469574511051178,
+          0.24665886163711548,
+          0.24652564525604248,
+          0.24645529687404633,
+          0.24636191129684448,
+          0.24609123170375824
+        ],
+        "gold_aware_any_correct_so_far": [
+          0.67578125,
+          0.88671875,
+          0.9140625,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875,
+          0.91796875
+        ],
+        "confidence_tick_histogram": [
+          106,
+          23,
+          19,
+          25,
+          9,
+          9,
+          6,
+          7,
+          8,
+          9,
+          5,
+          6,
+          5,
+          4,
+          2,
+          13
+        ],
+        "note": "Supervised answer/EOS token diagnostics; gold-aware envelopes are not deployment scores and do not select checkpoints."
+      }
+    },
+    "test_shuffled": {
+      "dataset": {
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/test_shuffled.jsonl",
+        "sha256": "c9deb1bd92ace0085ba0e1eab691b72fb7719ee9fec00c2003d539cf52098210",
+        "examples": 128,
+        "max_input_length": 54,
+        "supervised_tokens": 256,
+        "task": "pointer",
+        "splits": [
+          "test_shuffled"
+        ]
+      },
+      "metrics": {
+        "loss": 2.790755808353424,
+        "target_tokens": 256,
+        "thought_steps": 16,
+        "token_accuracy": 0.54296875,
+        "generation": {
+          "examples": 128,
+          "correct": 11,
+          "exact_match": 0.0859375,
+          "terminated": 128,
+          "by_difficulty": {
+            "nodes=8,steps=1": {
+              "examples": 128,
+              "correct": 11,
+              "exact_match": 0.0859375,
+              "terminated": 128
+            }
+          }
+        },
+        "predictions": [
+          {
+            "id": "36d154e7669a3c053047a7798bde155f6f83455219c0dda61e6152feaa01623d",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7e414488f0a1fac7ef84289d44332f25ddb2fdcd4ee5704348fd5aab1c263a78",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5c84b19473a75ff81775ec2def9bc1a395d2f75bfa8d55ba79c956175c4c79ee",
+            "prediction": "D",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "743d93e882ab7ef6f9ca15927abdcda205c52ad72232d2514323b36fb4c9ade8",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "451d541c782919f389f9aada98bf40db4e51553f8a15e55cab559ca7719aafe3",
+            "prediction": "H",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "923b16585c6c16a834f854dd624d30ef64e8a883278dd13855e4e22e4bd05dcb",
+            "prediction": "B",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ebec32cf7e1d9454cc2027e314a6734b61166e09b69135bbe3cbe7afabe2a73c",
+            "prediction": "E",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "2ffed9dbc7376859c118e186db0f02660fd9e15c2fa0483ed46abde9e726e8ef",
+            "prediction": "C",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "bd28de2a188c392c33daf6d8fd9289ffd7e51712c77f336bf686b6f9d8ff530e",
+            "prediction": "E",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d85da7d0fc1710d1c2e14927fc9c9a7eaaf5118258ba004080e83adf1f98e2f4",
+            "prediction": "H",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d14275d26d6906283941ce6232b3b8888928fc5d0904c6d34f8deffaf5a4ea56",
+            "prediction": "H",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d0565af40c72f9629b2dbde28740ee5f5887961331fda70e7fef42b04f0f2ed1",
+            "prediction": "A",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "29ba64f0581e22514a772b08f5c9e04b641e310162157053660f6386287ec468",
+            "prediction": "D",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4e7e65b29d032828c82fc8d0cc268f8a3013621c48979f88a9716acfab51a0bd",
+            "prediction": "F",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ec07131f210a19117cbc814b68736c619007bf4fc7962074031bbe433e479e90",
+            "prediction": "H",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "13cb6efebef8b285dbf4bd2e42c9bf42c5036e76b47ac98920cb99514df90e5e",
+            "prediction": "D",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "39186e06df6ce0842df7071b8735021de7fce89ec00fb35dab8f28413c5b9e97",
+            "prediction": "B",
+            "answer": "B",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "144963b159238103b03e19ee7fa66c4441a1a1ffd4a98a0890a81fe9e8519416",
+            "prediction": "A",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "71fe22be95ab6182ac60df3fd6b6d9e5a6ae43a9ce182925d8f3805da4222f30",
+            "prediction": "C",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8e5bb5aba5ae66f72e58ca82063087501e59b78c7cf0e1b95fe3abde1612f79c",
+            "prediction": "G",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d5d99c83e4ca56dba8c95f7233a8f0c4541cd8ff51fb6a5a08159eda37be35ce",
+            "prediction": "D",
+            "answer": "D",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e379be35ff6ce141bca5e71501e7d305424b55b1c3927dab4ded97f9cc917913",
+            "prediction": "A",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "59819bf7d13c92b9729b759d3431b00fc186c26eee5d83a55bff1a8eebf2e53f",
+            "prediction": "G",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "94b64e065284a77721221e5860a9c1f96d1c90c8718a2a76d453f1dba38aaea1",
+            "prediction": "D",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c7c5634b57d43c96341d395e5aa78c6d3d8d790b48ff59f7c04f9577884cbc03",
+            "prediction": "A",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "732aa429c5dd6bc09484528ea95d8971c38a868841bf033c2ce2941dba568eca",
+            "prediction": "A",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "35213eae559b59a7ec161e4094d60fcb9d2fc4f375d0498bd33294c32d3b24b9",
+            "prediction": "D",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "33ad5450711d1ced276846a246e39afdb75bf2a023bbb2fefa2e951652f8fc44",
+            "prediction": "G",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d33d370c3d10cec5e24e3fa82541a21a312a8a6dbf018b84a44646dd6303f135",
+            "prediction": "C",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f4d3a577a04db29739dc69adf95b0234fb78ef62df8adcf9d142ebe9290df2ce",
+            "prediction": "G",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "eddd276336d4c4df39b0c6dbf60ec793c1a56772746d372601ac4db9fbd3b5fe",
+            "prediction": "F",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f74ad17128a8c9de1dfc4fa9a83cc1a14cd4041ae7ae50e2341b7c381bc4c3be",
+            "prediction": "C",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8f450242f58a3a4891d25a70d6eb13188065c6ec56b984f22cb35838bcff16cc",
+            "prediction": "F",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "be2d8bcb6256e34c159f8f6326494b83f69ea02acb8cd366b4cbfa09be2c5bad",
+            "prediction": "G",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d3e8308f455744bde4674e6e856a657728ebc09ae54ef01c961d1fbbeef4124a",
+            "prediction": "F",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1de1bfeebf2e7c93d04fd58e89c2a53432323a21c17bb4dcadd7424bcd503bad",
+            "prediction": "F",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0cf497885c8cd2cb92f4bd286262331d63f6eabfbfbbb68d46afecb927b68425",
+            "prediction": "D",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "dd67815cb9821ad4146e2fdba2d59bc7e7797d2169d528ffdad68de58ff9eade",
+            "prediction": "D",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b711013372e791cf7268a6194a379a81b5f7a781bbf544643c29593745aaae7e",
+            "prediction": "F",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "25dbc28cf0fc6091936d308ff2a487d9e370e33a7ddf29890693539ef33fe040",
+            "prediction": "D",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "79ab6740f587704bf85450271b0c765b96260f9e2cb80aafc8a0184fc5b46a00",
+            "prediction": "D",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "33764acde3529c5266c2304f9b22b92c8b8599f56fc42dc3f5ddfc8c9f8cd2a8",
+            "prediction": "G",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "dd237dd39cfc8338cc560c5eee03454f25957b55126f966e76ac9d908d8538ec",
+            "prediction": "D",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "293c714d869bbbc877b0d1968549d2d874ce16b956ffd96fd2651c70a4b94580",
+            "prediction": "F",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "14737719fd7c7fa505267bfa3bb0347a220011ac0a3e8807a5caf6f0955ceedd",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "42f7526cfa7fb87f630e73b7dacb17df3039ad4750b4c1811346b698451cfcda",
+            "prediction": "F",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "dc585344dcb45e25d3b1805e00ef3e365aef04075330158a6ecfc5d52bd8886e",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a476dc858444989f4052268e881e0924463c369f257ab92b74eb96ff70f2aeef",
+            "prediction": "F",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3fdc3f3bb27eb7649593a8aa08bbbc96d329e0333d0de1a0b0290201afa5d5a3",
+            "prediction": "G",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d66b3ebdac4f651b182424d601b30e185e52ee3f5b92c0b55965d1a3c84750f3",
+            "prediction": "C",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ad3a086c93ad9068826707812c406b552f80e3bd3fdc9600794825ea83d50a1c",
+            "prediction": "D",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7e1b5d4b91b19625385a209a4c62e18fe6db15073de6ec2d4803f71671f2617b",
+            "prediction": "B",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0ebbeb0981338de162e7ac09732c420b8cf2a5bc8481dbd437973fd6b3ec9207",
+            "prediction": "H",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "62d5f65f405ead1d5084ac2590637868019ed10b9c5520e86c007aaf4cc690f6",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4ac9b1b7c68c5a6a41750dd60ddba690757296bfc18c83a5aab88569ec00bfbc",
+            "prediction": "D",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ec65960561c8fc78721e965a8cda21b514b4382bf16b1ec69c5e454abd228e85",
+            "prediction": "D",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3a636e0c8eb45f0bcf0c287c498b87076bfb7b0d9a2cae2c0cfc7dcf815596da",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "f56e827dd2122a2767fa3c4f376cc78d75e5177144939c8e1c241087fa1b369e",
+            "prediction": "B",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "31adc6ac843100a3605225be73f1f35270c3bc96a4910f9ac0a9c79dff951f2c",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5ec4df14972540c04bd49f58b750ff756db62300e99b05d390434da5af275d2c",
+            "prediction": "E",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b7322cbde778a45b9c9fac30d03aadda0316bfcde7d7c053e1871c4aaa79d3aa",
+            "prediction": "A",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1dfd0e9ab22f961f1635c0964409b280daa0df8aa67db8c1b9496086d3650043",
+            "prediction": "A",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4add7f2ea4461d8178861883dca59551a58e9cf21a7b8c2742b6cb2d1fe1d547",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7bf7df68ff1173c047805aa632321bacbe2be39a10d7059b5746d46415879954",
+            "prediction": "D",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ea0bcf6d9e566c1931ebd6144f0649d9a3f383909d1aff9d1396e56eff73bbae",
+            "prediction": "B",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a5b9993fe85cb54dc6b732157491a5c1d91b32246987dc315c129e08b8ffb7dc",
+            "prediction": "C",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "7c851727306a1470af0998ebd3dc1f769190c9340cecd6746aaf76e46d523d88",
+            "prediction": "C",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "13f282f9de3a35e5419850c35fabcfe20f44c41b63729a446b3d2551af027dd3",
+            "prediction": "A",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "cbf2bcb732faf1d97559e6454c1b52ce7cdee35b0eaa4ee0e05e6430105eedc3",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "03fd78c52fa41ba38a60a602658f5fc49e2c87c586badc6438cac0010eac1cbb",
+            "prediction": "E",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "65e3c9e45b803ad2694cc491c07e8a2772fb2423d76cde514240f3da3222bdce",
+            "prediction": "A",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5f4f5c3e9ff71ad49067a42827d15e226f82592d497ae4679b223f3cddb2bd41",
+            "prediction": "A",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "283188e1d2e854dec523ab8b27f004ec45c5dd7ecc4d824c7f1928c9fb3277ff",
+            "prediction": "F",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "831448193c7cc8df2ba2257665bc9afee0b8edea71c20792c82efbc518a86762",
+            "prediction": "D",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "a21f791abf2757db98c149b9afd9a3423a61efb6a3c13456aabccf75f43883c4",
+            "prediction": "C",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "5f6b8c640d0d925bf8c9b47ea1caffa48397f33be0420345c16ab943ab8a5da6",
+            "prediction": "F",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "1c44ab28fed9513d7a2f394533fb3ab5201a1a9e486599573487059089f79b9e",
+            "prediction": "F",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "acdc199f113c6d096b1573cc92900c7c4f4283b05c6bd72032e5758433f277bd",
+            "prediction": "A",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "955d72b33feac3a96823bb930329a67ef982b8ea635cbc7b5844256716196c05",
+            "prediction": "F",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e8c7c0e0fc122ef46a50e6cf9abdc5bebe492cb9457f66bbc7f16b4a15ad9a0e",
+            "prediction": "A",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "ec4bd6cf027aafe6dc5ff48bb005f67d5076f1877cd29aed729f99bcfbd8d5dd",
+            "prediction": "B",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "2ef29aecdf4b2337e80dc3e17aa0b73b106844f85757e63ac85e8a3c98a64587",
+            "prediction": "G",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "64e1793c8c7e628d391faac32c743d537f3a0486925e507c21c3a9aa90945db4",
+            "prediction": "D",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "cdd40f896f8174656d74dbeeddeb70366846afe4d4dadac9ffd7769a143914e3",
+            "prediction": "D",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "aa700c43e1309f8e4c215011d7b63171fdfab33c0c5a9f85b4515986453f6e35",
+            "prediction": "E",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b7c68eea2f159e2fda7a022beed083479d8563dd1a2eedb9f761f0f94ff2c6f1",
+            "prediction": "E",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "23a3042900ab5505071d8989d112878e1897c59fa76cfb2fa1c3da8694e47816",
+            "prediction": "F",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "787f4ea99962a711b705392655045e44b8e36bb60ec8d7836b6156f182dd67b1",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b2f34501db06c7d0bc2456d44053014ee5aaf7d2cb56615f6195fdb0773e58b5",
+            "prediction": "A",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "883ea2f4b1113eaee049bf349bc45f116aff648038de5f1acc06cb14944b57a2",
+            "prediction": "D",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "fd1b2e6ae50592677a475434a7c9629b6f2e4691a73b058d4f36da761c941a8f",
+            "prediction": "D",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "348689eb50ffd2fbe051bd326dd98dca6324406841d204c53912a633cdb601ce",
+            "prediction": "H",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8391c9f9789cbb79d741bcaa98aba6dcafbde0d8c29ca8f24d931e7057c53ef9",
+            "prediction": "G",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "4b0ec225b1f9a19ff1f28757d2bc7671fdf5dae7a3c0aa88b14b9fc63cf5c6de",
+            "prediction": "G",
+            "answer": "G",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "b8346d9ae8a70ca187d1b297d067e9e5b27fb838071879edc5278440fc3a9c41",
+            "prediction": "E",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "866fcec977a006d00afb282ebcd1e6a30634ca8fe2a6a5ccc8eca663415d92a1",
+            "prediction": "F",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0595fa1be670bf8e9dfd1ce2a59d421803fbe61a607222dc496d25bf5afc91df",
+            "prediction": "D",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8e3de1bad049a8d5c3a2aca18c0208f62402105d9960ee57bfebbedd0fd6404a",
+            "prediction": "F",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "bac03e0f0015134017618dfd55e6982a550d947b0439e2ce0d965b082333c537",
+            "prediction": "C",
+            "answer": "C",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "83bc2de3dcbb8aa15ef842ae1ff9ecec4f296d8752d957a7358a759ce65cf576",
+            "prediction": "F",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "31d23a85818923fcdf7aa8bf0f27f80c1b7ed3725bc1ce9a214fc2a07aa9c851",
+            "prediction": "F",
+            "answer": "F",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "16794171630de3df8162ec73c24c22d52e44e0e1666b186f801a1416a9479cc8",
+            "prediction": "C",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "719a98bb1b212ceb6f28d5a846ce1f4c2a65015dfa0868a3fc1c09390fdae512",
+            "prediction": "G",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "561271ab4cab1e5b8ecf63eede71b652b5f138e941f93491f948fa62899dd382",
+            "prediction": "F",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "d17c267b9de30516a2e98988eb26c5e6dc1bbc445f85935c23f1721eef03c245",
+            "prediction": "C",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "02894a6d30e8f2bde92337a65abce170e62764dcf22acca3db0fb2bf75e692cf",
+            "prediction": "A",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "79e90395408de745320e92b3f43663cf803e9bd813d23ca3598abdea5a187c6c",
+            "prediction": "E",
+            "answer": "E",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "3bc27bc48336403d2833ed8d5c2b40432826dabb291fa8836576815eff157e84",
+            "prediction": "E",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c0a2d5f0250728add7b9c1705309a06707345909b5168536a0cfc12f27eb4fc5",
+            "prediction": "C",
+            "answer": "A",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "18f185e23451d0df7135d497dd77043209109d23e3bb180cc45adf3d89a1b159",
+            "prediction": "A",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "81b7353de2adf7c56153ac02a7fe0d25f8b4a78f3ab15cf64853a60465834423",
+            "prediction": "D",
+            "answer": "F",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0996fb84ea8c9af9c0ad0abf44cbaa2574e59ea96d33eaf92689facf11459d10",
+            "prediction": "E",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e722717daa6504eac8d19bf74bd1d3fdba3ee82d3efb443ad3df8a3e9dd3d05d",
+            "prediction": "F",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "c72bc14d2d3e19c3a19ca273e91dd10fed6cbb9b1380c8eb8bf7d957de7f27d0",
+            "prediction": "A",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "220d579d41992134b67111fbc9d81710711827c30cadb72dc8aad4575b4bcef4",
+            "prediction": "F",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "36409d1eb1740da8e2c549136f73b9909ba723848179553602d983f4504c8011",
+            "prediction": "A",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "6d741d921cda512586c624e6683c132c58e41d1bc1ab76753aeb570d198eca05",
+            "prediction": "B",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "15015e446b7c28b93fefd642a26c54090e9dd4e68ea608ef8026db1f25e62cf3",
+            "prediction": "B",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "122a2f98eab13de8e729822ce8d3a9078b7b6b4484ca7a6bdc0f15c411a1a86a",
+            "prediction": "A",
+            "answer": "A",
+            "terminated": true,
+            "correct": true,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9a1d7fc530de376076f7f8d0060055ce3c225ffbab851aee69e804e5f6f0b18a",
+            "prediction": "G",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "e32fedf41a349ab797e771395cc515ff68c8413a96c4befa51594ae58236af7c",
+            "prediction": "G",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "6730e5738d704b876d6ae32b480cb68fae86b0d5a81dd540dd374f7d98ab943f",
+            "prediction": "F",
+            "answer": "D",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9cd64ef77ad4b81bab668a2293abce30a47973a72fe569014f43e464ade16aae",
+            "prediction": "F",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "8b3b3e913d0f64addef9c50e64ee948d5bba56771b8168a1f1a2b673375c35c1",
+            "prediction": "H",
+            "answer": "E",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "0ee50a3e6c8894b213830aaf7567d8ddd4af0fe8a26480d5d415725572c37750",
+            "prediction": "A",
+            "answer": "C",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "00153fd72b86df1dd2aa1c95f931ca978c0c71bab6507f106e2c2ec9207e44af",
+            "prediction": "B",
+            "answer": "G",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "71e6e9cc172b870c3c95fa4632f2c95019c2e62e679b375aaab7be590ec7b3f5",
+            "prediction": "C",
+            "answer": "B",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          },
+          {
+            "id": "9903a25ee6a6d2da5ae00fcd85008fc8177d33c85c3fc662735b3ebe35f24930",
+            "prediction": "G",
+            "answer": "H",
+            "terminated": true,
+            "correct": false,
+            "difficulty": {
+              "nodes": 8,
+              "steps": 1
+            }
+          }
+        ]
+      },
+      "diagnostics": {
+        "raw_tick_ce": [
+          1.650935411453247,
+          2.607802391052246,
+          2.800245761871338,
+          2.8349151611328125,
+          2.824904680252075,
+          2.8245959281921387,
+          2.817789077758789,
+          2.8141188621520996,
+          2.8148303031921387,
+          2.800832748413086,
+          2.7900888919830322,
+          2.786500930786133,
+          2.782731056213379,
+          2.7841250896453857,
+          2.7862439155578613,
+          2.7907559871673584
+        ],
+        "raw_tick_token_accuracy": [
+          0.5546875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.5390625,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875,
+          0.54296875
+        ],
+        "gold_aware_min_ce_so_far": [
+          1.650935411453247,
+          1.466770887374878,
+          1.4419108629226685,
+          1.43052077293396,
+          1.426910638809204,
+          1.424961805343628,
+          1.4239139556884766,
+          1.4229621887207031,
+          1.420920491218567,
+          1.4137938022613525,
+          1.4118014574050903,
+          1.411303162574768,
+          1.4103212356567383,
+          1.409148931503296,
+          1.408487319946289,
+          1.4081470966339111
+        ],
+        "gold_aware_any_correct_so_far": [
+          0.5546875,
+          0.5703125,
+          0.57421875,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125,
+          0.578125
+        ],
+        "confidence_tick_histogram": [
+          112,
+          16,
+          25,
+          26,
+          13,
+          3,
+          3,
+          2,
+          10,
+          7,
+          8,
+          3,
+          1,
+          9,
+          8,
+          10
+        ],
+        "note": "Supervised answer/EOS token diagnostics; gold-aware envelopes are not deployment scores and do not select checkpoints."
+      }
+    }
+  },
+  "generation_timing": {
+    "batch_size": 32,
+    "warmup": 3,
+    "repeats": 20,
+    "seconds": [
+      0.2886520460015163,
+      0.28552393097197637,
+      0.29086288501275703,
+      0.29400924901710823,
+      0.2847543690004386,
+      0.29195883398642763,
+      0.2884827809757553,
+      0.2942627490265295,
+      0.28682503098389134,
+      0.2872655530227348,
+      0.2881547970464453,
+      0.28365636902162805,
+      0.28571252804249525,
+      0.28721772896824405,
+      0.2843191290157847,
+      0.28740367299178615,
+      0.28662865998921916,
+      0.29447749396786094,
+      0.3088256850023754,
+      0.30279110599076375
+    ],
+    "median_batch_seconds": 0.28777923501911573,
+    "p95_batch_seconds": 0.30279110599076375,
+    "peak_allocated_bytes": 112737280,
+    "scope": "End-to-end unrestricted answer/EOS generation on first32 validation prompts; full prefixes recomputed; includes Python and device transfer; same GPU with other jobs finished."
+  },
+  "source_sha256": {
+    "scripts/evaluate_readout_comparison.py": "67e30091b41051e29f2cc250bead7b8ff14a970e1db47bdf3e769bdb8ff4d191",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f"
+  }
+}

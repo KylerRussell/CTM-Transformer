@@ -1,0 +1,46 @@
+{
+  "gradient_norms": [
+    0.04638795927166939,
+    0.040091630071401596,
+    0.03890979662537575,
+    0.04965353384613991
+  ],
+  "loss_measurements": {
+    "final_ce": {
+      "implementation_loss": 0.39933836460113525,
+      "masked_oracle_loss": 0.3993383049964905,
+      "implementation_over_masked_oracle": 1.0000001192092896,
+      "per_tick_masked_ce": [
+        2.38140606880188,
+        1.2570778131484985,
+        0.6485995054244995,
+        0.3993383049964905
+      ],
+      "matches_masked_oracle": true
+    },
+    "ramp_mono": {
+      "implementation_loss": 0.8984937071800232,
+      "masked_oracle_loss": 0.8984937071800232,
+      "implementation_over_masked_oracle": 1.0,
+      "per_tick_masked_ce": [
+        2.38140606880188,
+        1.2570778131484985,
+        0.6485995054244995,
+        0.3993383049964905
+      ],
+      "matches_masked_oracle": true
+    },
+    "dynamic_aggregate": {
+      "implementation_loss": 0.8411077260971069,
+      "masked_oracle_loss": 0.8411077260971069,
+      "implementation_over_masked_oracle": 1.0,
+      "per_tick_masked_ce": [
+        2.38140606880188,
+        1.2570778131484985,
+        0.6485995054244995,
+        0.3993383049964905
+      ],
+      "matches_masked_oracle": true
+    }
+  }
+}

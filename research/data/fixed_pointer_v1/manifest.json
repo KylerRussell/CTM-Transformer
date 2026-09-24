@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "name": "pointer_fixed_copy_v1",
+  "mode": "fixedcopy",
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "source_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+  "generator_sha256": "c809d530261608a23d5467cc76f0701ea599deaf333485e58f7deed9d45c8603",
+  "role": "exploratory copying of successor A from the first ordered edge; query B is out of distribution",
+  "split_policy": {
+    "disjoint_maps": [
+      "train",
+      "validation",
+      "test_id"
+    ],
+    "training_map_probes": [
+      "train_probe",
+      "train_reordered",
+      "train_new_query"
+    ],
+    "paired_heldout_probes": {
+      "test_shuffled": "test_id",
+      "test_new_query": "test_id"
+    }
+  },
+  "tasks": {
+    "pointer": {
+      "train": {
+        "path": "pointer/train.jsonl",
+        "examples": 2048,
+        "sha256": "1e029914f3be3584505f5e02d6ae1da1c4c5306340e12c98a860f826fa414eca",
+        "depth_counts": {
+          "1": 2048
+        },
+        "answer_counts": {
+          "E": 283,
+          "G": 301,
+          "F": 307,
+          "C": 295,
+          "B": 294,
+          "H": 285,
+          "D": 283
+        }
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "examples": 128,
+        "sha256": "c58d8f097cfc9164ef418f59f3d93fbb5461a879cc019225e1b1e66c343da618",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "E": 26,
+          "G": 14,
+          "D": 26,
+          "F": 15,
+          "B": 17,
+          "H": 17,
+          "C": 13
+        }
+      },
+      "test_id": {
+        "path": "pointer/test_id.jsonl",
+        "examples": 128,
+        "sha256": "98d2e84253c819a289d36d23e89023a9b9f5b8b5133968167f5a83b8ad5856e4",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "C": 27,
+          "H": 17,
+          "B": 15,
+          "G": 18,
+          "D": 21,
+          "E": 17,
+          "F": 13
+        }
+      },
+      "train_probe": {
+        "path": "pointer/train_probe.jsonl",
+        "examples": 256,
+        "sha256": "4ae316ed7e50c27cfac357ec36bdacf82cb085386050996e9cc2907503dfe8a4",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "F": 44,
+          "G": 44,
+          "E": 29,
+          "C": 40,
+          "D": 30,
+          "H": 30,
+          "B": 39
+        }
+      },
+      "train_reordered": {
+        "path": "pointer/train_reordered.jsonl",
+        "examples": 256,
+        "sha256": "08581befd29639f8ea65e4c17444b91d62a8f7c370013cfa900b445a9a527732",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "F": 44,
+          "G": 44,
+          "E": 29,
+          "C": 40,
+          "D": 30,
+          "H": 30,
+          "B": 39
+        }
+      },
+      "test_shuffled": {
+        "path": "pointer/test_shuffled.jsonl",
+        "examples": 128,
+        "sha256": "bff60f5e6fade469cc3a5d4d373da810dd3cfc2f22e43e966be9ac48066bc719",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "C": 27,
+          "H": 17,
+          "B": 15,
+          "G": 18,
+          "D": 21,
+          "E": 17,
+          "F": 13
+        }
+      },
+      "train_new_query": {
+        "path": "pointer/train_new_query.jsonl",
+        "examples": 256,
+        "sha256": "1deeec8651f38ae29e38844ca2b8941b3b6ed0d9a041f2db92faa45f4f71fe1f",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "A": 46,
+          "C": 35,
+          "E": 39,
+          "D": 43,
+          "H": 33,
+          "G": 31,
+          "F": 29
+        }
+      },
+      "test_new_query": {
+        "path": "pointer/test_new_query.jsonl",
+        "examples": 128,
+        "sha256": "052298ca0e00d920634d8256c029d909a6c9412caad7637ed731c400516bbc14",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "E": 14,
+          "C": 16,
+          "G": 17,
+          "D": 25,
+          "F": 18,
+          "H": 18,
+          "A": 20
+        }
+      }
+    }
+  }
+}

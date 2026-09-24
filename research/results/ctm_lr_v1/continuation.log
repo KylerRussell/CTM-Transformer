@@ -1,0 +1,41 @@
+waiting_for_stage_a {}
+freezing_recipes {}
+{
+  "ctm": {
+    "cell": "ctm_uniform_lr_low",
+    "readout": "confidence",
+    "validation_ce": 0.00031375124672194943,
+    "learning_rate": 0.0003
+  },
+  "transformer": {
+    "cell": "transformer_lr_low",
+    "readout": "final",
+    "validation_ce": 6.0535962909114005e-09,
+    "learning_rate": 0.0003
+  },
+  "recurrent_depth": {
+    "cell": "recurrent_depth_lr_mid",
+    "readout": "confidence",
+    "validation_ce": 3.678723814459772e-08,
+    "learning_rate": 0.001
+  }
+}
+Selected recipe: **uniform, peak LR 0.0003, confidence readout**, update 2700, validation CE 0.000313751 and exact answer+EOS accuracy 100.00%.
+training_confirmation {'worker_pids': [33274, 33275]}
+freezing_checkpoints {}
+Frozen nine independent-seed checkpoints and three separate development references.
+evaluating_fresh_maps {'worker_pids': [60895, 60896]}
+summarizing {}
+# Fresh-map confirmation across independent training seeds
+
+Recipes were frozen before new training. All nine new runs completed 3,000 updates, and all selected checkpoints were locked before any fresh-test forward. Evaluation uses 512 previously unused semantic maps, with paired ordered and shuffled presentations. Training uses the existing ordered maps.
+
+## Primary result: seeds 23, 29, 31
+
+| Family | Ordered accuracy, mean ± SD | Shuffled accuracy, mean ± SD | Ordered CE, mean ± SD | Shuffled CE, mean ± SD |
+|---|---:|---:|---:|---:|
+| ctm | 87.50% ± 9.29 | 14.52% ± 1.26 | 0.21466 ± 0.123 | 2.9604 ± 0.6 |
+| transformer | 100.00% ± 0.00 | 13.22% ± 0.60 | 4.4354e-08 ± 7.36e-08 | 7.3521 ± 0.318 |
+| recurrent_depth | 63.74% ± 8.07 | 13.87% ± 1.09 | 0.49179 ± 0.113 | 2.3494 ± 0.233 |
+
+complete_pending_documentation_and_archive {}

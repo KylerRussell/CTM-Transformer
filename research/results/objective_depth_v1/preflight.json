@@ -1,0 +1,105 @@
+{
+  "uniform_t4": {
+    "identity": {
+      "name": "ctm_uniform_t4_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_uniform_t4_v1.json",
+      "sha256": "e804bd099aaefe9cda33b545d05f9fc4ac5bf57735bb4cf853a7d09744fbe3c5"
+    },
+    "changed_fields": {},
+    "objective": {
+      "type": "ramp_mono",
+      "direct_ce_tick_weights_at_max_depth": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "validation_metric": "final-tick supervised-token CE, independent of training objective",
+      "dynamic_rule": null
+    }
+  },
+  "dynamic_t4": {
+    "identity": {
+      "name": "ctm_dynamic_t4_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_dynamic_t4_v1.json",
+      "sha256": "a21aa6bdcaae478a187689dc530117b3f7fe749c88de661b9922b357442b6ec1"
+    },
+    "changed_fields": {
+      "temporal_loss_type": [
+        "ramp_mono",
+        "dynamic_aggregate"
+      ]
+    },
+    "objective": {
+      "type": "dynamic_aggregate",
+      "direct_ce_tick_weights_at_max_depth": null,
+      "validation_metric": "final-tick supervised-token CE, independent of training objective",
+      "dynamic_rule": "mean over supervised tokens of (minimum-tick CE + maximum-certainty-tick CE)/2"
+    }
+  },
+  "uniform_t16": {
+    "identity": {
+      "name": "ctm_uniform_t16_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_uniform_t16_v1.json",
+      "sha256": "4b7684338a243e86116efc5248d695732fcfbd7cc515ee3ffa2834c2c2484a77"
+    },
+    "changed_fields": {
+      "max_thought_steps": [
+        4,
+        16
+      ]
+    },
+    "objective": {
+      "type": "ramp_mono",
+      "direct_ce_tick_weights_at_max_depth": [
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625,
+        0.0625
+      ],
+      "validation_metric": "final-tick supervised-token CE, independent of training objective",
+      "dynamic_rule": null
+    }
+  },
+  "dynamic_t16": {
+    "identity": {
+      "name": "ctm_dynamic_t16_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_dynamic_t16_v1.json",
+      "sha256": "888a5493743263b693166eb2362d735300da667b9567b82241c05b1d2a5c176f"
+    },
+    "changed_fields": {
+      "max_thought_steps": [
+        4,
+        16
+      ],
+      "temporal_loss_type": [
+        "ramp_mono",
+        "dynamic_aggregate"
+      ]
+    },
+    "objective": {
+      "type": "dynamic_aggregate",
+      "direct_ce_tick_weights_at_max_depth": null,
+      "validation_metric": "final-tick supervised-token CE, independent of training objective",
+      "dynamic_rule": "mean over supervised tokens of (minimum-tick CE + maximum-certainty-tick CE)/2"
+    }
+  },
+  "reused_uniform_t4_summary_sha256": "b6cdde2091de6f332495a8f84dd7a2962d734fc7a43b3a73b0be87e0f422d62e",
+  "reused_uniform_t4_archive_sha256": "fc11ac2e119fd644e018551999f4c69f92089ceb80dfae3e8ad064e5d1a5f427"
+}

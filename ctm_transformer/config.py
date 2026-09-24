@@ -54,12 +54,13 @@ class CTMConfig:
         default_factory=lambda: [(2, 0.30), (4, 0.60), (8, 1.00)]
     )
     max_seq_len: int = 1024            # Maximum input sequence length
-    use_positional_encoding: bool = False  # Disabled by default — thought loop provides temporal structure
+    use_positional_encoding: bool = False  # Legacy default; enable for order-sensitive text experiments
     dropout: float = 0.1              # Dropout rate for attention and projections
+    use_attention_residuals: bool = True  # Legacy layer mixing; disable for the canonical CTM scaffold
 
     # ── NLM Configuration ───────────────────────────────────────────────
-    nlm_groups: int = 1                # Number of neuron groups (1 = true per-neuron MLPs)
-                                       # Set to e.g. 32 for grouped NLMs (16 neurons per group)
+    nlm_groups: int = 1                # Number of distinct temporal MLPs; 1 shares across all neurons
+                                       # d_latent = independent per-neuron MLPs; 32 = 16 neurons/group at D=512
 
     # ── CTM-v2: FEEC Integrator ─────────────────────────────────────────
     # Structure-preserving dynamics for the thought loop. Replaces heuristic
@@ -206,6 +207,7 @@ class CTMConfig:
     gradient_accumulation_steps: int = 1   # 1 = no accumulation. With N>1, runs
                                            # N micro-batches per optimizer step;
                                            # effective batch = batch_size · N.
+    bf16_autocast: bool = False       # Keep FP32 parameters/AdamW state with BF16 autocast
     dtype: str = "bfloat16"            # "float32", "float16", or "bfloat16"
     grad_clip: float = 1.0            # Gradient clipping max norm
     eval_interval: int = 500          # Steps between evaluations
@@ -232,7 +234,7 @@ class CTMConfig:
     adamuon_weight_decay: float = 0.1
 
     # ── Temporal Loss ───────────────────────────────────────────────────
-    temporal_loss_type: str = "ramp_mono" # "ramp_mono" or "dynamic_aggregate"
+    temporal_loss_type: str = "ramp_mono" # "final_ce", "ramp_mono", or "dynamic_aggregate"
     # Linear ramp weights across thought ticks. ramp_start < ramp_end means
     # later ticks contribute more to the gradient — pressures the model to
     # prioritize getting later ticks right, breaking the symmetry that

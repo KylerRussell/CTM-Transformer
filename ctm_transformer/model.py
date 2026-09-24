@@ -1913,17 +1913,17 @@ class NeuronLevelModels(nn.Module):
     """
     Per-neuron MLPs that process temporal history of pre-activations.
 
-    Each of the d_latent neurons has its own small MLP:
+    Each neuron processes its history with a small MLP:
         history [batch, history_len] → hidden [batch, nlm_hidden] → output [batch, 1]
 
-    When nlm_groups > 1, neurons are grouped and share MLP parameters
-    within each group (reducing parameter count by the group factor).
+    There are nlm_groups distinct MLPs, with parameters shared within each
+    group. Use 1 for a shared MLP or d_latent for independent neuron MLPs.
 
     Args:
         d_latent: Number of neurons in the latent space.
         history_len: Depth of the FIFO buffer (temporal window).
         nlm_hidden_dim: Hidden dimension of each neuron's MLP.
-        nlm_groups: Number of neuron groups (1 = true per-neuron, >1 = grouped).
+        nlm_groups: Number of distinct MLPs (must divide d_latent).
         dropout: Dropout rate applied after hidden layer.
     """
 
@@ -2551,6 +2551,7 @@ class ThoughtLayer(nn.Module):
         dssa_top_k_blocks: int = 4,
         use_triton_attention: bool = False,
         synapse_type: str = "mlp",
+        sync_sparse_pairs: int = 256,
     ):
         super().__init__()
         self.d_latent = d_latent
@@ -2584,6 +2585,7 @@ class ThoughtLayer(nn.Module):
                 history_len=history_len,
                 method=sync_method,
                 rank=sync_rank,
+                sync_sparse_pairs=sync_sparse_pairs,
             )
             sync_dim = self.sync_computer.output_dim
 
@@ -2876,6 +2878,10 @@ class CTMTransformer(nn.Module):
     def __init__(self, config: CTMConfig):
         super().__init__()
         self.config = config
+        if config.temporal_loss_type not in {"final_ce", "ramp_mono", "dynamic_aggregate"}:
+            raise ValueError(f"Unknown temporal_loss_type: {config.temporal_loss_type}")
+        if config.temporal_loss_type == "final_ce" and config.mono_penalty_weight != 0:
+            raise ValueError("final_ce requires mono_penalty_weight=0; use ramp_mono for auxiliary temporal losses")
 
         # ── Text Ingestion or Feature Encoder ───────────────────────────
         if config.use_feature_encoder:
@@ -2911,6 +2917,7 @@ class CTMTransformer(nn.Module):
                 nlm_groups=config.nlm_groups,
                 sync_method=config.sync_method,
                 sync_rank=config.sync_rank,
+                sync_sparse_pairs=config.sync_sparse_pairs,
                 dropout=config.dropout,
                 engram_enabled=(l_idx in engram_layer_set),
                 engram_use_conv=config.engram_use_conv,
@@ -3007,8 +3014,8 @@ class CTMTransformer(nn.Module):
         self.attn_res_queries = nn.ParameterList([
             nn.Parameter(torch.zeros(config.d_latent))
             for _ in range(n_layers_for_attnres)
-        ])
-        self.attn_res_norm = nn.RMSNorm(config.d_latent)
+        ]) if config.use_attention_residuals else nn.ParameterList()
+        self.attn_res_norm = nn.RMSNorm(config.d_latent) if config.use_attention_residuals else None
 
         # ── Output Head ─────────────────────────────────────────────────
         # Three configurations, mutually exclusive:
@@ -3272,6 +3279,19 @@ class CTMTransformer(nn.Module):
         """
         B, S = z.shape[:2]
         layers = self._get_layers_sequence()
+        # Replay the histories supplied for this tick during checkpoint
+        # recomputation, rather than reading buffers left by later ticks.
+        # Restore before the loop so repeated Hyperloop layers still share
+        # and advance memory within this tick.
+        if pre_states is not None and post_states is not None:
+            memory_idx = 0
+            for layer in layers:
+                if layer.memory is not None:
+                    layer.memory.pre_history = pre_states[memory_idx]
+                    layer.memory.post_history = post_states[memory_idx]
+                    memory_idx += 1
+        if self.loop_pos_emb is not None:
+            z = z + self.loop_pos_emb.weight[t].to(z.dtype)
         layer_outputs = []
         new_stream_states = []
         
@@ -3280,16 +3300,18 @@ class CTMTransformer(nn.Module):
             velocity_new = velocity.clone()
 
         for l_idx, layer in enumerate(layers):
-            # Attention Residuals (Kimi AttnRes)
-            # Stack all previous outputs (at least the input z)
-            V = torch.stack(layer_outputs + [z], dim=0)
-            
-            V_norm = V.to(self.attn_res_norm.weight.dtype)
-            K = self.attn_res_norm(V_norm) # [N, B, S, D]
-            w_l = self.attn_res_queries[l_idx] if l_idx < len(self.attn_res_queries) else self.attn_res_queries[-1]
-            scores = torch.einsum('d,nbsd->nbs', w_l, K) # [N, B, S]
-            attn_weights = F.softmax(scores, dim=0)
-            z_in = torch.einsum('nbs,nbsd->bsd', attn_weights, V) # [B, S, D]
+            if self.config.use_attention_residuals:
+                # Optional attention over the input and earlier layer outputs.
+                V = torch.stack(layer_outputs + [z], dim=0)
+                V_norm = V.to(self.attn_res_norm.weight.dtype)
+                K = self.attn_res_norm(V_norm)
+                w_l = self.attn_res_queries[l_idx] if l_idx < len(self.attn_res_queries) else self.attn_res_queries[-1]
+                scores = torch.einsum('d,nbsd->nbs', w_l, K)
+                attn_weights = F.softmax(scores, dim=0)
+                z_in = torch.einsum('nbs,nbsd->bsd', attn_weights, V)
+            else:
+                # Each ThoughtLayer already includes a gated state update.
+                z_in = layer_outputs[-1] if layer_outputs else z
 
             # Get stream state for this layer
             layer_stream = None
@@ -3406,7 +3428,20 @@ class CTMTransformer(nn.Module):
               feeds these straight into the KL loss. cuda:1 can sit
               empty.
         """
-        T = max_thought_steps or self.config.max_thought_steps
+        T = self.config.max_thought_steps if max_thought_steps is None else max_thought_steps
+        if not isinstance(T, int) or isinstance(T, bool) or T <= 0:
+            raise ValueError("max_thought_steps must be a positive integer")
+        indexed_ticks = (
+            self.tick_adapters is not None
+            or self.shared_adapter is not None
+            or self.loop_pos_emb is not None
+        )
+        if indexed_ticks and T > self.config.max_thought_steps:
+            raise ValueError(
+                f"max_thought_steps={T} exceeds the configured limit "
+                f"{self.config.max_thought_steps} for tick-indexed parameters. "
+                "Use a shared head without FiLM or loop embeddings for depth extrapolation."
+            )
         B, S = input_ids.shape[:2]
         device = input_ids.device
         dtype = next(self.parameters()).dtype
@@ -3563,9 +3598,15 @@ class CTMTransformer(nn.Module):
         if targets is not None:
             # ── Cross-Entropy Loss ──────────────────────────────────────
             if self.config.temporal_loss_type == "dynamic_aggregate":
-                # [B, S, T] unreduced losses
+                # [B*S, T] unreduced losses. Ignore prompt/padding tokens
+                # in both the objective and the per-tick monotonicity term.
+                # cross_entropy(reduction="none") returns zero at ignored
+                # positions; averaging those zeros dilutes answer-only loss.
                 losses_unreduced = torch.stack(per_tick_ce_losses, dim=1)
-                per_tick_loss_tensor = losses_unreduced.mean(dim=0) # [T]
+                supervised = targets.reshape(-1) != -100
+                if not supervised.any():
+                    raise ValueError("dynamic_aggregate requires at least one supervised token")
+                per_tick_loss_tensor = losses_unreduced[supervised].mean(dim=0) # [T]
                 
                 cert = all_certainties_tensor.view(T, -1).transpose(0, 1) # [BS, T]
                 losses_flat = losses_unreduced.reshape(-1, T)
@@ -3575,7 +3616,11 @@ class CTMTransformer(nn.Module):
                 
                 loss_t1 = losses_flat.gather(1, lowest_idx.unsqueeze(1)).squeeze(1)
                 loss_t2 = losses_flat.gather(1, certain_idx.unsqueeze(1)).squeeze(1)
-                base_loss = ((loss_t1 + loss_t2) / 2.0).mean()
+                base_loss = ((loss_t1 + loss_t2) / 2.0)[supervised].mean()
+                per_tick_loss = per_tick_loss_tensor
+            elif self.config.temporal_loss_type == "final_ce":
+                per_tick_loss_tensor = torch.stack(per_tick_ce_losses)
+                base_loss = per_tick_loss_tensor[-1]
                 per_tick_loss = per_tick_loss_tensor
             else:
                 per_tick_loss_tensor = torch.stack(per_tick_ce_losses) # [T]

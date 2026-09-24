@@ -1,0 +1,171 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+______________ test_masked_objective_and_gradients[final_ce-0.0] _______________
+
+mode = 'final_ce', mono = 0.0
+
+    @pytest.mark.parametrize('mode,mono',[('final_ce',0.),('ramp_mono',0.2),('dynamic_aggregate',0.),('dynamic_aggregate',0.2)])
+    def test_masked_objective_and_gradients(mode,mono):
+        model,ids,targets=model_and_data(mode,mono)
+        result=model(ids,targets=targets);logits=result['all_logits'];valid=targets.flatten()!=-100
+        losses=torch.stack([F.cross_entropy(x.reshape(-1,x.shape[-1]),targets.flatten(),reduction='none') for x in logits],dim=1)
+        per_tick=losses[valid].mean(0)
+        if mode=='final_ce':base=per_tick[-1]
+        elif mode=='ramp_mono':
+            weights=torch.linspace(.5,1.5,len(logits),device=ids.device);base=(per_tick*weights/weights.sum()).sum()
+        else:
+            certainty=result['certainties'].reshape(len(logits),-1).T
+            chosen=certainty.argmax(1)
+            base=((losses.min(1).values+losses.gather(1,chosen[:,None]).squeeze(1))/2)[valid].mean()
+        oracle=base+mono*F.relu(per_tick[1:]-per_tick[:-1]).mean()
+        torch.testing.assert_close(result['loss'],oracle,rtol=1e-5,atol=1e-6)
+>       weight=model.output_proj.weight
+
+tests/test_temporal_loss_masking.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Sequential(
+  (0): Linear(in_features=64, out_features=32, bias=True)
+  (1): GELU(approximate='none')
+  (2): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
+  (3): Linear(in_features=32, out_features=71, bias=True)
+)
+name = 'weight'
+
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+        if "_parameters" in self.__dict__:
+            _parameters = self.__dict__["_parameters"]
+            if name in _parameters:
+                return _parameters[name]
+        if "_buffers" in self.__dict__:
+            _buffers = self.__dict__["_buffers"]
+            if name in _buffers:
+                return _buffers[name]
+        if "_modules" in self.__dict__:
+            modules = self.__dict__["_modules"]
+            if name in modules:
+                return modules[name]
+>       raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+E       AttributeError: 'Sequential' object has no attribute 'weight'
+
+/tmp/ctm-research-venv/lib/python3.10/site-packages/torch/nn/modules/module.py:1928: AttributeError
+______________ test_masked_objective_and_gradients[ramp_mono-0.2] ______________
+
+mode = 'ramp_mono', mono = 0.2
+
+    @pytest.mark.parametrize('mode,mono',[('final_ce',0.),('ramp_mono',0.2),('dynamic_aggregate',0.),('dynamic_aggregate',0.2)])
+    def test_masked_objective_and_gradients(mode,mono):
+        model,ids,targets=model_and_data(mode,mono)
+        result=model(ids,targets=targets);logits=result['all_logits'];valid=targets.flatten()!=-100
+        losses=torch.stack([F.cross_entropy(x.reshape(-1,x.shape[-1]),targets.flatten(),reduction='none') for x in logits],dim=1)
+        per_tick=losses[valid].mean(0)
+        if mode=='final_ce':base=per_tick[-1]
+        elif mode=='ramp_mono':
+            weights=torch.linspace(.5,1.5,len(logits),device=ids.device);base=(per_tick*weights/weights.sum()).sum()
+        else:
+            certainty=result['certainties'].reshape(len(logits),-1).T
+            chosen=certainty.argmax(1)
+            base=((losses.min(1).values+losses.gather(1,chosen[:,None]).squeeze(1))/2)[valid].mean()
+        oracle=base+mono*F.relu(per_tick[1:]-per_tick[:-1]).mean()
+        torch.testing.assert_close(result['loss'],oracle,rtol=1e-5,atol=1e-6)
+>       weight=model.output_proj.weight
+
+tests/test_temporal_loss_masking.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Sequential(
+  (0): Linear(in_features=64, out_features=32, bias=True)
+  (1): GELU(approximate='none')
+  (2): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
+  (3): Linear(in_features=32, out_features=71, bias=True)
+)
+name = 'weight'
+
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+        if "_parameters" in self.__dict__:
+            _parameters = self.__dict__["_parameters"]
+            if name in _parameters:
+                return _parameters[name]
+        if "_buffers" in self.__dict__:
+            _buffers = self.__dict__["_buffers"]
+            if name in _buffers:
+                return _buffers[name]
+        if "_modules" in self.__dict__:
+            modules = self.__dict__["_modules"]
+            if name in modules:
+                return modules[name]
+>       raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+E       AttributeError: 'Sequential' object has no attribute 'weight'
+
+/tmp/ctm-research-venv/lib/python3.10/site-packages/torch/nn/modules/module.py:1928: AttributeError
+__________ test_masked_objective_and_gradients[dynamic_aggregate-0.0] __________
+
+mode = 'dynamic_aggregate', mono = 0.0
+
+    @pytest.mark.parametrize('mode,mono',[('final_ce',0.),('ramp_mono',0.2),('dynamic_aggregate',0.),('dynamic_aggregate',0.2)])
+    def test_masked_objective_and_gradients(mode,mono):
+        model,ids,targets=model_and_data(mode,mono)
+        result=model(ids,targets=targets);logits=result['all_logits'];valid=targets.flatten()!=-100
+        losses=torch.stack([F.cross_entropy(x.reshape(-1,x.shape[-1]),targets.flatten(),reduction='none') for x in logits],dim=1)
+        per_tick=losses[valid].mean(0)
+        if mode=='final_ce':base=per_tick[-1]
+        elif mode=='ramp_mono':
+            weights=torch.linspace(.5,1.5,len(logits),device=ids.device);base=(per_tick*weights/weights.sum()).sum()
+        else:
+            certainty=result['certainties'].reshape(len(logits),-1).T
+            chosen=certainty.argmax(1)
+            base=((losses.min(1).values+losses.gather(1,chosen[:,None]).squeeze(1))/2)[valid].mean()
+        oracle=base+mono*F.relu(per_tick[1:]-per_tick[:-1]).mean()
+>       torch.testing.assert_close(result['loss'],oracle,rtol=1e-5,atol=1e-6)
+E       AssertionError: Scalars are not close!
+E       
+E       Expected 4.160233497619629 but got 0.46224817633628845.
+E       Absolute difference: 3.6979853212833405 (up to 1e-06 allowed)
+E       Relative difference: 0.8888888865010163 (up to 1e-05 allowed)
+
+tests/test_temporal_loss_masking.py:38: AssertionError
+__________ test_masked_objective_and_gradients[dynamic_aggregate-0.2] __________
+
+mode = 'dynamic_aggregate', mono = 0.2
+
+    @pytest.mark.parametrize('mode,mono',[('final_ce',0.),('ramp_mono',0.2),('dynamic_aggregate',0.),('dynamic_aggregate',0.2)])
+    def test_masked_objective_and_gradients(mode,mono):
+        model,ids,targets=model_and_data(mode,mono)
+        result=model(ids,targets=targets);logits=result['all_logits'];valid=targets.flatten()!=-100
+        losses=torch.stack([F.cross_entropy(x.reshape(-1,x.shape[-1]),targets.flatten(),reduction='none') for x in logits],dim=1)
+        per_tick=losses[valid].mean(0)
+        if mode=='final_ce':base=per_tick[-1]
+        elif mode=='ramp_mono':
+            weights=torch.linspace(.5,1.5,len(logits),device=ids.device);base=(per_tick*weights/weights.sum()).sum()
+        else:
+            certainty=result['certainties'].reshape(len(logits),-1).T
+            chosen=certainty.argmax(1)
+            base=((losses.min(1).values+losses.gather(1,chosen[:,None]).squeeze(1))/2)[valid].mean()
+        oracle=base+mono*F.relu(per_tick[1:]-per_tick[:-1]).mean()
+>       torch.testing.assert_close(result['loss'],oracle,rtol=1e-5,atol=1e-6)
+E       AssertionError: Scalars are not close!
+E       
+E       Expected 4.160482406616211 but got 0.46227583289146423.
+E       Absolute difference: 3.6982065737247467 (up to 1e-06 allowed)
+E       Relative difference: 0.8888888865011592 (up to 1e-05 allowed)
+
+tests/test_temporal_loss_masking.py:38: AssertionError
+____________________ test_dynamic_rejects_all_ignored_batch ____________________
+
+    def test_dynamic_rejects_all_ignored_batch():
+        model,ids,targets=model_and_data('dynamic_aggregate');targets.fill_(-100)
+>       with pytest.raises(ValueError,match='supervised token'):model(ids,targets=targets)
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_temporal_loss_masking.py:47: Failed
+=========================== short test summary info ============================
+FAILED tests/test_temporal_loss_masking.py::test_masked_objective_and_gradients[final_ce-0.0]
+FAILED tests/test_temporal_loss_masking.py::test_masked_objective_and_gradients[ramp_mono-0.2]
+FAILED tests/test_temporal_loss_masking.py::test_masked_objective_and_gradients[dynamic_aggregate-0.0]
+FAILED tests/test_temporal_loss_masking.py::test_masked_objective_and_gradients[dynamic_aggregate-0.2]
+FAILED tests/test_temporal_loss_masking.py::test_dynamic_rejects_all_ignored_batch
+5 failed in 5.89s

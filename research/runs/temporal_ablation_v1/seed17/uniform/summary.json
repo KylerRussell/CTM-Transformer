@@ -1,0 +1,31 @@
+{
+  "complete": true,
+  "model_family": "ctm",
+  "steps": 3000,
+  "tokens_seen": 5184000,
+  "supervised_tokens_seen": 192000,
+  "examples_seen": 96000,
+  "padded_token_positions": 5184000,
+  "token_block_applications": 41472000,
+  "depth_counts": {
+    "4": 3000
+  },
+  "training_seconds": 509.8233942312654,
+  "training_tokens_per_second": 10168.226995186575,
+  "wall_seconds": 519.0972736260155,
+  "best_validation_loss": 0.3324536755681038,
+  "peak_allocated_bytes": 701654016,
+  "parameters": {
+    "total": 544839,
+    "token_embedding": 9088,
+    "position_embedding": 16384,
+    "readout": 42311,
+    "other": 477056
+  },
+  "config_identity": {
+    "name": "ctm_temporal_uniform_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_temporal_uniform_v1.json",
+    "sha256": "3bbf163d8168d554de426d60989a7c0adc1b9bbf606fbbf4f3f22b8c772d194f"
+  }
+}

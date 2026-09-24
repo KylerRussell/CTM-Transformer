@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "name": "algorithmic_v1",
+  "seed": 20260921,
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "generator_sha256": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+  "role": "development pilot; these evaluation splits are not a locked paper test set",
+  "tasks": {
+    "addition": {
+      "train": {
+        "path": "addition/train.jsonl",
+        "examples": 2080,
+        "seed": 20260921,
+        "sha256": "4e223e48decb445315d6c812e31968c9293413d3fe84363666d5dddf4e6c947a",
+        "strata": [
+          [
+            32,
+            1,
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            2048,
+            2,
+            [
+              0,
+              1
+            ]
+          ]
+        ]
+      },
+      "validation": {
+        "path": "addition/validation.jsonl",
+        "examples": 136,
+        "seed": 20260922,
+        "sha256": "71c9a4f7c7488e83e87d29594809aa9b83489e9e2dc5ccc46d8c47cee987ea30",
+        "strata": [
+          [
+            8,
+            1,
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            128,
+            2,
+            [
+              0,
+              1
+            ]
+          ]
+        ]
+      },
+      "test_id": {
+        "path": "addition/test_id.jsonl",
+        "examples": 136,
+        "seed": 20260923,
+        "sha256": "8d861f833587c78bb84993717cc1e752e57bad97b652c75fecb096f9c3a354e5",
+        "strata": [
+          [
+            8,
+            1,
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            128,
+            2,
+            [
+              0,
+              1
+            ]
+          ]
+        ]
+      },
+      "ood_carry": {
+        "path": "addition/ood_carry.jsonl",
+        "examples": 256,
+        "seed": 20260924,
+        "sha256": "b957572062dafa5720453f9c2d1fd33276de37357a4b961da352daa21cced3f8",
+        "strata": [
+          [
+            256,
+            2,
+            [
+              2
+            ]
+          ]
+        ]
+      },
+      "ood_length": {
+        "path": "addition/ood_length.jsonl",
+        "examples": 256,
+        "seed": 20260925,
+        "sha256": "578900ade7308eb52c00229d34fe5be210533e54d054260f294c1a6c3eb5d02a",
+        "strata": [
+          [
+            128,
+            3,
+            [
+              0,
+              1
+            ]
+          ],
+          [
+            128,
+            4,
+            [
+              0,
+              1
+            ]
+          ]
+        ]
+      },
+      "ood_joint": {
+        "path": "addition/ood_joint.jsonl",
+        "examples": 256,
+        "seed": 20260926,
+        "sha256": "9298eb41869cc8f6f641558a1e83be6e3a92e65fe3db778567b9f53605e6270f",
+        "strata": [
+          [
+            128,
+            3,
+            [
+              2,
+              3
+            ]
+          ],
+          [
+            128,
+            4,
+            [
+              2,
+              3,
+              4
+            ]
+          ]
+        ]
+      }
+    },
+    "pointer": {
+      "train": {
+        "path": "pointer/train.jsonl",
+        "examples": 2048,
+        "seed": 20261921,
+        "sha256": "318c20fba403670b8ea197876a78637e85d772f63aababd1c58459b17cb3cc4a",
+        "strata": [
+          [
+            2048,
+            8,
+            [
+              1,
+              2,
+              3
+            ]
+          ]
+        ]
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "examples": 128,
+        "seed": 20261922,
+        "sha256": "790c2cccfacb41befd4475d4793a88bbc17bcab6d62ee08cb46511cdd8406717",
+        "strata": [
+          [
+            128,
+            8,
+            [
+              1,
+              2,
+              3
+            ]
+          ]
+        ]
+      },
+      "test_id": {
+        "path": "pointer/test_id.jsonl",
+        "examples": 128,
+        "seed": 20261923,
+        "sha256": "18940475b09a11d89233696080c1637a4eb5ab411821d56ecc08b89992d341d0",
+        "strata": [
+          [
+            128,
+            8,
+            [
+              1,
+              2,
+              3
+            ]
+          ]
+        ]
+      },
+      "ood_depth": {
+        "path": "pointer/ood_depth.jsonl",
+        "examples": 256,
+        "seed": 20261924,
+        "sha256": "80247f9e423fb6bd8271af9a5e741f79a04dfc5f7af31b2a60298d9701508761",
+        "strata": [
+          [
+            256,
+            8,
+            [
+              4,
+              5,
+              6
+            ]
+          ]
+        ]
+      },
+      "ood_length": {
+        "path": "pointer/ood_length.jsonl",
+        "examples": 256,
+        "seed": 20261925,
+        "sha256": "e81ace838f9226edb3c6b97dab7e8e39b4b5cecf30447362693190fe8a13797e",
+        "strata": [
+          [
+            256,
+            12,
+            [
+              1,
+              2,
+              3
+            ]
+          ]
+        ]
+      },
+      "ood_joint": {
+        "path": "pointer/ood_joint.jsonl",
+        "examples": 256,
+        "seed": 20261926,
+        "sha256": "307ac9426b8103aa5bceeb2cdd02ce8603b30be72156bcfd4fa53a88341be467",
+        "strata": [
+          [
+            256,
+            12,
+            [
+              4,
+              5,
+              6
+            ]
+          ]
+        ]
+      }
+    }
+  }
+}

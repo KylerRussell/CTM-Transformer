@@ -1,0 +1,32 @@
+{
+  "scope": "Local Git versions inspected; these do not identify the user historical winning run. No historical branch was checked out or executed.",
+  "versions": [
+    {
+      "commit": "a403207b30a4755edb7b1b623af3709d1b8ddca6",
+      "path": "ctm_transformer/model.py",
+      "file_sha256": "84e39158344de160ed6efe2ef14ea31884696f6a6a054956726fd106014db4b4",
+      "excerpt_start_line": 295,
+      "excerpt_end_line": 331,
+      "excerpt": "            per_tick_loss: [T] \u2014 CE loss at each thought step (for logging).\n        \"\"\"\n        T, B, S, V = all_logits.shape\n        cfg = self.config\n        targets_flat = targets.reshape(-1)\n\n        # Compute per-tick cross-entropy loss (some may be detached)\n        per_tick_losses = []\n        for t in range(T):\n            logits_t = all_logits[t].reshape(-1, V)\n            loss_t = F.cross_entropy(logits_t, targets_flat, reduction=\"mean\")\n            per_tick_losses.append(loss_t)\n\n        per_tick_loss_tensor = torch.stack(per_tick_losses)  # [T]\n\n        if self.training and cfg.gradient_checkpointing:\n            # Only the final step has gradients \u2014 use it directly\n            loss = per_tick_losses[-1]\n        else:\n            # Full temporal aggregation (all steps have gradients)\n            temperature = 0.1\n\n            # Min-loss tick: softmin over per-tick losses\n            min_loss_weights = F.softmax(-per_tick_loss_tensor / temperature, dim=0)\n            min_loss_component = (min_loss_weights * per_tick_loss_tensor).sum()\n\n            # Max-certainty tick\n            mean_certainty = all_certainties.mean(dim=(1, 2))\n            max_cert_weights = F.softmax(mean_certainty / temperature, dim=0)\n            max_cert_component = (max_cert_weights * per_tick_loss_tensor).sum()\n\n            loss = (\n                cfg.min_loss_weight * min_loss_component +\n                cfg.max_cert_weight * max_cert_component +\n                cfg.aux_loss_weight * per_tick_loss_tensor.mean()\n            )\n",
+      "note": "Softmin of batch-mean tick CE and softmax of mean certainty; configurable components plus auxiliary average loss."
+    },
+    {
+      "commit": "54d40f427c2ceaab682294b24e824f0c347ea9d2",
+      "path": "ctm_transformer/model.py",
+      "file_sha256": "7ab3d190508f4339fcf115e8e7a033df8a73e7859c1f001be3c03b68fd8d1e8c",
+      "excerpt_start_line": 666,
+      "excerpt_end_line": 686,
+      "excerpt": "            # To do per-data-point aggregation, we need the unreduced losses.\n            per_tick_losses_unreduced = []\n            for t in range(T):\n                logits_t = all_logits[t].reshape(-1, V)\n                loss_t = F.cross_entropy(logits_t, targets_flat, reduction=\"none\")\n                per_tick_losses_unreduced.append(loss_t)\n            losses_unreduced = torch.stack(per_tick_losses_unreduced, dim=1) # [BS, T]\n            \n            # all_certainties is [T, B, S]. Flatten to [BS, T]\n            cert = all_certainties.view(T, -1).transpose(0, 1) # [BS, T]\n            \n            lowest_idx = losses_unreduced.argmin(dim=-1) # [BS]\n            certain_idx = cert.argmax(dim=-1) # [BS]\n            \n            # Gather\n            loss_t1 = losses_unreduced.gather(1, lowest_idx.unsqueeze(1)).squeeze(1)\n            loss_t2 = losses_unreduced.gather(1, certain_idx.unsqueeze(1)).squeeze(1)\n            \n            loss = ((loss_t1 + loss_t2) / 2.0).mean()\n            return loss, per_tick_loss_tensor.detach()\n",
+      "note": "Hard per-token minimum CE and maximum certainty; equal average."
+    },
+    {
+      "commit": "d841c16820d6d9702a21f448f217010288313c60",
+      "path": "ctm_transformer/model.py",
+      "file_sha256": "aba4c8d220675d9a7bde216bd9b639a3fc396e64362bfcf6fa8ccfaca7c41351",
+      "excerpt_start_line": 3560,
+      "excerpt_end_line": 3580,
+      "excerpt": "            with torch.no_grad():\n                result[\"feec_energy\"] = self.feec.energy(z, velocity)\n\n        if targets is not None:\n            # \u2500\u2500 Cross-Entropy Loss \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n            if self.config.temporal_loss_type == \"dynamic_aggregate\":\n                # [B, S, T] unreduced losses\n                losses_unreduced = torch.stack(per_tick_ce_losses, dim=1)\n                per_tick_loss_tensor = losses_unreduced.mean(dim=0) # [T]\n                \n                cert = all_certainties_tensor.view(T, -1).transpose(0, 1) # [BS, T]\n                losses_flat = losses_unreduced.reshape(-1, T)\n                \n                lowest_idx = losses_flat.argmin(dim=-1)\n                certain_idx = cert.argmax(dim=-1)\n                \n                loss_t1 = losses_flat.gather(1, lowest_idx.unsqueeze(1)).squeeze(1)\n                loss_t2 = losses_flat.gather(1, certain_idx.unsqueeze(1)).squeeze(1)\n                base_loss = ((loss_t1 + loss_t2) / 2.0).mean()\n                per_tick_loss = per_tick_loss_tensor\n            else:",
+      "note": "Consolidated implementation uses hard per-token selections; default returned logits are final tick."
+    }
+  ]
+}

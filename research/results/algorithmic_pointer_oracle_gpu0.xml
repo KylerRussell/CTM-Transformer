@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="4.559" timestamp="2026-09-21T22:11:47.483075+00:00" hostname="claude-code-vm-0"><testcase classname="tests.test_algorithmic" name="test_pointer_generation_oracle_across_depth_and_size" time="1.208" /></testsuite></testsuites>

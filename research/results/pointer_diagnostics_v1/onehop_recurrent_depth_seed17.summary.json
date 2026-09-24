@@ -1,0 +1,206 @@
+{
+  "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+  "mode": "onehop",
+  "seed": 17,
+  "training": {
+    "complete": true,
+    "model_family": "recurrent_depth",
+    "steps": 600,
+    "tokens_seen": 1036800,
+    "supervised_tokens_seen": 38400,
+    "examples_seen": 19200,
+    "padded_token_positions": 1036800,
+    "token_block_applications": 10368000,
+    "depth_counts": {
+      "4": 600
+    },
+    "training_seconds": 50.14023496559821,
+    "training_tokens_per_second": 20678.004415243773,
+    "wall_seconds": 51.010656558995834,
+    "best_validation_loss": 1.0442437529563904,
+    "peak_allocated_bytes": 203178496,
+    "parameters": {
+      "total": 922496,
+      "token_embedding": 9088,
+      "position_embedding": 16384,
+      "readout": 9088,
+      "other": 887936
+    },
+    "config_identity": {
+      "name": "recurrent_depth_algorithmic_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_depth_algorithmic_v1.json",
+      "sha256": "e041662c5752650ec080057ebb655039e90ecabcdc897aed5f22150f8e34f682"
+    }
+  },
+  "selection": "Lowest validation answer/EOS CE among 100-update checkpoints",
+  "checkpoint": {
+    "model_family": "recurrent_depth",
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/pointer_diagnostics_v1/onehop_seed17/recurrent_depth/best.pt",
+    "sha256": "624ca9b7ae7399429f339d20ddf98dc382b859ce091e92c48a0e672d436a0765",
+    "size_bytes": 11139626,
+    "training_config": {
+      "model_family": "recurrent_depth",
+      "vocab_size": 71,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 0,
+      "ffn_hidden_dim": 384,
+      "prelude_layers": 1,
+      "core_layers": 2,
+      "coda_layers": 1,
+      "max_thought_steps": 4,
+      "train_depth_min": 4,
+      "train_depth_max": 4,
+      "norm_eps": 1e-05,
+      "init_std": 0.02,
+      "dropout": 0.0,
+      "use_positional_encoding": true,
+      "max_seq_len": 128,
+      "tie_embeddings": false,
+      "gradient_checkpointing": false,
+      "batch_size": 32,
+      "seq_len": 128,
+      "learning_rate": 0.001,
+      "weight_decay": 0.1,
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.95,
+      "optimizer": "adamw",
+      "use_8bit_adam": false,
+      "grad_clip": 1.0,
+      "gradient_accumulation_steps": 1,
+      "max_steps": 600,
+      "warmup_steps": 30,
+      "eval_interval": 100,
+      "log_interval": 50,
+      "dtype": "bfloat16",
+      "bf16_autocast": true,
+      "tokenizer": "algorithmic_char_v1",
+      "dataset": "",
+      "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/onehop/pointer/train.jsonl",
+      "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/onehop/pointer/validation.jsonl",
+      "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/pointer_diagnostics_v1/onehop_seed17/recurrent_depth",
+      "device": "cuda:1"
+    },
+    "config_overrides": {},
+    "training_counters": {
+      "step": 300,
+      "tokens_seen": 518400
+    }
+  },
+  "dataset_manifest_sha256": "ed78d8c9bfe5cddc8e25d8818e572d54ea4ed72ac12b6dc0262e1733e3cb49dd",
+  "diagnostic_source_sha256": {
+    "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+    "scripts/run_pointer_diagnostic.py": "e300fd291bc2b23b1e22d21f57d623a529402364997079b91033e54650b1673a"
+  },
+  "metrics": {
+    "train": {
+      "4": {
+        "examples": 2048,
+        "correct": 271,
+        "exact_match": 0.13232421875,
+        "terminated": 2048,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 2048,
+            "correct": 271,
+            "exact_match": 0.13232421875,
+            "terminated": 2048
+          }
+        },
+        "answer_token_ce": 1.0365784205496311,
+        "supervised_tokens": 4096
+      }
+    },
+    "validation": {
+      "4": {
+        "examples": 128,
+        "correct": 18,
+        "exact_match": 0.140625,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 18,
+            "exact_match": 0.140625,
+            "terminated": 128
+          }
+        },
+        "answer_token_ce": 1.0442437529563904,
+        "supervised_tokens": 256
+      }
+    },
+    "test_id": {
+      "4": {
+        "examples": 128,
+        "correct": 11,
+        "exact_match": 0.0859375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 128,
+            "correct": 11,
+            "exact_match": 0.0859375,
+            "terminated": 128
+          }
+        },
+        "answer_token_ce": 1.036424994468689,
+        "supervised_tokens": 256
+      }
+    },
+    "train_probe": {
+      "4": {
+        "examples": 256,
+        "correct": 31,
+        "exact_match": 0.12109375,
+        "terminated": 256,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 256,
+            "correct": 31,
+            "exact_match": 0.12109375,
+            "terminated": 256
+          }
+        },
+        "answer_token_ce": 1.035158023238182,
+        "supervised_tokens": 512
+      }
+    },
+    "train_reordered": {
+      "4": {
+        "examples": 256,
+        "correct": 28,
+        "exact_match": 0.109375,
+        "terminated": 256,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 256,
+            "correct": 28,
+            "exact_match": 0.109375,
+            "terminated": 256
+          }
+        },
+        "answer_token_ce": 1.0434936732053757,
+        "supervised_tokens": 512
+      }
+    },
+    "train_new_query": {
+      "4": {
+        "examples": 256,
+        "correct": 34,
+        "exact_match": 0.1328125,
+        "terminated": 256,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 256,
+            "correct": 34,
+            "exact_match": 0.1328125,
+            "terminated": 256
+          }
+        },
+        "answer_token_ce": 1.0440414398908615,
+        "supervised_tokens": 512
+      }
+    }
+  }
+}

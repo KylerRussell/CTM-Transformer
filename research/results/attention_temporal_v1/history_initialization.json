@@ -1,0 +1,21 @@
+{
+  "checkpoint_sha256": "c3a9f09329ebde8f688dcd1c53f1c91197135244ef5cae051c569720fc56f513",
+  "history_initialization": {
+    "layers.0.memory.pre_history_init": {
+      "norm": 0.8249648809432983,
+      "max_abs": 0.09702464938163757
+    },
+    "layers.0.memory.post_history_init": {
+      "norm": 0.0,
+      "max_abs": 0.0
+    },
+    "layers.1.memory.pre_history_init": {
+      "norm": 0.8615244626998901,
+      "max_abs": 0.09705411642789841
+    },
+    "layers.1.memory.post_history_init": {
+      "norm": 0.0,
+      "max_abs": 0.0
+    }
+  }
+}

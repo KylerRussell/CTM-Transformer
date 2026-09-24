@@ -1,0 +1,111 @@
+{
+  "schema_version": 2,
+  "runner": "shared_research_v2",
+  "data_format": "algorithmic",
+  "created_utc": "2026-09-22T00:41:19.644216+00:00",
+  "model_family": "transformer",
+  "config_identity": {
+    "name": "transformer_algorithmic_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/transformer_algorithmic_v1.json",
+    "sha256": "6f1a0da5101665e1a31fce3fce23bc403e19e32e01e43cbd3371c8a5f904d242"
+  },
+  "effective_config": {
+    "model_family": "transformer",
+    "vocab_size": 71,
+    "d_model": 128,
+    "n_heads": 4,
+    "n_layers": 2,
+    "ffn_hidden_dim": 384,
+    "prelude_layers": 0,
+    "core_layers": 0,
+    "coda_layers": 0,
+    "max_thought_steps": 1,
+    "train_depth_min": 1,
+    "train_depth_max": 1,
+    "norm_eps": 1e-05,
+    "init_std": 0.02,
+    "dropout": 0.0,
+    "use_positional_encoding": true,
+    "max_seq_len": 128,
+    "tie_embeddings": false,
+    "gradient_checkpointing": false,
+    "batch_size": 32,
+    "seq_len": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.1,
+    "adam_beta1": 0.9,
+    "adam_beta2": 0.95,
+    "optimizer": "adamw",
+    "use_8bit_adam": false,
+    "grad_clip": 1.0,
+    "gradient_accumulation_steps": 1,
+    "max_steps": 600,
+    "warmup_steps": 30,
+    "eval_interval": 100,
+    "log_interval": 50,
+    "dtype": "bfloat16",
+    "bf16_autocast": true,
+    "tokenizer": "algorithmic_char_v1",
+    "dataset": "",
+    "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/onehop/pointer/train.jsonl",
+    "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/onehop/pointer/validation.jsonl",
+    "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/pointer_diagnostics_v1/onehop_seed17/transformer",
+    "device": "cuda:1"
+  },
+  "seed": 17,
+  "data_seed": 18,
+  "depth_seed": 19,
+  "data": {
+    "training": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/onehop/pointer/train.jsonl",
+      "sha256": "fa33984d70e26fcaf5a4b81062e610d4a17404fb2df9a03c5c8885e86337b2fb",
+      "examples": 2048,
+      "max_input_length": 54,
+      "supervised_tokens": 4096,
+      "task": "pointer",
+      "splits": [
+        "train"
+      ]
+    },
+    "evaluation": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/pointer_diagnostics_v1/onehop/pointer/validation.jsonl",
+      "sha256": "02699d4285203f5ec65197894338755378e2bd8a63971b07bd4988f46241df8c",
+      "examples": 128,
+      "max_input_length": 54,
+      "supervised_tokens": 256,
+      "task": "pointer",
+      "splits": [
+        "validation"
+      ]
+    },
+    "policy": "independent examples; BOS and EOS; answer and EOS supervision only; right padding masked; train shuffled each epoch; final partial training batch dropped"
+  },
+  "tokenizer_sha256": "edf3adec5e7b77a05f83c45dd2fb04de20a4e7d40b7dfe1fc39745b57fab4404",
+  "code_sha256": {
+    "ctm_transformer/experiment.py": "b23a6dad72360a12c1761acf8122972d31b40f005472556e6c25cac7836971aa",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "103e3dc1c3b1c5703be00c95c942a61e05ef87a0db969287491eb96a236ba923",
+    "ctm_transformer/model.py": "5e01d80f3a9dcd06244292bf6b6fe7321699802d1e358bcfba5fb672f080c3fb",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949"
+  },
+  "packages": {
+    "torch": "2.6.0+cu124",
+    "numpy": "2.2.6",
+    "tiktoken": "0.14.0"
+  },
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "cuda_runtime": "12.4",
+  "precision": "FP32 parameters and AdamW moments; BF16 autocast",
+  "parameters": {
+    "total": 461696,
+    "token_embedding": 9088,
+    "position_embedding": 16384,
+    "readout": 9088,
+    "other": 427136
+  },
+  "learning_rate_schedule": "linear warmup then cosine to 10% of peak; indexed by completed update count",
+  "depth_sampling": "fixed"
+}

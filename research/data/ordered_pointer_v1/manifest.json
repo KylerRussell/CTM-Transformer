@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "name": "pointer_ordered_v1",
+  "mode": "ordered",
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "source_manifest_sha256": "ed78d8c9bfe5cddc8e25d8818e572d54ea4ed72ac12b6dc0262e1733e3cb49dd",
+  "generator_sha256": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+  "role": "exploratory fixed-position lookup control; only edge presentation changes from onehop",
+  "split_policy": {
+    "disjoint_maps": [
+      "train",
+      "validation",
+      "test_id"
+    ],
+    "training_map_probes": [
+      "train_probe",
+      "train_reordered",
+      "train_new_query"
+    ],
+    "paired_heldout_order_probe": {
+      "test_shuffled": "test_id"
+    }
+  },
+  "tasks": {
+    "pointer": {
+      "train": {
+        "path": "pointer/train.jsonl",
+        "examples": 2048,
+        "sha256": "45c38743cebf47573da1ba604defe42754e5c2fb1b09116e99edd7cbb4236ba9",
+        "depth_counts": {
+          "1": 2048
+        },
+        "answer_counts": {
+          "A": 258,
+          "G": 242,
+          "E": 282,
+          "H": 245,
+          "D": 242,
+          "C": 242,
+          "F": 264,
+          "B": 273
+        }
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "examples": 128,
+        "sha256": "de96f18ddbee31406a1b3dc1c91a946bb2fc37759f438a87a9f44c2f05209d96",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "H": 18,
+          "E": 16,
+          "F": 16,
+          "G": 24,
+          "B": 9,
+          "D": 18,
+          "C": 10,
+          "A": 17
+        }
+      },
+      "test_id": {
+        "path": "pointer/test_id.jsonl",
+        "examples": 128,
+        "sha256": "bc62b713a43dbe88887cf2e1c13e411b34feb3b92cc1e185e7d859cded71e96a",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "F": 15,
+          "H": 20,
+          "B": 11,
+          "A": 12,
+          "D": 14,
+          "G": 17,
+          "E": 23,
+          "C": 16
+        }
+      },
+      "train_probe": {
+        "path": "pointer/train_probe.jsonl",
+        "examples": 256,
+        "sha256": "364f10c1c7e0f1631c6bf5d0036f0925f1a6187f07ba33a90f2012a26974ce21",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "G": 35,
+          "A": 26,
+          "D": 33,
+          "F": 36,
+          "C": 33,
+          "B": 28,
+          "H": 33,
+          "E": 32
+        }
+      },
+      "train_new_query": {
+        "path": "pointer/train_new_query.jsonl",
+        "examples": 256,
+        "sha256": "78f926bf16ac5297ee9f3106ca36a203c4c4608ebd5028a6a6f1f9db9e8a9229",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "C": 32,
+          "E": 33,
+          "A": 34,
+          "G": 29,
+          "B": 33,
+          "H": 26,
+          "D": 35,
+          "F": 34
+        }
+      },
+      "train_reordered": {
+        "path": "pointer/train_reordered.jsonl",
+        "examples": 256,
+        "sha256": "b818c929bfe50b715f2dabd8beb1c76f6356af260ee3b37b4ea800454ed60888",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "G": 35,
+          "A": 26,
+          "D": 33,
+          "F": 36,
+          "C": 33,
+          "B": 28,
+          "H": 33,
+          "E": 32
+        }
+      },
+      "test_shuffled": {
+        "path": "pointer/test_shuffled.jsonl",
+        "examples": 128,
+        "sha256": "c9deb1bd92ace0085ba0e1eab691b72fb7719ee9fec00c2003d539cf52098210",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "F": 15,
+          "H": 20,
+          "B": 11,
+          "A": 12,
+          "D": 14,
+          "G": 17,
+          "E": 23,
+          "C": 16
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "name": "pointer_tiny_v1",
+  "mode": "tiny",
+  "seed": 20260922,
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "source_manifest_sha256": "0715614256b752ac2a9fda812a04b9fdf7a21f0ecfde5149fd59d1f30106b615",
+  "generator_sha256": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+  "role": "exploratory learning diagnostic; paired training-map interventions are not held-out accuracy",
+  "split_policy": {
+    "disjoint_maps": [
+      "train",
+      "validation",
+      "test_id"
+    ],
+    "training_map_probes": [
+      "train_probe",
+      "train_reordered",
+      "train_new_query"
+    ]
+  },
+  "tasks": {
+    "pointer": {
+      "train": {
+        "path": "pointer/train.jsonl",
+        "examples": 32,
+        "sha256": "7a3034d4c01eee49db73723f13bee2e68234a459a8c6f5fedb7363a76a49b65f",
+        "depth_counts": {
+          "1": 12,
+          "2": 8,
+          "3": 12
+        },
+        "answer_counts": {
+          "F": 4,
+          "D": 4,
+          "C": 4,
+          "A": 4,
+          "H": 4,
+          "G": 4,
+          "B": 4,
+          "E": 4
+        }
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "examples": 128,
+        "sha256": "790c2cccfacb41befd4475d4793a88bbc17bcab6d62ee08cb46511cdd8406717",
+        "depth_counts": {
+          "1": 43,
+          "3": 42,
+          "2": 43
+        },
+        "answer_counts": {
+          "H": 15,
+          "A": 16,
+          "F": 12,
+          "C": 20,
+          "E": 16,
+          "G": 19,
+          "D": 19,
+          "B": 11
+        }
+      },
+      "test_id": {
+        "path": "pointer/test_id.jsonl",
+        "examples": 128,
+        "sha256": "18940475b09a11d89233696080c1637a4eb5ab411821d56ecc08b89992d341d0",
+        "depth_counts": {
+          "1": 43,
+          "2": 43,
+          "3": 42
+        },
+        "answer_counts": {
+          "F": 15,
+          "B": 20,
+          "H": 17,
+          "C": 20,
+          "A": 14,
+          "E": 21,
+          "G": 12,
+          "D": 9
+        }
+      },
+      "train_probe": {
+        "path": "pointer/train_probe.jsonl",
+        "examples": 32,
+        "sha256": "0f2d00ffbc28c934e9d67cbbe6719d22e2baca1934527d536cb391b9469aa05f",
+        "depth_counts": {
+          "1": 12,
+          "2": 8,
+          "3": 12
+        },
+        "answer_counts": {
+          "F": 4,
+          "D": 4,
+          "C": 4,
+          "A": 4,
+          "H": 4,
+          "G": 4,
+          "B": 4,
+          "E": 4
+        }
+      },
+      "train_reordered": {
+        "path": "pointer/train_reordered.jsonl",
+        "examples": 32,
+        "sha256": "9e30e21fe286137735c345271956b729a76538798e9ba8e2406d5393216cf078",
+        "depth_counts": {
+          "1": 12,
+          "2": 8,
+          "3": 12
+        },
+        "answer_counts": {
+          "F": 4,
+          "D": 4,
+          "C": 4,
+          "A": 4,
+          "H": 4,
+          "G": 4,
+          "B": 4,
+          "E": 4
+        }
+      },
+      "train_new_query": {
+        "path": "pointer/train_new_query.jsonl",
+        "examples": 32,
+        "sha256": "af161b75e4a2c44e30a0ea6b9f63db61d8845af282f18d64a3a6e0480e8542b4",
+        "depth_counts": {
+          "1": 12,
+          "2": 8,
+          "3": 12
+        },
+        "answer_counts": {
+          "D": 8,
+          "B": 5,
+          "A": 2,
+          "C": 7,
+          "E": 4,
+          "H": 3,
+          "F": 2,
+          "G": 1
+        }
+      }
+    }
+  }
+}

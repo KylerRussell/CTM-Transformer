@@ -1381,7 +1381,7 @@ def train(
 
     # Mixed precision strategy
     #
-    # We use the "manual cast" pattern (cast the entire model to the target
+    # Legacy configurations use the "manual cast" pattern (cast the entire model to the target
     # low-precision dtype, run the forward/backward natively in that dtype)
     # rather than the "autocast" pattern (keep the model in fp32 and let
     # torch.amp.autocast pick which ops run in bf16/fp16).
@@ -1402,7 +1402,14 @@ def train(
     #
     # Setting amp_dtype = torch.float32 means the autocast context further
     # down is enabled=False (a no-op), avoiding the fused-kernel warning.
-    if config.dtype == "bfloat16" and device != "cpu":
+    if config.bf16_autocast:
+        if config.dtype != "bfloat16" or not device.startswith("cuda"):
+            raise ValueError("bf16_autocast requires dtype=bfloat16 and a CUDA device")
+        if not torch.cuda.is_bf16_supported():
+            raise ValueError("The selected GPU does not support BF16 autocast")
+        # Research mode retains FP32 parameters and optimizer moments.
+        amp_dtype = torch.bfloat16
+    elif config.dtype == "bfloat16" and device != "cpu":
         model = model.to(torch.bfloat16)
         amp_dtype = torch.float32   # autocast disabled; model is already bf16
     elif config.dtype == "float16" and device != "cpu":
@@ -1411,7 +1418,7 @@ def train(
     else:
         amp_dtype = torch.float32
 
-    n_params = model.get_num_params()
+    n_params = model.get_num_params(non_embedding=False)
     if is_main_process():
         print(f"Model: {n_params:,} parameters ({n_params/1e6:.1f}M)")
         print(f"Config: d_model={config.d_model}, d_latent={config.d_latent}, "
@@ -1514,14 +1521,18 @@ def train(
     # Temporal-loss schedule summary. Helps verify the decay plan matches
     # expectations before kicking off a multi-day run.
     base_mono = config.mono_penalty_weight
+    loss_description = (
+        f"ramp[{config.tick_ramp_start}→{config.tick_ramp_end}]"
+        if config.temporal_loss_type == "ramp_mono" else config.temporal_loss_type
+    )
     if config.mono_penalty_decay_until_frac > 0 and base_mono > 0:
         decay_step = int(config.mono_penalty_decay_until_frac * config.max_steps)
         floor_mono = base_mono * config.mono_penalty_min_frac
-        print(f"Temporal loss: ramp[{config.tick_ramp_start}→{config.tick_ramp_end}], "
+        print(f"Temporal loss: {loss_description}, "
               f"mono_penalty {base_mono} → {floor_mono:.3f} over first "
               f"{decay_step:,} steps ({config.mono_penalty_decay_until_frac:.0%} of training)")
     else:
-        print(f"Temporal loss: ramp[{config.tick_ramp_start}→{config.tick_ramp_end}], "
+        print(f"Temporal loss: {loss_description}, "
               f"mono_penalty {base_mono} (no decay)")
 
     # Curriculum schedule summary. Catches misconfiguration before launch.
@@ -2049,10 +2060,10 @@ def generate_sample(model, tokenizer, device, config, eval_loader_or_text=None):
     gen_tokens = generated[0].tolist()
     gen_decoded = tokenizer.decode(gen_tokens[prompt_ids.size(1):])
 
-    print(f"  >>> Prompt: '{prompt_text.replace('\n', ' ')}'")
-    print(f"  >>> Model:  '{gen_decoded.replace('\n', ' ')}'")
+    print("  >>> Prompt: '{}'".format(prompt_text.replace('\n', ' ')))
+    print("  >>> Model:  '{}'".format(gen_decoded.replace('\n', ' ')))
     if target_text:
-        print(f"  >>> Target: '{target_text.replace('\n', ' ')}'")
+        print("  >>> Target: '{}'".format(target_text.replace('\n', ' ')))
 
 
 # ── CLI ─────────────────────────────────────────────────────────────────
@@ -2138,7 +2149,11 @@ def parse_args():
     model_group.add_argument("--n_heads", type=int, default=8)
     model_group.add_argument("--n_layers", type=int, default=4)
     model_group.add_argument("--nlm_hidden_dim", type=int, default=32)
-    model_group.add_argument("--nlm_groups", type=int, default=1)
+    model_group.add_argument("--nlm_groups", type=int, default=1,
+                            help="Number of temporal MLPs: 1 shares across all neurons; "
+                                 "d_latent gives independent neuron MLPs.")
+    model_group.add_argument("--use_positional_encoding", action="store_true",
+                            help="Encode token positions; recommended for order-sensitive text experiments.")
     model_group.add_argument("--history_len", type=int, default=8)
     model_group.add_argument("--max_thought_steps", type=int, default=8)
     model_group.add_argument("--seq_len", type=int, default=512)
@@ -2146,7 +2161,11 @@ def parse_args():
                             choices=["full", "diag_summary", "low_rank", "sparse_decay"])
     model_group.add_argument("--sync_sparse_pairs", type=int, default=256)
     model_group.add_argument("--synapse_type", type=str, default="mlp", choices=["mlp", "unet"])
-    model_group.add_argument("--temporal_loss_type", type=str, default="ramp_mono", choices=["ramp_mono", "dynamic_aggregate"])
+    model_group.add_argument("--temporal_loss_type", type=str, default="ramp_mono", choices=["final_ce", "ramp_mono", "dynamic_aggregate"])
+    model_group.add_argument("--no_attention_residuals", action="store_true",
+                            help="Use sequential gated thought layers without attention residual mixing.")
+    model_group.add_argument("--mono_penalty_weight", type=float, default=0.5,
+                            help="Temporal monotonicity penalty; must be 0 for final_ce.")
     model_group.add_argument("--use_feature_encoder", action="store_true")
     model_group.add_argument("--per_tick_heads", action="store_true",
                             help="Give each thought tick its own output adapter feeding into a "
@@ -2407,6 +2426,7 @@ def main():
         n_layers=args.n_layers,
         nlm_hidden_dim=args.nlm_hidden_dim,
         nlm_groups=args.nlm_groups,
+        use_positional_encoding=args.use_positional_encoding,
         per_tick_heads=args.per_tick_heads,
         use_shared_head_film=args.use_shared_head_film,
         tie_embeddings=args.tie_embeddings,
@@ -2432,6 +2452,8 @@ def main():
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
         temporal_loss_type=args.temporal_loss_type,
+        mono_penalty_weight=args.mono_penalty_weight,
+        use_attention_residuals=not args.no_attention_residuals,
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
@@ -2511,8 +2533,10 @@ warnings.filterwarnings("ignore", message=".*Online softmax is disabled on the f
 
 import torch
 if hasattr(torch, "_inductor"):
-    torch._inductor.config.split_reductions = True
-    torch._inductor.config.online_softmax = True
+    # Optional compiler tuning flags differ between PyTorch releases.
+    for option in ("split_reductions", "online_softmax"):
+        if hasattr(torch._inductor.config, option):
+            setattr(torch._inductor.config, option, True)
 
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -2891,6 +2915,7 @@ def main_multi_gpu():
         d_model=args.d_model, d_latent=args.d_latent,
         n_heads=args.n_heads, n_layers=args.n_layers,
         nlm_hidden_dim=args.nlm_hidden_dim, nlm_groups=args.nlm_groups,
+        use_positional_encoding=args.use_positional_encoding,
         per_tick_heads=args.per_tick_heads,
         use_shared_head_film=args.use_shared_head_film,
         tie_embeddings=args.tie_embeddings,
@@ -2916,6 +2941,8 @@ def main_multi_gpu():
         sync_sparse_pairs=args.sync_sparse_pairs,
         synapse_type=args.synapse_type,
         temporal_loss_type=args.temporal_loss_type,
+        mono_penalty_weight=args.mono_penalty_weight,
+        use_attention_residuals=not args.no_attention_residuals,
         use_feature_encoder=args.use_feature_encoder,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,

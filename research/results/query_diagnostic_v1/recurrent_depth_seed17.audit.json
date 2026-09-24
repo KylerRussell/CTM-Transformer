@@ -1,0 +1,12 @@
+{
+  "complete": true,
+  "previous_evaluation_sha256": "4de30fe41db2a5b19fe78af79a96867bb81f11a841f6b0d01868d682ca4b2b73",
+  "checkpoint_sha256": "b1d45c102c4ad67d0a39bcd4d59213f72d7d69079ba1559ed2b22bb780105477",
+  "dataset_manifest_sha256": "265b2f4a1e5b7e08e4bd9173d9e4ac620a5385a55b11c67c38537094a37c92bd",
+  "source_sha256": {
+    "ctm_transformer/query_diagnostic.py": "39c1bc73f482e62c6bcdba9636a41fd72badc94923574217ca759ea840f90b23",
+    "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+    "ctm_transformer/ordered_pointer.py": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+    "scripts/run_query_diagnostic.py": "aa2a7e6d9805870c137b8cbe4bd6460be8ac8ac42fab8cd963a5e9ac0d50a79f"
+  }
+}

@@ -1,0 +1,5 @@
+# Install CUDA PyTorch using the command in research/README.md first.
+# The harness's broad requirements otherwise resolve incompatible major versions.
+lm-eval==0.4.9.1
+transformers==4.51.3
+peft==0.15.2

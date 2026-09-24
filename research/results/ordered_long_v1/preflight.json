@@ -1,0 +1,54 @@
+{
+  "transformer": {
+    "config": {
+      "name": "transformer_ordered_long_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/transformer_ordered_long_v1.json",
+      "sha256": "1eb922660f498af97ab5a13cc4037b90398a5be3bf8cfccbed39f6a52c3bc47c"
+    },
+    "changed_fields": {
+      "max_steps": [
+        600,
+        3000
+      ]
+    }
+  },
+  "recurrent_depth": {
+    "config": {
+      "name": "recurrent_depth_ordered_long_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_depth_ordered_long_v1.json",
+      "sha256": "1eb462e6e79ec8fb02a335258a9366199be5d2d9299292aa6c92d1ef387a35c5"
+    },
+    "changed_fields": {
+      "max_steps": [
+        600,
+        3000
+      ]
+    }
+  },
+  "ctm": {
+    "config": {
+      "name": "ctm_ordered_long_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_ordered_long_v1.json",
+      "sha256": "49b644c6b5336ba396217f35dbf4bf95465a0e7892feeb09cb078a0255f1f1d1"
+    },
+    "changed_fields": {
+      "max_steps": [
+        600,
+        3000
+      ]
+    }
+  },
+  "split_counts": {
+    "train": 2048,
+    "validation": 128,
+    "test_id": 128,
+    "train_probe": 256,
+    "train_new_query": 256,
+    "train_reordered": 256,
+    "test_shuffled": 128
+  },
+  "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3"
+}

@@ -1,0 +1,5 @@
+{
+  "issue": "Evaluator initially requested split test; the frozen dataset calls the ordered held-out split test_id.",
+  "resolution": "Use test_id consistently in evaluator and report. This is the ordered split identified in the pre-run protocol and frozen manifest.",
+  "impact": "Initial attempt stopped after validation loading and before any test forward pass or evaluation output. Frozen training, selection, data and endpoints unchanged."
+}

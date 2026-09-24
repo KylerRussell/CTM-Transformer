@@ -1,0 +1,16 @@
+{
+  "ctm_uniform": {
+    "old_metrics_sha256": "89af5cb1f1fb4f5f8f4cdc7395180bbba2a2fa15400b6f306588073052ed7c5f",
+    "new_metrics_sha256": "a5590c5bf8d51792a78dc7023fea278bbf5dda5354ddda2117290cbab9dfe2e7",
+    "updates": 3000,
+    "max_training_loss_difference": 0.0,
+    "all_training_losses_identical": true
+  },
+  "ctm_dynamic": {
+    "old_metrics_sha256": "b0d39e6f94232be046048e80eef9df060e5c22f59df802a83d3c051f8cdcf74e",
+    "new_metrics_sha256": "17eb11a27e075551068ea21c375d69f528db5a462f37bf99ca67b09fb6401c83",
+    "updates": 3000,
+    "max_training_loss_difference": 0.0,
+    "all_training_losses_identical": true
+  }
+}

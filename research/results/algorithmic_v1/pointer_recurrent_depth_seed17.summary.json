@@ -1,0 +1,243 @@
+{
+  "purpose": "single-seed exploratory pilot; unmatched compute and parameter budgets",
+  "task": "pointer",
+  "seed": 17,
+  "training": {
+    "complete": true,
+    "model_family": "recurrent_depth",
+    "steps": 600,
+    "tokens_seen": 1036800,
+    "supervised_tokens_seen": 38400,
+    "examples_seen": 19200,
+    "padded_token_positions": 1036800,
+    "token_block_applications": 10368000,
+    "depth_counts": {
+      "4": 600
+    },
+    "training_seconds": 57.48887194451527,
+    "training_tokens_per_second": 18034.79464687802,
+    "wall_seconds": 58.783491384005174,
+    "best_validation_loss": 1.0316297113895416,
+    "peak_allocated_bytes": 203178496,
+    "parameters": {
+      "total": 922496,
+      "token_embedding": 9088,
+      "position_embedding": 16384,
+      "readout": 9088,
+      "other": 887936
+    },
+    "config_identity": {
+      "name": "recurrent_depth_algorithmic_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_depth_algorithmic_v1.json",
+      "sha256": "e041662c5752650ec080057ebb655039e90ecabcdc897aed5f22150f8e34f682"
+    }
+  },
+  "dataset_manifest_sha256": "0715614256b752ac2a9fda812a04b9fdf7a21f0ecfde5149fd59d1f30106b615",
+  "checkpoint": {
+    "model_family": "recurrent_depth",
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/algorithmic_v1/pointer_seed17/recurrent_depth/best.pt",
+    "sha256": "fe1498099421d21164ee59a438ccba53d60e86ffced021ec02bb8851898f5718",
+    "size_bytes": 11139562,
+    "training_config": {
+      "model_family": "recurrent_depth",
+      "vocab_size": 71,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 0,
+      "ffn_hidden_dim": 384,
+      "prelude_layers": 1,
+      "core_layers": 2,
+      "coda_layers": 1,
+      "max_thought_steps": 4,
+      "train_depth_min": 4,
+      "train_depth_max": 4,
+      "norm_eps": 1e-05,
+      "init_std": 0.02,
+      "dropout": 0.0,
+      "use_positional_encoding": true,
+      "max_seq_len": 128,
+      "tie_embeddings": false,
+      "gradient_checkpointing": false,
+      "batch_size": 32,
+      "seq_len": 128,
+      "learning_rate": 0.001,
+      "weight_decay": 0.1,
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.95,
+      "optimizer": "adamw",
+      "use_8bit_adam": false,
+      "grad_clip": 1.0,
+      "gradient_accumulation_steps": 1,
+      "max_steps": 600,
+      "warmup_steps": 30,
+      "eval_interval": 100,
+      "log_interval": 50,
+      "dtype": "bfloat16",
+      "bf16_autocast": true,
+      "tokenizer": "algorithmic_char_v1",
+      "dataset": "",
+      "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/algorithmic_v1/pointer/train.jsonl",
+      "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/algorithmic_v1/pointer/validation.jsonl",
+      "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/algorithmic_v1/pointer_seed17/recurrent_depth",
+      "device": "cuda:1"
+    },
+    "config_overrides": {},
+    "training_counters": {
+      "step": 600,
+      "tokens_seen": 1036800
+    }
+  },
+  "metrics": {
+    "validation": {
+      "4": {
+        "examples": 128,
+        "correct": 17,
+        "exact_match": 0.1328125,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 43,
+            "correct": 6,
+            "exact_match": 0.13953488372093023,
+            "terminated": 43
+          },
+          "nodes=8,steps=2": {
+            "examples": 43,
+            "correct": 3,
+            "exact_match": 0.06976744186046512,
+            "terminated": 43
+          },
+          "nodes=8,steps=3": {
+            "examples": 42,
+            "correct": 8,
+            "exact_match": 0.19047619047619047,
+            "terminated": 42
+          }
+        },
+        "answer_token_ce": 1.0316297113895416,
+        "supervised_tokens": 256
+      }
+    },
+    "test_id": {
+      "4": {
+        "examples": 128,
+        "correct": 12,
+        "exact_match": 0.09375,
+        "terminated": 128,
+        "by_difficulty": {
+          "nodes=8,steps=1": {
+            "examples": 43,
+            "correct": 5,
+            "exact_match": 0.11627906976744186,
+            "terminated": 43
+          },
+          "nodes=8,steps=2": {
+            "examples": 43,
+            "correct": 3,
+            "exact_match": 0.06976744186046512,
+            "terminated": 43
+          },
+          "nodes=8,steps=3": {
+            "examples": 42,
+            "correct": 4,
+            "exact_match": 0.09523809523809523,
+            "terminated": 42
+          }
+        },
+        "answer_token_ce": 1.0353648662567139,
+        "supervised_tokens": 256
+      }
+    },
+    "ood_depth": {
+      "4": {
+        "examples": 256,
+        "correct": 40,
+        "exact_match": 0.15625,
+        "terminated": 256,
+        "by_difficulty": {
+          "nodes=8,steps=4": {
+            "examples": 86,
+            "correct": 17,
+            "exact_match": 0.19767441860465115,
+            "terminated": 86
+          },
+          "nodes=8,steps=5": {
+            "examples": 85,
+            "correct": 11,
+            "exact_match": 0.12941176470588237,
+            "terminated": 85
+          },
+          "nodes=8,steps=6": {
+            "examples": 85,
+            "correct": 12,
+            "exact_match": 0.1411764705882353,
+            "terminated": 85
+          }
+        },
+        "answer_token_ce": 1.0233838856220245,
+        "supervised_tokens": 512
+      }
+    },
+    "ood_length": {
+      "4": {
+        "examples": 256,
+        "correct": 12,
+        "exact_match": 0.046875,
+        "terminated": 107,
+        "by_difficulty": {
+          "nodes=12,steps=1": {
+            "examples": 86,
+            "correct": 2,
+            "exact_match": 0.023255813953488372,
+            "terminated": 40
+          },
+          "nodes=12,steps=2": {
+            "examples": 85,
+            "correct": 6,
+            "exact_match": 0.07058823529411765,
+            "terminated": 37
+          },
+          "nodes=12,steps=3": {
+            "examples": 85,
+            "correct": 4,
+            "exact_match": 0.047058823529411764,
+            "terminated": 30
+          }
+        },
+        "answer_token_ce": 4.926005959510803,
+        "supervised_tokens": 512
+      }
+    },
+    "ood_joint": {
+      "4": {
+        "examples": 256,
+        "correct": 6,
+        "exact_match": 0.0234375,
+        "terminated": 106,
+        "by_difficulty": {
+          "nodes=12,steps=4": {
+            "examples": 86,
+            "correct": 3,
+            "exact_match": 0.03488372093023256,
+            "terminated": 32
+          },
+          "nodes=12,steps=5": {
+            "examples": 85,
+            "correct": 2,
+            "exact_match": 0.023529411764705882,
+            "terminated": 44
+          },
+          "nodes=12,steps=6": {
+            "examples": 85,
+            "correct": 1,
+            "exact_match": 0.011764705882352941,
+            "terminated": 30
+          }
+        },
+        "answer_token_ce": 4.569627672433853,
+        "supervised_tokens": 512
+      }
+    }
+  }
+}

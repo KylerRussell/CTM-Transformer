@@ -1,0 +1,19 @@
+{
+  "worker_pids": [
+    71945,
+    72143
+  ],
+  "source_sha256": {
+    "scripts/complete_presentation_control.py": "f827082129455a9532d1d10970cb3bae39091745591bde28f8e53008a790b904",
+    "scripts/freeze_presentation_control.py": "21905702fd6b37a1bc0057f4a62767d93ecfd4dbf7368861920d35a11acf406a",
+    "scripts/evaluate_presentation_control.py": "753bc2f287c223adca332a95f8e959d7aef7368eab588e02f26a7b6fbf8db06f",
+    "scripts/summarize_presentation_control.py": "5a75de75491be13832fe35dee16121ccb47c2075823437fe1523e4b12100e704"
+  },
+  "events": [
+    {
+      "phase": "training",
+      "time_utc": "2026-09-24T14:09:20.515441+00:00"
+    }
+  ],
+  "phase": "training"
+}

@@ -1,0 +1,61 @@
+{
+  "device": "cuda:0",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "records": [
+    {
+      "objective": "uniform",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "warmup": 3,
+      "measured_steps": 7,
+      "median_update_seconds": 0.4059650690178387,
+      "times_seconds": [
+        0.46677663101581857,
+        0.4290582769899629,
+        0.3894553469726816,
+        0.4059650690178387,
+        0.39670832495903596,
+        0.3918851969647221,
+        0.5185047859558836
+      ],
+      "peak_allocated_bytes": 697015296,
+      "block_applications": 49,
+      "final_fixture_loss": 2.4636001586914062
+    },
+    {
+      "objective": "dynamic_aggregate",
+      "parameters": {
+        "total": 525984,
+        "token_embedding": 6816,
+        "position_embedding": 12288,
+        "readout": 6816,
+        "other": 500064
+      },
+      "warmup": 3,
+      "measured_steps": 7,
+      "median_update_seconds": 0.4630733340163715,
+      "times_seconds": [
+        0.5236840579891577,
+        0.4323892510146834,
+        0.4878764799796045,
+        0.45471753098536283,
+        0.5705799119896255,
+        0.4465137249790132,
+        0.4630733340163715
+      ],
+      "peak_allocated_bytes": 698817536,
+      "block_applications": 49,
+      "final_fixture_loss": 2.39892578125
+    }
+  ],
+  "scope": "Repeated training-only batch for timing/memory feasibility; not a scientific training trial or validation selection.",
+  "source_sha256": {
+    "scripts/profile_recurrent_temporal.py": "428fabf8098ae33c5c7b32ea3882c7627a858ba314302414614e1cbc4d9f04ef",
+    "ctm_transformer/recurrent_temporal.py": "eeac710115d501f4bc04a91e691e99abada0aee5d5531022da9b8380792790ea"
+  }
+}

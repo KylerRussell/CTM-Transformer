@@ -1,0 +1,7 @@
+{
+  "command": "pytest tests/test_readout_selection.py tests/test_temporal_runner.py tests/test_objective_depth.py tests/test_baselines.py -q",
+  "passed": 39,
+  "seconds": 21.79,
+  "torch": "2.6.0+cu124",
+  "device": "cuda:0"
+}

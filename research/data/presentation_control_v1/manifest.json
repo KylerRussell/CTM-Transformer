@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "name": "presentation_control_v1",
+  "seed": 20260924,
+  "role": "development training-presentation intervention on existing semantic maps; no test splits",
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "source_files": {
+    "train": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+      "sha256": "45c38743cebf47573da1ba604defe42754e5c2fb1b09116e99edd7cbb4236ba9"
+    },
+    "validation": {
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+      "sha256": "de96f18ddbee31406a1b3dc1c91a946bb2fc37759f438a87a9f44c2f05209d96"
+    }
+  },
+  "source_sha256": {
+    "ctm_transformer/presentation_control.py": "ed7e0a090068ddba24c48dba3e1f88448a0e1907dbe8d0ec3da93e499874371b",
+    "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc"
+  },
+  "presentation_policy": "one fixed noncanonical permutation per map; independent train/validation generator streams; semantic example order preserved; no epoch augmentation",
+  "tasks": {
+    "pointer": {
+      "train": {
+        "path": "pointer/train.jsonl",
+        "sha256": "0f3f8c8422b8e40057513e460923981f357d885f916e29e7b72d703cae5d63f6",
+        "examples": 2048,
+        "answer_counts": {
+          "A": 258,
+          "G": 242,
+          "E": 282,
+          "H": 245,
+          "D": 242,
+          "C": 242,
+          "F": 264,
+          "B": 273
+        }
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "sha256": "de96f18ddbee31406a1b3dc1c91a946bb2fc37759f438a87a9f44c2f05209d96",
+        "examples": 128,
+        "answer_counts": {
+          "H": 18,
+          "E": 16,
+          "F": 16,
+          "G": 24,
+          "B": 9,
+          "D": 18,
+          "C": 10,
+          "A": 17
+        }
+      },
+      "validation_shuffled": {
+        "path": "pointer/validation_shuffled.jsonl",
+        "sha256": "6200a3cf4687d4cb4573bd0d16137315c90af2e568937366a02f3c1a2a83e59f",
+        "examples": 128,
+        "answer_counts": {
+          "H": 18,
+          "E": 16,
+          "F": 16,
+          "G": 24,
+          "B": 9,
+          "D": 18,
+          "C": 10,
+          "A": 17
+        }
+      }
+    }
+  }
+}

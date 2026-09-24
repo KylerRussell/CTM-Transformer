@@ -1,0 +1,275 @@
+{
+  "complete": true,
+  "checkpoint_freeze_sha256": "29c7d722b4c8aa0a3439c909a317bc8104f37ade72ab2872ca10cf293dfe4826",
+  "recipes_sha256": "0366c130b039665c256a4387e743ea26e68c86999f78064a1107456b4799aec5",
+  "primary_seeds": [
+    23,
+    29,
+    31
+  ],
+  "fresh_maps": 512,
+  "aggregate": {
+    "ctm": {
+      "test_id": {
+        "accuracy": {
+          "mean": 0.875,
+          "sample_sd": 0.09291210853333044,
+          "values": [
+            0.869140625,
+            0.970703125,
+            0.78515625
+          ],
+          "n_training_seeds": 3
+        },
+        "ce": {
+          "mean": 0.21466124580668597,
+          "sample_sd": 0.12295743195230102,
+          "values": [
+            0.2550872736610472,
+            0.07658037249348126,
+            0.3123160912655294
+          ],
+          "n_training_seeds": 3
+        }
+      },
+      "test_shuffled": {
+        "accuracy": {
+          "mean": 0.14518229166666666,
+          "sample_sd": 0.012556836928376244,
+          "values": [
+            0.150390625,
+            0.154296875,
+            0.130859375
+          ],
+          "n_training_seeds": 3
+        },
+        "ce": {
+          "mean": 2.960360343257586,
+          "sample_sd": 0.6000800545300506,
+          "values": [
+            2.858904406428337,
+            3.604701057076454,
+            2.4174755662679672
+          ],
+          "n_training_seeds": 3
+        }
+      },
+      "training_minutes": {
+        "mean": 31.901866683231006,
+        "sample_sd": 0.4816184128975277,
+        "values": [
+          31.44759546755716,
+          32.406823353263704,
+          31.851181228872157
+        ],
+        "n_training_seeds": 3
+      }
+    },
+    "transformer": {
+      "test_id": {
+        "accuracy": {
+          "mean": 1.0,
+          "sample_sd": 0.0,
+          "values": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_training_seeds": 3
+        },
+        "ce": {
+          "mean": 4.4354228058892296e-08,
+          "sample_sd": 7.359758070989213e-08,
+          "values": [
+            1.8626450382086546e-09,
+            1.862645010453079e-09,
+            1.2933739412801515e-07
+          ],
+          "n_training_seeds": 3
+        }
+      },
+      "test_shuffled": {
+        "accuracy": {
+          "mean": 0.13216145833333334,
+          "sample_sd": 0.005966895436140417,
+          "values": [
+            0.126953125,
+            0.130859375,
+            0.138671875
+          ],
+          "n_training_seeds": 3
+        },
+        "ce": {
+          "mean": 7.352125306924184,
+          "sample_sd": 0.3184443184883947,
+          "values": [
+            7.404246598482132,
+            7.64129364490509,
+            7.01083567738533
+          ],
+          "n_training_seeds": 3
+        }
+      },
+      "training_minutes": {
+        "mean": 1.8875567683070484,
+        "sample_sd": 0.0536852549330751,
+        "values": [
+          1.946559141089286,
+          1.8415890521728822,
+          1.874522111658977
+        ],
+        "n_training_seeds": 3
+      }
+    },
+    "recurrent_depth": {
+      "test_id": {
+        "accuracy": {
+          "mean": 0.6373697916666666,
+          "sample_sd": 0.0806792730564143,
+          "values": [
+            0.73046875,
+            0.587890625,
+            0.59375
+          ],
+          "n_training_seeds": 3
+        },
+        "ce": {
+          "mean": 0.4917893490443627,
+          "sample_sd": 0.11272940236074878,
+          "values": [
+            0.36862846836447716,
+            0.51688052713871,
+            0.5898590516299009
+          ],
+          "n_training_seeds": 3
+        }
+      },
+      "test_shuffled": {
+        "accuracy": {
+          "mean": 0.138671875,
+          "sample_sd": 0.010874539771152386,
+          "values": [
+            0.12890625,
+            0.150390625,
+            0.13671875
+          ],
+          "n_training_seeds": 3
+        },
+        "ce": {
+          "mean": 2.349385711054007,
+          "sample_sd": 0.2332136429730744,
+          "values": [
+            2.618266925215721,
+            2.2278203815221786,
+            2.202069826424122
+          ],
+          "n_training_seeds": 3
+        }
+      },
+      "training_minutes": {
+        "mean": 15.780236138619431,
+        "sample_sd": 0.49582437916027433,
+        "values": [
+          15.585707466279079,
+          15.4111735919083,
+          16.343827357670914
+        ],
+        "n_training_seeds": 3
+      }
+    }
+  },
+  "paired_seed_accuracy_contrasts": {
+    "ctm_minus_transformer_test_id": {
+      "mean": -0.125,
+      "sample_sd": 0.09291210853333044,
+      "values": [
+        -0.130859375,
+        -0.029296875,
+        -0.21484375
+      ],
+      "n_training_seeds": 3
+    },
+    "ctm_minus_transformer_test_shuffled": {
+      "mean": 0.013020833333333334,
+      "sample_sd": 0.018042195912175804,
+      "values": [
+        0.0234375,
+        0.0234375,
+        -0.0078125
+      ],
+      "n_training_seeds": 3
+    },
+    "ctm_minus_recurrent_depth_test_id": {
+      "mean": 0.23763020833333334,
+      "sample_sd": 0.12846654014508585,
+      "values": [
+        0.138671875,
+        0.3828125,
+        0.19140625
+      ],
+      "n_training_seeds": 3
+    },
+    "ctm_minus_recurrent_depth_test_shuffled": {
+      "mean": 0.006510416666666667,
+      "sample_sd": 0.013856638446479663,
+      "values": [
+        0.021484375,
+        0.00390625,
+        -0.005859375
+      ],
+      "n_training_seeds": 3
+    }
+  },
+  "evaluations": {
+    "ctm_seed23": {
+      "path": "research/results/fresh_confirmation_v1/ctm_seed23.evaluation.json",
+      "sha256": "720eeb32f774ca845c8086eeefbc3f04cb490d3fa1df48cd9662e1a22b02393f"
+    },
+    "transformer_seed23": {
+      "path": "research/results/fresh_confirmation_v1/transformer_seed23.evaluation.json",
+      "sha256": "49dc4180d8bff02267f87247853fd2f1ddbb6f5ff0358d4346325f511a9cebf3"
+    },
+    "recurrent_depth_seed23": {
+      "path": "research/results/fresh_confirmation_v1/recurrent_depth_seed23.evaluation.json",
+      "sha256": "4235c4459d22c0f8ef3885eaab18a3fff5accd482cd910789cfde8450a8de9d0"
+    },
+    "ctm_seed29": {
+      "path": "research/results/fresh_confirmation_v1/ctm_seed29.evaluation.json",
+      "sha256": "40aeef6b07ca4f42f71015dc921b5226b2d0bff6b9cc3347f8fbbff37d8ec383"
+    },
+    "transformer_seed29": {
+      "path": "research/results/fresh_confirmation_v1/transformer_seed29.evaluation.json",
+      "sha256": "fc4187d89536eab51524f54c8cf83a651fe07aa21b4cce6e4599319a2457ea07"
+    },
+    "recurrent_depth_seed29": {
+      "path": "research/results/fresh_confirmation_v1/recurrent_depth_seed29.evaluation.json",
+      "sha256": "e7a28a1987cef899dcd8ca0a1bfe5370c5d45b51e8843733317d77cdfe9953f4"
+    },
+    "ctm_seed31": {
+      "path": "research/results/fresh_confirmation_v1/ctm_seed31.evaluation.json",
+      "sha256": "aaa98d783e0d9115ed63800e2f0369eb293afffc65842d32a641017e9c4f241f"
+    },
+    "transformer_seed31": {
+      "path": "research/results/fresh_confirmation_v1/transformer_seed31.evaluation.json",
+      "sha256": "bc0c63f4dc03d04f7ee0749cb1e55410067e23ebfa5299484fb00c75580fed4c"
+    },
+    "recurrent_depth_seed31": {
+      "path": "research/results/fresh_confirmation_v1/recurrent_depth_seed31.evaluation.json",
+      "sha256": "f0987034705a241e608cf45b7ad731b0fafb819698486e0cc9366119cb07cc07"
+    },
+    "ctm_seed17_reference": {
+      "path": "research/results/fresh_confirmation_v1/ctm_seed17_reference.evaluation.json",
+      "sha256": "d28b58b8397c688c4a95cf4ad60addc00795d17a4f0490a7606654d29e9f42d7"
+    },
+    "transformer_seed17_reference": {
+      "path": "research/results/fresh_confirmation_v1/transformer_seed17_reference.evaluation.json",
+      "sha256": "04d53b439b5159eb3a0b183dad8fc4cf3e23e69a1a9bb4b9cd3490bfaf769021"
+    },
+    "recurrent_depth_seed17_reference": {
+      "path": "research/results/fresh_confirmation_v1/recurrent_depth_seed17_reference.evaluation.json",
+      "sha256": "96ec5910e4466ccb5a2c0738a26e5152870dd4ba4510af84de541e27d56f10b2"
+    }
+  },
+  "analysis_source_sha256": "350c59a5afda9972cf62f91559c441f3670f78a13055ff74228912f0f1243b2f",
+  "scope": "Sample SD across three new training seeds on one shared set of 512 maps; development seed 17 excluded. No independence across paired maps/presentations or test-generator replication claimed."
+}

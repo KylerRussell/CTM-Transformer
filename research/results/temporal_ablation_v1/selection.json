@@ -1,0 +1,20 @@
+{
+  "rule": "minimum original-validation final-tick answer/EOS CE; ties final,uniform,late",
+  "ranking": [
+    "uniform",
+    "final",
+    "late"
+  ],
+  "selected_recipe": "uniform",
+  "scores": {
+    "final": 0.46964821964502335,
+    "uniform": 0.3324536755681038,
+    "late": 0.5153769478201866
+  },
+  "input_summary_sha256": {
+    "final": "0fef8f09ad7dd46ce608dc4f80ca393b84312b9c59a2d087842af6c6b24472aa",
+    "uniform": "b6cdde2091de6f332495a8f84dd7a2962d734fc7a43b3a73b0be87e0f422d62e",
+    "late": "13be510c081c2a1680a43e074fde9ae72282be1d350bf9cc93763f7b1513acf3"
+  },
+  "no_heldout_test_evaluation": true
+}

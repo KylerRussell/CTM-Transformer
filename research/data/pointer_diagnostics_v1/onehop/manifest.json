@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "name": "pointer_onehop_v1",
+  "mode": "onehop",
+  "seed": 20260923,
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "source_manifest_sha256": "0715614256b752ac2a9fda812a04b9fdf7a21f0ecfde5149fd59d1f30106b615",
+  "generator_sha256": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+  "role": "exploratory learning diagnostic; paired training-map interventions are not held-out accuracy",
+  "split_policy": {
+    "disjoint_maps": [
+      "train",
+      "validation",
+      "test_id"
+    ],
+    "training_map_probes": [
+      "train_probe",
+      "train_reordered",
+      "train_new_query"
+    ]
+  },
+  "tasks": {
+    "pointer": {
+      "train": {
+        "path": "pointer/train.jsonl",
+        "examples": 2048,
+        "sha256": "fa33984d70e26fcaf5a4b81062e610d4a17404fb2df9a03c5c8885e86337b2fb",
+        "depth_counts": {
+          "1": 2048
+        },
+        "answer_counts": {
+          "A": 258,
+          "G": 242,
+          "E": 282,
+          "H": 245,
+          "D": 242,
+          "C": 242,
+          "F": 264,
+          "B": 273
+        }
+      },
+      "validation": {
+        "path": "pointer/validation.jsonl",
+        "examples": 128,
+        "sha256": "02699d4285203f5ec65197894338755378e2bd8a63971b07bd4988f46241df8c",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "H": 18,
+          "E": 16,
+          "F": 16,
+          "G": 24,
+          "B": 9,
+          "D": 18,
+          "C": 10,
+          "A": 17
+        }
+      },
+      "test_id": {
+        "path": "pointer/test_id.jsonl",
+        "examples": 128,
+        "sha256": "9551e38bb5fbcbb842dba03c642feffa7a48c8cfdabd1e0bf03abaef44aca30c",
+        "depth_counts": {
+          "1": 128
+        },
+        "answer_counts": {
+          "F": 15,
+          "H": 20,
+          "B": 11,
+          "A": 12,
+          "D": 14,
+          "G": 17,
+          "E": 23,
+          "C": 16
+        }
+      },
+      "train_probe": {
+        "path": "pointer/train_probe.jsonl",
+        "examples": 256,
+        "sha256": "bd3137209c3431256c3f63828ab3c4ef68ad51fdf7488f8c71e177d237ec46df",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "G": 35,
+          "A": 26,
+          "D": 33,
+          "F": 36,
+          "C": 33,
+          "B": 28,
+          "H": 33,
+          "E": 32
+        }
+      },
+      "train_reordered": {
+        "path": "pointer/train_reordered.jsonl",
+        "examples": 256,
+        "sha256": "b818c929bfe50b715f2dabd8beb1c76f6356af260ee3b37b4ea800454ed60888",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "G": 35,
+          "A": 26,
+          "D": 33,
+          "F": 36,
+          "C": 33,
+          "B": 28,
+          "H": 33,
+          "E": 32
+        }
+      },
+      "train_new_query": {
+        "path": "pointer/train_new_query.jsonl",
+        "examples": 256,
+        "sha256": "8df0476e70571953e584faeae8b2fbbd760cc39371b7ead96aee65f26a81c222",
+        "depth_counts": {
+          "1": 256
+        },
+        "answer_counts": {
+          "C": 32,
+          "E": 33,
+          "A": 34,
+          "G": 29,
+          "B": 33,
+          "H": 26,
+          "D": 35,
+          "F": 34
+        }
+      }
+    }
+  }
+}

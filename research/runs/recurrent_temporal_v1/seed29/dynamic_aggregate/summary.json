@@ -1,0 +1,35 @@
+{
+  "complete": true,
+  "model_family": "recurrent_depth",
+  "steps": 3000,
+  "tokens_seen": 5184000,
+  "supervised_tokens_seen": 192000,
+  "examples_seen": 96000,
+  "padded_token_positions": 5184000,
+  "token_block_applications": 254016000,
+  "depth_counts": {
+    "16": 3000
+  },
+  "training_seconds": 1509.5669330201927,
+  "training_tokens_per_second": 3434.097479618452,
+  "wall_seconds": 1555.2365809140028,
+  "best_validation_loss": 0.9493471682071686,
+  "best_readout_policy": "confidence",
+  "best_validation_loss_by_readout": {
+    "confidence": 0.9493471682071686
+  },
+  "peak_allocated_bytes": 698818560,
+  "parameters": {
+    "total": 525984,
+    "token_embedding": 6816,
+    "position_embedding": 12288,
+    "readout": 6816,
+    "other": 500064
+  },
+  "config_identity": {
+    "name": "dynamic_aggregate_seed29_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_temporal_v1/dynamic_aggregate_seed29.json",
+    "sha256": "ad8c32a99982463e198fef8c80258f7d9de07e86ae6931063a5fa4ba4af217dc"
+  }
+}

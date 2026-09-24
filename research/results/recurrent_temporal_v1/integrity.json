@@ -1,0 +1,14 @@
+{
+  "complete": true,
+  "new_runs": 6,
+  "reused_controls": 3,
+  "new_updates_audited": 18000,
+  "all_updates_audited": 27000,
+  "gpu_tests_passed": 11,
+  "retained_checkpoints": 297,
+  "pre_run_files_verified": 28,
+  "archive_files": 91,
+  "no_test_evaluation": true,
+  "source_snapshot_sha256": "04f1ce7722d07e528708a0588dfa2c41d3db54b267bf5934b2ca2fa32873a840",
+  "checkpoint_manifest_sha256": "a0d4cc55c87c7b835455de9955097b17eba431c565829c316ec409b6d4ba94e7"
+}

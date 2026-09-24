@@ -1,0 +1,79 @@
+{
+  "purpose": "training feasibility/timing on repeated first training batch; not a quality result",
+  "config_identity": {
+    "name": "readout_comparison_v1_recurrent_depth_lr_mid",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/readout_comparison_v1/recurrent_depth_lr_mid.json",
+    "sha256": "cd0fcbc462de47dd906e6589bc5448d5ef0bda2b1c9155ebb178a38a23bb67bd"
+  },
+  "device": "cuda:1",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "warmup_steps": 5,
+  "timed_steps": 20,
+  "input_shape": [
+    32,
+    54
+  ],
+  "real_input_tokens": 1728,
+  "supervised_tokens": 64,
+  "parameters": {
+    "total": 525984,
+    "token_embedding": 6816,
+    "position_embedding": 12288,
+    "readout": 6816,
+    "other": 500064
+  },
+  "median_step_seconds": 0.27889790799235925,
+  "projected_3000_training_seconds": 836.6937239770778,
+  "peak_allocated_bytes": 449020416,
+  "step_seconds": [
+    0.41550473199458793,
+    0.23657646699575707,
+    0.286207328987075,
+    0.2533431379997637,
+    0.3092089279962238,
+    0.41794095499790274,
+    0.25605293398257345,
+    0.3249056210042909,
+    0.2541859610064421,
+    0.41845217498485,
+    0.2675653549958952,
+    0.25318725901888683,
+    0.3006456549919676,
+    0.26111139901331626,
+    0.362949166999897,
+    0.2657086499966681,
+    0.2715884869976435,
+    0.29948673298349604,
+    0.42059851199155673,
+    0.25973221799358726
+  ],
+  "losses": [
+    2.8195571899414062,
+    2.717463254928589,
+    2.62149977684021,
+    2.5227224826812744,
+    2.42305588722229,
+    2.3240699768066406,
+    2.2272558212280273,
+    2.135354518890381,
+    2.049121141433716,
+    1.9625072479248047,
+    1.8861656188964844,
+    1.8113781213760376,
+    1.740676999092102,
+    1.6757560968399048,
+    1.611761212348938,
+    1.5518603324890137,
+    1.4992026090621948,
+    1.4472771883010864,
+    1.3991268873214722,
+    1.3587396144866943
+  ],
+  "source_sha256": {
+    "scripts/profile_temporal_depth.py": "d519a896619359f25792eb973d0388f8d733f6b60100aca07a7eb24803585836",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5"
+  }
+}

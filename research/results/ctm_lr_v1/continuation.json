@@ -1,0 +1,55 @@
+{
+  "source_sha256": {
+    "scripts/advance_ctm_lr.py": "3d05de8c33758731aafa2be11fac67f355797035ca3e0aae643e7aa7d25ef399",
+    "scripts/confirmation_common.py": "d169dc8f587e8d8d37f24c5a4cc741707df76f1a5b9eaebf252c36c95a6a7c9e",
+    "scripts/run_registry_trials.py": "f7d920208fea274f7a9dee885532133af58a9ec59331e81bfc71c2fb4e2bb537",
+    "scripts/freeze_fresh_confirmation.py": "ce8270475b3b0c5799b4bc5b5072c5a0f3544ae7d856cf5291a995673424c81d",
+    "scripts/evaluate_fresh_confirmation.py": "5958a45cbf67174f6a488493eee9642b163f8cfd82d86a01619623c6c20e9158",
+    "scripts/summarize_ctm_lr.py": "ed000a15f225f2fec9a14fc5d3850d8ddcd793eb148560d1df518760277f71fc",
+    "scripts/summarize_fresh_confirmation.py": "350c59a5afda9972cf62f91559c441f3670f78a13055ff74228912f0f1243b2f",
+    "scripts/continue_fresh_confirmation.py": "406aeb660a2b708e39e4cc8e45f0c1b4e7c8fdcea5f9666cdeb2c4ed98ce1ef3"
+  },
+  "stage_a_pids": [
+    210551,
+    210739
+  ],
+  "events": [
+    {
+      "time_utc": "2026-09-23T15:58:18.360159+00:00",
+      "phase": "waiting_for_stage_a"
+    },
+    {
+      "time_utc": "2026-09-23T16:49:11.246406+00:00",
+      "phase": "freezing_recipes"
+    },
+    {
+      "time_utc": "2026-09-23T16:49:23.725199+00:00",
+      "phase": "training_confirmation",
+      "worker_pids": [
+        33274,
+        33275
+      ]
+    },
+    {
+      "time_utc": "2026-09-23T18:12:38.071243+00:00",
+      "phase": "freezing_checkpoints"
+    },
+    {
+      "time_utc": "2026-09-23T18:12:45.269173+00:00",
+      "phase": "evaluating_fresh_maps",
+      "worker_pids": [
+        60895,
+        60896
+      ]
+    },
+    {
+      "time_utc": "2026-09-23T18:14:00.342014+00:00",
+      "phase": "summarizing"
+    },
+    {
+      "time_utc": "2026-09-23T18:14:06.196860+00:00",
+      "phase": "complete_pending_documentation_and_archive"
+    }
+  ],
+  "phase": "complete_pending_documentation_and_archive"
+}

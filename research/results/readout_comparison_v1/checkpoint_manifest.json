@@ -1,0 +1,1214 @@
+{
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/best.pt": {
+    "bytes": 6638994,
+    "sha256": "d99bf986ccbea6af4007c2b0b856d3e56b8fc4224b6b743113df3126729e5c17"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/best_confidence.pt": {
+    "bytes": 6642894,
+    "sha256": "9a016ff22fac3c50a065bddfd2b334d3ddd14b7f8b9d74738d737657efc0e591"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/best_final.pt": {
+    "bytes": 6641290,
+    "sha256": "b0ee5db1e27eb2810ce4fefa1df018c4e6602b734b76c414326e32406d9f3310"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/final.pt": {
+    "bytes": 6639750,
+    "sha256": "a209113a0200ae24e98011bdc2489629ae92e537d0f4a3faaa822d528b0b669b"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000100.pt": {
+    "bytes": 6641598,
+    "sha256": "f4bec19cd676718f7927aa8d0567b0cc68443abedfa0752124202dedf2df264c"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000200.pt": {
+    "bytes": 6641598,
+    "sha256": "22aaf594a623e045e26fe6fd5c0d67c24cf85ed87054c03cb675247b02870f8f"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000300.pt": {
+    "bytes": 6641598,
+    "sha256": "03cefc9a5465845a4929f1b28091643c4dc77d44319e935c320f9ff4028cb618"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000400.pt": {
+    "bytes": 6641598,
+    "sha256": "e66e1064f9e2c8ec3d2028574ec6e339d48fa9688ce8301569bd07690e1e6d24"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000500.pt": {
+    "bytes": 6641598,
+    "sha256": "30298d8c34a714420a613aafcdb4224f2b5b07b14c2c0a49d9cf61efd985c412"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000600.pt": {
+    "bytes": 6641598,
+    "sha256": "e4c1d30520c48ec8d3602e2a88a9e991211c1eabfe76ff7f81cb83f156e044f6"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000700.pt": {
+    "bytes": 6641598,
+    "sha256": "89bc3fdf99872fcbe178d30c569929e750142f03389fb8c2e0fcf23a67218e1a"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000800.pt": {
+    "bytes": 6641598,
+    "sha256": "f8e3cd26b83a5719bcf494c3ec71ce4b59cdcd9ddca141125685200503b3bfa7"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_000900.pt": {
+    "bytes": 6641598,
+    "sha256": "dae7bb273dff88be50baaf39c899534358a15c85277bbe70cb5a81e1f5ce78af"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001000.pt": {
+    "bytes": 6641598,
+    "sha256": "c712213b333c6be7f55f13e2eb063eb49df6d5138255c2d32a9675da9e88aa3b"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001100.pt": {
+    "bytes": 6641598,
+    "sha256": "b9d6bead9598a6393e65567e526e3be5b20f4c3e0bf5b67cf21b6d338afde0a4"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001200.pt": {
+    "bytes": 6641598,
+    "sha256": "01989adbca5b7d575255437d9d72ad1c0c1aa8329d07cde857f1ed0330468eb0"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001300.pt": {
+    "bytes": 6641662,
+    "sha256": "864b08cb63c0ff523e48ce50193bf1d6cb42b908585118458c0b0a1f33e78828"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001400.pt": {
+    "bytes": 6641662,
+    "sha256": "bc4556f26fe5bd572e42a637d5cf68952e12e66ef341cd2aa982886eadbae04a"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001500.pt": {
+    "bytes": 6641662,
+    "sha256": "109e9f279746287ea2734110ede8a9ce808998b2a5f6da5d4b85e5aecbb0abb2"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001600.pt": {
+    "bytes": 6641662,
+    "sha256": "20dfa8f207c05559041a2e1f4933c8e142d11d95985cc3d1fd2194a05e339da7"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001700.pt": {
+    "bytes": 6641662,
+    "sha256": "dc1a1c84fdb06367c31466d5f9b113c9a966f22635329c7ec6fe2cd562f4b25d"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001800.pt": {
+    "bytes": 6641662,
+    "sha256": "503ef468a1de79175f41b74b8155b3e3ef77ec58232c72e1c331f4ded541c288"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_001900.pt": {
+    "bytes": 6641662,
+    "sha256": "cb9c3c5d8efb9d0aa46c97f7c2891e1fc707a5069df0d9410ebc7933e1b4a4d1"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002000.pt": {
+    "bytes": 6641662,
+    "sha256": "cd0d4842b9b7906232de0287fe2f48bff68de5e24bcb89f7327d6339ab024ed4"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002100.pt": {
+    "bytes": 6641662,
+    "sha256": "7ce11364cd3f6b0e3fdaa341064c51e01e039b36d9cf71031a7b7d25cc23befc"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002200.pt": {
+    "bytes": 6641662,
+    "sha256": "7b14a821d895b612a89ec71739fda71ed3a990ef9c52fad65e341ddd8c4f6f98"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002300.pt": {
+    "bytes": 6641662,
+    "sha256": "412ff7d24b11dcf6ebfcbb890acc67bbf9539c75c6486140419c4fce73b5f66e"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002400.pt": {
+    "bytes": 6641662,
+    "sha256": "6e40ce14934005cc627f3d56b7eb8767199d850e184788ff8ca1cf25bf46e723"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002500.pt": {
+    "bytes": 6641662,
+    "sha256": "834c9ce62f73f3bb4bd0c6f803129dec01ff962307ec70ceec600e82ba0a4edb"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002600.pt": {
+    "bytes": 6641662,
+    "sha256": "9e2d22d19008a8f77f6700bcb4f34c2be2869950520a70dff75657fb8e9a53d7"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002700.pt": {
+    "bytes": 6641662,
+    "sha256": "ac1c58d41b84eafbd7473c3ca8c5efe6eb404cfbfced0315264ad7c2e12ccaab"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002800.pt": {
+    "bytes": 6641662,
+    "sha256": "9efd30ae1569bd8e92b85ff008277ae138f0e062436c3990dbfc819e76382f47"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_002900.pt": {
+    "bytes": 6641662,
+    "sha256": "b69d547421d43784a52e6bd8b0d027bd9631c1eac569e625044efe250e717ad2"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic/step_003000.pt": {
+    "bytes": 6641662,
+    "sha256": "9ccdb057a6f77383d66da506cd311b98ddd0c86b96759b255ae957c76b7d820f"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/best.pt": {
+    "bytes": 6639058,
+    "sha256": "069fe70b135e70ea5f6f3d4376a1949fcc0c6b8667f63dc1e4693f1c3b8d0c4e"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/best_confidence.pt": {
+    "bytes": 6642894,
+    "sha256": "cc52637fb3a65d9691d69d3ce993a7abdda262b64044e66d6d7444c896e0d4fe"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/best_final.pt": {
+    "bytes": 6641354,
+    "sha256": "d73331eb9c46f651584074556224968b911bde7019ce0e36b0567d97897e335b"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/final.pt": {
+    "bytes": 6639814,
+    "sha256": "675b23c096232ac75705418d75cc24111b120d8c2af034bd5ba6f0a2a1f529f8"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000100.pt": {
+    "bytes": 6641662,
+    "sha256": "e4b6cdd33b3d0ad51452600358b4ace1455306f691ea2ead9baebbefd57a9a0b"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000200.pt": {
+    "bytes": 6641662,
+    "sha256": "897791518a171655abbd9fb275c912fee90b5dc19c897875a141b24b797771d3"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000300.pt": {
+    "bytes": 6641662,
+    "sha256": "f2260a01e9f5d656946ee7858f8f2096f4d77cff5ffee832a92ba9754d7269c0"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000400.pt": {
+    "bytes": 6641662,
+    "sha256": "10eabb9016619bbd20d6e56e0ef4cb4bed0038c9b62537ecb9563ccd42ca6e0a"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000500.pt": {
+    "bytes": 6641662,
+    "sha256": "bd56165f5e233fd6e377bc6ca422570fa539f2b94f0bbdb48d9e7c88a8df3f17"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000600.pt": {
+    "bytes": 6641662,
+    "sha256": "ef3a5fe0903a0679f3ca102fff266f986a18d25d09673962df2ea40ab492add5"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000700.pt": {
+    "bytes": 6641662,
+    "sha256": "0c5b1074cb02aff9d9910631db48a901e6866c831a0588ee88bdf2b078667004"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000800.pt": {
+    "bytes": 6641662,
+    "sha256": "11234c63dca926144e94880c20089b2cabb71b62f6503ea4ce5e98a8dae94ab4"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_000900.pt": {
+    "bytes": 6641662,
+    "sha256": "6653c761f06ad14b5459ed24b474b657319c46743bca2ea861a28c083a67b10f"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001000.pt": {
+    "bytes": 6641662,
+    "sha256": "16a42e2315bb7baf687c44389223106296919c53591515950418eeca897f7314"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001100.pt": {
+    "bytes": 6641662,
+    "sha256": "93658721c553f9c494ec5c1779aa2dae53d4363178516698e94b1f6086fffe17"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001200.pt": {
+    "bytes": 6641662,
+    "sha256": "6d39e537b9e713fdb7d4f738adfe2aec322e680d45f32926aca089bc4ea85e56"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001300.pt": {
+    "bytes": 6641662,
+    "sha256": "bd21dc1bd9a2b48ea398d1a59b01ff4784a4215ce2e1030ed656bd63d07420d1"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001400.pt": {
+    "bytes": 6641662,
+    "sha256": "5dc54465b8c498e782ef89bf3559c12fd6ecd59cd2c092d7abfe9e31f497af61"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001500.pt": {
+    "bytes": 6641662,
+    "sha256": "b3bd8f29cd0c626ba5812d803aa4b783edbb285b779e0c3e12febd3980993d44"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001600.pt": {
+    "bytes": 6641662,
+    "sha256": "7f86b0e1d4bfbfe61fd5577afa1dd4feab482a85937f19d4e61e835747ecc7e6"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001700.pt": {
+    "bytes": 6641662,
+    "sha256": "56c70a981e4750ad220394f7f232ea1f6e1bec8c453a79242c7ef55380bd36b9"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001800.pt": {
+    "bytes": 6641662,
+    "sha256": "5461450867ed812a57e3b6f7be1f6e1a7a9b1dcc9bc995987a73f12f028b1fdb"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_001900.pt": {
+    "bytes": 6641662,
+    "sha256": "ddc17b7e5cca692f6963adb06d3a440886d345222b356425d7d8f44961b1ef04"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002000.pt": {
+    "bytes": 6641662,
+    "sha256": "643240c704c32b58dc7d0dbe3a7b66b80a6e659ebdd69ffd95faaf97f9168def"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002100.pt": {
+    "bytes": 6641662,
+    "sha256": "e3033409d0f8b8480d73c9bc1beb38b09e399c693751c4c90caec00494e97800"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002200.pt": {
+    "bytes": 6641662,
+    "sha256": "3daf65466658bd49da73a466fb3120cead860bf142fdc5a2ffc7f2a44168d00f"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002300.pt": {
+    "bytes": 6641662,
+    "sha256": "9649752bbc257f9ec3e4a01547666c295c43755d9f603c8cb9cd51c015d5c085"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002400.pt": {
+    "bytes": 6641662,
+    "sha256": "759fd96255d3c68eca23047cc104d82e46b50809e9e2c11b6f35aef465ad92c6"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002500.pt": {
+    "bytes": 6641662,
+    "sha256": "2c26842613f128b11c72c0804e4eb57dd533bf441c23375bc2d03ae382059b5a"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002600.pt": {
+    "bytes": 6641662,
+    "sha256": "391dc63d47fb7ad99c55a3c6725ed0e6905969922544f6bdf750298a09bcd33e"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002700.pt": {
+    "bytes": 6641662,
+    "sha256": "aa75e96a1688e37807d41cfd26dfe929eb9fe99fce5bc71cc7cd6e5f785ff3fc"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002800.pt": {
+    "bytes": 6641662,
+    "sha256": "ded571e566a8b9cf2e958212aabbaa46c82bf4e8f2557a267d3a00a3573954a6"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_002900.pt": {
+    "bytes": 6641662,
+    "sha256": "92bef4d8ec03d5e9e4ca6d24111d4581022a6aab5f7aa82f008fbce04252b54c"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_dynamic_mono/step_003000.pt": {
+    "bytes": 6641662,
+    "sha256": "bfc1118e02c1679d93f4fc62a8a22fa20779f155651db7d7f7e1e6513ab0f464"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/best.pt": {
+    "bytes": 6638994,
+    "sha256": "d7459b0ac9ef549a88570b4e9db52c3a86ca45937c57585666b6c29f607bb4dd"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/best_confidence.pt": {
+    "bytes": 6642830,
+    "sha256": "dcc0991e072455647627234bdefaa24c8b71bb879758139bfdb594f0fe811be4"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/best_final.pt": {
+    "bytes": 6641290,
+    "sha256": "ca31465ab526b27665d9a6a7c5f593372f9712bc18573c225e908d20fdccc677"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/final.pt": {
+    "bytes": 6639750,
+    "sha256": "a42a651a4a8ca0abdd5da13d8b4ed6bed5b9a88b79b138d94e5e91b2f3e932ee"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000100.pt": {
+    "bytes": 6641598,
+    "sha256": "82003737952f71cb94be54d9aacd0e2f634d9da1ec8654b79038669c226bfc7a"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000200.pt": {
+    "bytes": 6641598,
+    "sha256": "4026a739e1d3ccb28767fde2f60f0693a908323fa875b59663a42dfda7fd29e2"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000300.pt": {
+    "bytes": 6641598,
+    "sha256": "87e0eb0d8d33347efbf06081abedd538d0178078fbda517c8cd67dcd23dc4b6c"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000400.pt": {
+    "bytes": 6641598,
+    "sha256": "24ce2d05564d19af082ff7393f798c4bbcd5aac3a4e4355989d5d68e207bdc8e"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000500.pt": {
+    "bytes": 6641598,
+    "sha256": "6c567203bac8ff9873e79432d1c23842aea9631f9b81eb613e6b2ca29bfa05bb"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000600.pt": {
+    "bytes": 6641598,
+    "sha256": "c44d2ef90afcbbc63acaf17f54ebe906d72a9b9c3582325982959e1ca4ba1a17"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000700.pt": {
+    "bytes": 6641598,
+    "sha256": "66eeb45c7042f41749958ed5c45d99e2a714adade5a53f5044a06ae193501bf6"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000800.pt": {
+    "bytes": 6641598,
+    "sha256": "b991f7bdd4f4a92fc8f65654e5c903797c70badf8c5b3c9ada285499b82bd2fe"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_000900.pt": {
+    "bytes": 6641598,
+    "sha256": "cfdb0cb18095a0ca8c35a6b40b578f9da93da823ffb1d1e3f9d7e1ae8461e826"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001000.pt": {
+    "bytes": 6641598,
+    "sha256": "953a118619b7ebee0479fa6c8e1895e80107803e803f23b2ee94c43501aa11ba"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001100.pt": {
+    "bytes": 6641598,
+    "sha256": "f9d19add6ced1ebb6b1ec91f6c5034cbfa3d1332d7e9fadefcc147927efc2856"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001200.pt": {
+    "bytes": 6641598,
+    "sha256": "999c287db0aa77f8d44b6788b54c9b1012413a3e3768465d5ff9eb62491e9f3c"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001300.pt": {
+    "bytes": 6641598,
+    "sha256": "6fc42ac9be1e0cfb98092716cd95bb85046ad9e7d2d71ba4a9a410158d6daf18"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001400.pt": {
+    "bytes": 6641598,
+    "sha256": "1416926b663f73076e3af5bda4c2778b974d5ae3d9460a85916c7da33c3e76b5"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001500.pt": {
+    "bytes": 6641598,
+    "sha256": "4ec5fd1cd4ec7fbadfd8dedb14882227f55584b27319245984a2efe7113b1726"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001600.pt": {
+    "bytes": 6641598,
+    "sha256": "c3e1f2224b0c730d2bec051b93ca7950a4d876bc39e1b2a4bca25d593a0f6377"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001700.pt": {
+    "bytes": 6641598,
+    "sha256": "da3e8d84979ed10b448e2e1d1c719a1414ca9ab561c1954ac457918661599b66"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001800.pt": {
+    "bytes": 6641598,
+    "sha256": "f6463b3ef2a20567a80cf5a375142aaa9d89ffc3986d5de230b105a324a70b38"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_001900.pt": {
+    "bytes": 6641598,
+    "sha256": "e2d63dff441c9786ca4f90690e795bba179c15536068426ff1341c46776d1572"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002000.pt": {
+    "bytes": 6641598,
+    "sha256": "454825bb14d3b05e23fc2c15a4bced11dd1f53cbd26d7f42adeaa2df3fd12584"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002100.pt": {
+    "bytes": 6641598,
+    "sha256": "dd687b3a8175162da04b7e2ebab254e954fb6dba49db3bfb9fdc7bc2d0432602"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002200.pt": {
+    "bytes": 6641598,
+    "sha256": "94dc17b72017da677677dbe049453d556ada634300d53d4257b6921dbf2e6810"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002300.pt": {
+    "bytes": 6641598,
+    "sha256": "babb5b6f26b5d659bad4309bff2c646deaa6d06a80efc454b01fbc5f73cdf91f"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002400.pt": {
+    "bytes": 6641598,
+    "sha256": "d8bd3cd3c039074a0a3b9bb4f81adcb6c177ba7cfa8ef058527ab22fbf03f3c6"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002500.pt": {
+    "bytes": 6641598,
+    "sha256": "8795783e131f6d09821589e5d49d7b5ef3211f7e6eca076a9ac0a40726ea4919"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002600.pt": {
+    "bytes": 6641598,
+    "sha256": "2e535753af291c8eb6072bf46c245fe2e3ff96e09aaac1e7d590fe4e6a7abe17"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002700.pt": {
+    "bytes": 6641598,
+    "sha256": "719d6e823bafa72ae32eb47f27e29ca25ba2ef365069e8b57f936170afc24427"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002800.pt": {
+    "bytes": 6641598,
+    "sha256": "52e050319a2505c882f3a1a77c179a83c9715c7bbb873825a1c082ee2fe6553f"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_002900.pt": {
+    "bytes": 6641598,
+    "sha256": "528dd5d06ce39b583a4adb2d96d02dde151a3240088c11dfa996bf4f2a8ebc05"
+  },
+  "research/runs/readout_comparison_v1/seed17/ctm_uniform/step_003000.pt": {
+    "bytes": 6641598,
+    "sha256": "18b34b507da5303d8b6dba059077565bfa7b8e5c47d1c1afd22084cce857d5a4"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/best.pt": {
+    "bytes": 6381546,
+    "sha256": "218bbb0af790afe70397a4cb7b42a05ad727c4cc79bc48a4552a3d770f170afa"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/best_confidence.pt": {
+    "bytes": 6384610,
+    "sha256": "94b00627385a69782a8d6e4d13663c65fc92ec53decef0ff2e3c9a123110ad28"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/best_final.pt": {
+    "bytes": 6383450,
+    "sha256": "72b5f16b301518acc1682283688aa4f358a0fe36421a681f910b7ae24e980aeb"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/final.pt": {
+    "bytes": 6382290,
+    "sha256": "e5b7ce3d7597d3ff979a9e9bc25ef4c370f64836848b0a8b76c9af67dff8d3b2"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000100.pt": {
+    "bytes": 6383682,
+    "sha256": "2ccf9e579b6a2d23c84ebef07db706d0e401c667017881a0933139dfee35f661"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000200.pt": {
+    "bytes": 6383682,
+    "sha256": "87d1c69bc8183751a9ff7e89da7761768bc9cbc3396650b73de296e72a91ff91"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000300.pt": {
+    "bytes": 6383682,
+    "sha256": "4819a3f760ccdc51e49688c96469799c97cb70b8e679caac5de8d9621fbbd75d"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000400.pt": {
+    "bytes": 6383682,
+    "sha256": "6ec6bc983ebb463a65cb73825edd83c02f4f108d61a914af956c238780bd1b16"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000500.pt": {
+    "bytes": 6383682,
+    "sha256": "790f7b6880824ae038635c6aa89ff65d2b7ef268f8f79dbb2186e22c5efbcb15"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000600.pt": {
+    "bytes": 6383682,
+    "sha256": "937b5ae659eadbcab8f0cd738f181368935212a1797db5af93315d60bd54d1cd"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000700.pt": {
+    "bytes": 6383682,
+    "sha256": "f85b51eb41a186c8bebcf615a11f73065f965e1c031d8d2f28248cda9b3de165"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000800.pt": {
+    "bytes": 6383682,
+    "sha256": "e39435647c49409490ca69a253db0c394ce1e5f036025341ee34e7e3f55c7960"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_000900.pt": {
+    "bytes": 6383682,
+    "sha256": "f7ebd5d4559e305d3d23eaa503debe152612e78b5b1a4e682e733eede5ab6c71"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001000.pt": {
+    "bytes": 6383682,
+    "sha256": "ad51facf8d4065dab0411d4d17ea09997dd81d81feec006d34512d44cb6ad50b"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001100.pt": {
+    "bytes": 6383682,
+    "sha256": "d3aa8bd321f2e773dda82a05ea6dc1ce3e9c6d09de897534da33300aa91c45db"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001200.pt": {
+    "bytes": 6383682,
+    "sha256": "0bae0da6e6bb82d902149298e2f967ab88d35559f08588b1194da72ffc0fa6f5"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001300.pt": {
+    "bytes": 6383682,
+    "sha256": "da00a6b041e52e9045264c92aa2bdaf1728c7a4a0b82c08faf2b4bccf33bbe8f"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001400.pt": {
+    "bytes": 6383682,
+    "sha256": "4efd9f0aa7ed9c1f483b8a7c6be65700b2004d3668a424155488ae3d662e2ec1"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001500.pt": {
+    "bytes": 6383682,
+    "sha256": "db0368087e89035c36b2377d270f69c501858b58aa231ab1bbd7aa946cc99d66"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001600.pt": {
+    "bytes": 6383682,
+    "sha256": "6f27af4dea7e82d926992b62ce5df0fb7204c82fbebf13ea87406f0e5abce4b6"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001700.pt": {
+    "bytes": 6383682,
+    "sha256": "b3b8b4a96ea27774e53056cf84d1eca616b25d575cb4fe028525cab7c46ade7f"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001800.pt": {
+    "bytes": 6383682,
+    "sha256": "9cc60d91ddce10ce178e9c9c04a17d2c78b187312c23bc25b0be39b2c9f82869"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_001900.pt": {
+    "bytes": 6383682,
+    "sha256": "2da5c993c253b0344bf6a518f2f52ce49c178e12400f2d514cb4139844db73a3"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002000.pt": {
+    "bytes": 6383682,
+    "sha256": "eddaf15d59d171440ca9a60f399117acd3d5a516bee9a67adf7f212cae6bd5b0"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002100.pt": {
+    "bytes": 6383682,
+    "sha256": "69c0b18b334a85b230ea27f339001d03ccec830b68c679590573bbf6004c6e30"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002200.pt": {
+    "bytes": 6383682,
+    "sha256": "934556b2cce8b5c075cfcae18175e56ca0a43d70f1f5c4a37f07e3631d3840a9"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002300.pt": {
+    "bytes": 6383682,
+    "sha256": "1ee1be71b3a0ef0ad7dba573e5293d054e3d90a8c1a0388b5c45fd42c12010a8"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002400.pt": {
+    "bytes": 6383682,
+    "sha256": "a23d1a99b6fe87246bb891161797af4248e8dc2f2a9626f1e1d05cd0b6e6e81d"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002500.pt": {
+    "bytes": 6383682,
+    "sha256": "f4a9ec65d78a25cf8c9c736818f0592eb0d9ba8e674ed6ab4b609afece1163d8"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002600.pt": {
+    "bytes": 6383682,
+    "sha256": "50a40d86a0ef9d3b74331cbe5830b6dcc942da6b75b80c87150f2406455464af"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002700.pt": {
+    "bytes": 6383682,
+    "sha256": "0a2283038939035e993d042980e63e2b102c7863732801a894686da5a58dac6a"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002800.pt": {
+    "bytes": 6383682,
+    "sha256": "9dbc39fe2af0f230ad519f90bfd31a654fff23193318ba3de4e72514da7a0b10"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_002900.pt": {
+    "bytes": 6383682,
+    "sha256": "beef071b73b1d8fe1585ad128670806cb2dc10513c9f29c8942cbd4fb57835ca"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_high/step_003000.pt": {
+    "bytes": 6383682,
+    "sha256": "5b63cdf594fe62061beb50d9a2bc29bfd903cf1947363185c5bcd56eeb8d251e"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/best.pt": {
+    "bytes": 6381546,
+    "sha256": "0175521a98615efcb7bf5f012dfcf15ab1dbac488be307755b569ef6e84f4c36"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/best_confidence.pt": {
+    "bytes": 6384610,
+    "sha256": "9424ded8280a74efdd347382561bf56b3a648d4d578b805bb96da0972a1d2a1d"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/best_final.pt": {
+    "bytes": 6383450,
+    "sha256": "0f1b136f7706c8bf68818cb43a4f87579330e546c20a5d412739a530f60bb62c"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/final.pt": {
+    "bytes": 6382290,
+    "sha256": "604ca3148ca4f5743c3ac3a4e99998e371b6f221fe33762ab38b41b50070920a"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000100.pt": {
+    "bytes": 6383682,
+    "sha256": "8a10c1cdbbb247ad9f01be5d3fa3475fa678c8233a6d94a86df65c40c146a8aa"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000200.pt": {
+    "bytes": 6383682,
+    "sha256": "9a4799bff0afe888972ad57c538d945c2a3fcc8bae3b561538537a303e5e6a38"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000300.pt": {
+    "bytes": 6383682,
+    "sha256": "cc58c98c5cc84b72e8b68f3b841a6e165a75e4e7a7674d42abdbb18af26b31cc"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000400.pt": {
+    "bytes": 6383682,
+    "sha256": "3f2a24ca365353c96b5aa0e4d978a4a23c7b3df9c8aa4235f3b79fcff5c5602d"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000500.pt": {
+    "bytes": 6383682,
+    "sha256": "b08de02b0dbeace20b6f9df9116801367e3294fe934428879c9c22db87a050ba"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000600.pt": {
+    "bytes": 6383682,
+    "sha256": "5c7b2aacd199ac025f2a98bc872cefa7cba2957b17a5a8466629561a8eddccf3"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000700.pt": {
+    "bytes": 6383682,
+    "sha256": "4e6828b6f77636fb7e09ffaa488ca1301d7dca15f50f2297d66c1dc0d83bbc6c"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000800.pt": {
+    "bytes": 6383682,
+    "sha256": "b096e588493c2a5e74be5e92004dd9d9cfc1e9e57e4f8e5757f06e3cfc708fac"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_000900.pt": {
+    "bytes": 6383682,
+    "sha256": "b55482a4119d590f5d58a0de9460b02f2945e0e33b9a5716ce297ac9d08d12d5"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001000.pt": {
+    "bytes": 6383682,
+    "sha256": "674236c2af66784eb9b2b2de05218a69630852dc8cfa4fcd3eb50a6d0cc1e316"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001100.pt": {
+    "bytes": 6383682,
+    "sha256": "fecd20bfe9b2d7cb9eba169d298bbcd70eeca96d06076b3aac5c47c30e46a73d"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001200.pt": {
+    "bytes": 6383682,
+    "sha256": "9474b70e281321ae7e5d403fbbfca6bd73affc7a9b0238f472b633765a40463c"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001300.pt": {
+    "bytes": 6383682,
+    "sha256": "d36304cdc55cd085b028cf7b332435d2cb37c19861bfc121411ce940dbe91bed"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001400.pt": {
+    "bytes": 6383682,
+    "sha256": "d73e6e378667a58c84eaf4f369521222f5ef307e87bf17f3e08fedc5cd5cbbe9"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001500.pt": {
+    "bytes": 6383682,
+    "sha256": "7d5174d0d22e31eaabf57532de23d6eafccc4413a42cc358cd9a7702f890e371"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001600.pt": {
+    "bytes": 6383682,
+    "sha256": "ca861ab050b29888334ea1606b5d0e189994bed96810b92dff45dd805f36419c"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001700.pt": {
+    "bytes": 6383682,
+    "sha256": "8ea7592dc21ca386feb0ea2d33059d1b7efa09a26da56b45576292a50f04c7c2"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001800.pt": {
+    "bytes": 6383682,
+    "sha256": "e0e42b0cf9995501e00ce4b57f9a5dfc38c48c31d07562c2ec860207385d6847"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_001900.pt": {
+    "bytes": 6383682,
+    "sha256": "f2344bde7e5768ff4a2c0913b17b12003550965034d39623eebe32a3eb49ba9b"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002000.pt": {
+    "bytes": 6383682,
+    "sha256": "7dc2cb8bf365f550507828e6e3bca15217c01e6135fee7c298d9073cc93df274"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002100.pt": {
+    "bytes": 6383682,
+    "sha256": "7078f200ba989e1ca13084b31afd1fb61b6a0fee722e6306e393fe37a447c273"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002200.pt": {
+    "bytes": 6383682,
+    "sha256": "90c3f36b33f9af5468d6fbd2085425efc8421e16a195d8c97724c988b5f1a4ba"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002300.pt": {
+    "bytes": 6383682,
+    "sha256": "7eaa4826bfdaf300011fba1f009073bdcb4d1cbc101e7fc91aad855362c6e6a7"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002400.pt": {
+    "bytes": 6383682,
+    "sha256": "ed667fae3da6d5c66d758856115b9a8bd42635ecd39318d1a42585c55a9bd4ce"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002500.pt": {
+    "bytes": 6383682,
+    "sha256": "5fd7cfe64312b22150c697a9dca3c39e97a1668181107d33c9cc33528a2db0d2"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002600.pt": {
+    "bytes": 6383682,
+    "sha256": "7153de34e7ea02a196cb928329feefbcbb63a3f6c0f9f3ebc270e229eb4257ba"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002700.pt": {
+    "bytes": 6383682,
+    "sha256": "da9518b0733bb18f873226b746e4c33acab2b0893282c79fcbc0f202af564a04"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002800.pt": {
+    "bytes": 6383682,
+    "sha256": "b36e3836859a16ac8d34150a55809da5212d515203d8de17d8dc1b5720519f6a"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_002900.pt": {
+    "bytes": 6383682,
+    "sha256": "3e2eefc6325e11ba77b3619e303997e1d67cf448207510dccf0bb8318c581f96"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_low/step_003000.pt": {
+    "bytes": 6383682,
+    "sha256": "f703a6c6cf8bbc36b988d4358296eb77d75f8f59dc5c4407f4c7ebd5961f8c1c"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/best.pt": {
+    "bytes": 6381546,
+    "sha256": "aa70dcc852afe9367efd518647524e5275a8b9d58ade0135e22f77fd19f0c435"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/best_confidence.pt": {
+    "bytes": 6384610,
+    "sha256": "bf302ca2b8f87776258c8dc1fd2b0b91e3ea7b0d31ee0d46bc45039cb3bdb244"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/best_final.pt": {
+    "bytes": 6383450,
+    "sha256": "873f36194a8b504daf7f5929a58b64e0be8073b881c6a319ead0c18a372e1ace"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/final.pt": {
+    "bytes": 6382290,
+    "sha256": "04c73a6e97fedd3d6a09a84fe7669ec16dd7d48b1362dce513dc7c9e4f0dcea4"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000100.pt": {
+    "bytes": 6383682,
+    "sha256": "6fb8750bab4494c54a4bc91b16b2e11dd510ad866aad44c9796c72f54a10d489"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000200.pt": {
+    "bytes": 6383682,
+    "sha256": "2c40a75de3270c752e0418c7154ce01c602a7e869cbc83e986e254f403a8b52e"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000300.pt": {
+    "bytes": 6383682,
+    "sha256": "1f38da85568c8141974c2161c36deb36d25f55fc00efd5970e9b3a493d427c42"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000400.pt": {
+    "bytes": 6383682,
+    "sha256": "12c0b81fcf6a532d83cd071a356388383541661a57e597e5e76e4583128d7c79"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000500.pt": {
+    "bytes": 6383682,
+    "sha256": "a7f4275bb8ce804727be90d5de40aa5f23bbd8151e2d9a343e57c9bc96404dd4"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000600.pt": {
+    "bytes": 6383682,
+    "sha256": "cae2f2299dfbf787984c8e02c901b37d9fb2b2512fecc199cd0b6818c3183806"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000700.pt": {
+    "bytes": 6383682,
+    "sha256": "3e07c55c12fbe04eb31fbbb48e9182be33ea825276a430a0c5b7a354b143756f"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000800.pt": {
+    "bytes": 6383682,
+    "sha256": "a9c7dcb32b5958ab1378c4f769dcf1c97ff497440008617a6adacd836781cfff"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_000900.pt": {
+    "bytes": 6383682,
+    "sha256": "0bf4ff7916dfdbdd005da67525d0981d7b8907612e6c6d7f92b4f54c6afd2568"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001000.pt": {
+    "bytes": 6383682,
+    "sha256": "9cc730c3a96033f2777c3b9a74d2f142ffedf6ad9e7d0f44dd33edf4c7f913c2"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001100.pt": {
+    "bytes": 6383682,
+    "sha256": "70b3721bde42f6ded23b029c4d5c5f7f05a645ec49daeae016dfc8f2148112aa"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001200.pt": {
+    "bytes": 6383682,
+    "sha256": "0d5d926fb2c40a596ec75e64a876a292acd618ed5f233c5cdeac198d225de4bb"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001300.pt": {
+    "bytes": 6383682,
+    "sha256": "c07dc432f77f8337c361f85f120b47f8025815d4369a21480ceca2d9852c408a"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001400.pt": {
+    "bytes": 6383682,
+    "sha256": "829ab038bbcd25aa2ee5c5b635fd0ce81fc3a79b92900a1721dcf05525585484"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001500.pt": {
+    "bytes": 6383682,
+    "sha256": "bc49d76574ac97926b0345529a066c54a1bcf80142b84d68212c8a58bae86774"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001600.pt": {
+    "bytes": 6383682,
+    "sha256": "2d0fc17d1ec9122fc548a5ffe219d07abea73d0b740cb3123231a12d23009e6e"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001700.pt": {
+    "bytes": 6383682,
+    "sha256": "6d956c7d3dd6089850287ef73183997ddc0d355cdf0679024a1735fef3074ce0"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001800.pt": {
+    "bytes": 6383682,
+    "sha256": "5bc073724e83e6532e122547f46d7ac52ca73ef12730c964e64b62e5d565b796"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_001900.pt": {
+    "bytes": 6383682,
+    "sha256": "2f5a2a1a4c055131d085ed16a21f7d692eab65c8034299d406c77e45ec0f7d05"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002000.pt": {
+    "bytes": 6383682,
+    "sha256": "ab711a49a4c6a02f649727c72dd2ce138f0942d572e66fdf2dc18e7f6e12bcbd"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002100.pt": {
+    "bytes": 6383682,
+    "sha256": "36cbfc5e6baaceb7502b31426e91fddd3f8fdb42c83c1dd280507872c5a15102"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002200.pt": {
+    "bytes": 6383682,
+    "sha256": "e82d3ae7822b0e0383c4b81dcd9db8149c3b6baa4cad50aa63c11cfa06d9e646"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002300.pt": {
+    "bytes": 6383682,
+    "sha256": "f705f713d4bc1d806918f50f6f77100695fab2eaeb109c58d960f65480c18f28"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002400.pt": {
+    "bytes": 6383682,
+    "sha256": "9f738e2ad9d234b184bf7884741ac515e352659e1f4798b9644168c961e44a76"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002500.pt": {
+    "bytes": 6383682,
+    "sha256": "c68a91dbaa0dcbae634a64d5ac8efcc52b38c8a91ad68c72f5815da927f0ef12"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002600.pt": {
+    "bytes": 6383682,
+    "sha256": "2cd6fba5672a4012a9aa031fbf97d87f14fd67b83f16e2f112f129163e63b4b2"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002700.pt": {
+    "bytes": 6383682,
+    "sha256": "29070b8ea8dc019a787ab4348cbcf94faee597d63c2ab49bd0e8beefc16fc4ed"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002800.pt": {
+    "bytes": 6383682,
+    "sha256": "876f7fcd2d51701b847e7b4d375e36a925b19d3cc92b726d11d045f60908e842"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_002900.pt": {
+    "bytes": 6383682,
+    "sha256": "886533868153574d4ff612cae0aeda27f41a0ff9e45cab96eb1a97a171e0bb14"
+  },
+  "research/runs/readout_comparison_v1/seed17/recurrent_depth_lr_mid/step_003000.pt": {
+    "bytes": 6383682,
+    "sha256": "8cac49aab074317f8d020c6fa6a3eba10e2b3d96e445244037e91f34f07a8be6"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/best.pt": {
+    "bytes": 6616034,
+    "sha256": "c601215782e82a5250f482ba58e57ed2414d6c359872db31fc9171af20137f98"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/best_final.pt": {
+    "bytes": 6616874,
+    "sha256": "f585af7b57d84944d99150f3f59b0c6cc059ace993f33ea980dfe5cc66c63a0a"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/final.pt": {
+    "bytes": 6616334,
+    "sha256": "c0252bd98ee40955f5f39cd454bfc01813d0241dfe376f4bd91aea48bcbc23f8"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000100.pt": {
+    "bytes": 6616982,
+    "sha256": "a87f5f8340d0994d01fc10849ec725ab432d8e1f5fefe2df7d67e9a4481e45e4"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000200.pt": {
+    "bytes": 6616982,
+    "sha256": "18f3c3d875d6ec8c66c56811a83aa4ab0f6c5fdb2022eb8861482818e59d6e28"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000300.pt": {
+    "bytes": 6616982,
+    "sha256": "326baed1449c26d9e8647e697b6d7dab0e22a1b84596c41f308831fc8b2992b8"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000400.pt": {
+    "bytes": 6616982,
+    "sha256": "fcfceedcecd8293fce164021d4964015691b6df2b289e563a6b44f85a4586f89"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000500.pt": {
+    "bytes": 6616982,
+    "sha256": "ce5eb1e16e9468e4e402fbb902e69c608438efd1647153ee887b44c025c7370b"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000600.pt": {
+    "bytes": 6616982,
+    "sha256": "ae7318e5433caf5260de6159bf1eed7ddf48a24be8adaaa7f33a88637cf42ec3"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000700.pt": {
+    "bytes": 6616982,
+    "sha256": "6a10b5de6075415e4657f952985efa14304d58293cd6e7653cdc339edd5e843f"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000800.pt": {
+    "bytes": 6616982,
+    "sha256": "d3a9756db7c3eac305a9fa2d7097d047e89ac92580062ae996a53125f8b92967"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_000900.pt": {
+    "bytes": 6616982,
+    "sha256": "2577250bf5527901a8e66c43ee7572fcc01e6a3e51393c7a859f32a16bb88c03"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001000.pt": {
+    "bytes": 6616982,
+    "sha256": "d22217aa03d94f2a97153ebb66162821587530d4b3d12f04747c63694736a545"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001100.pt": {
+    "bytes": 6616982,
+    "sha256": "1edcb790d037d1cfb8eaabb6fd2ceb16124c7071d7e266fc741317e2ed653589"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001200.pt": {
+    "bytes": 6616982,
+    "sha256": "232ec33313725bee26cbb7b9cde0474b20463c40ffe0c0c0aaa5f40f492c4930"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001300.pt": {
+    "bytes": 6616982,
+    "sha256": "80e25887e512456aa45af2afa572856b817c0112b2b6f5f8056ce4abc084a441"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001400.pt": {
+    "bytes": 6616982,
+    "sha256": "d39a1a883bcec505126ae89a2d714271ea41bfec3b594a26c0df6a5ce3898546"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001500.pt": {
+    "bytes": 6616982,
+    "sha256": "206331cf9981533766ae9e824aad7c05264c5c2b02531cb6dd25b346d4905cdc"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001600.pt": {
+    "bytes": 6616982,
+    "sha256": "8e6e7a7cee9eabad3e1500686734ccbf7e8296dc217bf54e9248d47f5e76d12d"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001700.pt": {
+    "bytes": 6616982,
+    "sha256": "2416e6af39cb09f86c20f241660bf1dfc3abbdb71fb8cbf6e441dea3ea9ad89b"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001800.pt": {
+    "bytes": 6616982,
+    "sha256": "055f062f425c457a1c4c7c7dbea7aa120e8f047ed8779dff5b1cb029b0e1ccce"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_001900.pt": {
+    "bytes": 6616982,
+    "sha256": "15f389b03749ecda132fc718715da2572be7cd67befe08ee171b81f99190e79d"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002000.pt": {
+    "bytes": 6616982,
+    "sha256": "427b01b19fc11c2a6e59112e8b92a1638afbb4c404a36e8da7d939752e55e517"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002100.pt": {
+    "bytes": 6616982,
+    "sha256": "ff46952ae192c1d502bd98b96190c8a0522c3c08e4a7860279a417105cb728d2"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002200.pt": {
+    "bytes": 6616982,
+    "sha256": "5b98d3136da684c96c882fc341cba0a1e2484c9aebb48d80fe30c09de79b8ecf"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002300.pt": {
+    "bytes": 6616982,
+    "sha256": "81e3d7e9e6ea632dc312f826cae5b02f9cd49c55fb6ad91852462a34b6ec78db"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002400.pt": {
+    "bytes": 6616982,
+    "sha256": "9c9e00d34054f44d64dc50bd613b148c8df455108d120f7f4391a135a47c7ad3"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002500.pt": {
+    "bytes": 6616982,
+    "sha256": "8039f58b48e2fe6f1c765d54d536ea28ae7f47798b9c37f0ca273f059d20cb1b"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002600.pt": {
+    "bytes": 6616982,
+    "sha256": "189e67823577011fe198eba6047f09bbd2334d13aeecd13318275510547edc74"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002700.pt": {
+    "bytes": 6616982,
+    "sha256": "5cae96d1fcfcef329d7e2def2ba4dbdb7c31ac0c81fc9550b4b2480924757621"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002800.pt": {
+    "bytes": 6616982,
+    "sha256": "1990f63ab3073668676d2fc29015ec10227a9f848678d2839afb4258f3ef06ea"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_002900.pt": {
+    "bytes": 6616982,
+    "sha256": "73d08dc9d2c1621c394b87b763f0e4ba615d0c47e0d0be601b1d44788a1b37dd"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_high/step_003000.pt": {
+    "bytes": 6616982,
+    "sha256": "3843b2d55eacdf8519ab69661bf9093f13c5e955c1e40a1b2c9da8191ed59864"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/best.pt": {
+    "bytes": 6616034,
+    "sha256": "4f6c2d279c65a00b08e43b7d06517cb4259abc0cca1f5b0bc9f7e941b77235b3"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/best_final.pt": {
+    "bytes": 6616874,
+    "sha256": "0af8e6815ef6b2319d71483f7c4aa86d261b2bcab92718c9a827ee983cf4bbda"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/final.pt": {
+    "bytes": 6616334,
+    "sha256": "dc6d629ad2c8a07282fa84ef1407154f9fee69582c9021716a76c32486e7035a"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000100.pt": {
+    "bytes": 6616982,
+    "sha256": "5be1726e707652ddcbed00ab9836ecd87f7f120d15bfaf14110dfb403841c1c0"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000200.pt": {
+    "bytes": 6616982,
+    "sha256": "d23ce020f1ae78b7c09d681162ad9840e72845085ec0cd04adf72b24ec394456"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000300.pt": {
+    "bytes": 6616982,
+    "sha256": "4d825b9c0ca53645477cc176a05b78d7f8621475c89141e32696f009b50e9a7f"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000400.pt": {
+    "bytes": 6616982,
+    "sha256": "27cc0b0bbe13f04b92a0409ee700604f6517893c49a38d533bd14bd909e4da70"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000500.pt": {
+    "bytes": 6616982,
+    "sha256": "7bd7881f2742e8a6d3e0adceb14f40243e24a63f12f40e45d635545a099271cc"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000600.pt": {
+    "bytes": 6616982,
+    "sha256": "c3375ab4d9c65609dff0aabb59be7891f1135d07c662c887a597f0e49eb00108"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000700.pt": {
+    "bytes": 6616982,
+    "sha256": "e11b5b90a9b8820f3c655a4743c2e4a66082802506cbe789cdd7f6a4178ca158"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000800.pt": {
+    "bytes": 6616982,
+    "sha256": "bd9ec81526d415883e1ad5a0b58320f3220c6bd158bd211083f6bf2f04032b05"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_000900.pt": {
+    "bytes": 6616982,
+    "sha256": "7f0959615158b9285e83b92f4d9b47c6b78d510717a1796a3d8a505aecae5e4d"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001000.pt": {
+    "bytes": 6616982,
+    "sha256": "25327267bffebd611a5976172e91c243de3490358cd4069ca62d5654a774d878"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001100.pt": {
+    "bytes": 6616982,
+    "sha256": "1917da6dc9db28c567b8e3d093ae14dec96a44c8253f3e3ac386f6abc1f5f9ad"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001200.pt": {
+    "bytes": 6616982,
+    "sha256": "727993eec5561e6353d93f341f8804b8f930863be463edf06ff941d6bafbbd23"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001300.pt": {
+    "bytes": 6616982,
+    "sha256": "b165aa14f483eef9832cf25e7cda3293f92487cafed4f8ebcfaf4b77cd15fa6e"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001400.pt": {
+    "bytes": 6616982,
+    "sha256": "c4a1ae6f9236c44d41dcd4f12c35fed55bb3bafacac9570f330fd31d4b5d5af4"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001500.pt": {
+    "bytes": 6616982,
+    "sha256": "7834e5e462d61abd14a3157a171750a3ba3875d10f004afbc569668242c7aa43"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001600.pt": {
+    "bytes": 6616982,
+    "sha256": "a76fcb2c0d570d687cce8c888b5adff000c693932577fbab185db5ace91cd5a1"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001700.pt": {
+    "bytes": 6616982,
+    "sha256": "9218fa18d8ab51b1e8fbaf0c36c220e30ddf84f48a81f2e6b98a9f4526e145a2"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001800.pt": {
+    "bytes": 6616982,
+    "sha256": "905734942c9d5c5ec75f869b08b894ef2e7cf27188f31e924fb241d9286629bd"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_001900.pt": {
+    "bytes": 6616982,
+    "sha256": "89d66083a41092c05ee34bd4a73f01e656e021096d9e5835149b3a7b54a63ec7"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002000.pt": {
+    "bytes": 6616982,
+    "sha256": "8ee7a705e7b25f032a67d250760c22050b96f8aef467d1dbd662ab5e6679f3f7"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002100.pt": {
+    "bytes": 6616982,
+    "sha256": "42ca419f0e9c516701b09b13a7fc3b0012fddf567a5883400efe6ee50c4bb40b"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002200.pt": {
+    "bytes": 6616982,
+    "sha256": "204787d521c19aafb7ef9809ebf923cf1835e40edadcaf5d58183ef75ce880ea"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002300.pt": {
+    "bytes": 6616982,
+    "sha256": "d85a43850c3ce2aeba49c93ae375a27f1f8806a9a7b279607ff5e03bfede631f"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002400.pt": {
+    "bytes": 6616982,
+    "sha256": "1cade63b16f9b15e77d94302393a2a61e1e9cdaa1c956e14b751534516fe2c92"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002500.pt": {
+    "bytes": 6616982,
+    "sha256": "93a8773249d2300d640ed50d702245dfb326a807ed9b7c01d0afca33ecf56b1c"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002600.pt": {
+    "bytes": 6616982,
+    "sha256": "8ec2833f7ea3c5ab21e03e271ea98f64c10464e490245be94b787d35ec56f53d"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002700.pt": {
+    "bytes": 6616982,
+    "sha256": "c3f9bb446f078b1ff59dd2084282fb677f3cbb66255acb9ae3b8fe699fcc04ed"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002800.pt": {
+    "bytes": 6616982,
+    "sha256": "aaffa96296a6da91889a72f10b5e4e08df4aebf16dfd317427f76e594b12dd3a"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_002900.pt": {
+    "bytes": 6616982,
+    "sha256": "f0e28a31643d0b5ecbc109f6bee6e7b3aa3796bdaf93132fc76ac77da203d84a"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_low/step_003000.pt": {
+    "bytes": 6616982,
+    "sha256": "d3979da2a9dce591d791ca26459c1a4d74200ab21a04c3a89f1a591b102e458a"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/best.pt": {
+    "bytes": 6616034,
+    "sha256": "712466ddfcb07ab2590d1634c6c6e0e64f482dc7a3292e594cdf74d940d2f106"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/best_final.pt": {
+    "bytes": 6616874,
+    "sha256": "79c9cb0e1b86be29546a607f4821c83ac6756480011001c048eb761a837bd852"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/final.pt": {
+    "bytes": 6616334,
+    "sha256": "0320ca5add9d291d5ba6a14318fd7762d5c060fcd98a2f5f56aab4a17a7fb3dd"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000100.pt": {
+    "bytes": 6616982,
+    "sha256": "2812f548a17cbf8107919b9e5b55e07cce2262d28167182bb5b56fb61e469c5c"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000200.pt": {
+    "bytes": 6616982,
+    "sha256": "d4ffeea38b7c66d64fca8b1a054efe021fd0df6357b8f3b5c173592f5163f81e"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000300.pt": {
+    "bytes": 6616982,
+    "sha256": "b635d4f6cbd19da03ea1f69eb6f7ec9c2ca31950fcbae56c4fc414ecc79035df"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000400.pt": {
+    "bytes": 6616982,
+    "sha256": "26ce3b45109a9b86dc65c51b7c592e7133d169009c7af7020226b5619f93512b"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000500.pt": {
+    "bytes": 6616982,
+    "sha256": "2ff7f2ff9e237c8f01c7afe9572cc9d46f5ad39d32ddcaeb411463dbb94ae1ea"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000600.pt": {
+    "bytes": 6616982,
+    "sha256": "ecc0a06ce78e9717588738a150121b5ad0ece982484c6588ef9e0204f0dde894"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000700.pt": {
+    "bytes": 6616982,
+    "sha256": "1620fe4cc7b849a4e0b94f318983ec43e9deed129b0f2dbfe3bfbfbffab6a7d1"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000800.pt": {
+    "bytes": 6616982,
+    "sha256": "2473656165994db8c4a45ac9562a5152203cb369444f79e182302b25e96b5c8e"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_000900.pt": {
+    "bytes": 6616982,
+    "sha256": "17dd15eb87d3cc17dcd74d00d93843530841e3fd50e53d2fb81d25140cf4dd84"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001000.pt": {
+    "bytes": 6616982,
+    "sha256": "6b38206d6d92392e51a6f9f5c228a3193c153eb6f192dbaf4531e02e87ac958f"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001100.pt": {
+    "bytes": 6616982,
+    "sha256": "555c5548694727a88ae5fa9bfbc291761586ad1bf4d7c5a8536cfbdcdaaa70db"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001200.pt": {
+    "bytes": 6616982,
+    "sha256": "71db71b7a65f2eb553de9c19c5f65352551b5dc099d8ea60178776edac939788"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001300.pt": {
+    "bytes": 6616982,
+    "sha256": "22d63b443d59fffa20d53e3b3398750c49e6c493e38fec932db79f7cc808bf98"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001400.pt": {
+    "bytes": 6616982,
+    "sha256": "7722e4d4b61504e220ec2376dbb7b0399efa554fe075e61fb0082bcdfa2be45a"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001500.pt": {
+    "bytes": 6616982,
+    "sha256": "5b02eaaabbeb2f63626b7f81c4f686e4e790f38bae5304e1abd5c87aadd56a9d"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001600.pt": {
+    "bytes": 6616982,
+    "sha256": "217e500e9aaa1e86ca76dc9a7750369502561e20379aad1db1aa2ba308f20e58"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001700.pt": {
+    "bytes": 6616982,
+    "sha256": "1834c945c2b416a92021453a91e6656b3625e993987a0926c76cd2e59c62c566"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001800.pt": {
+    "bytes": 6616982,
+    "sha256": "c037bfb5744bc3f623ae7320a8806f9773b320eaefac3fe2a16a68703d5cd140"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_001900.pt": {
+    "bytes": 6616982,
+    "sha256": "2eaf7cd2b5575322a4e48b1be5a341b9c45dd5c142ed001a53f55670850767cb"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002000.pt": {
+    "bytes": 6616982,
+    "sha256": "646851bd650f7dfc5a21e02cfd42a3fe3f5f763cda200cd0d9457d9697478b5b"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002100.pt": {
+    "bytes": 6616982,
+    "sha256": "83d70b2604bbf374d333a3ed4f7e3da8438a2c54732ba4331f16069b8287c685"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002200.pt": {
+    "bytes": 6616982,
+    "sha256": "75f2b7385d98e8ca93bee8114fc3d6af1b7bb44206413c3911d905d0638a413c"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002300.pt": {
+    "bytes": 6616982,
+    "sha256": "bd4b660c59b4c5651a80885b846de54b744143df46d9db534c5081c7409f52a2"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002400.pt": {
+    "bytes": 6616982,
+    "sha256": "027999a576f4be0b176087c12b8e88cfb7fc6ccacc7bc27a9e1bfba2ad0e1544"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002500.pt": {
+    "bytes": 6616982,
+    "sha256": "63b655a904140560ff0f9e1eb47e757fd57b100e54d41ad76d59564450e2ec26"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002600.pt": {
+    "bytes": 6616982,
+    "sha256": "c30e218e10eb7452852a898192c202595f53b375b6a9bd322f4e3ae292ff7120"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002700.pt": {
+    "bytes": 6616982,
+    "sha256": "057719b9ba06fbb93f08a75367c1b2ac5575862c1c73ae5f462a3e7479d24bbe"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002800.pt": {
+    "bytes": 6616982,
+    "sha256": "4b667d6dce932f6dd90dacd67086a2163d307094b3ec951b92ee8e59354e9038"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_002900.pt": {
+    "bytes": 6616982,
+    "sha256": "87f1deb8c872bbc9efc6f9c1dd6688038dd2f52ece4d17d54f893c8acefd7b52"
+  },
+  "research/runs/readout_comparison_v1/seed17/transformer_lr_mid/step_003000.pt": {
+    "bytes": 6616982,
+    "sha256": "fcfa31249c2f10e0f9b3ea0866ff29b5f760c42e537d4bc0af25536daa12d995"
+  }
+}

@@ -1,0 +1,2236 @@
+{
+  "purpose": "single-seed longer-budget/schedule ordered lookup development experiment; unmatched parameters and compute",
+  "seed": 17,
+  "ordered_lookup_gate": {
+    "transformer": false,
+    "recurrent_depth": true,
+    "ctm": false
+  },
+  "audits": {
+    "transformer": {
+      "effective_config_changes": {
+        "max_steps": [
+          600,
+          3000
+        ],
+        "checkpoint_dir": [
+          "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/transformer",
+          "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/transformer"
+        ]
+      },
+      "budget_counters": {
+        "examples_seen": 96000,
+        "tokens_seen": 5184000,
+        "supervised_tokens_seen": 192000
+      },
+      "all_learning_rates_verified": true,
+      "training_source_identical_to_600_update_run": true,
+      "selected_validation_step": 1900,
+      "selected_validation_ce": 0.38511618226766586,
+      "last_validation_ce": 0.5193445533514023
+    },
+    "recurrent_depth": {
+      "effective_config_changes": {
+        "max_steps": [
+          600,
+          3000
+        ],
+        "checkpoint_dir": [
+          "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/recurrent_depth",
+          "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/recurrent_depth"
+        ]
+      },
+      "budget_counters": {
+        "examples_seen": 96000,
+        "tokens_seen": 5184000,
+        "supervised_tokens_seen": 192000
+      },
+      "all_learning_rates_verified": true,
+      "training_source_identical_to_600_update_run": true,
+      "selected_validation_step": 2700,
+      "selected_validation_ce": 0.11601043865084648,
+      "last_validation_ce": 0.13360921014100313
+    },
+    "ctm": {
+      "effective_config_changes": {
+        "max_steps": [
+          600,
+          3000
+        ],
+        "checkpoint_dir": [
+          "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/ctm",
+          "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/ctm"
+        ]
+      },
+      "budget_counters": {
+        "examples_seen": 96000,
+        "tokens_seen": 5184000,
+        "supervised_tokens_seen": 192000
+      },
+      "all_learning_rates_verified": true,
+      "training_source_identical_to_600_update_run": true,
+      "selected_validation_step": 2800,
+      "selected_validation_ce": 0.46964821964502335,
+      "last_validation_ce": 0.4808830991387367
+    }
+  },
+  "paired_probe_counts": {
+    "transformer": {
+      "test_shuffled": {
+        "examples": 128,
+        "both_correct": 8,
+        "original_only_correct": 90,
+        "probe_only_correct": 4,
+        "neither_correct": 26,
+        "probe_outputs_original_answer": 12
+      },
+      "train_new_query": {
+        "examples": 256,
+        "both_correct": 155,
+        "original_only_correct": 60,
+        "probe_only_correct": 36,
+        "neither_correct": 5,
+        "probe_outputs_original_answer": 15
+      }
+    },
+    "recurrent_depth": {
+      "test_shuffled": {
+        "examples": 128,
+        "both_correct": 11,
+        "original_only_correct": 110,
+        "probe_only_correct": 1,
+        "neither_correct": 6,
+        "probe_outputs_original_answer": 12
+      },
+      "train_new_query": {
+        "examples": 256,
+        "both_correct": 229,
+        "original_only_correct": 12,
+        "probe_only_correct": 13,
+        "neither_correct": 2,
+        "probe_outputs_original_answer": 5
+      }
+    },
+    "ctm": {
+      "test_shuffled": {
+        "examples": 128,
+        "both_correct": 11,
+        "original_only_correct": 73,
+        "probe_only_correct": 7,
+        "neither_correct": 37,
+        "probe_outputs_original_answer": 18
+      },
+      "train_new_query": {
+        "examples": 256,
+        "both_correct": 133,
+        "original_only_correct": 81,
+        "probe_only_correct": 29,
+        "neither_correct": 13,
+        "probe_outputs_original_answer": 14
+      }
+    }
+  },
+  "runs": {
+    "transformer": {
+      "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+      "mode": "ordered",
+      "seed": 17,
+      "config_identity": {
+        "name": "transformer_ordered_long_v1",
+        "schema_version": 1,
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/transformer_ordered_long_v1.json",
+        "sha256": "1eb922660f498af97ab5a13cc4037b90398a5be3bf8cfccbed39f6a52c3bc47c"
+      },
+      "training": {
+        "complete": true,
+        "model_family": "transformer",
+        "steps": 3000,
+        "tokens_seen": 5184000,
+        "supervised_tokens_seen": 192000,
+        "examples_seen": 96000,
+        "padded_token_positions": 5184000,
+        "token_block_applications": 10368000,
+        "depth_counts": {
+          "1": 3000
+        },
+        "training_seconds": 97.84534308983712,
+        "training_tokens_per_second": 52981.57108244067,
+        "wall_seconds": 100.2764943660004,
+        "best_validation_loss": 0.38511618226766586,
+        "peak_allocated_bytes": 55506432,
+        "parameters": {
+          "total": 461696,
+          "token_embedding": 9088,
+          "position_embedding": 16384,
+          "readout": 9088,
+          "other": 427136
+        },
+        "config_identity": {
+          "name": "transformer_ordered_long_v1",
+          "schema_version": 1,
+          "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/transformer_ordered_long_v1.json",
+          "sha256": "1eb922660f498af97ab5a13cc4037b90398a5be3bf8cfccbed39f6a52c3bc47c"
+        }
+      },
+      "selection": "Lowest validation answer/EOS CE among 100-update checkpoints, including the final update",
+      "checkpoint": {
+        "model_family": "transformer",
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/transformer/best.pt",
+        "sha256": "78ebdcb7ceb442d90568e8aaf5f8333bdb5c732619c31671d96a26404adbede4",
+        "size_bytes": 5573602,
+        "training_config": {
+          "model_family": "transformer",
+          "vocab_size": 71,
+          "d_model": 128,
+          "n_heads": 4,
+          "n_layers": 2,
+          "ffn_hidden_dim": 384,
+          "prelude_layers": 0,
+          "core_layers": 0,
+          "coda_layers": 0,
+          "max_thought_steps": 1,
+          "train_depth_min": 1,
+          "train_depth_max": 1,
+          "norm_eps": 1e-05,
+          "init_std": 0.02,
+          "dropout": 0.0,
+          "use_positional_encoding": true,
+          "max_seq_len": 128,
+          "tie_embeddings": false,
+          "gradient_checkpointing": false,
+          "batch_size": 32,
+          "seq_len": 128,
+          "learning_rate": 0.001,
+          "weight_decay": 0.1,
+          "adam_beta1": 0.9,
+          "adam_beta2": 0.95,
+          "optimizer": "adamw",
+          "use_8bit_adam": false,
+          "grad_clip": 1.0,
+          "gradient_accumulation_steps": 1,
+          "max_steps": 3000,
+          "warmup_steps": 30,
+          "eval_interval": 100,
+          "log_interval": 50,
+          "dtype": "bfloat16",
+          "bf16_autocast": true,
+          "tokenizer": "algorithmic_char_v1",
+          "dataset": "",
+          "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+          "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+          "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/transformer",
+          "device": "cuda:1"
+        },
+        "config_overrides": {},
+        "training_counters": {
+          "step": 1900,
+          "tokens_seen": 3283200
+        }
+      },
+      "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+      "diagnostic_source_sha256": {
+        "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+        "ctm_transformer/ordered_pointer.py": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+        "ctm_transformer/fixed_pointer.py": "c809d530261608a23d5467cc76f0701ea599deaf333485e58f7deed9d45c8603",
+        "scripts/run_pointer_diagnostic.py": "136fcba9331c7608d5c35b72d6cac84018dd69a8da0f59dbe7988cf48d141563"
+      },
+      "metrics": {
+        "train": {
+          "1": {
+            "examples": 2048,
+            "correct": 1780,
+            "exact_match": 0.869140625,
+            "terminated": 2048,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 2048,
+                "correct": 1780,
+                "exact_match": 0.869140625,
+                "terminated": 2048
+              }
+            },
+            "answer_token_ce": 0.16480130009585992,
+            "supervised_tokens": 4096
+          }
+        },
+        "validation": {
+          "1": {
+            "examples": 128,
+            "correct": 88,
+            "exact_match": 0.6875,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 88,
+                "exact_match": 0.6875,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.38511618226766586,
+            "supervised_tokens": 256
+          }
+        },
+        "test_id": {
+          "1": {
+            "examples": 128,
+            "correct": 98,
+            "exact_match": 0.765625,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 98,
+                "exact_match": 0.765625,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.309972008690238,
+            "supervised_tokens": 256
+          }
+        },
+        "train_probe": {
+          "1": {
+            "examples": 256,
+            "correct": 215,
+            "exact_match": 0.83984375,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 215,
+                "exact_match": 0.83984375,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.1909441640600562,
+            "supervised_tokens": 512
+          }
+        },
+        "train_new_query": {
+          "1": {
+            "examples": 256,
+            "correct": 191,
+            "exact_match": 0.74609375,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 191,
+                "exact_match": 0.74609375,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.30271573550999165,
+            "supervised_tokens": 512
+          }
+        },
+        "train_reordered": {
+          "1": {
+            "examples": 256,
+            "correct": 35,
+            "exact_match": 0.13671875,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 35,
+                "exact_match": 0.13671875,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 2.658001959323883,
+            "supervised_tokens": 512
+          }
+        },
+        "test_shuffled": {
+          "1": {
+            "examples": 128,
+            "correct": 12,
+            "exact_match": 0.09375,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 12,
+                "exact_match": 0.09375,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 2.700374722480774,
+            "supervised_tokens": 256
+          }
+        }
+      }
+    },
+    "recurrent_depth": {
+      "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+      "mode": "ordered",
+      "seed": 17,
+      "config_identity": {
+        "name": "recurrent_depth_ordered_long_v1",
+        "schema_version": 1,
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_depth_ordered_long_v1.json",
+        "sha256": "1eb462e6e79ec8fb02a335258a9366199be5d2d9299292aa6c92d1ef387a35c5"
+      },
+      "training": {
+        "complete": true,
+        "model_family": "recurrent_depth",
+        "steps": 3000,
+        "tokens_seen": 5184000,
+        "supervised_tokens_seen": 192000,
+        "examples_seen": 96000,
+        "padded_token_positions": 5184000,
+        "token_block_applications": 51840000,
+        "depth_counts": {
+          "4": 3000
+        },
+        "training_seconds": 286.90167114604264,
+        "training_tokens_per_second": 18068.90834512138,
+        "wall_seconds": 292.4985460820026,
+        "best_validation_loss": 0.11601043865084648,
+        "peak_allocated_bytes": 203178496,
+        "parameters": {
+          "total": 922496,
+          "token_embedding": 9088,
+          "position_embedding": 16384,
+          "readout": 9088,
+          "other": 887936
+        },
+        "config_identity": {
+          "name": "recurrent_depth_ordered_long_v1",
+          "schema_version": 1,
+          "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_depth_ordered_long_v1.json",
+          "sha256": "1eb462e6e79ec8fb02a335258a9366199be5d2d9299292aa6c92d1ef387a35c5"
+        }
+      },
+      "selection": "Lowest validation answer/EOS CE among 100-update checkpoints, including the final update",
+      "checkpoint": {
+        "model_family": "recurrent_depth",
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/recurrent_depth/best.pt",
+        "sha256": "b1d45c102c4ad67d0a39bcd4d59213f72d7d69079ba1559ed2b22bb780105477",
+        "size_bytes": 11139562,
+        "training_config": {
+          "model_family": "recurrent_depth",
+          "vocab_size": 71,
+          "d_model": 128,
+          "n_heads": 4,
+          "n_layers": 0,
+          "ffn_hidden_dim": 384,
+          "prelude_layers": 1,
+          "core_layers": 2,
+          "coda_layers": 1,
+          "max_thought_steps": 4,
+          "train_depth_min": 4,
+          "train_depth_max": 4,
+          "norm_eps": 1e-05,
+          "init_std": 0.02,
+          "dropout": 0.0,
+          "use_positional_encoding": true,
+          "max_seq_len": 128,
+          "tie_embeddings": false,
+          "gradient_checkpointing": false,
+          "batch_size": 32,
+          "seq_len": 128,
+          "learning_rate": 0.001,
+          "weight_decay": 0.1,
+          "adam_beta1": 0.9,
+          "adam_beta2": 0.95,
+          "optimizer": "adamw",
+          "use_8bit_adam": false,
+          "grad_clip": 1.0,
+          "gradient_accumulation_steps": 1,
+          "max_steps": 3000,
+          "warmup_steps": 30,
+          "eval_interval": 100,
+          "log_interval": 50,
+          "dtype": "bfloat16",
+          "bf16_autocast": true,
+          "tokenizer": "algorithmic_char_v1",
+          "dataset": "",
+          "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+          "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+          "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/recurrent_depth",
+          "device": "cuda:1"
+        },
+        "config_overrides": {},
+        "training_counters": {
+          "step": 2700,
+          "tokens_seen": 4665600
+        }
+      },
+      "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+      "diagnostic_source_sha256": {
+        "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+        "ctm_transformer/ordered_pointer.py": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+        "ctm_transformer/fixed_pointer.py": "c809d530261608a23d5467cc76f0701ea599deaf333485e58f7deed9d45c8603",
+        "scripts/run_pointer_diagnostic.py": "136fcba9331c7608d5c35b72d6cac84018dd69a8da0f59dbe7988cf48d141563"
+      },
+      "metrics": {
+        "train": {
+          "4": {
+            "examples": 2048,
+            "correct": 1978,
+            "exact_match": 0.9658203125,
+            "terminated": 2048,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 2048,
+                "correct": 1978,
+                "exact_match": 0.9658203125,
+                "terminated": 2048
+              }
+            },
+            "answer_token_ce": 0.045157611169997836,
+            "supervised_tokens": 4096
+          }
+        },
+        "validation": {
+          "4": {
+            "examples": 128,
+            "correct": 117,
+            "exact_match": 0.9140625,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 117,
+                "exact_match": 0.9140625,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.11601043865084648,
+            "supervised_tokens": 256
+          }
+        },
+        "test_id": {
+          "4": {
+            "examples": 128,
+            "correct": 121,
+            "exact_match": 0.9453125,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 121,
+                "exact_match": 0.9453125,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.09175780788064003,
+            "supervised_tokens": 256
+          }
+        },
+        "train_probe": {
+          "4": {
+            "examples": 256,
+            "correct": 241,
+            "exact_match": 0.94140625,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 241,
+                "exact_match": 0.94140625,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.06122603896073997,
+            "supervised_tokens": 512
+          }
+        },
+        "train_new_query": {
+          "4": {
+            "examples": 256,
+            "correct": 242,
+            "exact_match": 0.9453125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 242,
+                "exact_match": 0.9453125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.07249102077912539,
+            "supervised_tokens": 512
+          }
+        },
+        "train_reordered": {
+          "4": {
+            "examples": 256,
+            "correct": 49,
+            "exact_match": 0.19140625,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 49,
+                "exact_match": 0.19140625,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 3.0309388637542725,
+            "supervised_tokens": 512
+          }
+        },
+        "test_shuffled": {
+          "4": {
+            "examples": 128,
+            "correct": 12,
+            "exact_match": 0.09375,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 12,
+                "exact_match": 0.09375,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 3.393736720085144,
+            "supervised_tokens": 256
+          }
+        }
+      }
+    },
+    "ctm": {
+      "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+      "mode": "ordered",
+      "seed": 17,
+      "config_identity": {
+        "name": "ctm_ordered_long_v1",
+        "schema_version": 1,
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_ordered_long_v1.json",
+        "sha256": "49b644c6b5336ba396217f35dbf4bf95465a0e7892feeb09cb078a0255f1f1d1"
+      },
+      "training": {
+        "complete": true,
+        "model_family": "ctm",
+        "steps": 3000,
+        "tokens_seen": 5184000,
+        "supervised_tokens_seen": 192000,
+        "examples_seen": 96000,
+        "padded_token_positions": 5184000,
+        "token_block_applications": 41472000,
+        "depth_counts": {
+          "4": 3000
+        },
+        "training_seconds": 466.37957948696567,
+        "training_tokens_per_second": 11115.409481912966,
+        "wall_seconds": 475.2920988389815,
+        "best_validation_loss": 0.46964821964502335,
+        "peak_allocated_bytes": 701624832,
+        "parameters": {
+          "total": 544839,
+          "token_embedding": 9088,
+          "position_embedding": 16384,
+          "readout": 42311,
+          "other": 477056
+        },
+        "config_identity": {
+          "name": "ctm_ordered_long_v1",
+          "schema_version": 1,
+          "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_ordered_long_v1.json",
+          "sha256": "49b644c6b5336ba396217f35dbf4bf95465a0e7892feeb09cb078a0255f1f1d1"
+        }
+      },
+      "selection": "Lowest validation answer/EOS CE among 100-update checkpoints, including the final update",
+      "checkpoint": {
+        "model_family": "ctm",
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/ctm/best.pt",
+        "sha256": "c3a9f09329ebde8f688dcd1c53f1c91197135244ef5cae051c569720fc56f513",
+        "size_bytes": 6638930,
+        "training_config": {
+          "use_feature_encoder": false,
+          "vocab_size": 71,
+          "d_model": 128,
+          "d_latent": 128,
+          "n_heads": 4,
+          "n_layers": 2,
+          "nlm_hidden_dim": 16,
+          "history_len": 8,
+          "max_thought_steps": 4,
+          "t_curriculum": false,
+          "t_curriculum_stages": [
+            [
+              2,
+              0.3
+            ],
+            [
+              4,
+              0.6
+            ],
+            [
+              8,
+              1.0
+            ]
+          ],
+          "max_seq_len": 128,
+          "use_positional_encoding": true,
+          "dropout": 0.0,
+          "use_attention_residuals": false,
+          "nlm_groups": 128,
+          "use_feec": false,
+          "feec_dt_init": 0.1,
+          "feec_damping_init": 0.1,
+          "feec_clamp_dt": 1.0,
+          "feec_energy_penalty_weight": 0.0,
+          "use_matrix_streams": false,
+          "n_streams": 4,
+          "stream_gating": "diagonal",
+          "use_dssa": false,
+          "dssa_n_partitions": 32,
+          "dssa_top_k": 8,
+          "dssa_block_size": 64,
+          "dssa_top_k_blocks": 4,
+          "use_hyperloop": false,
+          "hyperloop_n_begin": 2,
+          "hyperloop_n_middle": 4,
+          "hyperloop_n_end": 2,
+          "hyperloop_middle_loops": 2,
+          "use_loop_pos_emb": false,
+          "use_triton_attention": false,
+          "use_cuda_graphs": false,
+          "tiled_schedule": false,
+          "per_tick_heads": false,
+          "use_shared_head_film": false,
+          "tie_embeddings": false,
+          "sync_method": "sparse_decay",
+          "sync_rank": 32,
+          "sync_sparse_pairs": 128,
+          "synapse_type": "mlp",
+          "use_ternary": false,
+          "ternary_only_modules": [],
+          "use_engram": false,
+          "engram_ngram_orders": [
+            2,
+            3
+          ],
+          "engram_n_heads": 8,
+          "engram_slots_per_table": 65521,
+          "engram_d_head": 64,
+          "engram_bos_id": 0,
+          "engram_layers": [],
+          "engram_use_conv": true,
+          "engram_conv_kernel": 4,
+          "engram_conv_dilation": 3,
+          "engram_lr_mult": 5.0,
+          "engram_weight_decay": 0.0,
+          "batch_size": 32,
+          "learning_rate": 0.001,
+          "weight_decay": 0.1,
+          "max_steps": 3000,
+          "warmup_steps": 30,
+          "gradient_checkpointing": false,
+          "gradient_checkpointing_min_T": 5,
+          "gradient_accumulation_steps": 1,
+          "bf16_autocast": true,
+          "dtype": "bfloat16",
+          "grad_clip": 1.0,
+          "eval_interval": 100,
+          "log_interval": 50,
+          "optimizer": "adamw",
+          "adam_beta1": 0.9,
+          "adam_beta2": 0.95,
+          "use_8bit_adam": false,
+          "adamuon_beta": 0.95,
+          "adamuon_eps": 1e-08,
+          "adamuon_ns_steps": 5,
+          "adamuon_rms_target": 0.2,
+          "adamuon_weight_decay": 0.1,
+          "temporal_loss_type": "final_ce",
+          "tick_ramp_start": 0.5,
+          "tick_ramp_end": 1.5,
+          "mono_penalty_weight": 0.0,
+          "mono_penalty_min_frac": 0.1,
+          "mono_penalty_decay_until_frac": 0.0,
+          "aux_loss_weight": 0.0,
+          "min_loss_weight": 0.0,
+          "max_cert_weight": 0.0,
+          "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+          "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+          "seq_len": 128,
+          "tokenizer": "algorithmic_char_v1",
+          "dataset": "",
+          "dataset_subset": "sample-10BT",
+          "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_long_v1/seed17/ctm",
+          "use_two_phase_curriculum": false,
+          "phase1_tokens": 500000000,
+          "phase1_datasets": [
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-CC-Math-v1"
+          ],
+          "phase1_dataset_subsets": [
+            "Nemotron-Pretraining-RQA",
+            "Nemotron-Pretraining-InfiniByte-Reasoning",
+            "Nemotron-Pretraining-Wiki-Rewrite",
+            "Nemotron-Pretraining-Scientific-Coding",
+            "Nemotron-Pretraining-Math-Textbooks",
+            "Nemotron-Pretraining-STEM-SFT",
+            "Nemotron-Pretraining-Code-Concepts",
+            "Nemotron-Pretraining-Unconditional-Algorithmic",
+            "Nemotron-Pretraining-Formal-Logic",
+            "Nemotron-Pretraining-Economics",
+            "Nemotron-Pretraining-Multiple-Choice",
+            "4plus_MIND"
+          ],
+          "phase1_dataset_weights": [
+            0.1,
+            0.1,
+            0.05,
+            0.05,
+            0.1,
+            0.1,
+            0.1,
+            0.05,
+            0.1,
+            0.05,
+            0.1,
+            0.1
+          ],
+          "phase2_datasets": [
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-CC-Math-v1"
+          ],
+          "phase2_dataset_subsets": [
+            "Nemotron-Pretraining-RQA",
+            "Nemotron-Pretraining-InfiniByte-Reasoning",
+            "Nemotron-Pretraining-Wiki-Rewrite",
+            "Nemotron-Pretraining-Scientific-Coding",
+            "Nemotron-Pretraining-Math-Textbooks",
+            "Nemotron-Pretraining-STEM-SFT",
+            "Nemotron-Pretraining-Code-Concepts",
+            "Nemotron-Pretraining-Unconditional-Algorithmic",
+            "Nemotron-Pretraining-Formal-Logic",
+            "Nemotron-Pretraining-Economics",
+            "Nemotron-Pretraining-Multiple-Choice",
+            "4plus_MIND"
+          ],
+          "phase2_dataset_weights": [
+            0.05,
+            0.05,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.05,
+            0.05,
+            0.1,
+            0.1
+          ],
+          "use_distillation": false,
+          "teacher_model_name": "nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16",
+          "teacher_d_model": 3136,
+          "distill_logit_weight": 0.0,
+          "distill_feature_weight": 0.0,
+          "teacher_device": "auto",
+          "distill_temperature": 4.0,
+          "distill_tick_aggregation": "all",
+          "distill_feature_method": "cosine",
+          "distill_top_k": 256,
+          "use_cached_teacher": false,
+          "teacher_cache_dir": "",
+          "device": "cuda:0"
+        },
+        "config_overrides": {},
+        "training_counters": {
+          "step": 2800,
+          "tokens_seen": 4838400
+        }
+      },
+      "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+      "diagnostic_source_sha256": {
+        "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+        "ctm_transformer/ordered_pointer.py": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+        "ctm_transformer/fixed_pointer.py": "c809d530261608a23d5467cc76f0701ea599deaf333485e58f7deed9d45c8603",
+        "scripts/run_pointer_diagnostic.py": "136fcba9331c7608d5c35b72d6cac84018dd69a8da0f59dbe7988cf48d141563"
+      },
+      "metrics": {
+        "train": {
+          "4": {
+            "examples": 2048,
+            "correct": 1688,
+            "exact_match": 0.82421875,
+            "terminated": 2048,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 2048,
+                "correct": 1688,
+                "exact_match": 0.82421875,
+                "terminated": 2048
+              }
+            },
+            "answer_token_ce": 0.23251751018688083,
+            "supervised_tokens": 4096
+          }
+        },
+        "validation": {
+          "4": {
+            "examples": 128,
+            "correct": 84,
+            "exact_match": 0.65625,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 84,
+                "exact_match": 0.65625,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.46964821964502335,
+            "supervised_tokens": 256
+          }
+        },
+        "test_id": {
+          "4": {
+            "examples": 128,
+            "correct": 84,
+            "exact_match": 0.65625,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 84,
+                "exact_match": 0.65625,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.5133669972419739,
+            "supervised_tokens": 256
+          }
+        },
+        "train_probe": {
+          "4": {
+            "examples": 256,
+            "correct": 214,
+            "exact_match": 0.8359375,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 214,
+                "exact_match": 0.8359375,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.23432404920458794,
+            "supervised_tokens": 512
+          }
+        },
+        "train_new_query": {
+          "4": {
+            "examples": 256,
+            "correct": 162,
+            "exact_match": 0.6328125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 162,
+                "exact_match": 0.6328125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.491641104221344,
+            "supervised_tokens": 512
+          }
+        },
+        "train_reordered": {
+          "4": {
+            "examples": 256,
+            "correct": 34,
+            "exact_match": 0.1328125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 34,
+                "exact_match": 0.1328125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 2.4784677922725677,
+            "supervised_tokens": 512
+          }
+        },
+        "test_shuffled": {
+          "4": {
+            "examples": 128,
+            "correct": 18,
+            "exact_match": 0.140625,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 18,
+                "exact_match": 0.140625,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 2.3900102972984314,
+            "supervised_tokens": 256
+          }
+        }
+      }
+    }
+  },
+  "previous_600_update_runs": {
+    "transformer": {
+      "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+      "mode": "ordered",
+      "seed": 17,
+      "training": {
+        "complete": true,
+        "model_family": "transformer",
+        "steps": 600,
+        "tokens_seen": 1036800,
+        "supervised_tokens_seen": 38400,
+        "examples_seen": 19200,
+        "padded_token_positions": 1036800,
+        "token_block_applications": 2073600,
+        "depth_counts": {
+          "1": 600
+        },
+        "training_seconds": 15.50156141622574,
+        "training_tokens_per_second": 66883.58496033595,
+        "wall_seconds": 15.950189466006123,
+        "best_validation_loss": 0.9481780230998993,
+        "peak_allocated_bytes": 55506432,
+        "parameters": {
+          "total": 461696,
+          "token_embedding": 9088,
+          "position_embedding": 16384,
+          "readout": 9088,
+          "other": 427136
+        },
+        "config_identity": {
+          "name": "transformer_algorithmic_v1",
+          "schema_version": 1,
+          "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/transformer_algorithmic_v1.json",
+          "sha256": "6f1a0da5101665e1a31fce3fce23bc403e19e32e01e43cbd3371c8a5f904d242"
+        }
+      },
+      "selection": "Lowest validation answer/EOS CE among 100-update checkpoints",
+      "checkpoint": {
+        "model_family": "transformer",
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/transformer/best.pt",
+        "sha256": "39011e63d5935188a6afb6936f21cb199eef550c9ad99fbe6fb64095e825b4e2",
+        "size_bytes": 5573602,
+        "training_config": {
+          "model_family": "transformer",
+          "vocab_size": 71,
+          "d_model": 128,
+          "n_heads": 4,
+          "n_layers": 2,
+          "ffn_hidden_dim": 384,
+          "prelude_layers": 0,
+          "core_layers": 0,
+          "coda_layers": 0,
+          "max_thought_steps": 1,
+          "train_depth_min": 1,
+          "train_depth_max": 1,
+          "norm_eps": 1e-05,
+          "init_std": 0.02,
+          "dropout": 0.0,
+          "use_positional_encoding": true,
+          "max_seq_len": 128,
+          "tie_embeddings": false,
+          "gradient_checkpointing": false,
+          "batch_size": 32,
+          "seq_len": 128,
+          "learning_rate": 0.001,
+          "weight_decay": 0.1,
+          "adam_beta1": 0.9,
+          "adam_beta2": 0.95,
+          "optimizer": "adamw",
+          "use_8bit_adam": false,
+          "grad_clip": 1.0,
+          "gradient_accumulation_steps": 1,
+          "max_steps": 600,
+          "warmup_steps": 30,
+          "eval_interval": 100,
+          "log_interval": 50,
+          "dtype": "bfloat16",
+          "bf16_autocast": true,
+          "tokenizer": "algorithmic_char_v1",
+          "dataset": "",
+          "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+          "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+          "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/transformer",
+          "device": "cuda:1"
+        },
+        "config_overrides": {},
+        "training_counters": {
+          "step": 600,
+          "tokens_seen": 1036800
+        }
+      },
+      "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+      "diagnostic_source_sha256": {
+        "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+        "ctm_transformer/ordered_pointer.py": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+        "scripts/run_pointer_diagnostic.py": "cce4762a434c6b776ec450f3d2615026fdee4d76ec00252985912230a6e9cf1d"
+      },
+      "metrics": {
+        "train": {
+          "1": {
+            "examples": 2048,
+            "correct": 576,
+            "exact_match": 0.28125,
+            "terminated": 2048,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 2048,
+                "correct": 576,
+                "exact_match": 0.28125,
+                "terminated": 2048
+              }
+            },
+            "answer_token_ce": 0.9162144977599382,
+            "supervised_tokens": 4096
+          }
+        },
+        "validation": {
+          "1": {
+            "examples": 128,
+            "correct": 25,
+            "exact_match": 0.1953125,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 25,
+                "exact_match": 0.1953125,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.9481780230998993,
+            "supervised_tokens": 256
+          }
+        },
+        "test_id": {
+          "1": {
+            "examples": 128,
+            "correct": 31,
+            "exact_match": 0.2421875,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 31,
+                "exact_match": 0.2421875,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.9161208122968674,
+            "supervised_tokens": 256
+          }
+        },
+        "train_probe": {
+          "1": {
+            "examples": 256,
+            "correct": 75,
+            "exact_match": 0.29296875,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 75,
+                "exact_match": 0.29296875,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.9145952388644218,
+            "supervised_tokens": 512
+          }
+        },
+        "train_new_query": {
+          "1": {
+            "examples": 256,
+            "correct": 61,
+            "exact_match": 0.23828125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 61,
+                "exact_match": 0.23828125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.9427661374211311,
+            "supervised_tokens": 512
+          }
+        },
+        "train_reordered": {
+          "1": {
+            "examples": 256,
+            "correct": 34,
+            "exact_match": 0.1328125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 34,
+                "exact_match": 0.1328125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 1.0764767080545425,
+            "supervised_tokens": 512
+          }
+        },
+        "test_shuffled": {
+          "1": {
+            "examples": 128,
+            "correct": 20,
+            "exact_match": 0.15625,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 20,
+                "exact_match": 0.15625,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 1.1102513670921326,
+            "supervised_tokens": 256
+          }
+        }
+      }
+    },
+    "recurrent_depth": {
+      "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+      "mode": "ordered",
+      "seed": 17,
+      "training": {
+        "complete": true,
+        "model_family": "recurrent_depth",
+        "steps": 600,
+        "tokens_seen": 1036800,
+        "supervised_tokens_seen": 38400,
+        "examples_seen": 19200,
+        "padded_token_positions": 1036800,
+        "token_block_applications": 10368000,
+        "depth_counts": {
+          "4": 600
+        },
+        "training_seconds": 50.81525901218993,
+        "training_tokens_per_second": 20403.320186782577,
+        "wall_seconds": 51.82713832700392,
+        "best_validation_loss": 0.9223219752311707,
+        "peak_allocated_bytes": 203178496,
+        "parameters": {
+          "total": 922496,
+          "token_embedding": 9088,
+          "position_embedding": 16384,
+          "readout": 9088,
+          "other": 887936
+        },
+        "config_identity": {
+          "name": "recurrent_depth_algorithmic_v1",
+          "schema_version": 1,
+          "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recurrent_depth_algorithmic_v1.json",
+          "sha256": "e041662c5752650ec080057ebb655039e90ecabcdc897aed5f22150f8e34f682"
+        }
+      },
+      "selection": "Lowest validation answer/EOS CE among 100-update checkpoints",
+      "checkpoint": {
+        "model_family": "recurrent_depth",
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/recurrent_depth/best.pt",
+        "sha256": "410893e4b89f9ba9d7c518782faa70d93a69634ef0d71fa6f6cf2f8e68d14818",
+        "size_bytes": 11139562,
+        "training_config": {
+          "model_family": "recurrent_depth",
+          "vocab_size": 71,
+          "d_model": 128,
+          "n_heads": 4,
+          "n_layers": 0,
+          "ffn_hidden_dim": 384,
+          "prelude_layers": 1,
+          "core_layers": 2,
+          "coda_layers": 1,
+          "max_thought_steps": 4,
+          "train_depth_min": 4,
+          "train_depth_max": 4,
+          "norm_eps": 1e-05,
+          "init_std": 0.02,
+          "dropout": 0.0,
+          "use_positional_encoding": true,
+          "max_seq_len": 128,
+          "tie_embeddings": false,
+          "gradient_checkpointing": false,
+          "batch_size": 32,
+          "seq_len": 128,
+          "learning_rate": 0.001,
+          "weight_decay": 0.1,
+          "adam_beta1": 0.9,
+          "adam_beta2": 0.95,
+          "optimizer": "adamw",
+          "use_8bit_adam": false,
+          "grad_clip": 1.0,
+          "gradient_accumulation_steps": 1,
+          "max_steps": 600,
+          "warmup_steps": 30,
+          "eval_interval": 100,
+          "log_interval": 50,
+          "dtype": "bfloat16",
+          "bf16_autocast": true,
+          "tokenizer": "algorithmic_char_v1",
+          "dataset": "",
+          "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+          "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+          "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/recurrent_depth",
+          "device": "cuda:1"
+        },
+        "config_overrides": {},
+        "training_counters": {
+          "step": 600,
+          "tokens_seen": 1036800
+        }
+      },
+      "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+      "diagnostic_source_sha256": {
+        "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+        "ctm_transformer/ordered_pointer.py": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+        "scripts/run_pointer_diagnostic.py": "cce4762a434c6b776ec450f3d2615026fdee4d76ec00252985912230a6e9cf1d"
+      },
+      "metrics": {
+        "train": {
+          "4": {
+            "examples": 2048,
+            "correct": 624,
+            "exact_match": 0.3046875,
+            "terminated": 2048,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 2048,
+                "correct": 624,
+                "exact_match": 0.3046875,
+                "terminated": 2048
+              }
+            },
+            "answer_token_ce": 0.8781128982082009,
+            "supervised_tokens": 4096
+          }
+        },
+        "validation": {
+          "4": {
+            "examples": 128,
+            "correct": 35,
+            "exact_match": 0.2734375,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 35,
+                "exact_match": 0.2734375,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.9223219752311707,
+            "supervised_tokens": 256
+          }
+        },
+        "test_id": {
+          "4": {
+            "examples": 128,
+            "correct": 49,
+            "exact_match": 0.3828125,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 49,
+                "exact_match": 0.3828125,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.8521238565444946,
+            "supervised_tokens": 256
+          }
+        },
+        "train_probe": {
+          "4": {
+            "examples": 256,
+            "correct": 73,
+            "exact_match": 0.28515625,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 73,
+                "exact_match": 0.28515625,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.8876994773745537,
+            "supervised_tokens": 512
+          }
+        },
+        "train_new_query": {
+          "4": {
+            "examples": 256,
+            "correct": 69,
+            "exact_match": 0.26953125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 69,
+                "exact_match": 0.26953125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.904113881289959,
+            "supervised_tokens": 512
+          }
+        },
+        "train_reordered": {
+          "4": {
+            "examples": 256,
+            "correct": 45,
+            "exact_match": 0.17578125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 45,
+                "exact_match": 0.17578125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 1.0217808112502098,
+            "supervised_tokens": 512
+          }
+        },
+        "test_shuffled": {
+          "4": {
+            "examples": 128,
+            "correct": 17,
+            "exact_match": 0.1328125,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 17,
+                "exact_match": 0.1328125,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 1.1146754324436188,
+            "supervised_tokens": 256
+          }
+        }
+      }
+    },
+    "ctm": {
+      "purpose": "pointer learning diagnostic; one seed; unmatched model sizes and compute",
+      "mode": "ordered",
+      "seed": 17,
+      "training": {
+        "complete": true,
+        "model_family": "ctm",
+        "steps": 600,
+        "tokens_seen": 1036800,
+        "supervised_tokens_seen": 38400,
+        "examples_seen": 19200,
+        "padded_token_positions": 1036800,
+        "token_block_applications": 8294400,
+        "depth_counts": {
+          "4": 600
+        },
+        "training_seconds": 95.76083982066484,
+        "training_tokens_per_second": 10826.972716004339,
+        "wall_seconds": 97.61483823799063,
+        "best_validation_loss": 0.9687165021896362,
+        "peak_allocated_bytes": 701624832,
+        "parameters": {
+          "total": 544839,
+          "token_embedding": 9088,
+          "position_embedding": 16384,
+          "readout": 42311,
+          "other": 477056
+        },
+        "config_identity": {
+          "name": "ctm_algorithmic_v1",
+          "schema_version": 1,
+          "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_algorithmic_v1.json",
+          "sha256": "e5272661d5d93f06e5cf68b6685a64b167d8626739c2f54d4404ac6b54dfcaed"
+        }
+      },
+      "selection": "Lowest validation answer/EOS CE among 100-update checkpoints",
+      "checkpoint": {
+        "model_family": "ctm",
+        "path": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/ctm/best.pt",
+        "sha256": "f75b24acac6cd5e62cd59b924e2419ce2ea9681b78a2e5b87ee7ab5b3f73e239",
+        "size_bytes": 6638930,
+        "training_config": {
+          "use_feature_encoder": false,
+          "vocab_size": 71,
+          "d_model": 128,
+          "d_latent": 128,
+          "n_heads": 4,
+          "n_layers": 2,
+          "nlm_hidden_dim": 16,
+          "history_len": 8,
+          "max_thought_steps": 4,
+          "t_curriculum": false,
+          "t_curriculum_stages": [
+            [
+              2,
+              0.3
+            ],
+            [
+              4,
+              0.6
+            ],
+            [
+              8,
+              1.0
+            ]
+          ],
+          "max_seq_len": 128,
+          "use_positional_encoding": true,
+          "dropout": 0.0,
+          "use_attention_residuals": false,
+          "nlm_groups": 128,
+          "use_feec": false,
+          "feec_dt_init": 0.1,
+          "feec_damping_init": 0.1,
+          "feec_clamp_dt": 1.0,
+          "feec_energy_penalty_weight": 0.0,
+          "use_matrix_streams": false,
+          "n_streams": 4,
+          "stream_gating": "diagonal",
+          "use_dssa": false,
+          "dssa_n_partitions": 32,
+          "dssa_top_k": 8,
+          "dssa_block_size": 64,
+          "dssa_top_k_blocks": 4,
+          "use_hyperloop": false,
+          "hyperloop_n_begin": 2,
+          "hyperloop_n_middle": 4,
+          "hyperloop_n_end": 2,
+          "hyperloop_middle_loops": 2,
+          "use_loop_pos_emb": false,
+          "use_triton_attention": false,
+          "use_cuda_graphs": false,
+          "tiled_schedule": false,
+          "per_tick_heads": false,
+          "use_shared_head_film": false,
+          "tie_embeddings": false,
+          "sync_method": "sparse_decay",
+          "sync_rank": 32,
+          "sync_sparse_pairs": 128,
+          "synapse_type": "mlp",
+          "use_ternary": false,
+          "ternary_only_modules": [],
+          "use_engram": false,
+          "engram_ngram_orders": [
+            2,
+            3
+          ],
+          "engram_n_heads": 8,
+          "engram_slots_per_table": 65521,
+          "engram_d_head": 64,
+          "engram_bos_id": 0,
+          "engram_layers": [],
+          "engram_use_conv": true,
+          "engram_conv_kernel": 4,
+          "engram_conv_dilation": 3,
+          "engram_lr_mult": 5.0,
+          "engram_weight_decay": 0.0,
+          "batch_size": 32,
+          "learning_rate": 0.001,
+          "weight_decay": 0.1,
+          "max_steps": 600,
+          "warmup_steps": 30,
+          "gradient_checkpointing": false,
+          "gradient_checkpointing_min_T": 5,
+          "gradient_accumulation_steps": 1,
+          "bf16_autocast": true,
+          "dtype": "bfloat16",
+          "grad_clip": 1.0,
+          "eval_interval": 100,
+          "log_interval": 50,
+          "optimizer": "adamw",
+          "adam_beta1": 0.9,
+          "adam_beta2": 0.95,
+          "use_8bit_adam": false,
+          "adamuon_beta": 0.95,
+          "adamuon_eps": 1e-08,
+          "adamuon_ns_steps": 5,
+          "adamuon_rms_target": 0.2,
+          "adamuon_weight_decay": 0.1,
+          "temporal_loss_type": "final_ce",
+          "tick_ramp_start": 0.5,
+          "tick_ramp_end": 1.5,
+          "mono_penalty_weight": 0.0,
+          "mono_penalty_min_frac": 0.1,
+          "mono_penalty_decay_until_frac": 0.0,
+          "aux_loss_weight": 0.0,
+          "min_loss_weight": 0.0,
+          "max_cert_weight": 0.0,
+          "data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/train.jsonl",
+          "eval_data_path": "/home/kasm-user/Documents/CTM-Transformer/research/data/ordered_pointer_v1/pointer/validation.jsonl",
+          "seq_len": 128,
+          "tokenizer": "algorithmic_char_v1",
+          "dataset": "",
+          "dataset_subset": "sample-10BT",
+          "checkpoint_dir": "/home/kasm-user/Documents/CTM-Transformer/research/runs/ordered_pointer_v1/seed17/ctm",
+          "use_two_phase_curriculum": false,
+          "phase1_tokens": 500000000,
+          "phase1_datasets": [
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-CC-Math-v1"
+          ],
+          "phase1_dataset_subsets": [
+            "Nemotron-Pretraining-RQA",
+            "Nemotron-Pretraining-InfiniByte-Reasoning",
+            "Nemotron-Pretraining-Wiki-Rewrite",
+            "Nemotron-Pretraining-Scientific-Coding",
+            "Nemotron-Pretraining-Math-Textbooks",
+            "Nemotron-Pretraining-STEM-SFT",
+            "Nemotron-Pretraining-Code-Concepts",
+            "Nemotron-Pretraining-Unconditional-Algorithmic",
+            "Nemotron-Pretraining-Formal-Logic",
+            "Nemotron-Pretraining-Economics",
+            "Nemotron-Pretraining-Multiple-Choice",
+            "4plus_MIND"
+          ],
+          "phase1_dataset_weights": [
+            0.1,
+            0.1,
+            0.05,
+            0.05,
+            0.1,
+            0.1,
+            0.1,
+            0.05,
+            0.1,
+            0.05,
+            0.1,
+            0.1
+          ],
+          "phase2_datasets": [
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-Pretraining-Specialized-v1.1",
+            "nvidia/Nemotron-CC-Math-v1"
+          ],
+          "phase2_dataset_subsets": [
+            "Nemotron-Pretraining-RQA",
+            "Nemotron-Pretraining-InfiniByte-Reasoning",
+            "Nemotron-Pretraining-Wiki-Rewrite",
+            "Nemotron-Pretraining-Scientific-Coding",
+            "Nemotron-Pretraining-Math-Textbooks",
+            "Nemotron-Pretraining-STEM-SFT",
+            "Nemotron-Pretraining-Code-Concepts",
+            "Nemotron-Pretraining-Unconditional-Algorithmic",
+            "Nemotron-Pretraining-Formal-Logic",
+            "Nemotron-Pretraining-Economics",
+            "Nemotron-Pretraining-Multiple-Choice",
+            "4plus_MIND"
+          ],
+          "phase2_dataset_weights": [
+            0.05,
+            0.05,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.05,
+            0.05,
+            0.1,
+            0.1
+          ],
+          "use_distillation": false,
+          "teacher_model_name": "nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16",
+          "teacher_d_model": 3136,
+          "distill_logit_weight": 0.0,
+          "distill_feature_weight": 0.0,
+          "teacher_device": "auto",
+          "distill_temperature": 4.0,
+          "distill_tick_aggregation": "all",
+          "distill_feature_method": "cosine",
+          "distill_top_k": 256,
+          "use_cached_teacher": false,
+          "teacher_cache_dir": "",
+          "device": "cuda:0"
+        },
+        "config_overrides": {},
+        "training_counters": {
+          "step": 500,
+          "tokens_seen": 864000
+        }
+      },
+      "dataset_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+      "diagnostic_source_sha256": {
+        "ctm_transformer/pointer_diagnostics.py": "7d71fcf74cd2794e6522d55d1f5b7d6391b41478adec5851c684d791067ac4ec",
+        "ctm_transformer/ordered_pointer.py": "cac6ccc0588e7f96581cde363ddb6d85c75f5d0e20ccb7d115a06e815307dd39",
+        "scripts/run_pointer_diagnostic.py": "cce4762a434c6b776ec450f3d2615026fdee4d76ec00252985912230a6e9cf1d"
+      },
+      "metrics": {
+        "train": {
+          "4": {
+            "examples": 2048,
+            "correct": 582,
+            "exact_match": 0.2841796875,
+            "terminated": 2048,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 2048,
+                "correct": 582,
+                "exact_match": 0.2841796875,
+                "terminated": 2048
+              }
+            },
+            "answer_token_ce": 0.9017973328009248,
+            "supervised_tokens": 4096
+          }
+        },
+        "validation": {
+          "4": {
+            "examples": 128,
+            "correct": 24,
+            "exact_match": 0.1875,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 24,
+                "exact_match": 0.1875,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.9687165021896362,
+            "supervised_tokens": 256
+          }
+        },
+        "test_id": {
+          "4": {
+            "examples": 128,
+            "correct": 28,
+            "exact_match": 0.21875,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 28,
+                "exact_match": 0.21875,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 0.9318432956933975,
+            "supervised_tokens": 256
+          }
+        },
+        "train_probe": {
+          "4": {
+            "examples": 256,
+            "correct": 69,
+            "exact_match": 0.26953125,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 69,
+                "exact_match": 0.26953125,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.9172698706388474,
+            "supervised_tokens": 512
+          }
+        },
+        "train_new_query": {
+          "4": {
+            "examples": 256,
+            "correct": 59,
+            "exact_match": 0.23046875,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 59,
+                "exact_match": 0.23046875,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 0.9531537219882011,
+            "supervised_tokens": 512
+          }
+        },
+        "train_reordered": {
+          "4": {
+            "examples": 256,
+            "correct": 36,
+            "exact_match": 0.140625,
+            "terminated": 256,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 256,
+                "correct": 36,
+                "exact_match": 0.140625,
+                "terminated": 256
+              }
+            },
+            "answer_token_ce": 1.1322492957115173,
+            "supervised_tokens": 512
+          }
+        },
+        "test_shuffled": {
+          "4": {
+            "examples": 128,
+            "correct": 11,
+            "exact_match": 0.0859375,
+            "terminated": 128,
+            "by_difficulty": {
+              "nodes=8,steps=1": {
+                "examples": 128,
+                "correct": 11,
+                "exact_match": 0.0859375,
+                "terminated": 128
+              }
+            },
+            "answer_token_ce": 1.159287840127945,
+            "supervised_tokens": 256
+          }
+        }
+      }
+    }
+  },
+  "accuracy_by_start": {
+    "transformer": {
+      "train": {
+        "A": {
+          "correct": 251,
+          "examples": 251,
+          "exact_match": 1.0
+        },
+        "B": {
+          "correct": 161,
+          "examples": 232,
+          "exact_match": 0.6939655172413793
+        },
+        "C": {
+          "correct": 262,
+          "examples": 262,
+          "exact_match": 1.0
+        },
+        "D": {
+          "correct": 180,
+          "examples": 255,
+          "exact_match": 0.7058823529411765
+        },
+        "E": {
+          "correct": 239,
+          "examples": 253,
+          "exact_match": 0.9446640316205533
+        },
+        "F": {
+          "correct": 291,
+          "examples": 291,
+          "exact_match": 1.0
+        },
+        "G": {
+          "correct": 272,
+          "examples": 272,
+          "exact_match": 1.0
+        },
+        "H": {
+          "correct": 124,
+          "examples": 232,
+          "exact_match": 0.5344827586206896
+        }
+      },
+      "validation": {
+        "A": {
+          "correct": 13,
+          "examples": 13,
+          "exact_match": 1.0
+        },
+        "B": {
+          "correct": 9,
+          "examples": 22,
+          "exact_match": 0.4090909090909091
+        },
+        "C": {
+          "correct": 12,
+          "examples": 12,
+          "exact_match": 1.0
+        },
+        "D": {
+          "correct": 9,
+          "examples": 21,
+          "exact_match": 0.42857142857142855
+        },
+        "E": {
+          "correct": 8,
+          "examples": 10,
+          "exact_match": 0.8
+        },
+        "F": {
+          "correct": 8,
+          "examples": 8,
+          "exact_match": 1.0
+        },
+        "G": {
+          "correct": 22,
+          "examples": 22,
+          "exact_match": 1.0
+        },
+        "H": {
+          "correct": 7,
+          "examples": 20,
+          "exact_match": 0.35
+        }
+      },
+      "test_id": {
+        "A": {
+          "correct": 21,
+          "examples": 21,
+          "exact_match": 1.0
+        },
+        "B": {
+          "correct": 11,
+          "examples": 22,
+          "exact_match": 0.5
+        },
+        "C": {
+          "correct": 18,
+          "examples": 18,
+          "exact_match": 1.0
+        },
+        "D": {
+          "correct": 6,
+          "examples": 15,
+          "exact_match": 0.4
+        },
+        "E": {
+          "correct": 8,
+          "examples": 8,
+          "exact_match": 1.0
+        },
+        "F": {
+          "correct": 17,
+          "examples": 17,
+          "exact_match": 1.0
+        },
+        "G": {
+          "correct": 16,
+          "examples": 16,
+          "exact_match": 1.0
+        },
+        "H": {
+          "correct": 1,
+          "examples": 11,
+          "exact_match": 0.09090909090909091
+        }
+      }
+    },
+    "recurrent_depth": {
+      "train": {
+        "A": {
+          "correct": 250,
+          "examples": 251,
+          "exact_match": 0.9960159362549801
+        },
+        "B": {
+          "correct": 231,
+          "examples": 232,
+          "exact_match": 0.9956896551724138
+        },
+        "C": {
+          "correct": 262,
+          "examples": 262,
+          "exact_match": 1.0
+        },
+        "D": {
+          "correct": 255,
+          "examples": 255,
+          "exact_match": 1.0
+        },
+        "E": {
+          "correct": 250,
+          "examples": 253,
+          "exact_match": 0.9881422924901185
+        },
+        "F": {
+          "correct": 291,
+          "examples": 291,
+          "exact_match": 1.0
+        },
+        "G": {
+          "correct": 207,
+          "examples": 272,
+          "exact_match": 0.7610294117647058
+        },
+        "H": {
+          "correct": 232,
+          "examples": 232,
+          "exact_match": 1.0
+        }
+      },
+      "validation": {
+        "A": {
+          "correct": 13,
+          "examples": 13,
+          "exact_match": 1.0
+        },
+        "B": {
+          "correct": 22,
+          "examples": 22,
+          "exact_match": 1.0
+        },
+        "C": {
+          "correct": 12,
+          "examples": 12,
+          "exact_match": 1.0
+        },
+        "D": {
+          "correct": 21,
+          "examples": 21,
+          "exact_match": 1.0
+        },
+        "E": {
+          "correct": 10,
+          "examples": 10,
+          "exact_match": 1.0
+        },
+        "F": {
+          "correct": 8,
+          "examples": 8,
+          "exact_match": 1.0
+        },
+        "G": {
+          "correct": 11,
+          "examples": 22,
+          "exact_match": 0.5
+        },
+        "H": {
+          "correct": 20,
+          "examples": 20,
+          "exact_match": 1.0
+        }
+      },
+      "test_id": {
+        "A": {
+          "correct": 21,
+          "examples": 21,
+          "exact_match": 1.0
+        },
+        "B": {
+          "correct": 19,
+          "examples": 22,
+          "exact_match": 0.8636363636363636
+        },
+        "C": {
+          "correct": 18,
+          "examples": 18,
+          "exact_match": 1.0
+        },
+        "D": {
+          "correct": 15,
+          "examples": 15,
+          "exact_match": 1.0
+        },
+        "E": {
+          "correct": 8,
+          "examples": 8,
+          "exact_match": 1.0
+        },
+        "F": {
+          "correct": 17,
+          "examples": 17,
+          "exact_match": 1.0
+        },
+        "G": {
+          "correct": 12,
+          "examples": 16,
+          "exact_match": 0.75
+        },
+        "H": {
+          "correct": 11,
+          "examples": 11,
+          "exact_match": 1.0
+        }
+      }
+    },
+    "ctm": {
+      "train": {
+        "A": {
+          "correct": 203,
+          "examples": 251,
+          "exact_match": 0.8087649402390438
+        },
+        "B": {
+          "correct": 181,
+          "examples": 232,
+          "exact_match": 0.7801724137931034
+        },
+        "C": {
+          "correct": 225,
+          "examples": 262,
+          "exact_match": 0.8587786259541985
+        },
+        "D": {
+          "correct": 237,
+          "examples": 255,
+          "exact_match": 0.9294117647058824
+        },
+        "E": {
+          "correct": 253,
+          "examples": 253,
+          "exact_match": 1.0
+        },
+        "F": {
+          "correct": 179,
+          "examples": 291,
+          "exact_match": 0.6151202749140894
+        },
+        "G": {
+          "correct": 220,
+          "examples": 272,
+          "exact_match": 0.8088235294117647
+        },
+        "H": {
+          "correct": 190,
+          "examples": 232,
+          "exact_match": 0.8189655172413793
+        }
+      },
+      "validation": {
+        "A": {
+          "correct": 9,
+          "examples": 13,
+          "exact_match": 0.6923076923076923
+        },
+        "B": {
+          "correct": 9,
+          "examples": 22,
+          "exact_match": 0.4090909090909091
+        },
+        "C": {
+          "correct": 7,
+          "examples": 12,
+          "exact_match": 0.5833333333333334
+        },
+        "D": {
+          "correct": 18,
+          "examples": 21,
+          "exact_match": 0.8571428571428571
+        },
+        "E": {
+          "correct": 10,
+          "examples": 10,
+          "exact_match": 1.0
+        },
+        "F": {
+          "correct": 4,
+          "examples": 8,
+          "exact_match": 0.5
+        },
+        "G": {
+          "correct": 15,
+          "examples": 22,
+          "exact_match": 0.6818181818181818
+        },
+        "H": {
+          "correct": 12,
+          "examples": 20,
+          "exact_match": 0.6
+        }
+      },
+      "test_id": {
+        "A": {
+          "correct": 15,
+          "examples": 21,
+          "exact_match": 0.7142857142857143
+        },
+        "B": {
+          "correct": 10,
+          "examples": 22,
+          "exact_match": 0.45454545454545453
+        },
+        "C": {
+          "correct": 13,
+          "examples": 18,
+          "exact_match": 0.7222222222222222
+        },
+        "D": {
+          "correct": 13,
+          "examples": 15,
+          "exact_match": 0.8666666666666667
+        },
+        "E": {
+          "correct": 8,
+          "examples": 8,
+          "exact_match": 1.0
+        },
+        "F": {
+          "correct": 6,
+          "examples": 17,
+          "exact_match": 0.35294117647058826
+        },
+        "G": {
+          "correct": 13,
+          "examples": 16,
+          "exact_match": 0.8125
+        },
+        "H": {
+          "correct": 6,
+          "examples": 11,
+          "exact_match": 0.5454545454545454
+        }
+      }
+    }
+  }
+}

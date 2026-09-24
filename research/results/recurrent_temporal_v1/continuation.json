@@ -1,0 +1,25 @@
+{
+  "worker_pids": [
+    132573,
+    133028
+  ],
+  "source_sha256": {
+    "scripts/complete_recurrent_temporal.py": "155c40c6bb4f8e423ff84e87175b353e15d5e6423d074deba98e88cf74deacac",
+    "scripts/analyze_recurrent_temporal.py": "1ba3ca1d67fd6fd51c17a00c07b84785207e3ffa6f864cb54b87084b580db43a"
+  },
+  "events": [
+    {
+      "phase": "training",
+      "time_utc": "2026-09-23T20:48:31.475016+00:00"
+    },
+    {
+      "phase": "auditing_and_summarizing",
+      "time_utc": "2026-09-23T22:02:25.676839+00:00"
+    },
+    {
+      "phase": "complete_pending_documentation_and_archive",
+      "time_utc": "2026-09-23T22:02:34.229480+00:00"
+    }
+  ],
+  "phase": "complete_pending_documentation_and_archive"
+}

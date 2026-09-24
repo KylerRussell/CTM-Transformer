@@ -1,0 +1,321 @@
+{
+  "complete": true,
+  "checkpoint_sha256": "c3a9f09329ebde8f688dcd1c53f1c91197135244ef5cae051c569720fc56f513",
+  "precision": "FP32; gradients only; no optimizer update",
+  "training_batch": [
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "A"
+    },
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "B"
+    },
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "C"
+    },
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "D"
+    },
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "E"
+    },
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "F"
+    },
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "G"
+    },
+    {
+      "id": "51f1e184680d4f5387d44b0a2ccd69de6dd6246b08b7ae2e47cb50b8b647db2d",
+      "start": "H"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "A"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "B"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "C"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "D"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "E"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "F"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "G"
+    },
+    {
+      "id": "7b2eb8c3e24b3cd667ac92fe6fa06b05d1f98bdb7b1309d4b9ce2e2185f90666",
+      "start": "H"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "A"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "B"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "C"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "D"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "E"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "F"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "G"
+    },
+    {
+      "id": "9b087d54fb2c5d1e15da2120d22b33c0ecd58cb14819dadb8c9c0ae2587dad94",
+      "start": "H"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "A"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "B"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "C"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "D"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "E"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "F"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "G"
+    },
+    {
+      "id": "4efd9afe82e8408c570f39a3bb2c27ac66de1ccdff748958a2dcf55174ec50be",
+      "start": "H"
+    }
+  ],
+  "supervised_tokens": 64,
+  "total_input_positions": 1728,
+  "tick_output_gradient_norms": [
+    0.04638795927166939,
+    0.040091630071401596,
+    0.03890979662537575,
+    0.04965353384613991
+  ],
+  "history_input_gradients": [
+    {
+      "module": "layers.0.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.000123004472698085,
+        0.00024021825811360031,
+        0.0002717765746638179,
+        0.0003949581296183169,
+        0.00046524411300197244,
+        0.0006804566364735365,
+        0.0010526947444304824,
+        0.033888570964336395
+      ]
+    },
+    {
+      "module": "layers.1.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.00020575450616888702,
+        0.0002617602003738284,
+        0.0003725665155798197,
+        0.0004788973892573267,
+        0.0005722333444282413,
+        0.0009289502631872892,
+        0.0012288899160921574,
+        0.05619397014379501
+      ]
+    },
+    {
+      "module": "layers.0.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.00020703236805275083,
+        0.0002729023399297148,
+        0.00039748032577335835,
+        0.00036147108767181635,
+        0.0005394582985900342,
+        0.0009555447031743824,
+        0.0010958355851471424,
+        0.06331662088632584
+      ]
+    },
+    {
+      "module": "layers.1.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.00022164563415572047,
+        0.0003492525720503181,
+        0.0004170444153714925,
+        0.00044198668911121786,
+        0.0006549451500177383,
+        0.0010753802489489317,
+        0.001110763056203723,
+        0.05652214214205742
+      ]
+    },
+    {
+      "module": "layers.0.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.0002393698232481256,
+        0.0003184284723829478,
+        0.0002919348480645567,
+        0.00031841490999795496,
+        0.000622907595243305,
+        0.0009068159852176905,
+        0.0007859257166273892,
+        0.06499239057302475
+      ]
+    },
+    {
+      "module": "layers.1.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.00029400564380921423,
+        0.0003597641480155289,
+        0.0003555653674993664,
+        0.000343380932463333,
+        0.0007477786275558174,
+        0.0009557323064655066,
+        0.0007712984224781394,
+        0.05839155241847038
+      ]
+    },
+    {
+      "module": "layers.0.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.00020262588805053383,
+        0.00020669616060331464,
+        0.00020798946206923574,
+        0.00019991958106402308,
+        0.000597510312218219,
+        0.0005812736926600337,
+        0.0004477399052120745,
+        0.06023787334561348
+      ]
+    },
+    {
+      "module": "layers.1.nlm",
+      "gradient_norm_by_slot_oldest_first": [
+        0.00028113878215663135,
+        0.0001989674346987158,
+        0.0002756098110694438,
+        0.00020268667140044272,
+        0.0006422670558094978,
+        0.0005572858499363065,
+        0.0004216903471387923,
+        0.060393206775188446
+      ]
+    }
+  ],
+  "temporal_parameter_gradient_norms": {
+    "layers.0.sync_computer.r": 0.01861398294568062,
+    "layers.0.nlm.w1": 0.00836954452097416,
+    "layers.0.nlm.w2": 0.04410814866423607,
+    "layers.0.memory.pre_history_init": 0.0014683223562315106,
+    "layers.0.memory.post_history_init": 0.0,
+    "layers.1.sync_computer.r": 0.029513875022530556,
+    "layers.1.nlm.w1": 0.00874010194092989,
+    "layers.1.nlm.w2": 0.045271024107933044,
+    "layers.1.memory.pre_history_init": 0.0013296529650688171,
+    "layers.1.memory.post_history_init": 0.0
+  },
+  "loss_measurements": {
+    "final_ce": {
+      "implementation_loss": 0.39933836460113525,
+      "masked_oracle_loss": 0.3993383049964905,
+      "implementation_over_masked_oracle": 1.0000001192092896,
+      "per_tick_masked_ce": [
+        2.38140606880188,
+        1.2570778131484985,
+        0.6485995054244995,
+        0.3993383049964905
+      ],
+      "matches_masked_oracle": true
+    },
+    "ramp_mono": {
+      "implementation_loss": 0.8984937071800232,
+      "masked_oracle_loss": 0.8984937071800232,
+      "implementation_over_masked_oracle": 1.0,
+      "per_tick_masked_ce": [
+        2.38140606880188,
+        1.2570778131484985,
+        0.6485995054244995,
+        0.3993383049964905
+      ],
+      "matches_masked_oracle": true
+    },
+    "dynamic_aggregate": {
+      "implementation_loss": 0.031152138486504555,
+      "masked_oracle_loss": 0.8411077260971069,
+      "implementation_over_masked_oracle": 0.03703703731298447,
+      "per_tick_masked_ce": [
+        2.38140606880188,
+        1.2570778131484985,
+        0.6485995054244995,
+        0.3993383049964905
+      ],
+      "matches_masked_oracle": false
+    }
+  },
+  "history_slots": {
+    "length": 8,
+    "ticks": 4,
+    "new_observations_at_nlm_by_tick": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "new_observations_at_attention_by_tick": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "source_sha256": {
+    "scripts/audit_ctm_temporal.py": "cc2a047759e48983096cf684492b3439f34e0eea4dbdf0220ffe6d5dcc9ba5cf",
+    "ctm_transformer/model.py": "5e01d80f3a9dcd06244292bf6b6fe7321699802d1e358bcfba5fb672f080c3fb",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/experiment.py": "b23a6dad72360a12c1761acf8122972d31b40f005472556e6c25cac7836971aa"
+  }
+}

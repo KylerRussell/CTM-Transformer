@@ -1,0 +1,87 @@
+{
+  "final": {
+    "identity": {
+      "name": "ctm_temporal_final_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_temporal_final_v1.json",
+      "sha256": "b55c86abd70cdc178c90111629f842266e61eaf0dbb70481c3faef3491d49381"
+    },
+    "changed_fields": {},
+    "objective": {
+      "type": "final_ce",
+      "direct_ce_tick_weights_at_max_depth": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "validation_metric": "final-tick supervised-token CE, independent of training objective"
+    }
+  },
+  "uniform": {
+    "identity": {
+      "name": "ctm_temporal_uniform_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_temporal_uniform_v1.json",
+      "sha256": "3bbf163d8168d554de426d60989a7c0adc1b9bbf606fbbf4f3f22b8c772d194f"
+    },
+    "changed_fields": {
+      "temporal_loss_type": [
+        "final_ce",
+        "ramp_mono"
+      ],
+      "tick_ramp_start": [
+        0.5,
+        1.0
+      ],
+      "tick_ramp_end": [
+        1.5,
+        1.0
+      ]
+    },
+    "objective": {
+      "type": "ramp_mono",
+      "direct_ce_tick_weights_at_max_depth": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "validation_metric": "final-tick supervised-token CE, independent of training objective"
+    }
+  },
+  "late": {
+    "identity": {
+      "name": "ctm_temporal_late_v1",
+      "schema_version": 1,
+      "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/ctm_temporal_late_v1.json",
+      "sha256": "1d5f33ac4654d8450692e9c3f80363d7553be9b420b140e0740a0906508fe9df"
+    },
+    "changed_fields": {
+      "temporal_loss_type": [
+        "final_ce",
+        "ramp_mono"
+      ],
+      "tick_ramp_start": [
+        0.5,
+        0.0
+      ],
+      "tick_ramp_end": [
+        1.5,
+        1.0
+      ]
+    },
+    "objective": {
+      "type": "ramp_mono",
+      "direct_ce_tick_weights_at_max_depth": [
+        0.0,
+        0.1666666716337204,
+        0.3333333134651184,
+        0.5
+      ],
+      "validation_metric": "final-tick supervised-token CE, independent of training objective"
+    }
+  },
+  "ordered_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+  "query_manifest_sha256": "265b2f4a1e5b7e08e4bd9173d9e4ac620a5385a55b11c67c38537094a37c92bd"
+}

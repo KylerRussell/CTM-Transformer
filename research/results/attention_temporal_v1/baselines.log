@@ -1,0 +1,2 @@
+transformer: 3072 queries, 2 attention events, exact logits preserved
+recurrent_depth: 3072 queries, 10 attention events, exact logits preserved

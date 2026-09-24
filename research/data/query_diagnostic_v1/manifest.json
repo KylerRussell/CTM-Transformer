@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "name": "pointer_all_queries_v1",
+  "mode": "all_queries",
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "source_manifest_sha256": "33c447110c0bd9fb942120f1d4cfc7fa686dfa93321af4ac88717d8d3a1a76b3",
+  "generator_sha256": "39c1bc73f482e62c6bcdba9636a41fd72badc94923574217ca759ea840f90b23",
+  "role": "paired queries on training and checkpoint-selection validation maps; no independent test set",
+  "pairing_unit": "map id; eight queries per map are correlated",
+  "tasks": {
+    "pointer": {
+      "train_probe_start_A": {
+        "path": "pointer/train_probe_start_A.jsonl",
+        "examples": 256,
+        "sha256": "2136de73fa351d034c352e9f69e733e77fa9ed2240931064f402405a8da89e09",
+        "source_split": "train_probe",
+        "start": "A"
+      },
+      "train_probe_start_B": {
+        "path": "pointer/train_probe_start_B.jsonl",
+        "examples": 256,
+        "sha256": "7054155d493d26b0ca358197043a389b1e4f8ebea3bc24f80ffdb194c06a9936",
+        "source_split": "train_probe",
+        "start": "B"
+      },
+      "train_probe_start_C": {
+        "path": "pointer/train_probe_start_C.jsonl",
+        "examples": 256,
+        "sha256": "8911515776b1bcf3704de35ae572417945c9ad1622c53c1f32b3a82939e504c7",
+        "source_split": "train_probe",
+        "start": "C"
+      },
+      "train_probe_start_D": {
+        "path": "pointer/train_probe_start_D.jsonl",
+        "examples": 256,
+        "sha256": "c4822f4b2463f9fe5fbc7b85a008d83cce29b268e4e8fb25aac02f074c7e50bb",
+        "source_split": "train_probe",
+        "start": "D"
+      },
+      "train_probe_start_E": {
+        "path": "pointer/train_probe_start_E.jsonl",
+        "examples": 256,
+        "sha256": "922664d848d29ff35c9eb62a8451a0758d31bffd8e898941720fa26e5e1abf4d",
+        "source_split": "train_probe",
+        "start": "E"
+      },
+      "train_probe_start_F": {
+        "path": "pointer/train_probe_start_F.jsonl",
+        "examples": 256,
+        "sha256": "2ea6973659868f688c7a5e1ccfefae70475b6d420abb61b6f251ebb85e3eb1b0",
+        "source_split": "train_probe",
+        "start": "F"
+      },
+      "train_probe_start_G": {
+        "path": "pointer/train_probe_start_G.jsonl",
+        "examples": 256,
+        "sha256": "7e7dd4fe88cc25be3ce85e17b53d81a7c3ea60ed2f53c8ec6f298e714f086a58",
+        "source_split": "train_probe",
+        "start": "G"
+      },
+      "train_probe_start_H": {
+        "path": "pointer/train_probe_start_H.jsonl",
+        "examples": 256,
+        "sha256": "44d108f148e35abcde277191a11c1ff3bd26754dcd8efb00f13e9ff26252629a",
+        "source_split": "train_probe",
+        "start": "H"
+      },
+      "validation_start_A": {
+        "path": "pointer/validation_start_A.jsonl",
+        "examples": 128,
+        "sha256": "febdb90ab0dd8853c50c31474ae87424bf48bfe77679d718444bf9bf64693547",
+        "source_split": "validation",
+        "start": "A"
+      },
+      "validation_start_B": {
+        "path": "pointer/validation_start_B.jsonl",
+        "examples": 128,
+        "sha256": "11865eec5e330f929a7aa80db724eb5870bdc261d80d8b3c934979e953b4c696",
+        "source_split": "validation",
+        "start": "B"
+      },
+      "validation_start_C": {
+        "path": "pointer/validation_start_C.jsonl",
+        "examples": 128,
+        "sha256": "2f138572cb06f8e5785bc9d4f4e0667dd72438bbedac39dc34585eeff88626a4",
+        "source_split": "validation",
+        "start": "C"
+      },
+      "validation_start_D": {
+        "path": "pointer/validation_start_D.jsonl",
+        "examples": 128,
+        "sha256": "f31f35f86b61502a494b0de51c506902c732c872be64c8970fa53570ad3dd07e",
+        "source_split": "validation",
+        "start": "D"
+      },
+      "validation_start_E": {
+        "path": "pointer/validation_start_E.jsonl",
+        "examples": 128,
+        "sha256": "59369b41dabc785439c02fec402daa819225f4a4fd1cee7d7d163bf02e0faa6c",
+        "source_split": "validation",
+        "start": "E"
+      },
+      "validation_start_F": {
+        "path": "pointer/validation_start_F.jsonl",
+        "examples": 128,
+        "sha256": "dfb8c948671df64b0f1482be3262373cc8a4de2bde3edb7622866515c524b79d",
+        "source_split": "validation",
+        "start": "F"
+      },
+      "validation_start_G": {
+        "path": "pointer/validation_start_G.jsonl",
+        "examples": 128,
+        "sha256": "578ef83d924aeb89692b05afb482409bb362234870b8771867510549ef4ea1f2",
+        "source_split": "validation",
+        "start": "G"
+      },
+      "validation_start_H": {
+        "path": "pointer/validation_start_H.jsonl",
+        "examples": 128,
+        "sha256": "efaba9fe129d30f8233301050ffc92e59afa8fbb26b9b5a8b439a6df1cb8aa2d",
+        "source_split": "validation",
+        "start": "H"
+      }
+    }
+  }
+}
