@@ -68,3 +68,17 @@ All-keys permutation MQAR format (12 queries per map). Validation accuracy in th
 - **The Transformer's escape depends on learning rate and schedule.** At 0.0003, hop-1 accuracy jumps from chance to 100% between 7,000 and 8,000 updates. At 0.001 with a 20,000-update schedule it never escapes, although the same rate escaped at about 2,400 updates with a 5,000-update schedule (r7b, r8b), where the rate had already decayed. Hop 2 rises only to 33–35%, just above the exclusion level (about 29%); hops 3–4 stay at it. A fixed 2-layer model is not expected to compose hops, so this is consistent with its depth limit.
 - **Neither recurrent family learns one-hop retrieval within 10,000 updates at its recipe learning rate.** RDT's recipe rate (0.001) is the rate at which the Transformer also failed under a long schedule, so a 0.0003 probe is the direct test.
 - **CTM has a structural reason to find this task hard.** In the reference configuration (`use_attention_residuals: false`), CTM's cross-attention keys and values are the *static* token-plus-position embeddings, computed once (`CTMTransformer`: "Embed input text → K, V for cross-attention (computed once)"). No contextual information passes between positions, so CTM cannot form an induction head that marks each value with its preceding key. Retrieving the value after key A requires locating A on one tick and then querying the next position from A's positional embedding on a later tick: learned positional arithmetic across ticks. This is possible for a recurrent model, but harder to discover. It is an architectural property of this implementation that any CTM retrieval result must report, not a tuning detail.
+
+## Round 10: RDT learning rate and CTM variants — 2026-09-25
+
+All-keys permutation MQAR format, one hop, 10,000 updates.
+
+| Probe | Family / variant, LR | Answer acc. | Position 1 | All correct | Parameters | Minutes |
+|---|---|---:|---:|---:|---:|---:|
+| **r10b** | **RDT, 0.0003** | **100%** | **100%** | **100%** | 525,984 | 59 |
+| r10a | CTM `contextual_kv`, 0.0003 | 29.7% | 7.4% | 0% | 708,935 | 116 |
+| r10c | CTM `attn_res`, 0.0003 | 28.1% | 10.5% | 0% | 545,223 | 137 |
+
+- **RDT learns one-hop retrieval at LR 0.0003.** It escapes between 6,000 and 6,500 updates and holds 100% from 8,000 on. At 0.001 (r9b) it never escapes, the same learning-rate dependence the Transformer shows.
+- **Attention residuals do not enable retrieval,** as expected from their construction (mixing across layers, per position).
+- **Contextual keys and values alone do not enable CTM retrieval within 10,000 updates.** A second structural limitation explains why: every position's latent starts from the same learned vector (`z = self.z0.expand(B, S, -1)`), and queries come from the latent's synchronization. Nothing gives a position's latent direct access to its own token. The output head concatenates the token embedding only at readout. A position must therefore discover its own token through attention before it can ask "what follows my token?", using a query that is initially identical at every position. RDT avoids this by re-injecting the embedded input at every recurrence step (input injection). The next candidate variant therefore adds token-conditioned latent initialization, or per-tick input injection, to contextual K/V.
