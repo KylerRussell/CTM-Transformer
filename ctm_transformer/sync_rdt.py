@@ -25,18 +25,24 @@ from torch.nn import functional as F
 from ctm_transformer.baselines import BaselineTransformer
 from ctm_transformer.model import NeuronLevelModels, SynchronizationComputer
 
-CELLS={'rdt':(False,False),'history':(True,False),'sync':(False,True),'sync_rdt':(True,True)}
+CELLS={'rdt':(False,False),'history':(True,False),'sync':(False,True),'sync_rdt':(True,True),
+       # Control: history cell whose gate starts at -4 (σ≈0.018), so it starts close to RDT.
+       'history_lowgate':(True,False)}
+GATE_INIT={'history_lowgate':-4.0}
 HISTORY_LEN,NLM_HIDDEN,SYNC_PAIRS=8,16,128
 
 
 class SyncRDT(BaselineTransformer):
-    def __init__(self,config,history=False,sync=False):
+    def __init__(self,config,history=False,sync=False,gate_init=None):
         super().__init__(config)  # Baseline parameters are created first, so their initialization is unchanged.
         if config.model_family!='recurrent_depth':raise ValueError('Sync-RDT extends the recurrent-depth baseline')
         if config.gradient_checkpointing:raise ValueError('Sync-RDT does not implement gradient checkpointing')
         self.use_history,self.use_sync=history,sync
         d=config.d_model
         self.nlm=NeuronLevelModels(d,HISTORY_LEN,NLM_HIDDEN,nlm_groups=d,dropout=0.0) if history else None
+        if gate_init is not None:
+            if not history:raise ValueError('gate_init requires the history mechanism')
+            with torch.no_grad():self.nlm.gate.fill_(gate_init)
         if sync:
             self.sync=SynchronizationComputer(d,HISTORY_LEN,method='sparse_decay',sync_sparse_pairs=SYNC_PAIRS)
             self.sync_query=nn.ModuleList(nn.Linear(SYNC_PAIRS,d,bias=False) for _ in self.core)
@@ -108,6 +114,6 @@ def cell_factory(cell):
     """Model factory for runner v3; the cell name is recorded in each run manifest."""
     if cell not in CELLS:raise ValueError(f'Unknown Sync-RDT cell {cell}')
     history,sync=CELLS[cell]
-    def factory(config):return SyncRDT(config,history=history,sync=sync)
+    def factory(config):return SyncRDT(config,history=history,sync=sync,gate_init=GATE_INIT.get(cell))
     factory.__qualname__=f'cell_factory[{cell}]'
     return factory

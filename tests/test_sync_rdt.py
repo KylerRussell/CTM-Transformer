@@ -107,3 +107,15 @@ def test_active_cells_start_from_the_baseline_scaffold():
     full = SyncRDT(c, history=True, sync=True).state_dict()
     assert all(torch.equal(base[k], full[k]) for k in base)
     assert all(torch.count_nonzero(full[k]) == 0 for k in full if k.startswith('sync_query'))
+
+
+def test_lowgate_history_control_differs_only_in_gate_initialization():
+    c = config()
+    torch.manual_seed(5)
+    standard = cell_factory('history')(c).state_dict()
+    torch.manual_seed(5)
+    lowgate = cell_factory('history_lowgate')(c).state_dict()
+    assert standard.keys() == lowgate.keys()
+    assert all(torch.equal(standard[k], lowgate[k]) for k in standard if k != 'nlm.gate')
+    assert torch.all(standard['nlm.gate'] == 0) and torch.all(lowgate['nlm.gate'] == -4.0)
+    assert abs(torch.sigmoid(lowgate['nlm.gate'][0]).item() - 0.01799) < 1e-4
