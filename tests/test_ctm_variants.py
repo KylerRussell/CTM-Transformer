@@ -30,7 +30,7 @@ def test_variant_configs_are_explicit():
 
 
 @needs_cuda
-@pytest.mark.parametrize('variant', ['reference', 'attn_res', 'contextual_kv'])
+@pytest.mark.parametrize('variant', ['reference', 'attn_res', 'contextual_kv', 'contextual_kv_token_init', 'contextual_kv_injection'])
 def test_variants_are_causal_train_and_round_trip(variant):
     torch.manual_seed(0)
     c = variant_config(config(), variant)
@@ -46,8 +46,10 @@ def test_variants_are_causal_train_and_round_trip(variant):
     targets = torch.full_like(x, -100)
     targets[:, -3:] = x[:, -3:]
     model(x, targets=targets, max_thought_steps=4)['loss'].backward()
-    if variant == 'contextual_kv':
+    if variant.startswith('contextual_kv'):
         assert isinstance(model, ContextualKVCTM)
+    if variant.startswith('contextual_kv_'):
+        assert model.input_injection.weight.grad is not None and model.input_injection.weight.grad.abs().sum() > 0
         assert all(p.grad is not None and p.grad.abs().sum() > 0 for p in model.contextual_prelude.parameters())
     if variant == 'attn_res':
         assert len(model.attn_res_queries) > 0 and model.attn_res_queries[0].grad is not None
@@ -63,3 +65,12 @@ def test_contextual_kv_parameter_overhead_is_the_prelude():
     assert sum(p.numel() for p in contextual.parameters()) == reference + prelude
     # Attention (4 d^2) plus SwiGLU with hidden 2d (6 d^2) plus two norms.
     assert prelude == 10 * c.d_model ** 2 + 2 * c.d_model
+
+
+def test_injection_variants_add_only_the_projection_and_differ_in_timing():
+    c = config()
+    base = sum(p.numel() for p in build_variant(c, 'contextual_kv').parameters())
+    for variant, every in (('contextual_kv_token_init', False), ('contextual_kv_injection', True)):
+        model = build_variant(c, variant)
+        assert model.every_tick is every
+        assert sum(p.numel() for p in model.parameters()) == base + c.d_model * c.d_latent
