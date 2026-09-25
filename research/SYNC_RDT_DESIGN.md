@@ -41,7 +41,7 @@ s_t = σ(g) ⊙ tanh(NLM(P_t)) + (1 − σ(g)) ⊙ p_t
 
 - **Off:** s_t = p_t (RDT).
 - **Parameters:** d·(8·16 + 16 + 16 + 1 + 1) = 96 · 162 = 15,552.
-- **Initialization:** the NLM output starts near zero (CTM's small second-layer init), so the cell starts close to RDT.
+- **Initialization:** CTM's own, unchanged. The NLM output starts near zero (small second-layer init) and the gate starts at σ(0) = 0.5, so the state starts near 0.5·p_t: a rescaled RDT update, not RDT exactly.
 
 **B. Synchronization-derived queries.** This is CTM's `SynchronizationComputer` (sparse_decay), reused unchanged: 128 random channel pairs (i, j), each with a learned decay rate r:
 
