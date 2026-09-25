@@ -100,3 +100,20 @@ The remaining differences from RDT are:
 - the temporal objective and readout differ.
 
 Further repair of the standalone CTM becomes open-ended. Adding CTM's mechanisms to the RDT scaffold, which learns retrieval, is the cleaner test of those mechanisms. See the [Sync-RDT design](../../SYNC_RDT_DESIGN.md). In that design, synchronization *adds* to content queries rather than replacing them, for the reason these probes suggest.
+
+## Round 12: Sync-RDT four-cell capability check — 2026-09-25
+
+All-keys permutation MQAR, one hop, LR 0.0003, 10,000 updates, seed 41. All four cells use **identical data** (`--data-name r12_mqar_q12_h1`). Cells are defined in `ctm_transformer/sync_rdt.py`. The `rdt` cell reproduces the baseline exactly (`tests/test_sync_rdt.py`).
+
+| Cell | Escape (validation > 40%) | Answer acc. | Position 1 | All correct | Parameters | Minutes |
+|---|---:|---:|---:|---:|---:|---:|
+| RDT (control) | ~5,500 | 91.4% | 85.5% | 32.0% | 525,984 | 56 |
+| + history (temporal MLP) | ~8,500 | 56.8% | 37.9% | 0% | 541,536 | 67 |
+| **+ sync (queries)** | **~4,500** | **99.5%** | **99.6%** | **93.8%** | 550,688 | 70 |
+| Sync-RDT (both) | ~5,500 | 88.2% | 77.3% | 18.0% | 566,240 | 78 |
+
+- **All four cells learn retrieval,** unlike every standalone CTM variant, so the scaffold works for the mechanism study.
+- In this single seed, the **sync cell** escapes earliest and climbs fastest (77% by 4,500 updates, 99.5% at 10,000). The **history cell** escapes latest and is still rising at 10,000. The **full cell** lands between RDT and sync.
+- **Caveats.** This is one seed. Escape timing varies strongly with seed and data: plain RDT escaped at about 6,500 updates in r10b, on other data, and at about 5,000 here. Parameter counts differ by up to 7.7%. The history cell's slower start is consistent with CTM's gate initialization (σ(0) = 0.5), which halves the state update at initialization; this is a hypothesis that has not been tested.
+
+These are development observations. They motivate a seed-replicated, frozen sample-efficiency comparison. They are not evidence of a mechanism effect.
