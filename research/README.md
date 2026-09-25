@@ -251,11 +251,17 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 - [x] Declare and run the [Transformer calibration](POINTER_CALIBRATION.md): peak LR 0.0003/0.001/0.003 × 30,000 updates × one-hop/multi-hop × seeds 41/43, every map presented once. Also fix the operating-point rules for the later CTM–RDT comparison.
 - [x] Apply the declared rules: D1 selects LR 0.0003; **D2 not met** (mean hop-1 accuracy 29.69%). Only one of 12 runs escaped the plateau, at about 12,000 updates, reaching 51.95%. Multi-hop training stayed at chance. See [results](results/pointer_calibration_v1/RESULTS.md) and [interpretation](results/pointer_calibration_v1/INTERPRETATION.md).
 
+## Dense-format Transformer calibration
+
+- [x] Implement the dense `pointer_dense` format (6 queries per map) and runner v3; verify exact v3–v2 parity for all three families.
+- [x] Freeze and run the [dense calibration](DENSE_POINTER.md) (12 Transformer runs, 10,000 updates, every map presented once).
+- [x] Apply the declared rules: **D2 not met** (mean hop-1 answer accuracy 12.73%). Every run learned only permutation exclusion: it finished at the 12.28% exclusion ceiling, with training CE 1.846–1.849 against 1.816 for an exclusion guesser and 0% exact match. See [results](results/dense_calibration_v1/RESULTS.md) and [interpretation](results/dense_calibration_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Implement a dense-supervision pointer format as a new, versioned dataset/trainer path: each sequence asks for the successor (or k-hop successor) of every node, giving about 12 supervised answers per map. Verify the existing path is byte-identical. Then rerun the Transformer calibration on this format before calibrating CTM and RDT under the fixed operating-point rules.
+1. Run short exploratory Transformer probes, reported as development only, to find a learnable retrieval variant: interleaved query/answer pairs, distinct target symbols, and more depth. Freeze the next calibration only for a variant that clearly learns, then calibrate CTM and RDT under the fixed operating-point rules.
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

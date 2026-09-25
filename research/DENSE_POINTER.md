@@ -80,3 +80,7 @@ The freeze audit checks, for every run:
 - that each map was presented once.
 
 A genuine worker error is recorded and not retried; nothing is adaptively added or replaced.
+
+## Outcome — 2026-09-25, 01:26 UTC
+
+All 12 runs completed and passed the freeze audit. D1 selected peak LR 0.0003. **D2 was not met** (mean hop-1 answer accuracy 12.73%). Every run finished at the declared permutation-exclusion ceiling (12.28%), with position accuracy rising from chance to about 18% at position 6. Training CE was 1.846–1.849 in every run, close to an exclusion guesser's 1.816. No run learned retrieval; exact match was 0%. Stages D1b and D2 do not proceed on this format. See [results](results/dense_calibration_v1/RESULTS.md) and [interpretation](results/dense_calibration_v1/INTERPRETATION.md).

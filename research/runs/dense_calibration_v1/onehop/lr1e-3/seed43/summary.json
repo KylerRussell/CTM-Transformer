@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "model_family": "transformer",
+  "steps": 10000,
+  "runner": "shared_research_v3",
+  "tokens_seen": 24640000,
+  "supervised_tokens_seen": 2240000,
+  "examples_seen": 320000,
+  "padded_token_positions": 24640000,
+  "token_block_applications": 49280000,
+  "depth_counts": {
+    "1": 10000
+  },
+  "training_seconds": 400.99617234207835,
+  "training_tokens_per_second": 61446.9705685378,
+  "wall_seconds": 407.4013340559977,
+  "best_validation_loss": 1.845130409513201,
+  "best_readout_policy": "final",
+  "best_validation_loss_by_readout": {
+    "final": 1.845130409513201
+  },
+  "peak_allocated_bytes": 77188608,
+  "parameters": {
+    "total": 548660,
+    "token_embedding": 9940,
+    "position_embedding": 17920,
+    "readout": 9940,
+    "other": 510860
+  },
+  "config_identity": {
+    "name": "transformer_onehop_lr1e-3_seed43_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/dense_calibration_v1/transformer_onehop_lr1e-3_seed43.json",
+    "sha256": "6bf3a45701330fccdbddb01a42940111bf533f4168b30e252f5762c5745e2b37"
+  }
+}

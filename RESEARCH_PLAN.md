@@ -206,3 +206,10 @@ The [calibration protocol](research/POINTER_CALIBRATION.md) fixed the rules for 
 - disjoint confirmation seeds.
 
 The next step is a dense-supervision pointer format that asks for every node's successor in each sequence. See [interpretation](research/results/pointer_calibration_v1/INTERPRETATION.md).
+
+
+## Dense-format calibration completed — 2026-09-25
+
+The [dense-supervision calibration](research/results/dense_calibration_v1/RESULTS.md) asked for 6 successors per map and trained 12 Transformer runs for 10,000 updates each on runner v3. Runner v3 reproduces the frozen trainer exactly. Every run learned only permutation exclusion: accuracy stayed at the 12.28% exclusion ceiling, and exact match was 0%. The format gate was not met.
+
+Supervision volume was not the limit. The likelier obstacle is the lookup circuit: keys and values share one alphabet, and in the block format queries must be aligned with answers by position. Exploratory Transformer probes will look for a learnable variant before the next calibration is frozen. See [interpretation](research/results/dense_calibration_v1/INTERPRETATION.md).
