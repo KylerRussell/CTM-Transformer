@@ -30,7 +30,7 @@ RUNNER='shared_research_v3'
 SOURCES=['ctm_transformer/dense_experiment.py','ctm_transformer/experiment.py','ctm_transformer/research.py',
          'ctm_transformer/baselines.py','ctm_transformer/model.py','ctm_transformer/config.py',
          'ctm_transformer/algorithmic.py','ctm_transformer/dense_pointer.py','ctm_transformer/confidence_readout.py',
-         'ctm_transformer/readout_selection.py','ctm_transformer/algorithmic_eval.py']
+         'ctm_transformer/readout_selection.py','ctm_transformer/algorithmic_eval.py','ctm_transformer/ctm_variants.py']
 
 
 def batch_to(dataset,index,device):
@@ -39,8 +39,11 @@ def batch_to(dataset,index,device):
 
 
 def train_dense_experiment(config,identity,seed,train_blocks,eval_blocks,evaluator,selection_readouts,
-                           save_validation_checkpoints=True,data_policy=''):
-    """Train with explicit dataset objects; `evaluator(model, data, config, device, policies)` scores validation."""
+                           save_validation_checkpoints=True,data_policy='',model_factory=None):
+    """Train with explicit dataset objects; `evaluator(model, data, config, device, policies)` scores validation.
+
+    `model_factory(config)` builds a named architecture variant; the default is `build_model`.
+    """
     validate_training_config(config)
     if not selection_readouts or len(set(selection_readouts))!=len(selection_readouts) or any(p not in ('final','confidence') for p in selection_readouts):
         raise ValueError('Selection readouts must be unique final/confidence policies')
@@ -63,7 +66,7 @@ def train_dense_experiment(config,identity,seed,train_blocks,eval_blocks,evaluat
     out=Path(config.checkpoint_dir)
     if out.exists() and any(out.iterdir()):raise ValueError('Use an empty checkpoint_dir; resuming is not implemented')
     out.mkdir(parents=True,exist_ok=True)
-    model=build_model(config).to(device).train()
+    model=(model_factory or build_model)(config).to(device).train()
     optimizer=torch.optim.AdamW(model.parameters(),lr=config.learning_rate,
         betas=(config.adam_beta1,config.adam_beta2),weight_decay=config.weight_decay)
     snapshot=json.dumps(tokenizer.snapshot(),sort_keys=True)
@@ -77,6 +80,7 @@ def train_dense_experiment(config,identity,seed,train_blocks,eval_blocks,evaluat
         'tokenizer_sha256':hashlib.sha256(snapshot.encode()).hexdigest(),
         'code_sha256':{p:file_hash(p) for p in SOURCES},
         'evaluator':f'{evaluator.__module__}.{evaluator.__qualname__}',
+        'model_factory':None if model_factory is None else f'{model_factory.__module__}.{model_factory.__qualname__}',
         'packages':{p:version(p) for p in ('torch','numpy','tiktoken')},
         'gpu':torch.cuda.get_device_name(device),'cuda_runtime':torch.version.cuda,
         'precision':'FP32 parameters and AdamW moments; BF16 autocast' if config.dtype=='bfloat16' else 'FP32',
