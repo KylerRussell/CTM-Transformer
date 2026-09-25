@@ -1,0 +1,191 @@
+{
+  "role": "exploratory development probe; not a paper endpoint",
+  "name": "r5a_mqar_random_h1_lr1e-3",
+  "format": "mqar_random",
+  "family": "transformer",
+  "train_hops": [
+    1
+  ],
+  "batch_size": 32,
+  "train_nodes": [
+    12,
+    12
+  ],
+  "eval_hops": [
+    1
+  ],
+  "learning_rate": 0.001,
+  "steps": 10000,
+  "seed": 41,
+  "model_overrides": {},
+  "parameters": {
+    "total": 548660,
+    "token_embedding": 9940,
+    "position_embedding": 17920,
+    "readout": 9940,
+    "other": 510860
+  },
+  "training_minutes": 6.965996974132698,
+  "final_train_ce_last100": 1.6753691530227661,
+  "validation_curve": [
+    {
+      "step": 500,
+      "answer_accuracy": 0.19791666666666666,
+      "by_hop": {
+        "1": 0.19791666666666666
+      }
+    },
+    {
+      "step": 1000,
+      "answer_accuracy": 0.2326388888888889,
+      "by_hop": {
+        "1": 0.2326388888888889
+      }
+    },
+    {
+      "step": 1500,
+      "answer_accuracy": 0.1996527777777778,
+      "by_hop": {
+        "1": 0.1996527777777778
+      }
+    },
+    {
+      "step": 2000,
+      "answer_accuracy": 0.19270833333333334,
+      "by_hop": {
+        "1": 0.19270833333333334
+      }
+    },
+    {
+      "step": 2500,
+      "answer_accuracy": 0.2170138888888889,
+      "by_hop": {
+        "1": 0.2170138888888889
+      }
+    },
+    {
+      "step": 3000,
+      "answer_accuracy": 0.22743055555555555,
+      "by_hop": {
+        "1": 0.22743055555555555
+      }
+    },
+    {
+      "step": 3500,
+      "answer_accuracy": 0.2170138888888889,
+      "by_hop": {
+        "1": 0.2170138888888889
+      }
+    },
+    {
+      "step": 4000,
+      "answer_accuracy": 0.19791666666666666,
+      "by_hop": {
+        "1": 0.19791666666666666
+      }
+    },
+    {
+      "step": 4500,
+      "answer_accuracy": 0.21875,
+      "by_hop": {
+        "1": 0.21875
+      }
+    },
+    {
+      "step": 5000,
+      "answer_accuracy": 0.2152777777777778,
+      "by_hop": {
+        "1": 0.2152777777777778
+      }
+    },
+    {
+      "step": 5500,
+      "answer_accuracy": 0.21006944444444445,
+      "by_hop": {
+        "1": 0.21006944444444445
+      }
+    },
+    {
+      "step": 6000,
+      "answer_accuracy": 0.19270833333333334,
+      "by_hop": {
+        "1": 0.19270833333333334
+      }
+    },
+    {
+      "step": 6500,
+      "answer_accuracy": 0.21875,
+      "by_hop": {
+        "1": 0.21875
+      }
+    },
+    {
+      "step": 7000,
+      "answer_accuracy": 0.2204861111111111,
+      "by_hop": {
+        "1": 0.2204861111111111
+      }
+    },
+    {
+      "step": 7500,
+      "answer_accuracy": 0.21875,
+      "by_hop": {
+        "1": 0.21875
+      }
+    },
+    {
+      "step": 8000,
+      "answer_accuracy": 0.21875,
+      "by_hop": {
+        "1": 0.21875
+      }
+    },
+    {
+      "step": 8500,
+      "answer_accuracy": 0.20833333333333334,
+      "by_hop": {
+        "1": 0.20833333333333334
+      }
+    },
+    {
+      "step": 9000,
+      "answer_accuracy": 0.2170138888888889,
+      "by_hop": {
+        "1": 0.2170138888888889
+      }
+    },
+    {
+      "step": 9500,
+      "answer_accuracy": 0.2222222222222222,
+      "by_hop": {
+        "1": 0.2222222222222222
+      }
+    },
+    {
+      "step": 10000,
+      "answer_accuracy": 0.2204861111111111,
+      "by_hop": {
+        "1": 0.2204861111111111
+      }
+    }
+  ],
+  "eval_answer_accuracy": 0.24869791666666666,
+  "eval_sequence_exact": 0.0,
+  "eval_by_hop": {
+    "1": 0.24869791666666666
+  },
+  "eval_by_position": [
+    0.24609375,
+    0.19140625,
+    0.3046875,
+    0.26171875,
+    0.26953125,
+    0.21875
+  ],
+  "source_sha256": {
+    "ctm_transformer/pointer_probes.py": "aef258939b93c27c89901b0603b0cf95a807704be9abadcdadadff27831d6b74",
+    "scripts/run_pointer_probe.py": "c36c013f07161887eb7dcc0af2f949e7fcd6b98f8aaeee96bb217541ffe12750",
+    "ctm_transformer/dense_experiment.py": "db6abc1d51ba27b12fdb3e221a89103519663f60cd5dfeff3ee824b9528ad0fe",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169"
+  }
+}

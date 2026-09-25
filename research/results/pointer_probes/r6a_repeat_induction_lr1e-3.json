@@ -1,0 +1,204 @@
+{
+  "role": "exploratory development probe; not a paper endpoint",
+  "name": "r6a_repeat_induction_lr1e-3",
+  "format": "repeat",
+  "family": "transformer",
+  "train_hops": [
+    1
+  ],
+  "batch_size": 32,
+  "train_nodes": [
+    12,
+    12
+  ],
+  "eval_hops": [
+    1
+  ],
+  "learning_rate": 0.001,
+  "steps": 3000,
+  "seed": 41,
+  "model_overrides": {},
+  "parameters": {
+    "total": 548660,
+    "token_embedding": 9940,
+    "position_embedding": 17920,
+    "readout": 9940,
+    "other": 510860
+  },
+  "training_minutes": 2.113066797184365,
+  "final_train_ce_last100": 1.5541909781369155e-08,
+  "validation_curve": [
+    {
+      "step": 150,
+      "answer_accuracy": 0.7543859649122807,
+      "by_hop": {
+        "1": 0.7543859649122807
+      }
+    },
+    {
+      "step": 300,
+      "answer_accuracy": 0.9906798245614035,
+      "by_hop": {
+        "1": 0.9906798245614035
+      }
+    },
+    {
+      "step": 450,
+      "answer_accuracy": 0.9950657894736842,
+      "by_hop": {
+        "1": 0.9950657894736842
+      }
+    },
+    {
+      "step": 600,
+      "answer_accuracy": 0.9917763157894737,
+      "by_hop": {
+        "1": 0.9917763157894737
+      }
+    },
+    {
+      "step": 750,
+      "answer_accuracy": 0.9978070175438597,
+      "by_hop": {
+        "1": 0.9978070175438597
+      }
+    },
+    {
+      "step": 900,
+      "answer_accuracy": 0.9978070175438597,
+      "by_hop": {
+        "1": 0.9978070175438597
+      }
+    },
+    {
+      "step": 1050,
+      "answer_accuracy": 0.9945175438596491,
+      "by_hop": {
+        "1": 0.9945175438596491
+      }
+    },
+    {
+      "step": 1200,
+      "answer_accuracy": 0.9989035087719298,
+      "by_hop": {
+        "1": 0.9989035087719298
+      }
+    },
+    {
+      "step": 1350,
+      "answer_accuracy": 0.9978070175438597,
+      "by_hop": {
+        "1": 0.9978070175438597
+      }
+    },
+    {
+      "step": 1500,
+      "answer_accuracy": 0.9994517543859649,
+      "by_hop": {
+        "1": 0.9994517543859649
+      }
+    },
+    {
+      "step": 1650,
+      "answer_accuracy": 0.9994517543859649,
+      "by_hop": {
+        "1": 0.9994517543859649
+      }
+    },
+    {
+      "step": 1800,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 1950,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 2100,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 2250,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 2400,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 2550,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 2700,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 2850,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    },
+    {
+      "step": 3000,
+      "answer_accuracy": 1.0,
+      "by_hop": {
+        "1": 1.0
+      }
+    }
+  ],
+  "eval_answer_accuracy": 1.0,
+  "eval_sequence_exact": 1.0,
+  "eval_by_hop": {
+    "1": 1.0
+  },
+  "eval_by_position": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "source_sha256": {
+    "ctm_transformer/pointer_probes.py": "94c3dc1097546939f7b66b93d46cb4472a7856b4ef74559a60581977e638d39c",
+    "scripts/run_pointer_probe.py": "c36c013f07161887eb7dcc0af2f949e7fcd6b98f8aaeee96bb217541ffe12750",
+    "ctm_transformer/dense_experiment.py": "db6abc1d51ba27b12fdb3e221a89103519663f60cd5dfeff3ee824b9528ad0fe",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169"
+  }
+}

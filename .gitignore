@@ -14,3 +14,4 @@ research/data/pointer_calibration_v1/pointer/train_fresh_onehop.jsonl
 research/data/pointer_calibration_v1/pointer/train_fresh_multihop.jsonl
 research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl
 research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl
+research/runs/pointer_probes/*/data/train.jsonl
