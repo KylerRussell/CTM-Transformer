@@ -1,0 +1,4096 @@
+{
+  "complete": true,
+  "registry_sha256": "191cd2c6bead4c0923b682600067328589b205502f6a5220ac6598ff43b64255",
+  "dataset": "research/data/pointer_calibration_v1",
+  "dataset_manifest_sha256": "1451d0a91bbba7859026a4e78c0c27241d9d78f475f2466f903aa1a3b0e47c6e",
+  "models": [
+    {
+      "cell": "transformer_onehop_lr3e-4_seed41",
+      "model_family": "transformer",
+      "seed": 41,
+      "task": "onehop",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/onehop/lr3e-4/seed41/final.pt",
+      "checkpoint_sha256": "060aee725d3b9dd2dcb7ea5c3244d10ce68cc99285eb12ad544637208ec4a599",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 0.5523610365390778,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2338124910990398,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.03125,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2086522579193115,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.216915875673294,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.211653192838033,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2119378745555878,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2078557014465332,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.206033448378245,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.207186500231425,
+          "by_hop": {
+            "nodes=12,steps=1": 0.14583333333333334,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.205908179283142,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2065096000830333,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2179934978485107,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2692977289358776,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.3118051588535309,
+          "by_hop": {
+            "nodes=12,steps=1": 0.22916666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.3509872754414876,
+          "by_hop": {
+            "nodes=12,steps=1": 0.23958333333333334,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.4055234690507252,
+          "by_hop": {
+            "nodes=12,steps=1": 0.20833333333333334,
+            "nodes=12,steps=2": 0.03125,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.4172578851381938,
+          "by_hop": {
+            "nodes=12,steps=1": 0.23958333333333334,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.4933651586373646,
+          "by_hop": {
+            "nodes=12,steps=1": 0.3333333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.501676082611084,
+          "by_hop": {
+            "nodes=12,steps=1": 0.3020833333333333,
+            "nodes=12,steps=2": 0.03125,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.6258247097333272,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4375,
+            "nodes=12,steps=2": 0.03125,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.6626587708791096,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4479166666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.7008361717065175,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4375,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.020833333333333332
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.7906303306420643,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4479166666666667,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.03125
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.8345814446608226,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4375,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.8996038337548573,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4583333333333333,
+            "nodes=12,steps=2": 0.020833333333333332,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.9456631143887837,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4791666666666667,
+            "nodes=12,steps=2": 0.010416666666666666,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.942405531803767,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4375,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.9534764389197032,
+          "by_hop": {
+            "nodes=12,steps=1": 0.5,
+            "nodes=12,steps=2": 0.03125,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.95969557762146,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.9854824741681416,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4583333333333333,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 2.0075079003969827,
+          "by_hop": {
+            "nodes=12,steps=1": 0.4479166666666667,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.03125
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 9000,
+        "ce": 1.205908179283142
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1223.9107086469048,
+      "wall_seconds": 1245.8114191489985,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-4/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-4_seed41.summary.json",
+      "summary_sha256": "b4e06306e49d9c78062b594ae55b44ff8b03b7bbcad2fd03fd91529bb3d7ab84",
+      "metrics_sha256": "b72c674608ea460cc7178c37146cc0ece9cf993a7b56a17b0f0a6fdc47ed8a7f",
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-4_seed41.json",
+      "config_sha256": "ca621645d6223a370d01c9bbacdcaa79a8470602924499169cacf52404855eb8"
+    },
+    {
+      "cell": "transformer_onehop_lr1e-3_seed41",
+      "model_family": "transformer",
+      "seed": 41,
+      "task": "onehop",
+      "learning_rate": 0.001,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/onehop/lr1e-3/seed41/final.pt",
+      "checkpoint_sha256": "eec288ba9459dedf9bffe3b1a5ee870203cd04e079e76c9ae1ff658af7c3c1e4",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2174765503406524,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2531940937042236,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2526873747507732,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2418595055739086,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.2368153134981792,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.15625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2359879513581593,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2239237527052562,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2243365347385406,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.020833333333333332
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2208600441614788,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2258139352003734,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2200575669606526,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2213615477085114,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.010416666666666666,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2186382412910461,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.219411313533783,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.03125
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2161401708920796,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.219971477985382,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2195696234703064,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2168520390987396,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.214007318019867,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.2189517517884572,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2139381766319275,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.15625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2171740233898163,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.2115465998649597,
+          "by_hop": {
+            "nodes=12,steps=1": 0.14583333333333334,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2155479192733765,
+          "by_hop": {
+            "nodes=12,steps=1": 0.14583333333333334,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2148039142290752,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2145394186178844,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2172855734825134,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.215044915676117,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2154115835825603,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2131003936131795,
+          "by_hop": {
+            "nodes=12,steps=1": 0.14583333333333334,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.14583333333333334,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2145916024843852,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 22000,
+        "ce": 1.2115465998649597
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1241.7876672797029,
+      "wall_seconds": 1262.7595976060002,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr1e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr1e-3_seed41.summary.json",
+      "summary_sha256": "dd4c2be026b2ba2edeb40d9270681e7d521717641560139559f4a709f9bd33a4",
+      "metrics_sha256": "d653ed5ced61ac81359f281e81e58fd1127c89f132fcf601dfdcfad192daa642",
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr1e-3_seed41.json",
+      "config_sha256": "012f2c402c3711c33a5f5efb5860365b400daecb4ad9b850d1dc85ad61393223"
+    },
+    {
+      "cell": "transformer_onehop_lr3e-3_seed41",
+      "model_family": "transformer",
+      "seed": 41,
+      "task": "onehop",
+      "learning_rate": 0.003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/onehop/lr3e-3/seed41/final.pt",
+      "checkpoint_sha256": "6e2e82d015e950d173c222a6fa64052c93cf64ad668b03dd7af461b80d001f57",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2113177502155303,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.247456153233846,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2403949896494548,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2431776026884716,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.240929663181305,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2413613498210907,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2427625457445781,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2408264676729839,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.03125,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.238658716281255,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2352064152558644,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.233712504307429,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.15625
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.243620624144872,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2366594274838765,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2302568952242534,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2296553154786427,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2372839351495106,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2285051345825195,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2340911229451497,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.2269250651200612,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.229083279768626,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2258525590101879,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2241044739882152,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.222758839527766,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2245346109072368,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2260397970676422,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2204232613245647,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2241808374722798,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2162589331467946,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.15625,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2147717575232189,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.214240938425064,
+          "by_hop": {
+            "nodes=12,steps=1": 0.15625,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2131627301375072,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.0625
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 30000,
+        "ce": 1.2131627301375072
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1229.3275945497298,
+      "wall_seconds": 1250.9726532480017,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-3_seed41.summary.json",
+      "summary_sha256": "550b649569fa5b206df322e467744da193298de86418e4a7f46e7d85a5f29d46",
+      "metrics_sha256": "9a49481f5328354f9700e1d81e278fa81df93bac7c236c4221cc338eec781aba",
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-3_seed41.json",
+      "config_sha256": "83e7b34dfcbc8f5265637f4ef3180aa34cbde93ffe57e26eea10f117b54f292d"
+    },
+    {
+      "cell": "transformer_multihop_lr3e-4_seed41",
+      "model_family": "transformer",
+      "seed": 41,
+      "task": "multihop",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/multihop/lr3e-4/seed41/final.pt",
+      "checkpoint_sha256": "544b6384b66adfd7e024477d70049c356caf11d31c6af5f198f164d39e12dd1c",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2010948145389557,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2222376068433125,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2250288426876068,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2073576251665752,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.16666666666666666
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.2101797262827556,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2054723103841145,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2125636239846547,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2026798327763875,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2132332225640614,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.1992072661717732,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2075200180212657,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.207200328509013,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2073539992173512,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2081213692824047,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2011492451032002,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2063264846801758,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2004478375116985,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2037986516952515,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.2031011482079823,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.20283039410909,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2050501505533855,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2015005350112915,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.14583333333333334,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.202422062555949,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2016325096289318,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2021492421627045,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.1999825437863667,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.14583333333333334,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2036349574724834,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2009986639022827,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.201975256204605,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2006558378537495,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.20228910446167,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 9000,
+        "ce": 1.1992072661717732
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1250.1598924840146,
+      "wall_seconds": 1271.8013625860003,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-4/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-4_seed41.summary.json",
+      "summary_sha256": "98576431af6c2cacfb7fc5818686117e27594b30cc29933f55f0620e94671010",
+      "metrics_sha256": "6d5475b297a034d6c659c188d8a791dbef21a2da108c76435f07c9e9597906d5",
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-4_seed41.json",
+      "config_sha256": "81445a186304ca90ddddb9747d78a33a5684e0684bfcf351c9b7cff432c58133"
+    },
+    {
+      "cell": "transformer_multihop_lr1e-3_seed41",
+      "model_family": "transformer",
+      "seed": 41,
+      "task": "multihop",
+      "learning_rate": 0.001,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/multihop/lr1e-3/seed41/final.pt",
+      "checkpoint_sha256": "d44ae5077b73b00e0fd742d4a274b624c7640f6e0da0b3285081daacdac7e256",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2210563564300536,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2444402277469635,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2440470854441326,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.246277540922165,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.2431738475958507,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2459608713785808,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2294312119483948,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2279676496982574,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2301387290159862,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2239953577518463,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2235586543877919,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2162371178468068,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2173710862795513,
+          "by_hop": {
+            "nodes=12,steps=1": 0.17708333333333334,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2187068561712902,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2161044677098591,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2185506323973339,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2170552015304565,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.15625,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2178098658720653,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.2141601145267487,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.21482319633166,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2156381408373516,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.213108867406845,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.215064416329066,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.215052882830302,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.213214208682378,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2113981544971466,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.14583333333333334,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2138642569382985,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2127898335456848,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2120717267195384,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.211851308743159,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2128505806128185,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.0625
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 25000,
+        "ce": 1.2113981544971466
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1225.8424766554272,
+      "wall_seconds": 1248.4012127259994,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr1e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr1e-3_seed41.summary.json",
+      "summary_sha256": "91ca026b1c28b15f9a06af06647af2e86379a167d4bce7c74a7f875f4ca2ccc4",
+      "metrics_sha256": "76775b7e3d22b1ef772a6eda398360524ad610a91f38e6987d9ab6613955c0fd",
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr1e-3_seed41.json",
+      "config_sha256": "1c28571177ba2a31c61c035fbae6ed6c0f9de60d5e20b59db1b2cdc1fb2f4946"
+    },
+    {
+      "cell": "transformer_multihop_lr3e-3_seed41",
+      "model_family": "transformer",
+      "seed": 41,
+      "task": "multihop",
+      "learning_rate": 0.003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/multihop/lr3e-3/seed41/final.pt",
+      "checkpoint_sha256": "a8f5a99f2a4f6cd49d772503dc6782380d17f7f982116c86dcb91fd49448919f",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2131304931640625,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2438750565052032,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.24251655737559,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2443860868612926,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.245197186867396,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2360089023907979,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.14583333333333334,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2361516157786052,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.234853019316991,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2368460496266682,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2360461950302124,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2357631425062816,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2368337114651997,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2386398514111836,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2302132844924927,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.233029047648112,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2215892374515533,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2215947210788727,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2190901537736256,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.2183514634768169,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.215028961499532,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2165295879046123,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2145448625087738,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.2147993842760723,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2146535217761993,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2140222390492756,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2121451596419017,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2173202236493428,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.213642179965973,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2141607701778412,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.21113986770312,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.213747392098109,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.125
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 29000,
+        "ce": 1.21113986770312
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1253.0437424411284,
+      "wall_seconds": 1275.004835931999,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-3/seed41",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-3_seed41.summary.json",
+      "summary_sha256": "6c47b3f1819c9ae1dc686bcf1c8e28839086fcbbd44fe8c04818ceb1ae114091",
+      "metrics_sha256": "25d5835b3ab9604cfa189050b42e21ce4d93640a9f53b6c3ea6d0a4ce00c51ba",
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-3_seed41.json",
+      "config_sha256": "b4a452ece32d3c93cae9600d5f0905f980f2e6462b49d05c33ae56a5e9807f6e"
+    },
+    {
+      "cell": "transformer_onehop_lr3e-4_seed43",
+      "model_family": "transformer",
+      "seed": 43,
+      "task": "onehop",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/onehop/lr3e-4/seed43/final.pt",
+      "checkpoint_sha256": "7a67d3705873710d9fef81bb7d2562b3051afd634246ceb022d8a96d55ef506c",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2019976139068604,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2251390318075817,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2204717497030895,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2058930893739064,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.2008690237998962,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2106119692325592,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.211049646139145,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2113912403583527,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2041761378447216,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2029229899247487,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.204678624868393,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2067517439524333,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2059247295061748,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2039367159207661,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2036563952763875,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2032331426938374,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2044261693954468,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2068835993607838,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.2014394005139668,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.2053650418917339,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2046547929445903,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2023756901423137,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.2026531100273132,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2033480803171794,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2003396550814311,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.1989809274673462,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.16666666666666666
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2013908326625824,
+          "by_hop": {
+            "nodes=12,steps=1": 0.17708333333333334,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2016350328922272,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2007049719492595,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2008249759674072,
+          "by_hop": {
+            "nodes=12,steps=1": 0.14583333333333334,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.14583333333333334,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2025844156742096,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 25000,
+        "ce": 1.1989809274673462
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1232.0784614740369,
+      "wall_seconds": 1254.0019959640013,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-4/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-4_seed43.summary.json",
+      "summary_sha256": "dcc4502466a0496141b600280337ba35cd2697de416e5117d1774d6f6bbd7e3e",
+      "metrics_sha256": "f7610db92f92632a65db44043ebdb4202058e37bfedb4a4a13124bbcef9f2f07",
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-4_seed43.json",
+      "config_sha256": "e8f77c6e0db61e2bf0ccd348f87b926134533f89a55f6414ac180dabaf27e9fd"
+    },
+    {
+      "cell": "transformer_onehop_lr1e-3_seed43",
+      "model_family": "transformer",
+      "seed": 43,
+      "task": "onehop",
+      "learning_rate": 0.001,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/onehop/lr1e-3/seed43/final.pt",
+      "checkpoint_sha256": "3c4c7173be53ffe1c43d7fe0b070fe21baaacd26d15fa848e63c1db14a37a50c",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.222124674320221,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.248312125603358,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2460145552953084,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2463609675566356,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.2372433245182037,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2450923422972362,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2375900248686473,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2392787138621013,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2366779645284016,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.16666666666666666
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2344696323076885,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2303410172462463,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2305869460105896,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2296518484751384,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.231837620337804,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2309564650058746,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2270727852980297,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.15625
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2285542686780293,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2301874955495198,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.2292120059331257,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.229554424683253,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2279658019542694,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2280900577704112,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.2279622753461201,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2293469210465748,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.010416666666666666,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2285156349341075,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2266597251097362,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.228083650271098,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2272303104400635,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.15625
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2276817957560222,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2239394783973694,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.226138283809026,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 29000,
+        "ce": 1.2239394783973694
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1235.5049050622656,
+      "wall_seconds": 1257.6901859149984,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr1e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr1e-3_seed43.summary.json",
+      "summary_sha256": "daad7d9dab41757ebddeb9afe4ec39f886083a8f863af9e3fb1822dfa791f064",
+      "metrics_sha256": "f5ef46ce159b67436814a9ec67a90bdded796cae567d7e177e5ab5e13101fba5",
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr1e-3_seed43.json",
+      "config_sha256": "4578eb29044093c135ec0da9b444a6da2674026959549d5c24aab3fdb20e1b85"
+    },
+    {
+      "cell": "transformer_onehop_lr3e-3_seed43",
+      "model_family": "transformer",
+      "seed": 43,
+      "task": "onehop",
+      "learning_rate": 0.003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/onehop/lr3e-3/seed43/final.pt",
+      "checkpoint_sha256": "a28ff066e3698b614ad05bc7b997ee03a278c850e46b2b8478a08e918429a9e5",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2425144135951995,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2456648449103038,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2448536952336628,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2439232269922893,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.020833333333333332,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.242481122414271,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.24345197280248,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2432603637377422,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2449503242969513,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.020833333333333332,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2419823010762532,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2418002088864644,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.242994983990987,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.241897463798523,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2425061265627544,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2431790431340535,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.03125
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2426018317540486,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2414950927098591,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2412641048431396,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2416318655014038,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.241676966349284,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.2432364622751872,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2417953411738079,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2431846062342327,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.242221713066101,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.243100921312968,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2427000602086384,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2418498595555623,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2426167726516724,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2423021793365479,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.242180307706197,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2418831586837769,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2421600023905437,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 16000,
+        "ce": 1.2412641048431396
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1246.3343699612633,
+      "wall_seconds": 1269.2707905640018,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/onehop/lr3e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-3_seed43.summary.json",
+      "summary_sha256": "0de4c8ed45bcbfe8f0e33004b43d2c3d287b6ffb64093a91705912f898f691b6",
+      "metrics_sha256": "e2d3b63fe1646917b70088a0e5b1472ed2027d23ad6d2b752910b156ca8f70b7",
+      "config": "research/configs/pointer_calibration_v1/transformer_onehop_lr3e-3_seed43.json",
+      "config_sha256": "6252620f9a5d8fd11ed087eacc7f12a6dedbe4d7ad97c39b62fdf62d9b8ba77a"
+    },
+    {
+      "cell": "transformer_multihop_lr3e-4_seed43",
+      "model_family": "transformer",
+      "seed": 43,
+      "task": "multihop",
+      "learning_rate": 0.0003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/multihop/lr3e-4/seed43/final.pt",
+      "checkpoint_sha256": "6438aa0c70600a3cc90bf6ac943d42020616d5f68ac62f6977066e2f425cbf41",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2020688581466674,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2161992986996968,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2085698147614796,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2171520392100017,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.2076803743839264,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.14583333333333334,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2091130912303925,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2077977458635967,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.14583333333333334,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2090102235476177,
+          "by_hop": {
+            "nodes=12,steps=1": 0.14583333333333334,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2062038679917653,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.204086313645045,
+          "by_hop": {
+            "nodes=12,steps=1": 0.14583333333333334,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.041666666666666664
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2088068624337514,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2089954316616058,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.203813910484314,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.1998681128025055,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.1996488471825917,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2089402278264363,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.206630249818166,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.202088584502538,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.199349542458852,
+          "by_hop": {
+            "nodes=12,steps=1": 0.11458333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.2000825802485149,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.16666666666666666,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.15625
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2052986323833466,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2003582219282787,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.200277308622996,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2041492660840352,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.201892763376236,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.201988200346629,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.20096551378568,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2008273204167683,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.202552894751231,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2000150084495544,
+          "by_hop": {
+            "nodes=12,steps=1": 0.15625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.16666666666666666
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2020240028699238,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 18000,
+        "ce": 1.199349542458852
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1229.017279694086,
+      "wall_seconds": 1250.989476122999,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-4/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-4_seed43.summary.json",
+      "summary_sha256": "ab65edea2593789d6d52eb0829f7c72d1e4c989f04bb99fb2c837ba8397bf40c",
+      "metrics_sha256": "cded813e05222aeae16a54a6adf696b0271dcb12d398b9d73cd52b2f550e9f75",
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-4_seed43.json",
+      "config_sha256": "6b368c9e6e7e987fdeb91e125e4ce39e1cf11649766d5bcdaf13652f0fd5c295"
+    },
+    {
+      "cell": "transformer_multihop_lr1e-3_seed43",
+      "model_family": "transformer",
+      "seed": 43,
+      "task": "multihop",
+      "learning_rate": 0.001,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/multihop/lr1e-3/seed43/final.pt",
+      "checkpoint_sha256": "e940aadb3d77664d1d8b84dbf92f4cf3bae1b0cb29b07e221ec29e9266f69487",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2128393828868866,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2433611353238423,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.242439220348994,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.2456471522649128,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.243659367163976,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.2420065502325695,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.2359860042730968,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2391461829344432,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.010416666666666666,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2291119694709778,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.2256498436133068,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2303126553694408,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.03125,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.22299458583196,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2218813796838124,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2186284065246582,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.217658946911494,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2260356346766155,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2204080323378246,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.217818260192871,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.212074836095174,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.212096740802129,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2145714660485585,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.2117461760838826,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.2103909353415172,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.16666666666666666,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.21719096104304,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2133863667647045,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2140716711680095,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.2124041020870209,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2116453150908153,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2125614980856578,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2105911175409954,
+          "by_hop": {
+            "nodes=12,steps=1": 0.13541666666666666,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.13541666666666666
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2136071026325226,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.0625,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 22000,
+        "ce": 1.2103909353415172
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1252.469393336658,
+      "wall_seconds": 1273.8419060849992,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr1e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr1e-3_seed43.summary.json",
+      "summary_sha256": "554fdb2d4ff07f263590e3096c64283df7068e0ec82d76d5398290944dc2295d",
+      "metrics_sha256": "36af1b79fa4f181b46f7901f4ec491075922019776c0dd134170fd84c01d41c5",
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr1e-3_seed43.json",
+      "config_sha256": "46d33b05dc63ce800bbb30a55de2494fd812f27a07176ea2ccde02483acaf3c3"
+    },
+    {
+      "cell": "transformer_multihop_lr3e-3_seed43",
+      "model_family": "transformer",
+      "seed": 43,
+      "task": "multihop",
+      "learning_rate": 0.003,
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "step": 30000,
+      "checkpoint": "research/runs/pointer_calibration_v1/multihop/lr3e-3/seed43/final.pt",
+      "checkpoint_sha256": "1a1f2d499545d5bf52ca2f82d9404d4b4b8f1552e3d941d68eb9ba30a492261a",
+      "unique_training_maps": 960000,
+      "final_training_loss_last100": 1.2273273742198945,
+      "validation_curve": [
+        {
+          "step": 1000,
+          "ce": 1.2431320647398632,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 2000,
+          "ce": 1.2426021893819172,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.020833333333333332,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 3000,
+          "ce": 1.244200696547826,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.020833333333333332,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 4000,
+          "ce": 1.2433004975318909,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 5000,
+          "ce": 1.240681032339732,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 6000,
+          "ce": 1.239944040775299,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.15625,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 7000,
+          "ce": 1.2399747172991435,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 8000,
+          "ce": 1.2403635283311207,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.13541666666666666,
+            "nodes=12,steps=3": 0.13541666666666666,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 9000,
+          "ce": 1.23456675807635,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 10000,
+          "ce": 1.2395013372103374,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.07291666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 11000,
+          "ce": 1.2327660918235779,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.052083333333333336,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.0625
+          }
+        },
+        {
+          "step": 12000,
+          "ce": 1.2272894084453583,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.041666666666666664,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 13000,
+          "ce": 1.2242867946624756,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.15625,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 14000,
+          "ce": 1.2220003406206768,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.09375,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 15000,
+          "ce": 1.2267320950826008,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 16000,
+          "ce": 1.2257676025231679,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.08333333333333333,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 17000,
+          "ce": 1.2279633979002635,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        },
+        {
+          "step": 18000,
+          "ce": 1.2251378397146861,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.03125,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 19000,
+          "ce": 1.225817084312439,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.14583333333333334
+          }
+        },
+        {
+          "step": 20000,
+          "ce": 1.2252553403377533,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 21000,
+          "ce": 1.222553163766861,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.020833333333333332,
+            "nodes=12,steps=3": 0.10416666666666667,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 22000,
+          "ce": 1.2244527538617451,
+          "by_hop": {
+            "nodes=12,steps=1": 0.10416666666666667,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.052083333333333336
+          }
+        },
+        {
+          "step": 23000,
+          "ce": 1.2278610567251842,
+          "by_hop": {
+            "nodes=12,steps=1": 0.09375,
+            "nodes=12,steps=2": 0.07291666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 24000,
+          "ce": 1.2228934367497761,
+          "by_hop": {
+            "nodes=12,steps=1": 0.041666666666666664,
+            "nodes=12,steps=2": 0.11458333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.08333333333333333
+          }
+        },
+        {
+          "step": 25000,
+          "ce": 1.2245286703109741,
+          "by_hop": {
+            "nodes=12,steps=1": 0.08333333333333333,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.11458333333333333,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 26000,
+          "ce": 1.223801463842392,
+          "by_hop": {
+            "nodes=12,steps=1": 0.07291666666666667,
+            "nodes=12,steps=2": 0.10416666666666667,
+            "nodes=12,steps=3": 0.125,
+            "nodes=12,steps=4": 0.11458333333333333
+          }
+        },
+        {
+          "step": 27000,
+          "ce": 1.2254909972349803,
+          "by_hop": {
+            "nodes=12,steps=1": 0.0625,
+            "nodes=12,steps=2": 0.125,
+            "nodes=12,steps=3": 0.0625,
+            "nodes=12,steps=4": 0.10416666666666667
+          }
+        },
+        {
+          "step": 28000,
+          "ce": 1.2259263197580974,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.052083333333333336,
+            "nodes=12,steps=4": 0.09375
+          }
+        },
+        {
+          "step": 29000,
+          "ce": 1.2241927087306976,
+          "by_hop": {
+            "nodes=12,steps=1": 0.125,
+            "nodes=12,steps=2": 0.08333333333333333,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.125
+          }
+        },
+        {
+          "step": 30000,
+          "ce": 1.2249869803587596,
+          "by_hop": {
+            "nodes=12,steps=1": 0.052083333333333336,
+            "nodes=12,steps=2": 0.041666666666666664,
+            "nodes=12,steps=3": 0.09375,
+            "nodes=12,steps=4": 0.07291666666666667
+          }
+        }
+      ],
+      "secondary_best_validation": {
+        "step": 14000,
+        "ce": 1.2220003406206768
+      },
+      "parameters": {
+        "total": 548660,
+        "token_embedding": 9940,
+        "position_embedding": 17920,
+        "readout": 9940,
+        "other": 510860
+      },
+      "training_seconds": 1247.5625800002672,
+      "wall_seconds": 1268.6352960769982,
+      "peak_allocated_bytes": 73391616,
+      "run_directory": "research/runs/pointer_calibration_v1/multihop/lr3e-3/seed43",
+      "summary_path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-3_seed43.summary.json",
+      "summary_sha256": "d35ec69f3bd5ff0123c590447df6d497174435266cb39ea1eac41e24279440ef",
+      "metrics_sha256": "a0203652065b6cb13662b54c2b16aef7896153ff947e679ce1660c6209600393",
+      "config": "research/configs/pointer_calibration_v1/transformer_multihop_lr3e-3_seed43.json",
+      "config_sha256": "ae2eceb18a86fa44e46a9cfdaf2871c12c46d72f0e45e643b7e8a0efc357f271"
+    }
+  ],
+  "source_sha256": {
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "scripts/train_research.py": "f9b9d305ddb64e409b96b281e20968d534be1674e9b2b68d2a350a20caeb9949",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "scripts/freeze_pointer_calibration.py": "188161c195eff67693fecca148f5238604bcf7c2ce1bc81ffefc0375ad6bcecb",
+    "scripts/evaluate_pointer_calibration.py": "3ad88e0552790c34eb4fd2ce5c876ea9598e7966661ea3ad87b9486390ac78cb",
+    "scripts/eval_harness.py": "36e7fdc362701bc7eb573405f790321a7605248e7d71c3e648bc01205d2600e6",
+    "ctm_transformer/pointer_calibration.py": "cd1245b3e51f9187cee284b0cc52f7c03fabbca42c63b55a9c3a67c41daa6e24"
+  },
+  "source_archive_sha256": "ad56d038b7e24b9540391cd5dd775226019c84abfd12bd052cf26dd4ebab666f",
+  "primary_checkpoint_rule": "fixed update 30000",
+  "all_primary_checkpoints_frozen_before_evaluation": true,
+  "no_test_evaluation": true
+}

@@ -1,0 +1,56 @@
+2026-09-24T19:19:59.377496+00:00 preflight 
+.....                                                                    [100%]
+=============================== warnings summary ===============================
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+5 passed, 3 deselected, 14 warnings in 12.74s
+..                                                                       [100%]
+2 passed, 3 deselected in 12.84s
+2026-09-24T19:20:32.339571+00:00 training {"workers": {"cuda:0": {"pid": 24658, "cells": ["transformer_onehop_lr3e-4_seed41", "transformer_onehop_lr1e-3_seed41", "transformer_onehop_lr3e-3_seed41", "transformer_multihop_lr3e-4_seed41", "transformer_multihop_lr1e-3_seed41", "transformer_multihop_lr3e-3_seed41"]}, "cuda:1": {"pid": 24659, "cells": ["transformer_onehop_lr3e-4_seed43", "transformer_onehop_lr1e-3_seed43", "transformer_onehop_lr3e-3_seed43", "transformer_multihop_lr3e-4_seed43", "transformer_multihop_lr1e-3_seed43", "transformer_multihop_lr3e-3_seed43"]}}}
+2026-09-24T21:41:37.062609+00:00 training_complete 
+2026-09-24T21:41:37.063576+00:00 freezing_final_checkpoints 
+Audited 360,000 updates and froze 12 final checkpoints before evaluation.
+2026-09-24T21:41:53.660503+00:00 evaluation {"worker_pids": [32544, 32545]}
+2026-09-24T21:42:10.711190+00:00 summarizing 
+# Transformer pointer calibration (Stage 1a)
+
+All 12 declared Transformer runs completed and were evaluated from checkpoints frozen at exactly 30,000 updates. Every training map was presented once. Chance is 1/11 = 9.09%. Development splits only; no test set exists for this study.
+
+## One-hop learnability by learning rate
+
+Hop-1 exact accuracy on 1,024 held-out `eval_id` maps (256 per hop), final checkpoint.
+
+| Peak LR | seed 41 | seed 43 | Mean | First validation update with hop-1 ≥ 90% | Final train CE |
+|---:|---:|---:|---:|---:|---:|
+| 0.0003 | 51.95% | 7.42% | 29.69% | never, never | 0.8772 |
+| 0.001 | 9.38% | 8.98% | 9.18% | never, never | 1.2198 |
+| 0.003 | 7.42% | 7.81% | 7.62% | never, never | 1.2269 |
+
+**D1 selected LR: 0.0003.** **D2: format NOT learnable** (mean 29.69%, lowest seed 7.42%; gate ≥ 90% mean, ≥ 80% each).
+
+2026-09-24T21:42:17.015826+00:00 complete_pending_documentation_and_archive 

@@ -1,0 +1,261 @@
+{
+  "complete": true,
+  "no_test_evaluation": true,
+  "chance_accuracy": 0.09090909090909091,
+  "decision_rules": {
+    "D1": "Select the learning rate with the highest mean final hop-1 accuracy on one-hop training (ties: lower LR).",
+    "D2": "The format is learnable if the selected LR has mean >= 90% and every seed >= 80%; otherwise stop this format."
+  },
+  "onehop_hop1_accuracy": {
+    "0.0003": [
+      0.51953125,
+      0.07421875
+    ],
+    "0.001": [
+      0.09375,
+      0.08984375
+    ],
+    "0.003": [
+      0.07421875,
+      0.078125
+    ]
+  },
+  "retrieval_gate": {
+    "selected_learning_rate": 0.0003,
+    "mean": 0.296875,
+    "min": 0.07421875,
+    "passed": false
+  },
+  "first_validation_step_hop1_at_least_90pct": {
+    "0.0003": [
+      null,
+      null
+    ],
+    "0.001": [
+      null,
+      null
+    ],
+    "0.003": [
+      null,
+      null
+    ]
+  },
+  "multihop_accuracy_by_hop": {
+    "0.0003": {
+      "1": [
+        0.078125,
+        0.08984375
+      ],
+      "2": [
+        0.078125,
+        0.1015625
+      ],
+      "3": [
+        0.09375,
+        0.125
+      ],
+      "4": [
+        0.0703125,
+        0.0625
+      ],
+      "5": [
+        0.05859375,
+        0.0703125
+      ],
+      "6": [
+        0.08203125,
+        0.09765625
+      ],
+      "7": [
+        0.0859375,
+        0.06640625
+      ],
+      "8": [
+        0.10546875,
+        0.0859375
+      ]
+    },
+    "0.001": {
+      "1": [
+        0.08984375,
+        0.08984375
+      ],
+      "2": [
+        0.0625,
+        0.0859375
+      ],
+      "3": [
+        0.078125,
+        0.1015625
+      ],
+      "4": [
+        0.08203125,
+        0.09375
+      ],
+      "5": [
+        0.0625,
+        0.078125
+      ],
+      "6": [
+        0.09765625,
+        0.09375
+      ],
+      "7": [
+        0.08203125,
+        0.06640625
+      ],
+      "8": [
+        0.125,
+        0.08984375
+      ]
+    },
+    "0.003": {
+      "1": [
+        0.08203125,
+        0.08984375
+      ],
+      "2": [
+        0.06640625,
+        0.08984375
+      ],
+      "3": [
+        0.08203125,
+        0.1015625
+      ],
+      "4": [
+        0.078125,
+        0.09765625
+      ],
+      "5": [
+        0.078125,
+        0.1015625
+      ],
+      "6": [
+        0.0859375,
+        0.0859375
+      ],
+      "7": [
+        0.09375,
+        0.07421875
+      ],
+      "8": [
+        0.078125,
+        0.0859375
+      ]
+    }
+  },
+  "training": {
+    "transformer_onehop_lr3e-4_seed41": {
+      "final_training_loss_last100": 0.5523610365390778,
+      "training_seconds": 1223.9107086469048,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_onehop_lr1e-3_seed41": {
+      "final_training_loss_last100": 1.2174765503406524,
+      "training_seconds": 1241.7876672797029,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_onehop_lr3e-3_seed41": {
+      "final_training_loss_last100": 1.2113177502155303,
+      "training_seconds": 1229.3275945497298,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_multihop_lr3e-4_seed41": {
+      "final_training_loss_last100": 1.2010948145389557,
+      "training_seconds": 1250.1598924840146,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_multihop_lr1e-3_seed41": {
+      "final_training_loss_last100": 1.2210563564300536,
+      "training_seconds": 1225.8424766554272,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_multihop_lr3e-3_seed41": {
+      "final_training_loss_last100": 1.2131304931640625,
+      "training_seconds": 1253.0437424411284,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_onehop_lr3e-4_seed43": {
+      "final_training_loss_last100": 1.2019976139068604,
+      "training_seconds": 1232.0784614740369,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_onehop_lr1e-3_seed43": {
+      "final_training_loss_last100": 1.222124674320221,
+      "training_seconds": 1235.5049050622656,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_onehop_lr3e-3_seed43": {
+      "final_training_loss_last100": 1.2425144135951995,
+      "training_seconds": 1246.3343699612633,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_multihop_lr3e-4_seed43": {
+      "final_training_loss_last100": 1.2020688581466674,
+      "training_seconds": 1229.017279694086,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_multihop_lr1e-3_seed43": {
+      "final_training_loss_last100": 1.2128393828868866,
+      "training_seconds": 1252.469393336658,
+      "peak_allocated_bytes": 73391616
+    },
+    "transformer_multihop_lr3e-3_seed43": {
+      "final_training_loss_last100": 1.2273273742198945,
+      "training_seconds": 1247.5625800002672,
+      "peak_allocated_bytes": 73391616
+    }
+  },
+  "checkpoint_freeze_sha256": "4a9f83bb8274275f22c80d644f3ce1dae8e1c0834d8bdf1efa69b2d4083d1354",
+  "analysis_source_sha256": "72aaba4a390f81161221abe44bc60422477248879b371f30fd8d3cb10549bafc",
+  "evaluations": {
+    "transformer_onehop_lr3e-4_seed41": {
+      "path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-4_seed41.evaluation.json",
+      "sha256": "4867681dafd2965dfcf3174b1c69b367aa9ad9d16241bfa7b15df4c9d9f3f0a8"
+    },
+    "transformer_onehop_lr1e-3_seed41": {
+      "path": "research/results/pointer_calibration_v1/transformer_onehop_lr1e-3_seed41.evaluation.json",
+      "sha256": "1547dd66450ce9b3b1d61bfc9fd5e1a7de2ca5f232800aadf92f5c433631f696"
+    },
+    "transformer_onehop_lr3e-3_seed41": {
+      "path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-3_seed41.evaluation.json",
+      "sha256": "ffeb9f12214835491f4ac7649e920c32ddd6276d83062c98b2944ed3a65c1957"
+    },
+    "transformer_multihop_lr3e-4_seed41": {
+      "path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-4_seed41.evaluation.json",
+      "sha256": "495d89bdfff65ae9f011c4ddc0550a5b6fd526875e5e426a345639cb5476244e"
+    },
+    "transformer_multihop_lr1e-3_seed41": {
+      "path": "research/results/pointer_calibration_v1/transformer_multihop_lr1e-3_seed41.evaluation.json",
+      "sha256": "571d500f9a92219f3ca6bcfbd3a86c47fe715ec3fb6181b5ccb1f1ed6a96ac83"
+    },
+    "transformer_multihop_lr3e-3_seed41": {
+      "path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-3_seed41.evaluation.json",
+      "sha256": "32e3679e8a64ee0932ce47e43e994b3444bd515fdbe8f2be1f95ef3ad2302038"
+    },
+    "transformer_onehop_lr3e-4_seed43": {
+      "path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-4_seed43.evaluation.json",
+      "sha256": "a74bac5c73beccf38a6c9fe647d0a9bc461532eb13a6cd28e1e8b05de40e5560"
+    },
+    "transformer_onehop_lr1e-3_seed43": {
+      "path": "research/results/pointer_calibration_v1/transformer_onehop_lr1e-3_seed43.evaluation.json",
+      "sha256": "5993c0d4a6d6ae630527cbed6a8ce8347d6f2290ec52db310232dba3edd44e76"
+    },
+    "transformer_onehop_lr3e-3_seed43": {
+      "path": "research/results/pointer_calibration_v1/transformer_onehop_lr3e-3_seed43.evaluation.json",
+      "sha256": "eb9574061189c730f678e9c237470defbb444af9bc733e707ce446a3b8134e68"
+    },
+    "transformer_multihop_lr3e-4_seed43": {
+      "path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-4_seed43.evaluation.json",
+      "sha256": "c7c19155bb738254775474a81657c06b681030d747555ec41bba90111cc0a8fe"
+    },
+    "transformer_multihop_lr1e-3_seed43": {
+      "path": "research/results/pointer_calibration_v1/transformer_multihop_lr1e-3_seed43.evaluation.json",
+      "sha256": "3a6da0a8c266eaab7e6d0c16083f1caffd2ce9edf56df6f939854601227ec770"
+    },
+    "transformer_multihop_lr3e-3_seed43": {
+      "path": "research/results/pointer_calibration_v1/transformer_multihop_lr3e-3_seed43.evaluation.json",
+      "sha256": "f7fd7f6b47dea631aa1ea062f82f223f7e9cc6936e0037e50008e330c363642e"
+    }
+  }
+}

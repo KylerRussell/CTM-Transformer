@@ -1,0 +1,38 @@
+{
+  "complete": true,
+  "model_family": "transformer",
+  "steps": 30000,
+  "tokens_seen": 67200000,
+  "supervised_tokens_seen": 1920000,
+  "examples_seen": 960000,
+  "padded_token_positions": 67200000,
+  "token_block_applications": 134400000,
+  "depth_counts": {
+    "1": 30000
+  },
+  "training_seconds": 1247.5625800002672,
+  "training_tokens_per_second": 53865.03336769335,
+  "wall_seconds": 1268.6352960769982,
+  "best_validation_loss": 1.2220003406206768,
+  "best_readout_policy": "final",
+  "best_validation_loss_by_readout": {
+    "final": 1.2220003406206768
+  },
+  "peak_allocated_bytes": 73391616,
+  "parameters": {
+    "total": 548660,
+    "token_embedding": 9940,
+    "position_embedding": 17920,
+    "readout": 9940,
+    "other": 510860
+  },
+  "config_identity": {
+    "name": "transformer_multihop_lr3e-3_seed43_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/pointer_calibration_v1/transformer_multihop_lr3e-3_seed43.json",
+    "sha256": "ae2eceb18a86fa44e46a9cfdaf2871c12c46d72f0e45e643b7e8a0efc357f271"
+  },
+  "cell": "transformer_multihop_lr3e-3_seed43",
+  "seed": 43,
+  "worker_source_sha256": "f7d920208fea274f7a9dee885532133af58a9ec59331e81bfc71c2fb4e2bb537"
+}

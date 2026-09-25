@@ -244,11 +244,18 @@ See [protocol](RECURRENT_TEMPORAL_CONTROL.md), [results](results/recurrent_tempo
 
 See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_v1/RESULTS.md), and [interpretation](results/presentation_control_v1/INTERPRETATION.md). Chance is 1/7 (14.29%) because every map is a single 8-cycle. After shuffled training, ordered-evaluation accuracy is 19.79% (CTM), 19.53% (Transformer) and 16.41% (recurrent depth); shuffled-evaluation accuracy is 15.36–16.15%. Every family is therefore near chance. Shuffled training costs 51–80 points on ordered maps and gains only 1–4 points on shuffled maps. The shuffled-trained Transformer reaches about 0.002 training CE, which is memorization of the 2,048 fixed examples (about 47 passes each). CTM and recurrent depth remain underfit (about 0.69 CE). Ordered-trained models score at or below chance on shuffled presentation, consistent with a positional shortcut. This is development on existing maps with fixed per-map shuffles, not online augmentation. Completed tests remain closed. See the interruption section of the protocol for the relaunch procedure.
 
+## Fresh-map studies and Transformer calibration
+
+- [x] Declare the fresh-map 12-node study (repeated vs fresh vs multi-hop). Only 5,040 8-node single-cycle maps exist, so fresh 8-node data is impossible.
+- [x] Stop it after 4 of 27 cells: fresh-map Transformers sat exactly on the chance plateau (training CE 1.205 = ln 11 / 2), while the repeated-map Transformer memorized. See [stop record](ONLINE_POINTER.md#stopped-at-user-direction--2026-09-24-1900-utc).
+- [x] Declare and run the [Transformer calibration](POINTER_CALIBRATION.md): peak LR 0.0003/0.001/0.003 × 30,000 updates × one-hop/multi-hop × seeds 41/43, every map presented once. Also fix the operating-point rules for the later CTM–RDT comparison.
+- [x] Apply the declared rules: D1 selects LR 0.0003; **D2 not met** (mean hop-1 accuracy 29.69%). Only one of 12 runs escaped the plateau, at about 12,000 updates, reaching 51.95%. Multi-hop training stayed at chance. See [results](results/pointer_calibration_v1/RESULTS.md) and [interpretation](results/pointer_calibration_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Establish a retrieval task and data regime in which at least the ordinary Transformer reliably learns order-independent one-hop lookup. Candidates are online-generated maps (no repeated examples), several queries per sequence, and a larger node vocabulary. Declare it as a new development study. Revisit objective-specific optimizer/schedule tuning only in a separately declared study.
+1. Implement a dense-supervision pointer format as a new, versioned dataset/trainer path: each sequence asks for the successor (or k-hop successor) of every node, giving about 12 supervised answers per map. Verify the existing path is byte-identical. Then rerun the Transformer calibration on this format before calibrating CTM and RDT under the fixed operating-point rules.
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

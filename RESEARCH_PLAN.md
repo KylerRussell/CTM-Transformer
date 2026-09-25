@@ -192,3 +192,17 @@ The [paired shuffled-training control](research/results/presentation_control_v1/
 Chance is 1/7 because every map is a single 8-cycle. After shuffled training, all families are near chance on both presentations: ordered-map accuracy 16.41–19.79%, shuffled-map accuracy 15.36–16.15%. Relative to ordered training, this costs 51–80 points on ordered maps and gains only 1–4 points on shuffled maps. The shuffled-trained Transformer memorizes the 2,048 fixed examples (training CE about 0.002); CTM and recurrent depth remain underfit. Ordered-trained models are at or below chance on shuffled presentation, so the earlier ordered successes most likely use a positional shortcut rather than content-based retrieval.
 
 The one-hop retrieval gate is not passed by any family, and the current task cannot separate the architectures. The next development study should first establish a data regime in which an ordinary Transformer reliably learns order-independent lookup: online-generated maps, several queries per sequence and larger node sets. Architectures should then be compared on tasks whose difficulty requires serial computation, such as hop count at fixed input size with held-out deeper hops and inference-time tick extrapolation. See [interpretation](research/results/presentation_control_v1/INTERPRETATION.md).
+
+
+## Fresh-map calibration completed — 2026-09-24
+
+Fresh 8-node data is impossible: only 5,040 single-cycle maps exist, and the 2,048-map training set was about 40% of them. The studies therefore moved to 12-node maps (chance 1/11). A fresh-map study was [stopped](research/ONLINE_POINTER.md#stopped-at-user-direction--2026-09-24-1900-utc) after its Transformers sat exactly on the chance plateau for 3,000 updates.
+
+The follow-up [Transformer calibration](research/results/pointer_calibration_v1/RESULTS.md) trained 12 runs for 30,000 updates each on 960,000 unique maps. Only one run (LR 0.0003, seed 41) escaped the plateau, at about 12,000 updates, reaching 51.95% held-out hop-1 accuracy. Multi-hop training stayed at chance. Under the declared gate, single-query, answer-only retrieval is not learnable at a cost that permits a CTM–RDT comparison.
+
+The [calibration protocol](research/POINTER_CALIBRATION.md) fixed the rules for that comparison before any CTM or RDT calibration:
+- a difficulty band in which the mean of the two families lies between 20% and 80%;
+- non-saturating primary endpoints: accuracy by hop including unseen depths, accuracy against tick budget, and sample efficiency;
+- disjoint confirmation seeds.
+
+The next step is a dense-supervision pointer format that asks for every node's successor in each sequence. See [interpretation](research/results/pointer_calibration_v1/INTERPRETATION.md).

@@ -93,3 +93,7 @@ The freeze audit checks, for every run:
 ### Interpretation limits
 
 One query per map, answer-only supervision and the Transformer recipe's architecture are kept. Learning-rate transfer from the Transformer to CTM or RDT is not assumed. The sweep calibrates the task and budget, not the recurrent families' optimizers. Two seeds per cell suffice for calibration, but not for any architecture claim.
+
+## Outcome — 2026-09-24, 21:42 UTC
+
+All 12 runs completed and passed the freeze audit. D1 selected peak LR 0.0003. **D2 was not met** (mean hop-1 accuracy 29.69%, lowest seed 7.42%): only seed 41 at LR 0.0003 escaped the chance plateau, at about 12,000 updates, finishing at 51.95%. Multi-hop training stayed at chance everywhere. Stages 1b and 2 therefore do not proceed on this format; the declared next step is dense supervision. See [results](results/pointer_calibration_v1/RESULTS.md) and [interpretation](results/pointer_calibration_v1/INTERPRETATION.md).

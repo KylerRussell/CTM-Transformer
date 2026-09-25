@@ -1,0 +1,38 @@
+{
+  "complete": true,
+  "model_family": "transformer",
+  "steps": 30000,
+  "tokens_seen": 67200000,
+  "supervised_tokens_seen": 1920000,
+  "examples_seen": 960000,
+  "padded_token_positions": 67200000,
+  "token_block_applications": 134400000,
+  "depth_counts": {
+    "1": 30000
+  },
+  "training_seconds": 1235.5049050622656,
+  "training_tokens_per_second": 54390.71890743593,
+  "wall_seconds": 1257.6901859149984,
+  "best_validation_loss": 1.2239394783973694,
+  "best_readout_policy": "final",
+  "best_validation_loss_by_readout": {
+    "final": 1.2239394783973694
+  },
+  "peak_allocated_bytes": 73391616,
+  "parameters": {
+    "total": 548660,
+    "token_embedding": 9940,
+    "position_embedding": 17920,
+    "readout": 9940,
+    "other": 510860
+  },
+  "config_identity": {
+    "name": "transformer_onehop_lr1e-3_seed43_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/pointer_calibration_v1/transformer_onehop_lr1e-3_seed43.json",
+    "sha256": "4578eb29044093c135ec0da9b444a6da2674026959549d5c24aab3fdb20e1b85"
+  },
+  "cell": "transformer_onehop_lr1e-3_seed43",
+  "seed": 43,
+  "worker_source_sha256": "f7d920208fea274f7a9dee885532133af58a9ec59331e81bfc71c2fb4e2bb537"
+}
