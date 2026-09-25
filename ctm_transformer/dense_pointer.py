@@ -230,3 +230,12 @@ def evaluate_dense(model,dataset,config,device,policies=('final','confidence')):
         return result
     finally:
         model.train(was_training)
+
+
+DENSE_CALIBRATION_DESIGN={
+    'train_fresh_onehop':(320000,[1]),
+    'train_fresh_multihop':(80000,[1,2,3,4]),
+    'validation':(96,[1,2,3,4]),
+    'eval_id':(256,[1,2,3,4]),
+    'eval_depth':(256,[5,6,7,8]),
+}

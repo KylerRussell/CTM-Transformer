@@ -136,3 +136,9 @@ def test_dense_evaluator_matches_direct_scoring_and_trains(tmp_path):
     assert rows[-1]['loss'] < rows[0]['loss'] and 'by_hop' in rows[-1]['validation']
     run = json.loads((tmp_path / 'run/research_run.json').read_text())
     assert run['runner'] == 'shared_research_v3' and run['evaluator'] == 'ctm_transformer.dense_pointer.evaluate_dense'
+
+
+def test_dense_summary_first_reaching_threshold():
+    from scripts.summarize_dense_calibration import first_reaching
+    curve = [{'step': 500, 'by_hop': {'1': 0.4}}, {'step': 1000, 'by_hop': {'1': 0.93}}, {'step': 1500, 'by_hop': {'1': 0.88}}]
+    assert first_reaching(curve, 1) == 1000 and first_reaching(curve, 2) is None

@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "name": "dense_calibration_v1",
+  "runner": "shared_research_v3",
+  "task": "pointer_dense",
+  "entries": [
+    {
+      "cell": "transformer_onehop_lr3e-4_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.0003,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "a26da482f88a2196c7a93faabb65f25adc8323cda6af11d50e101827e182eec1",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_onehop_lr3e-4_seed41.json",
+      "config_sha256": "957109f6ad9bd9b3eb997ad76ab21e7c181651740b40e322e051e41a10cea35e",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/onehop/lr3e-4/seed41",
+      "summary_path": "research/results/dense_calibration_v1/transformer_onehop_lr3e-4_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr1e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.001,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "a26da482f88a2196c7a93faabb65f25adc8323cda6af11d50e101827e182eec1",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_onehop_lr1e-3_seed41.json",
+      "config_sha256": "8797b1de5df7fcec9912758e740208dde31883b8f6cb5711e9f94a29eb2883d6",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/onehop/lr1e-3/seed41",
+      "summary_path": "research/results/dense_calibration_v1/transformer_onehop_lr1e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr3e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.003,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "a26da482f88a2196c7a93faabb65f25adc8323cda6af11d50e101827e182eec1",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_onehop_lr3e-3_seed41.json",
+      "config_sha256": "520506f83db8a069608d76960a98e9b3d0d7dd8587ddf08a6c3b217d00530746",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/onehop/lr3e-3/seed41",
+      "summary_path": "research/results/dense_calibration_v1/transformer_onehop_lr3e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-4_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.0003,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "5617e248cf13fab09377976978658eb462c24633598c836540d4db0a8eaec653",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_multihop_lr3e-4_seed41.json",
+      "config_sha256": "78afa6f2ef573de8ec2a164410020304b7426c1f3ebdd23e61867cd2a4bf376e",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/multihop/lr3e-4/seed41",
+      "summary_path": "research/results/dense_calibration_v1/transformer_multihop_lr3e-4_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr1e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.001,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "5617e248cf13fab09377976978658eb462c24633598c836540d4db0a8eaec653",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_multihop_lr1e-3_seed41.json",
+      "config_sha256": "23a64e52c2fc9e5d6488585f908569e0ca9a33d00567e4a3a5af2d64a3d52b43",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/multihop/lr1e-3/seed41",
+      "summary_path": "research/results/dense_calibration_v1/transformer_multihop_lr1e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-3_seed41",
+      "seed": 41,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.003,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "5617e248cf13fab09377976978658eb462c24633598c836540d4db0a8eaec653",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_multihop_lr3e-3_seed41.json",
+      "config_sha256": "190e0da0ebdc9ddfa6f90c1052ab060acd7c4a2457e05c9db368cd98e5af9371",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/multihop/lr3e-3/seed41",
+      "summary_path": "research/results/dense_calibration_v1/transformer_multihop_lr3e-3_seed41.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr3e-4_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.0003,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "a26da482f88a2196c7a93faabb65f25adc8323cda6af11d50e101827e182eec1",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_onehop_lr3e-4_seed43.json",
+      "config_sha256": "92765d0392b2382052c99dc625215d7c7ddf4e7b07bf6cd4601ddc5adae13806",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/onehop/lr3e-4/seed43",
+      "summary_path": "research/results/dense_calibration_v1/transformer_onehop_lr3e-4_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr1e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.001,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "a26da482f88a2196c7a93faabb65f25adc8323cda6af11d50e101827e182eec1",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_onehop_lr1e-3_seed43.json",
+      "config_sha256": "6bf3a45701330fccdbddb01a42940111bf533f4168b30e252f5762c5745e2b37",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/onehop/lr1e-3/seed43",
+      "summary_path": "research/results/dense_calibration_v1/transformer_onehop_lr1e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_onehop_lr3e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "onehop",
+      "learning_rate": 0.003,
+      "train_split": "train_fresh_onehop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl",
+      "train_sha256": "a26da482f88a2196c7a93faabb65f25adc8323cda6af11d50e101827e182eec1",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_onehop_lr3e-3_seed43.json",
+      "config_sha256": "40e106234e6ba8c13cf75f7b6b38cd9e3208028c3705632a54e1b93736cd53c1",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/onehop/lr3e-3/seed43",
+      "summary_path": "research/results/dense_calibration_v1/transformer_onehop_lr3e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-4_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.0003,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "5617e248cf13fab09377976978658eb462c24633598c836540d4db0a8eaec653",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_multihop_lr3e-4_seed43.json",
+      "config_sha256": "774cb28bce552e5bd2eba10c4c888bddaf0ea21c1c6b6c7bf7d7ebf33f5058d8",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/multihop/lr3e-4/seed43",
+      "summary_path": "research/results/dense_calibration_v1/transformer_multihop_lr3e-4_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr1e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.001,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "5617e248cf13fab09377976978658eb462c24633598c836540d4db0a8eaec653",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_multihop_lr1e-3_seed43.json",
+      "config_sha256": "397d6492f265417170322e2a10ed78f3d087cc5e9a344a9f0d69bd4997c096fa",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/multihop/lr1e-3/seed43",
+      "summary_path": "research/results/dense_calibration_v1/transformer_multihop_lr1e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    {
+      "cell": "transformer_multihop_lr3e-3_seed43",
+      "seed": 43,
+      "model_family": "transformer",
+      "task": "multihop",
+      "learning_rate": 0.003,
+      "train_split": "train_fresh_multihop",
+      "train_path": "research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl",
+      "train_sha256": "5617e248cf13fab09377976978658eb462c24633598c836540d4db0a8eaec653",
+      "train_examples": 320000,
+      "config": "research/configs/dense_calibration_v1/transformer_multihop_lr3e-3_seed43.json",
+      "config_sha256": "2384a75ffeff6b7818848f69bfde1da4cc990566bc237cd2501a9da8f6b34a5d",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "run_directory": "research/runs/dense_calibration_v1/multihop/lr3e-3/seed43",
+      "summary_path": "research/results/dense_calibration_v1/transformer_multihop_lr3e-3_seed43.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ]
+    }
+  ],
+  "seeds": [
+    41,
+    43
+  ],
+  "role": "Stage D1a Transformer calibration on the dense pointer format; development only; no test set",
+  "dataset": "research/data/dense_calibration_v1",
+  "dataset_manifest_sha256": "9f9d80d3a58a32ab4a2d9cb482e1e681e11efad8534a185aafd0baa0ee774cfb",
+  "validation_split": "validation",
+  "validation_sha256": "067d0e260052894f740edd072a5ba4959ef34b9685f3e4598d2e2b0d2448dd60",
+  "evaluation_splits": [
+    "eval_id",
+    "eval_depth"
+  ],
+  "training_source_sha256": {
+    "ctm_transformer/dense_experiment.py": "db6abc1d51ba27b12fdb3e221a89103519663f60cd5dfeff3ee824b9528ad0fe",
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25"
+  },
+  "primary_checkpoint_step": 10000,
+  "warmup_steps": 100,
+  "eval_interval": 500,
+  "chance_accuracy": 0.09090909090909091,
+  "exclusion_guess_ceiling": 0.12275733525733525,
+  "gpu_queues": {
+    "cuda:0": [
+      "transformer_onehop_lr3e-4_seed41",
+      "transformer_onehop_lr1e-3_seed41",
+      "transformer_onehop_lr3e-3_seed41",
+      "transformer_multihop_lr3e-4_seed41",
+      "transformer_multihop_lr1e-3_seed41",
+      "transformer_multihop_lr3e-3_seed41"
+    ],
+    "cuda:1": [
+      "transformer_onehop_lr3e-4_seed43",
+      "transformer_onehop_lr1e-3_seed43",
+      "transformer_onehop_lr3e-3_seed43",
+      "transformer_multihop_lr3e-4_seed43",
+      "transformer_multihop_lr1e-3_seed43",
+      "transformer_multihop_lr3e-3_seed43"
+    ]
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "transformer_onehop_lr3e-4_seed41",
+      "transformer_onehop_lr1e-3_seed41",
+      "transformer_onehop_lr3e-3_seed41",
+      "transformer_multihop_lr3e-4_seed41",
+      "transformer_multihop_lr1e-3_seed41",
+      "transformer_multihop_lr3e-3_seed41"
+    ],
+    "cuda:1": [
+      "transformer_onehop_lr3e-4_seed43",
+      "transformer_onehop_lr1e-3_seed43",
+      "transformer_onehop_lr3e-3_seed43",
+      "transformer_multihop_lr3e-4_seed43",
+      "transformer_multihop_lr1e-3_seed43",
+      "transformer_multihop_lr3e-3_seed43"
+    ]
+  }
+}
