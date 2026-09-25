@@ -106,3 +106,34 @@ class ProbeDataset:
     def batch(self,index):
         lengths=self.lengths[index];width=int(lengths.max())
         return self.inputs[index,:width],self.targets[index,:width],int(lengths.sum())
+
+
+class InOrderDataset(ProbeDataset):
+    """Serves training batches in file order, ignoring the runner's shuffled indices.
+
+    Used only for curriculum probes: the file is written phase by phase, so the
+    k-th update sees the k-th block of batch_size records. Validation and
+    evaluation datasets are ordinary ProbeDatasets.
+    """
+    def __init__(self,path,tokenizer,seq_len):
+        super().__init__(path,tokenizer,seq_len);self.served=0
+
+    def batch(self,index):
+        count=len(index);start=self.served;self.served+=count
+        if self.served>len(self):raise ValueError('Curriculum data exhausted; the file must hold exactly steps x batch records')
+        return super().batch(torch.arange(start,start+count))
+
+
+def write_curriculum_split(path,fmt,phases,batch,seed,exclude=frozenset(),queries=QUERIES):
+    """phases: [(hops, updates)]; each phase is shuffled internally and written in phase order."""
+    rng=random.Random(seed);seen=set(exclude);lines=[]
+    for hops,updates in phases:
+        rows=[]
+        for i in range(updates*batch):
+            while True:
+                row=probe_record(rng,hops[i%len(hops)],fmt,NODES,queries)
+                if row['id'] not in seen:break
+            seen.add(row['id']);rows.append(row)
+        rng.shuffle(rows);lines+=[canonical_json(r)+'\n' for r in rows]
+    Path(path).write_text(''.join(lines))
+    return seen-set(exclude)

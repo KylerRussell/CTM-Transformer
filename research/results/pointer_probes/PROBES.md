@@ -51,3 +51,20 @@ Code: `ctm_transformer/pointer_probes.py` and `scripts/run_pointer_probe.py`. Ea
   - CTM and RDT on one-hop and on the hop curriculum, on the calibration seeds.
 
   A CTM probe costs about 0.68 s per update, or about 1 hour for 5,000 updates.
+
+## Round 9: recurrent families and hop curriculum — 2026-09-25
+
+All-keys permutation MQAR format (12 queries per map). Validation accuracy in the curves combines trained hops. Position-1 accuracy is on held-out maps.
+
+| Probe | Family, LR | Training | Hop 1 | Position 1 | Hops 2–6 | Minutes |
+|---|---|---|---:|---:|---|---:|
+| r9a | CTM, 0.0003 (recipe) | hop 1, 10k × 32 | 28.5% | 7.4% | — | 118 |
+| r9b | RDT, 0.001 (recipe) | hop 1, 10k × 32 | 29.2% | 12.1% | — | 60 |
+| r9c | Transformer, 0.001 | curriculum: 1 → 1–2 → 1–3 → 1–4, 5k updates each | 29.0% | 8.9% | 27.8–29.9% | 12 |
+| **r9d** | **Transformer, 0.0003** | same curriculum | **100%** | 24.2%* | 33.3%, 30.0%, 29.3%, 29.9%, 21.5% | 13 |
+
+\*Position 1 in r9d is averaged over hops 1–6; hop-1 answers are 100% correct at every position.
+
+- **The Transformer's escape depends on learning rate and schedule.** At 0.0003, hop-1 accuracy jumps from chance to 100% between 7,000 and 8,000 updates. At 0.001 with a 20,000-update schedule it never escapes, although the same rate escaped at about 2,400 updates with a 5,000-update schedule (r7b, r8b), where the rate had already decayed. Hop 2 rises only to 33–35%, just above the exclusion level (about 29%); hops 3–4 stay at it. A fixed 2-layer model is not expected to compose hops, so this is consistent with its depth limit.
+- **Neither recurrent family learns one-hop retrieval within 10,000 updates at its recipe learning rate.** RDT's recipe rate (0.001) is the rate at which the Transformer also failed under a long schedule, so a 0.0003 probe is the direct test.
+- **CTM has a structural reason to find this task hard.** In the reference configuration (`use_attention_residuals: false`), CTM's cross-attention keys and values are the *static* token-plus-position embeddings, computed once (`CTMTransformer`: "Embed input text → K, V for cross-attention (computed once)"). No contextual information passes between positions, so CTM cannot form an induction head that marks each value with its preceding key. Retrieving the value after key A requires locating A on one tick and then querying the next position from A's positional embedding on a later tick: learned positional arithmetic across ticks. This is possible for a recurrent model, but harder to discover. It is an architectural property of this implementation that any CTM retrieval result must report, not a tuning detail.

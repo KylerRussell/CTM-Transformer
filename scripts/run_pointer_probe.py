@@ -12,7 +12,7 @@ from ctm_transformer.algorithmic import AlgorithmicTokenizer
 from ctm_transformer.dense_experiment import train_dense_experiment
 from ctm_transformer.dense_pointer import evaluate_dense
 from ctm_transformer.experiment import file_hash
-from ctm_transformer.pointer_probes import FORMATS,ProbeDataset,write_probe_split
+from ctm_transformer.pointer_probes import FORMATS,InOrderDataset,ProbeDataset,write_curriculum_split,write_probe_split
 from ctm_transformer.research import load_research_config
 
 RECIPES={'transformer':'research/configs/presentation_control_v1/transformer_shuffled_seed23.json',
@@ -27,8 +27,10 @@ def main():
     p.add_argument('--hops',type=int,nargs='+',default=[1]);p.add_argument('--eval-hops',type=int,nargs='+')
     p.add_argument('--family',choices=RECIPES,default='transformer');p.add_argument('--lr',type=float,required=True)
     p.add_argument('--layers',type=int);p.add_argument('--d-model',type=int)
-    p.add_argument('--steps',type=int,default=10000);p.add_argument('--batch-size',type=int);p.add_argument('--queries',type=int,default=6);p.add_argument('--train-nodes',type=int,nargs=2,default=[12,12],help='inclusive map-size range for training only');p.add_argument('--seed',type=int,default=41);p.add_argument('--device',default='cuda:0')
+    p.add_argument('--steps',type=int,default=10000);p.add_argument('--batch-size',type=int);p.add_argument('--queries',type=int,default=6);p.add_argument('--curriculum',nargs='+',help='phases HOPS:UPDATES in order, e.g. 1:5000 1,2:5000; overrides --hops/--steps');p.add_argument('--train-nodes',type=int,nargs=2,default=[12,12],help='inclusive map-size range for training only');p.add_argument('--seed',type=int,default=41);p.add_argument('--device',default='cuda:0')
     a=p.parse_args()
+    phases=[([int(h) for h in x.split(':')[0].split(',')],int(x.split(':')[1])) for x in a.curriculum] if a.curriculum else None
+    if phases:a.hops=sorted({h for hs,_ in phases for h in hs});a.steps=sum(n for _,n in phases)
     directory=RUNS/a.name;data=directory/'data';data.mkdir(parents=True,exist_ok=False)
     eval_hops=a.eval_hops or sorted(set(a.hops)|{max(a.hops)+1,max(a.hops)+2})
     config,identity=load_research_config(RECIPES[a.family])
@@ -39,9 +41,11 @@ def main():
     base=int(hashlib.sha256(a.name.encode()).hexdigest()[:8],16)
     val=write_probe_split(data/'validation.jsonl',a.format,a.hops,96*len(a.hops),base+1,queries=a.queries)
     ev=write_probe_split(data/'eval.jsonl',a.format,eval_hops,256*len(eval_hops),base+2,exclude=val,queries=a.queries)
-    write_probe_split(data/'train.jsonl',a.format,a.hops,a.steps*config.batch_size,base+3,exclude=val|ev,nodes=tuple(a.train_nodes),queries=a.queries)
+    if phases:write_curriculum_split(data/'train.jsonl',a.format,phases,config.batch_size,base+3,exclude=val|ev,queries=a.queries)
+    else:write_probe_split(data/'train.jsonl',a.format,a.hops,a.steps*config.batch_size,base+3,exclude=val|ev,nodes=tuple(a.train_nodes),queries=a.queries)
     tokenizer=AlgorithmicTokenizer()
-    train,valid,evaluation=(ProbeDataset(data/f'{s}.jsonl',tokenizer,config.seq_len) for s in ('train','validation','eval'))
+    train=(InOrderDataset if phases else ProbeDataset)(data/'train.jsonl',tokenizer,config.seq_len)
+    valid,evaluation=(ProbeDataset(data/f'{s}.jsonl',tokenizer,config.seq_len) for s in ('validation','eval'))
     policy='final' if a.family=='transformer' else 'confidence'
     summary=train_dense_experiment(config,identity,a.seed,train,valid,evaluate_dense,[policy],
         save_validation_checkpoints=False,data_policy=f'exploratory probe {a.format}; each training map presented once')
@@ -53,7 +57,7 @@ def main():
     curve=[{'step':r['step'],'answer_accuracy':r['validation']['answer_accuracy'],
             'by_hop':{h:v['answer_accuracy'] for h,v in r['validation']['by_hop'].items()}} for r in rows if 'validation' in r]
     record={'role':'exploratory development probe; not a paper endpoint','name':a.name,'format':a.format,'family':a.family,
-        'train_hops':a.hops,'batch_size':config.batch_size,'train_nodes':a.train_nodes,'queries':a.queries,'eval_hops':eval_hops,'learning_rate':a.lr,'steps':a.steps,'seed':a.seed,'model_overrides':overrides,
+        'train_hops':a.hops,'batch_size':config.batch_size,'train_nodes':a.train_nodes,'queries':a.queries,'curriculum':phases,'eval_hops':eval_hops,'learning_rate':a.lr,'steps':a.steps,'seed':a.seed,'model_overrides':overrides,
         'parameters':summary['parameters'],'training_minutes':summary['training_seconds']/60,
         'final_train_ce_last100':sum(r['loss'] for r in rows[-100:])/min(100,len(rows)),'validation_curve':curve,
         'eval_answer_accuracy':final['answer_accuracy'],'eval_sequence_exact':final['sequence_exact'],

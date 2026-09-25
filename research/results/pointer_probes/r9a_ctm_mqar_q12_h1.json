@@ -1,0 +1,199 @@
+{
+  "role": "exploratory development probe; not a paper endpoint",
+  "name": "r9a_ctm_mqar_q12_h1",
+  "format": "mqar",
+  "family": "ctm",
+  "train_hops": [
+    1
+  ],
+  "batch_size": 32,
+  "train_nodes": [
+    12,
+    12
+  ],
+  "queries": 12,
+  "curriculum": null,
+  "eval_hops": [
+    1
+  ],
+  "learning_rate": 0.0003,
+  "steps": 10000,
+  "seed": 41,
+  "model_overrides": {},
+  "parameters": {
+    "total": 544839,
+    "token_embedding": 9088,
+    "position_embedding": 16384,
+    "readout": 42311,
+    "other": 477056
+  },
+  "training_minutes": 118.13604394568756,
+  "final_train_ce_last100": 1.4725918853282929,
+  "validation_curve": [
+    {
+      "step": 500,
+      "answer_accuracy": 0.2873263888888889,
+      "by_hop": {
+        "1": 0.2873263888888889
+      }
+    },
+    {
+      "step": 1000,
+      "answer_accuracy": 0.2690972222222222,
+      "by_hop": {
+        "1": 0.2690972222222222
+      }
+    },
+    {
+      "step": 1500,
+      "answer_accuracy": 0.265625,
+      "by_hop": {
+        "1": 0.265625
+      }
+    },
+    {
+      "step": 2000,
+      "answer_accuracy": 0.2725694444444444,
+      "by_hop": {
+        "1": 0.2725694444444444
+      }
+    },
+    {
+      "step": 2500,
+      "answer_accuracy": 0.2699652777777778,
+      "by_hop": {
+        "1": 0.2699652777777778
+      }
+    },
+    {
+      "step": 3000,
+      "answer_accuracy": 0.2838541666666667,
+      "by_hop": {
+        "1": 0.2838541666666667
+      }
+    },
+    {
+      "step": 3500,
+      "answer_accuracy": 0.2725694444444444,
+      "by_hop": {
+        "1": 0.2725694444444444
+      }
+    },
+    {
+      "step": 4000,
+      "answer_accuracy": 0.2743055555555556,
+      "by_hop": {
+        "1": 0.2743055555555556
+      }
+    },
+    {
+      "step": 4500,
+      "answer_accuracy": 0.2838541666666667,
+      "by_hop": {
+        "1": 0.2838541666666667
+      }
+    },
+    {
+      "step": 5000,
+      "answer_accuracy": 0.2621527777777778,
+      "by_hop": {
+        "1": 0.2621527777777778
+      }
+    },
+    {
+      "step": 5500,
+      "answer_accuracy": 0.2829861111111111,
+      "by_hop": {
+        "1": 0.2829861111111111
+      }
+    },
+    {
+      "step": 6000,
+      "answer_accuracy": 0.2803819444444444,
+      "by_hop": {
+        "1": 0.2803819444444444
+      }
+    },
+    {
+      "step": 6500,
+      "answer_accuracy": 0.2690972222222222,
+      "by_hop": {
+        "1": 0.2690972222222222
+      }
+    },
+    {
+      "step": 7000,
+      "answer_accuracy": 0.2864583333333333,
+      "by_hop": {
+        "1": 0.2864583333333333
+      }
+    },
+    {
+      "step": 7500,
+      "answer_accuracy": 0.3038194444444444,
+      "by_hop": {
+        "1": 0.3038194444444444
+      }
+    },
+    {
+      "step": 8000,
+      "answer_accuracy": 0.2803819444444444,
+      "by_hop": {
+        "1": 0.2803819444444444
+      }
+    },
+    {
+      "step": 8500,
+      "answer_accuracy": 0.2760416666666667,
+      "by_hop": {
+        "1": 0.2760416666666667
+      }
+    },
+    {
+      "step": 9000,
+      "answer_accuracy": 0.2899305555555556,
+      "by_hop": {
+        "1": 0.2899305555555556
+      }
+    },
+    {
+      "step": 9500,
+      "answer_accuracy": 0.3003472222222222,
+      "by_hop": {
+        "1": 0.3003472222222222
+      }
+    },
+    {
+      "step": 10000,
+      "answer_accuracy": 0.2942708333333333,
+      "by_hop": {
+        "1": 0.2942708333333333
+      }
+    }
+  ],
+  "eval_answer_accuracy": 0.2845052083333333,
+  "eval_sequence_exact": 0.0,
+  "eval_by_hop": {
+    "1": 0.2845052083333333
+  },
+  "eval_by_position": [
+    0.07421875,
+    0.1171875,
+    0.109375,
+    0.0859375,
+    0.13671875,
+    0.1640625,
+    0.20703125,
+    0.2265625,
+    0.31640625,
+    0.38671875,
+    0.58984375,
+    1.0
+  ],
+  "source_sha256": {
+    "ctm_transformer/pointer_probes.py": "bc04e8a54eb2b33c79edb70075a1809e7829b6d53bedda1d54f7f82674aaef0c",
+    "scripts/run_pointer_probe.py": "af8f0f1be2046ef78df7f435f7a7c2a3925183562dd621a67a153c6df141d8cb",
+    "ctm_transformer/dense_experiment.py": "db6abc1d51ba27b12fdb3e221a89103519663f60cd5dfeff3ee824b9528ad0fe",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169"
+  }
+}
