@@ -82,3 +82,21 @@ All-keys permutation MQAR format, one hop, 10,000 updates.
 - **RDT learns one-hop retrieval at LR 0.0003.** It escapes between 6,000 and 6,500 updates and holds 100% from 8,000 on. At 0.001 (r9b) it never escapes, the same learning-rate dependence the Transformer shows.
 - **Attention residuals do not enable retrieval,** as expected from their construction (mixing across layers, per position).
 - **Contextual keys and values alone do not enable CTM retrieval within 10,000 updates.** A second structural limitation explains why: every position's latent starts from the same learned vector (`z = self.z0.expand(B, S, -1)`), and queries come from the latent's synchronization. Nothing gives a position's latent direct access to its own token. The output head concatenates the token embedding only at readout. A position must therefore discover its own token through attention before it can ask "what follows my token?", using a query that is initially identical at every position. RDT avoids this by re-injecting the embedded input at every recurrence step (input injection). The next candidate variant therefore adds token-conditioned latent initialization, or per-tick input injection, to contextual K/V.
+
+## Round 11: token-conditioned CTM variants — 2026-09-25
+
+All-keys permutation MQAR, one hop, LR 0.0003, 10,000 updates.
+
+| Probe | CTM variant | Answer acc. | Position 1 | All correct | Parameters | Minutes |
+|---|---|---:|---:|---:|---:|---:|
+| r11a | `contextual_kv_token_init` | 28.4% | 10.2% | 0% | 725,319 | 119 |
+| r11b | `contextual_kv_injection` | 28.6% | 7.4% | 0% | 725,319 | 120 |
+
+Neither variant escapes the chance plateau. Giving CTM contextual keys and values *and* its own token, once or at every tick, is not sufficient within 10,000 updates, the budget at which the Transformer and RDT learn.
+
+The remaining differences from RDT are:
+- CTM latents never attend to other positions' evolving states, only to fixed text features;
+- attention queries come *only* from synchronization, a decayed sum of pairwise products of neuron histories, so even a latent that contains its token must express "match my token" through pairwise products;
+- the temporal objective and readout differ.
+
+Further repair of the standalone CTM becomes open-ended. Adding CTM's mechanisms to the RDT scaffold, which learns retrieval, is the cleaner test of those mechanisms. See the [Sync-RDT design](../../SYNC_RDT_DESIGN.md). In that design, synchronization *adds* to content queries rather than replacing them, for the reason these probes suggest.
