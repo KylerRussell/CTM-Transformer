@@ -1,0 +1,249 @@
+{
+  "role": "exploratory development probe; not a paper endpoint",
+  "name": "g1_A5_transformer",
+  "group": "A5",
+  "group_size": 60,
+  "family": "transformer",
+  "variant": "reference",
+  "cell": null,
+  "learning_rate": 0.0003,
+  "steps": 10000,
+  "seed": 41,
+  "train_max_len": 16,
+  "eval_lengths": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48,
+    64
+  ],
+  "trained_ticks": 1,
+  "parameters": {
+    "total": 548660,
+    "token_embedding": 9940,
+    "position_embedding": 17920,
+    "readout": 9940,
+    "other": 510860
+  },
+  "training_minutes": 4.463963243803301,
+  "final_train_ce_last100": 2.393936278820038,
+  "validation_curve": [
+    {
+      "step": 500,
+      "answer_accuracy": 0.13396139705882354,
+      "sequence_exact": 0.068359375
+    },
+    {
+      "step": 1000,
+      "answer_accuracy": 0.13878676470588236,
+      "sequence_exact": 0.072265625
+    },
+    {
+      "step": 1500,
+      "answer_accuracy": 0.15050551470588236,
+      "sequence_exact": 0.072265625
+    },
+    {
+      "step": 2000,
+      "answer_accuracy": 0.1879595588235294,
+      "sequence_exact": 0.1015625
+    },
+    {
+      "step": 2500,
+      "answer_accuracy": 0.23276654411764705,
+      "sequence_exact": 0.123046875
+    },
+    {
+      "step": 3000,
+      "answer_accuracy": 0.2421875,
+      "sequence_exact": 0.12890625
+    },
+    {
+      "step": 3500,
+      "answer_accuracy": 0.2456341911764706,
+      "sequence_exact": 0.130859375
+    },
+    {
+      "step": 4000,
+      "answer_accuracy": 0.24839154411764705,
+      "sequence_exact": 0.12890625
+    },
+    {
+      "step": 4500,
+      "answer_accuracy": 0.25988051470588236,
+      "sequence_exact": 0.134765625
+    },
+    {
+      "step": 5000,
+      "answer_accuracy": 0.29159007352941174,
+      "sequence_exact": 0.15625
+    },
+    {
+      "step": 5500,
+      "answer_accuracy": 0.32559742647058826,
+      "sequence_exact": 0.173828125
+    },
+    {
+      "step": 6000,
+      "answer_accuracy": 0.33708639705882354,
+      "sequence_exact": 0.1875
+    },
+    {
+      "step": 6500,
+      "answer_accuracy": 0.3469669117647059,
+      "sequence_exact": 0.189453125
+    },
+    {
+      "step": 7000,
+      "answer_accuracy": 0.3446691176470588,
+      "sequence_exact": 0.189453125
+    },
+    {
+      "step": 7500,
+      "answer_accuracy": 0.3460477941176471,
+      "sequence_exact": 0.19140625
+    },
+    {
+      "step": 8000,
+      "answer_accuracy": 0.3460477941176471,
+      "sequence_exact": 0.19140625
+    },
+    {
+      "step": 8500,
+      "answer_accuracy": 0.34719669117647056,
+      "sequence_exact": 0.19140625
+    },
+    {
+      "step": 9000,
+      "answer_accuracy": 0.3492647058823529,
+      "sequence_exact": 0.193359375
+    },
+    {
+      "step": 9500,
+      "answer_accuracy": 0.3492647058823529,
+      "sequence_exact": 0.19140625
+    },
+    {
+      "step": 10000,
+      "answer_accuracy": 0.3467371323529412,
+      "sequence_exact": 0.19140625
+    }
+  ],
+  "eval_by_ticks": {
+    "1": {
+      "answer_accuracy": 0.13172325721153846,
+      "sequence_exact": 0.01171875,
+      "by_length": {
+        "4": {
+          "answer_accuracy": 0.7734375,
+          "sequence_exact": 0.09375
+        },
+        "8": {
+          "answer_accuracy": 0.3935546875,
+          "sequence_exact": 0.0
+        },
+        "12": {
+          "answer_accuracy": 0.265625,
+          "sequence_exact": 0.0
+        },
+        "16": {
+          "answer_accuracy": 0.20068359375,
+          "sequence_exact": 0.0
+        },
+        "24": {
+          "answer_accuracy": 0.14095052083333334,
+          "sequence_exact": 0.0
+        },
+        "32": {
+          "answer_accuracy": 0.111572265625,
+          "sequence_exact": 0.0
+        },
+        "48": {
+          "answer_accuracy": 0.07698567708333333,
+          "sequence_exact": 0.0
+        },
+        "64": {
+          "answer_accuracy": 0.064208984375,
+          "sequence_exact": 0.0
+        }
+      },
+      "by_position": [
+        1.0,
+        1.0,
+        1.0,
+        0.072265625,
+        0.011160714285714286,
+        0.022321428571428572,
+        0.0078125,
+        0.013392857142857142,
+        0.014322916666666666,
+        0.018229166666666668,
+        0.015625,
+        0.024739583333333332,
+        0.0109375,
+        0.0171875,
+        0.0140625,
+        0.01875,
+        0.013671875,
+        0.01171875,
+        0.01171875,
+        0.015625,
+        0.0234375,
+        0.017578125,
+        0.015625,
+        0.013671875,
+        0.013020833333333334,
+        0.013020833333333334,
+        0.026041666666666668,
+        0.0234375,
+        0.026041666666666668,
+        0.03125,
+        0.015625,
+        0.018229166666666668,
+        0.0078125,
+        0.0234375,
+        0.015625,
+        0.01171875,
+        0.01953125,
+        0.0078125,
+        0.01953125,
+        0.01953125,
+        0.01171875,
+        0.0234375,
+        0.015625,
+        0.01953125,
+        0.01953125,
+        0.01953125,
+        0.00390625,
+        0.00390625,
+        0.0078125,
+        0.0234375,
+        0.0,
+        0.015625,
+        0.015625,
+        0.0078125,
+        0.03125,
+        0.0234375,
+        0.015625,
+        0.0,
+        0.015625,
+        0.0234375,
+        0.0,
+        0.015625,
+        0.0078125,
+        0.015625
+      ]
+    }
+  },
+  "source_sha256": {
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5",
+    "scripts/run_group_probe.py": "20e4b30822ebfed506f9e430ea1194f7fc60c096b9ff2502d83f904aa7376c5e",
+    "ctm_transformer/dense_experiment.py": "661ebf10abf894e1ca346cd8cc6312f10fbdb121686d5f28eb8cb27456eefdde",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169",
+    "ctm_transformer/sync_rdt.py": "e0f26f7fe65f30c1c9c5519238411d82433c25f81c9298618a0544a19f88b0f4",
+    "ctm_transformer/ctm_variants.py": "5bd30fce9b0c8bedab531ef66d1e3c9e7f417914f76c7a1bf2e6ac5c610b9c85"
+  }
+}
