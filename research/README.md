@@ -257,11 +257,19 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 - [x] Freeze and run the [dense calibration](DENSE_POINTER.md) (12 Transformer runs, 10,000 updates, every map presented once).
 - [x] Apply the declared rules: **D2 not met** (mean hop-1 answer accuracy 12.73%). Every run learned only permutation exclusion: it finished at the 12.28% exclusion ceiling, with training CE 1.846–1.849 against 1.816 for an exclusion guesser and 0% exact match. See [results](results/dense_calibration_v1/RESULTS.md) and [interpretation](results/dense_calibration_v1/INTERPRETATION.md).
 
+## Retrieval probes, CTM variants and Sync-RDT
+
+- [x] Run 15 exploratory Transformer probes. One-hop retrieval becomes learnable only when every key of a map is queried (all-keys MQAR): both seeds reach about 90–95%. See [probes](results/pointer_probes/PROBES.md).
+- [x] Find two structural limits of the reference CTM for in-context retrieval: static cross-attention keys and values, and a shared start state that gives no position its own token. Neither attention residuals, contextual K/V, nor token injection (at initialization or every tick) makes CTM learn retrieval within 10,000 updates. See [variants](CTM_VARIANTS.md).
+- [x] RDT learns retrieval at LR 0.0003, but not at 0.001.
+- [x] Design and implement [Sync-RDT](SYNC_RDT_DESIGN.md), CTM's temporal MLPs and synchronization queries inside the RDT scaffold. With both mechanisms off it reproduces RDT exactly.
+- [x] Freeze and run the [retrieval sample-efficiency study](SYNC_RDT_RETRIEVAL.md) (6 cells × 5 seeds). **No declared mechanism effect.** The width-matched RDT is the only cell to learn at every seed. See [results](results/syncrdt_retrieval_v1/RESULTS.md) and [interpretation](results/syncrdt_retrieval_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Run short exploratory Transformer probes, reported as development only, to find a learnable retrieval variant: interleaved query/answer pairs, distinct target symbols, and more depth. Freeze the next calibration only for a variant that clearly learns, then calibrate CTM and RDT under the fixed operating-point rules.
+1. Design and calibrate a serial-depth task that needs iteration without first needing in-context retrieval. Test the CTM mechanisms there under the fixed operating-point rules, with at least five seeds and escape counts reported. See [draft design](SERIAL_DEPTH_DESIGN.md).
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

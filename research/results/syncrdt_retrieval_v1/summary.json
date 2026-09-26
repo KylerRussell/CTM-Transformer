@@ -1,0 +1,673 @@
+{
+  "complete": true,
+  "no_test_evaluation": true,
+  "thresholds": [
+    0.5,
+    0.9
+  ],
+  "budget": 10000,
+  "eval_interval": 250,
+  "decision_rule": "favors first: earlier at the 90% threshold in >= 4 of 5 seeds and median paired difference >= 1000 updates; censored runs rank after all that reach it",
+  "steps_to_threshold": {
+    "0.5": {
+      "rdt": [
+        7250,
+        2750,
+        null,
+        3750,
+        null
+      ],
+      "rdt_wide": [
+        5000,
+        5000,
+        6500,
+        4000,
+        4750
+      ],
+      "history": [
+        null,
+        4500,
+        5750,
+        5000,
+        7250
+      ],
+      "history_lowgate": [
+        7250,
+        2750,
+        null,
+        3750,
+        null
+      ],
+      "sync": [
+        null,
+        6000,
+        6000,
+        3500,
+        10000
+      ],
+      "sync_rdt": [
+        6500,
+        5000,
+        4500,
+        5500,
+        7500
+      ]
+    },
+    "0.9": {
+      "rdt": [
+        7500,
+        2750,
+        null,
+        3750,
+        null
+      ],
+      "rdt_wide": [
+        5250,
+        5000,
+        6750,
+        4000,
+        4750
+      ],
+      "history": [
+        null,
+        4500,
+        null,
+        5000,
+        null
+      ],
+      "history_lowgate": [
+        7750,
+        2750,
+        null,
+        3750,
+        null
+      ],
+      "sync": [
+        null,
+        6250,
+        null,
+        3500,
+        null
+      ],
+      "sync_rdt": [
+        null,
+        5000,
+        7000,
+        5500,
+        null
+      ]
+    }
+  },
+  "final_evaluation": {
+    "rdt": {
+      "position1": [
+        1.0,
+        1.0,
+        0.265625,
+        1.0,
+        0.19140625
+      ],
+      "answer_accuracy": [
+        1.0,
+        1.0,
+        0.43603515625,
+        1.0,
+        0.357421875
+      ],
+      "sequence_exact": [
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "rdt_wide": {
+      "position1": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "answer_accuracy": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sequence_exact": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "history": {
+      "position1": [
+        0.263671875,
+        1.0,
+        0.873046875,
+        1.0,
+        0.482421875
+      ],
+      "answer_accuracy": [
+        0.4189453125,
+        1.0,
+        0.935546875,
+        1.0,
+        0.6435546875
+      ],
+      "sequence_exact": [
+        0.0,
+        1.0,
+        0.38671875,
+        1.0,
+        0.0
+      ]
+    },
+    "history_lowgate": {
+      "position1": [
+        1.0,
+        1.0,
+        0.3359375,
+        1.0,
+        0.2265625
+      ],
+      "answer_accuracy": [
+        1.0,
+        1.0,
+        0.5349934895833334,
+        1.0,
+        0.40966796875
+      ],
+      "sequence_exact": [
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "sync": {
+      "position1": [
+        0.41796875,
+        1.0,
+        0.58984375,
+        1.0,
+        0.462890625
+      ],
+      "answer_accuracy": [
+        0.5587565104166666,
+        1.0,
+        0.66943359375,
+        1.0,
+        0.634765625
+      ],
+      "sequence_exact": [
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "sync_rdt": {
+      "position1": [
+        0.6953125,
+        1.0,
+        0.998046875,
+        1.0,
+        0.5
+      ],
+      "answer_accuracy": [
+        0.7872721354166666,
+        1.0,
+        0.9967447916666666,
+        1.0,
+        0.6363932291666666
+      ],
+      "sequence_exact": [
+        0.025390625,
+        1.0,
+        0.9609375,
+        1.0,
+        0.0
+      ]
+    }
+  },
+  "validation_auc_position1": {
+    "rdt": [
+      0.3599609375,
+      0.7732421875,
+      0.175390625,
+      0.688671875,
+      0.15146484375
+    ],
+    "rdt_wide": [
+      0.56826171875,
+      0.57529296875,
+      0.44228515625,
+      0.6689453125,
+      0.5998046875
+    ],
+    "history": [
+      0.11953125,
+      0.619140625,
+      0.409765625,
+      0.571484375,
+      0.278125
+    ],
+    "history_lowgate": [
+      0.3533203125,
+      0.7728515625,
+      0.1828125,
+      0.69189453125,
+      0.127734375
+    ],
+    "sync": [
+      0.2396484375,
+      0.48642578125,
+      0.32236328125,
+      0.7158203125,
+      0.23681640625
+    ],
+    "sync_rdt": [
+      0.34892578125,
+      0.57392578125,
+      0.5373046875,
+      0.5287109375,
+      0.27060546875
+    ]
+  },
+  "comparisons": {
+    "sync_vs_rdt": {
+      "0.5": {
+        "differences": [
+          -3000,
+          -3250,
+          4250,
+          250,
+          250
+        ],
+        "first_earlier_seeds": 3,
+        "first_later_seeds": 2,
+        "median_difference": 250,
+        "favors_first": false,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          -2750,
+          -3500,
+          0,
+          250,
+          0
+        ],
+        "first_earlier_seeds": 1,
+        "first_later_seeds": 2,
+        "median_difference": 0,
+        "favors_first": false,
+        "favors_second": false
+      }
+    },
+    "sync_vs_rdt_wide": {
+      "0.5": {
+        "differences": [
+          -5250,
+          -1000,
+          500,
+          500,
+          -5250
+        ],
+        "first_earlier_seeds": 2,
+        "first_later_seeds": 3,
+        "median_difference": -1000,
+        "favors_first": false,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          -5000,
+          -1250,
+          -3500,
+          500,
+          -5500
+        ],
+        "first_earlier_seeds": 1,
+        "first_later_seeds": 4,
+        "median_difference": -3500,
+        "favors_first": false,
+        "favors_second": true
+      }
+    },
+    "history_vs_rdt": {
+      "0.5": {
+        "differences": [
+          -3000,
+          -1750,
+          4500,
+          -1250,
+          3000
+        ],
+        "first_earlier_seeds": 2,
+        "first_later_seeds": 3,
+        "median_difference": -1250,
+        "favors_first": false,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          -2750,
+          -1750,
+          0,
+          -1250,
+          0
+        ],
+        "first_earlier_seeds": 0,
+        "first_later_seeds": 3,
+        "median_difference": -1250,
+        "favors_first": false,
+        "favors_second": false
+      }
+    },
+    "history_lowgate_vs_history": {
+      "0.5": {
+        "differences": [
+          3000,
+          1750,
+          -4500,
+          1250,
+          -3000
+        ],
+        "first_earlier_seeds": 3,
+        "first_later_seeds": 2,
+        "median_difference": 1250,
+        "favors_first": false,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          2500,
+          1750,
+          0,
+          1250,
+          0
+        ],
+        "first_earlier_seeds": 3,
+        "first_later_seeds": 0,
+        "median_difference": 1250,
+        "favors_first": false,
+        "favors_second": false
+      }
+    },
+    "history_lowgate_vs_rdt": {
+      "0.5": {
+        "differences": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "first_earlier_seeds": 0,
+        "first_later_seeds": 0,
+        "median_difference": 0,
+        "favors_first": false,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          -250,
+          0,
+          0,
+          0,
+          0
+        ],
+        "first_earlier_seeds": 0,
+        "first_later_seeds": 1,
+        "median_difference": 0,
+        "favors_first": false,
+        "favors_second": false
+      }
+    },
+    "sync_rdt_vs_rdt": {
+      "0.5": {
+        "differences": [
+          750,
+          -2250,
+          5750,
+          -1750,
+          2750
+        ],
+        "first_earlier_seeds": 3,
+        "first_later_seeds": 2,
+        "median_difference": 750,
+        "favors_first": false,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          -2750,
+          -2250,
+          3250,
+          -1750,
+          0
+        ],
+        "first_earlier_seeds": 1,
+        "first_later_seeds": 3,
+        "median_difference": -1750,
+        "favors_first": false,
+        "favors_second": false
+      }
+    },
+    "sync_rdt_vs_sync": {
+      "0.5": {
+        "differences": [
+          3750,
+          1000,
+          1500,
+          -2000,
+          2500
+        ],
+        "first_earlier_seeds": 4,
+        "first_later_seeds": 1,
+        "median_difference": 1500,
+        "favors_first": true,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          0,
+          1250,
+          3250,
+          -2000,
+          0
+        ],
+        "first_earlier_seeds": 2,
+        "first_later_seeds": 1,
+        "median_difference": 0,
+        "favors_first": false,
+        "favors_second": false
+      }
+    },
+    "rdt_wide_vs_rdt": {
+      "0.5": {
+        "differences": [
+          2250,
+          -2250,
+          3750,
+          -250,
+          5500
+        ],
+        "first_earlier_seeds": 3,
+        "first_later_seeds": 2,
+        "median_difference": 2250,
+        "favors_first": false,
+        "favors_second": false
+      },
+      "0.9": {
+        "differences": [
+          2250,
+          -2250,
+          3500,
+          -250,
+          5500
+        ],
+        "first_earlier_seeds": 3,
+        "first_later_seeds": 2,
+        "median_difference": 2250,
+        "favors_first": false,
+        "favors_second": false
+      }
+    }
+  },
+  "decisions": {
+    "sync_speeds_retrieval": false,
+    "history_slows_retrieval": false,
+    "history_speeds_retrieval": false,
+    "lowgate_explains_history_slowdown": false
+  },
+  "parameters": {
+    "rdt": 525984,
+    "rdt_wide": 565900,
+    "history": 541536,
+    "history_lowgate": 541536,
+    "sync": 550688,
+    "sync_rdt": 566240
+  },
+  "training_minutes": {
+    "rdt": 52.41818926185432,
+    "rdt_wide": 56.61715661460495,
+    "history": 62.79332014539604,
+    "history_lowgate": 61.65483683992332,
+    "sync": 61.773770925529774,
+    "sync_rdt": 72.88291051308964
+  },
+  "checkpoint_freeze_sha256": "57dbbdbbc595d064a92fef8d86bcd5b48d8d7b8d6aea99fa5ae0a2d4c100f61e",
+  "analysis_source_sha256": "30bcfb29b613c21cf04ef1800463382c0b50e823b697def96bb1a9c5136d1798",
+  "evaluations": {
+    "rdt_seed71": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_seed71.evaluation.json",
+      "sha256": "9287eaaff9b2222c6487b9d28023ef1ed8fe727385c159acfb81057a37ef5831"
+    },
+    "history_seed71": {
+      "path": "research/results/syncrdt_retrieval_v1/history_seed71.evaluation.json",
+      "sha256": "eb48f422c34ecaa188b4afbfa2ebf892bcb90f78b96fb7e1cdff60c258cb2a6f"
+    },
+    "sync_seed71": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_seed71.evaluation.json",
+      "sha256": "4a5bd975c7c93e749186e16d479cbf8e28e73b74938301ce13ac760a2258d869"
+    },
+    "sync_rdt_seed71": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_rdt_seed71.evaluation.json",
+      "sha256": "94fbac8a012f55f25df720e2e4c648b432b8276b61823755a1f017879621324e"
+    },
+    "rdt_wide_seed71": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_wide_seed71.evaluation.json",
+      "sha256": "9b3afe2b940b14a55e01190048ac5aa4103a85b32a3805ebcafb77f939d4565c"
+    },
+    "history_lowgate_seed71": {
+      "path": "research/results/syncrdt_retrieval_v1/history_lowgate_seed71.evaluation.json",
+      "sha256": "fc955010b0bda1848ce358e0deccebe6f96355294d1e995230c031263926af1f"
+    },
+    "rdt_seed73": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_seed73.evaluation.json",
+      "sha256": "5d72e26dc314de09df1ce14ec5d50a6e798101d9cdad6d6101ea15747323195e"
+    },
+    "history_seed73": {
+      "path": "research/results/syncrdt_retrieval_v1/history_seed73.evaluation.json",
+      "sha256": "d5c4279fcce61c4d1686f79ed1cfd5f085fe4fc4448af43caf145de071d82dd2"
+    },
+    "sync_seed73": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_seed73.evaluation.json",
+      "sha256": "11f00c28ac3f782cee3478ad48ccfb1c4471b31e24c84e67881d52ca2ac0772a"
+    },
+    "sync_rdt_seed73": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_rdt_seed73.evaluation.json",
+      "sha256": "20b6be7e3fb45a560965fac5c230719841c35e43b8f948047d3670211b02d72c"
+    },
+    "rdt_wide_seed73": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_wide_seed73.evaluation.json",
+      "sha256": "49f1dcd4fdff96e84bb75332c142f08e5b3313544feb2ef392c00c454bb835d5"
+    },
+    "history_lowgate_seed73": {
+      "path": "research/results/syncrdt_retrieval_v1/history_lowgate_seed73.evaluation.json",
+      "sha256": "1e220e118ccf5b2199751396d781f6225b175018c1a3fce61e9bb7f9628f9f5f"
+    },
+    "rdt_seed79": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_seed79.evaluation.json",
+      "sha256": "ac33adda30745e9220d4fed0a624c477780014423feef94565b9ccc0fae6298a"
+    },
+    "history_seed79": {
+      "path": "research/results/syncrdt_retrieval_v1/history_seed79.evaluation.json",
+      "sha256": "1a4f90c669bf50d40b6416737b77974f9b208b943ea1362984dbbe80563370ed"
+    },
+    "sync_seed79": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_seed79.evaluation.json",
+      "sha256": "1d636bca4fb08410aa260bf84cc5d0820c13ca2f7e46027094815488b001a7ca"
+    },
+    "sync_rdt_seed79": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_rdt_seed79.evaluation.json",
+      "sha256": "370f8a6eec9bca50b5555294ca4e43ceb56d0e57a216a2fa9737ee5d48d63873"
+    },
+    "rdt_wide_seed79": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_wide_seed79.evaluation.json",
+      "sha256": "92dd60868d6b88611abc4cb20a6b4e5a8946874eaf56f73da56a153cf990a0fb"
+    },
+    "history_lowgate_seed79": {
+      "path": "research/results/syncrdt_retrieval_v1/history_lowgate_seed79.evaluation.json",
+      "sha256": "7c79d0eabb8565120f1e2bc2c9933e11e9f12e4741ddeea7ee0a10128e01dac0"
+    },
+    "rdt_seed83": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_seed83.evaluation.json",
+      "sha256": "2c44c2b6e2f760b7cb5c4cca15aca465a5dbb2d80d17fb0e409b195b1cda2492"
+    },
+    "history_seed83": {
+      "path": "research/results/syncrdt_retrieval_v1/history_seed83.evaluation.json",
+      "sha256": "12137fedceccc604c7fb06a336ed26de9e4d3776a5e57bdd8d7bf53fee80374a"
+    },
+    "sync_seed83": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_seed83.evaluation.json",
+      "sha256": "1b88393d56821d007ad2adf6ac552679508a046086f9cdf97662e8051e7fc7ec"
+    },
+    "sync_rdt_seed83": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_rdt_seed83.evaluation.json",
+      "sha256": "425daa5f690dfb693a487cb50e32de3a430737cb510759d8cbfa3aa7d2e214fe"
+    },
+    "rdt_wide_seed83": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_wide_seed83.evaluation.json",
+      "sha256": "da66ceb33534bd514afb78112edf07708a939e0d0fca9017fa25dd33d3feb84a"
+    },
+    "history_lowgate_seed83": {
+      "path": "research/results/syncrdt_retrieval_v1/history_lowgate_seed83.evaluation.json",
+      "sha256": "19acbcb3eb60a0225df7080d9c0d6f2b9670c3cbb949c0ff750c0936a8272bfd"
+    },
+    "rdt_seed89": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_seed89.evaluation.json",
+      "sha256": "cbca7ad8e903b02945b9b850decfe293a462bcff0c486bc1eafa6d7879abe396"
+    },
+    "history_seed89": {
+      "path": "research/results/syncrdt_retrieval_v1/history_seed89.evaluation.json",
+      "sha256": "6d530a25ecb282e91d141c5bc3f965ec3a050c16d92e7042295876a31017de07"
+    },
+    "sync_seed89": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_seed89.evaluation.json",
+      "sha256": "d5c76007e1d8ad33396230a9d8607d47257ddee0d5dac08bd3c9574669ce519b"
+    },
+    "sync_rdt_seed89": {
+      "path": "research/results/syncrdt_retrieval_v1/sync_rdt_seed89.evaluation.json",
+      "sha256": "0b12555012d19cdac262f91e9f02b1272d6aa376c9ff8e5cb0be8b2bc65f841a"
+    },
+    "rdt_wide_seed89": {
+      "path": "research/results/syncrdt_retrieval_v1/rdt_wide_seed89.evaluation.json",
+      "sha256": "ec27ae334fad1d5d3babd90da9468554ae0abbc149d5cad7a645748ed9ebe30c"
+    },
+    "history_lowgate_seed89": {
+      "path": "research/results/syncrdt_retrieval_v1/history_lowgate_seed89.evaluation.json",
+      "sha256": "4eb9be66c76f5d34f3cc2322b3999348ad143f5c3aacdbfb75b8bcaf8b04cd09"
+    }
+  }
+}

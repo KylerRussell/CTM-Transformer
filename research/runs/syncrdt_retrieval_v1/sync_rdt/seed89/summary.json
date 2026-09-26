@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "model_family": "recurrent_depth",
+  "steps": 10000,
+  "runner": "shared_research_v3",
+  "tokens_seen": 28160000,
+  "supervised_tokens_seen": 4160000,
+  "examples_seen": 320000,
+  "padded_token_positions": 28160000,
+  "token_block_applications": 957440000,
+  "depth_counts": {
+    "16": 10000
+  },
+  "training_seconds": 4343.530886000837,
+  "training_tokens_per_second": 6483.204733448411,
+  "wall_seconds": 4394.600458246001,
+  "best_validation_loss": 0.9966971690838153,
+  "best_readout_policy": "confidence",
+  "best_validation_loss_by_readout": {
+    "confidence": 0.9966971690838153
+  },
+  "peak_allocated_bytes": 2041306112,
+  "parameters": {
+    "total": 566240,
+    "token_embedding": 6816,
+    "position_embedding": 12288,
+    "readout": 6816,
+    "other": 540320
+  },
+  "config_identity": {
+    "name": "sync_rdt_seed89_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/syncrdt_retrieval_v1/sync_rdt_seed89.json",
+    "sha256": "c3281844ee1a147f433d69e2176129b436cef1bff405d3c142184ffbd38946df"
+  }
+}

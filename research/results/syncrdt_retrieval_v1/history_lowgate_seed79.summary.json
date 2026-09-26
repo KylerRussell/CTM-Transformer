@@ -1,0 +1,39 @@
+{
+  "complete": true,
+  "model_family": "recurrent_depth",
+  "steps": 10000,
+  "runner": "shared_research_v3",
+  "tokens_seen": 28160000,
+  "supervised_tokens_seen": 4160000,
+  "examples_seen": 320000,
+  "padded_token_positions": 28160000,
+  "token_block_applications": 957440000,
+  "depth_counts": {
+    "16": 10000
+  },
+  "training_seconds": 3705.0924499440007,
+  "training_tokens_per_second": 7600.350161417866,
+  "wall_seconds": 3751.232998250998,
+  "best_validation_loss": 1.2284781199235182,
+  "best_readout_policy": "confidence",
+  "best_validation_loss_by_readout": {
+    "confidence": 1.2284781199235182
+  },
+  "peak_allocated_bytes": 1402809344,
+  "parameters": {
+    "total": 541536,
+    "token_embedding": 6816,
+    "position_embedding": 12288,
+    "readout": 6816,
+    "other": 515616
+  },
+  "config_identity": {
+    "name": "history_lowgate_seed79_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/syncrdt_retrieval_v1/history_lowgate_seed79.json",
+    "sha256": "eaea6b8da6fb0729322664bdbd885c3f49b57a77e5d86a2d5dde3f88059cd7af"
+  },
+  "cell": "history_lowgate_seed79",
+  "seed": 79,
+  "worker_source_sha256": "fa91d7fd4fe495efb0104234ee550949070a8f6e25ff29d1f059d24bbb102258"
+}

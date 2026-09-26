@@ -213,3 +213,12 @@ The next step is a dense-supervision pointer format that asks for every node's s
 The [dense-supervision calibration](research/results/dense_calibration_v1/RESULTS.md) asked for 6 successors per map and trained 12 Transformer runs for 10,000 updates each on runner v3. Runner v3 reproduces the frozen trainer exactly. Every run learned only permutation exclusion: accuracy stayed at the 12.28% exclusion ceiling, and exact match was 0%. The format gate was not met.
 
 Supervision volume was not the limit. The likelier obstacle is the lookup circuit: keys and values share one alphabet, and in the block format queries must be aligned with answers by position. Exploratory Transformer probes will look for a learnable variant before the next calibration is frozen. See [interpretation](research/results/dense_calibration_v1/INTERPRETATION.md).
+
+
+## CTM variants and Sync-RDT retrieval study — 2026-09-26
+
+Exploratory probes found a learnable retrieval format (all-keys MQAR) and two structural limits of the reference CTM for in-context retrieval: static cross-attention keys and values, and a shared start state that gives no position its own token. Four repair variants (attention residuals; contextual K/V; contextual K/V with token initialization; contextual K/V with per-tick injection) all stay at chance within 10,000 updates. Meanwhile, the Transformer and RDT learn at LR 0.0003.
+
+To test CTM's mechanisms where retrieval is possible, [Sync-RDT](research/SYNC_RDT_DESIGN.md) adds them to the RDT scaffold. With both mechanisms off it reproduces RDT exactly. A frozen [six-cell, five-seed study](research/results/syncrdt_retrieval_v1/RESULTS.md) found **no declared effect** of either mechanism on retrieval sample efficiency. A single-seed development advantage for synchronization did not replicate. The width-matched RDT control was the only cell to learn at every seed.
+
+The mechanisms still need testing on multi-step computation, which retrieval does not require. Next is a serial-depth task that needs iteration without first needing in-context retrieval. See [interpretation](research/results/syncrdt_retrieval_v1/INTERPRETATION.md).

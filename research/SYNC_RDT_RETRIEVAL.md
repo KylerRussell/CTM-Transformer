@@ -83,3 +83,7 @@ The freeze audit checks, for every run:
 - The cells differ in parameters by up to 7.7%. The `rdt_wide` control covers the largest difference, not every pair.
 - Validation curves are measured on data that never selects checkpoints. It is still development data, not a locked test.
 - A positive sync result would show faster retrieval learning in this scaffold. It would not show improved multi-step computation, which the serial-depth study must test.
+
+## Outcome — 2026-09-26, 00:34 UTC
+
+All 30 runs completed and passed the freeze audit. **No declared mechanism effect was established.** Sync did not speed retrieval: it tied `rdt` and was beaten by `rdt_wide`, which reached 90% earlier in 4 of 5 seeds with a median difference of 3,500 updates. History neither slowed nor sped retrieval, and the gate hypothesis was moot. The width-matched RDT was the only cell to learn at every seed. See [results](results/syncrdt_retrieval_v1/RESULTS.md) and [interpretation](results/syncrdt_retrieval_v1/INTERPRETATION.md).

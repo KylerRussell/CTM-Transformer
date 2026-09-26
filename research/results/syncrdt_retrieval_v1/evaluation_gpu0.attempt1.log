@@ -1,0 +1,15 @@
+rdt_seed71 {'confidence': 1.0, 'final': 1.0}
+history_seed71 {'confidence': 0.2637, 'final': 0.3086}
+sync_seed71 {'confidence': 0.418, 'final': 0.6836}
+sync_rdt_seed71 {'confidence': 0.6953, 'final': 0.8066}
+rdt_wide_seed71 {'confidence': 1.0, 'final': 1.0}
+history_lowgate_seed71 {'confidence': 1.0, 'final': 1.0}
+rdt_seed73 {'confidence': 1.0, 'final': 1.0}
+history_seed73 {'confidence': 1.0, 'final': 1.0}
+sync_seed73 {'confidence': 1.0, 'final': 1.0}
+sync_rdt_seed73 {'confidence': 1.0, 'final': 1.0}
+rdt_wide_seed73 {'confidence': 1.0, 'final': 1.0}
+history_lowgate_seed73 {'confidence': 1.0, 'final': 1.0}
+rdt_seed79 {'confidence': 0.2656, 'final': 0.2559}
+history_seed79 {'confidence': 0.873, 'final': 0.8945}
+sync_seed79 {'confidence': 0.5898, 'final': 0.7188}

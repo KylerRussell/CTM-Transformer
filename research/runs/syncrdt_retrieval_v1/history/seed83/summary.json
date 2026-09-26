@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "model_family": "recurrent_depth",
+  "steps": 10000,
+  "runner": "shared_research_v3",
+  "tokens_seen": 28160000,
+  "supervised_tokens_seen": 4160000,
+  "examples_seen": 320000,
+  "padded_token_positions": 28160000,
+  "token_block_applications": 957440000,
+  "depth_counts": {
+    "16": 10000
+  },
+  "training_seconds": 3750.5841610816133,
+  "training_tokens_per_second": 7508.163739453075,
+  "wall_seconds": 3797.7503131300036,
+  "best_validation_loss": 2.041745482085953e-09,
+  "best_readout_policy": "confidence",
+  "best_validation_loss_by_readout": {
+    "confidence": 2.041745482085953e-09
+  },
+  "peak_allocated_bytes": 1405168640,
+  "parameters": {
+    "total": 541536,
+    "token_embedding": 6816,
+    "position_embedding": 12288,
+    "readout": 6816,
+    "other": 515616
+  },
+  "config_identity": {
+    "name": "history_seed83_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/syncrdt_retrieval_v1/history_seed83.json",
+    "sha256": "6d0fda2510b6df57e9ed2373d16a38b3d4058861989324eb5e3aae95b304cd0b"
+  }
+}
