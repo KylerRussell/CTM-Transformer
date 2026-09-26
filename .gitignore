@@ -19,3 +19,4 @@ research/data/syncrdt_retrieval_v1/seed*/train.jsonl
 research/runs/group_probes/*/data/train.jsonl
 research/data/group_s3_v1/seed*/train.jsonl
 research/runs/group_s3_v1/*/*/data/
+research/runs/sync_ablation_v1/*/*/data/

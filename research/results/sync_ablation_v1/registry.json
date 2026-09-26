@@ -1,0 +1,909 @@
+{
+  "schema_version": 1,
+  "name": "sync_ablation_v1",
+  "runner": "shared_research_v3",
+  "entries": [
+    {
+      "cell": "shuffled_seed47",
+      "study_cell": "shuffled",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "shuffled",
+      "config_overrides": {},
+      "seed": 47,
+      "config": "research/configs/sync_ablation_v1/shuffled_seed47.json",
+      "config_sha256": "bcf45ef947444c04bfd8280161ae2ceeab22f0f686167cb93227804906d03a02",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "85e38f4f6b9c016b722ba617a995073af2887a172d022ad16de10133c9d7e9d4",
+      "validation_sha256": "68afd6c16ff4070f77bcd0636c20a6bb1107c52daa30286dad1710aba3164029",
+      "evaluation_sha256": "55589cfab067dd6393303726e4d01f112e0fd622d63a83764c656a1b08bddc9a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/shuffled/seed47",
+      "summary_path": "research/results/sync_ablation_v1/shuffled_seed47.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "nodecay_seed47",
+      "study_cell": "nodecay",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "nodecay",
+      "config_overrides": {},
+      "seed": 47,
+      "config": "research/configs/sync_ablation_v1/nodecay_seed47.json",
+      "config_sha256": "278682d3be7ad6d5610e502547a8c73d18117d1aa59a0ac89f48575a1f415b84",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "85e38f4f6b9c016b722ba617a995073af2887a172d022ad16de10133c9d7e9d4",
+      "validation_sha256": "68afd6c16ff4070f77bcd0636c20a6bb1107c52daa30286dad1710aba3164029",
+      "evaluation_sha256": "55589cfab067dd6393303726e4d01f112e0fd622d63a83764c656a1b08bddc9a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/nodecay/seed47",
+      "summary_path": "research/results/sync_ablation_v1/nodecay_seed47.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "current_seed47",
+      "study_cell": "current",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "current",
+      "config_overrides": {},
+      "seed": 47,
+      "config": "research/configs/sync_ablation_v1/current_seed47.json",
+      "config_sha256": "40a2340470860e895228054e0fa16c62f2a760dc39b8041ac16469f4947a68a4",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "85e38f4f6b9c016b722ba617a995073af2887a172d022ad16de10133c9d7e9d4",
+      "validation_sha256": "68afd6c16ff4070f77bcd0636c20a6bb1107c52daa30286dad1710aba3164029",
+      "evaluation_sha256": "55589cfab067dd6393303726e4d01f112e0fd622d63a83764c656a1b08bddc9a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/current/seed47",
+      "summary_path": "research/results/sync_ablation_v1/current_seed47.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "linear_seed47",
+      "study_cell": "linear",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "linear",
+      "config_overrides": {},
+      "seed": 47,
+      "config": "research/configs/sync_ablation_v1/linear_seed47.json",
+      "config_sha256": "231f49a4f8cdb1dcf466fbb19679213dc072afe5d2942daabd07706d824f9efe",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "85e38f4f6b9c016b722ba617a995073af2887a172d022ad16de10133c9d7e9d4",
+      "validation_sha256": "68afd6c16ff4070f77bcd0636c20a6bb1107c52daa30286dad1710aba3164029",
+      "evaluation_sha256": "55589cfab067dd6393303726e4d01f112e0fd622d63a83764c656a1b08bddc9a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/linear/seed47",
+      "summary_path": "research/results/sync_ablation_v1/linear_seed47.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "state_seed47",
+      "study_cell": "state",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "state",
+      "config_overrides": {},
+      "seed": 47,
+      "config": "research/configs/sync_ablation_v1/state_seed47.json",
+      "config_sha256": "b936adcee1328e0b6e3628d0bbecf3fc683c9962fab7afd04e5299883c896b06",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "85e38f4f6b9c016b722ba617a995073af2887a172d022ad16de10133c9d7e9d4",
+      "validation_sha256": "68afd6c16ff4070f77bcd0636c20a6bb1107c52daa30286dad1710aba3164029",
+      "evaluation_sha256": "55589cfab067dd6393303726e4d01f112e0fd622d63a83764c656a1b08bddc9a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/state/seed47",
+      "summary_path": "research/results/sync_ablation_v1/state_seed47.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "shuffled_seed53",
+      "study_cell": "shuffled",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "shuffled",
+      "config_overrides": {},
+      "seed": 53,
+      "config": "research/configs/sync_ablation_v1/shuffled_seed53.json",
+      "config_sha256": "143c36f8fdedf22af55fe3fad0464c273270aba6c59271eb2c7b90dc5d0fd9ca",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e870c147fb84242e1bbab2468b436880954fbb113afbd62d4c9cf3e8de493b2a",
+      "validation_sha256": "ad39404ce14a71ebc2df71fda4d70dc89f7f927b5fd1a3b859101629d986f9d9",
+      "evaluation_sha256": "9ce012af5894ffe2362aa3c6d8dae2a8500b0bd53ef7d64fd63b0b09bd2bff11",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/shuffled/seed53",
+      "summary_path": "research/results/sync_ablation_v1/shuffled_seed53.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "nodecay_seed53",
+      "study_cell": "nodecay",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "nodecay",
+      "config_overrides": {},
+      "seed": 53,
+      "config": "research/configs/sync_ablation_v1/nodecay_seed53.json",
+      "config_sha256": "a7f98af468526fe9c5203d6db46e6a123a059904c3fac84d135ea0edb7338381",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e870c147fb84242e1bbab2468b436880954fbb113afbd62d4c9cf3e8de493b2a",
+      "validation_sha256": "ad39404ce14a71ebc2df71fda4d70dc89f7f927b5fd1a3b859101629d986f9d9",
+      "evaluation_sha256": "9ce012af5894ffe2362aa3c6d8dae2a8500b0bd53ef7d64fd63b0b09bd2bff11",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/nodecay/seed53",
+      "summary_path": "research/results/sync_ablation_v1/nodecay_seed53.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "current_seed53",
+      "study_cell": "current",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "current",
+      "config_overrides": {},
+      "seed": 53,
+      "config": "research/configs/sync_ablation_v1/current_seed53.json",
+      "config_sha256": "fc49b3d65bdf3d01eeea5da561cef2cc3146f1ea87a7fb0d8780c63f0aa29b18",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e870c147fb84242e1bbab2468b436880954fbb113afbd62d4c9cf3e8de493b2a",
+      "validation_sha256": "ad39404ce14a71ebc2df71fda4d70dc89f7f927b5fd1a3b859101629d986f9d9",
+      "evaluation_sha256": "9ce012af5894ffe2362aa3c6d8dae2a8500b0bd53ef7d64fd63b0b09bd2bff11",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/current/seed53",
+      "summary_path": "research/results/sync_ablation_v1/current_seed53.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "linear_seed53",
+      "study_cell": "linear",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "linear",
+      "config_overrides": {},
+      "seed": 53,
+      "config": "research/configs/sync_ablation_v1/linear_seed53.json",
+      "config_sha256": "6bb326f932f7e6ca04315532d1b1b2b8d10ebf858f863c58afe13bc5f9033191",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e870c147fb84242e1bbab2468b436880954fbb113afbd62d4c9cf3e8de493b2a",
+      "validation_sha256": "ad39404ce14a71ebc2df71fda4d70dc89f7f927b5fd1a3b859101629d986f9d9",
+      "evaluation_sha256": "9ce012af5894ffe2362aa3c6d8dae2a8500b0bd53ef7d64fd63b0b09bd2bff11",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/linear/seed53",
+      "summary_path": "research/results/sync_ablation_v1/linear_seed53.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "state_seed53",
+      "study_cell": "state",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "state",
+      "config_overrides": {},
+      "seed": 53,
+      "config": "research/configs/sync_ablation_v1/state_seed53.json",
+      "config_sha256": "0aaf158d93c75ffa7d5f38ecf3e31e0f702baa77398b98e2ca1d9a6c3cfb0fed",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e870c147fb84242e1bbab2468b436880954fbb113afbd62d4c9cf3e8de493b2a",
+      "validation_sha256": "ad39404ce14a71ebc2df71fda4d70dc89f7f927b5fd1a3b859101629d986f9d9",
+      "evaluation_sha256": "9ce012af5894ffe2362aa3c6d8dae2a8500b0bd53ef7d64fd63b0b09bd2bff11",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/state/seed53",
+      "summary_path": "research/results/sync_ablation_v1/state_seed53.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "shuffled_seed59",
+      "study_cell": "shuffled",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "shuffled",
+      "config_overrides": {},
+      "seed": 59,
+      "config": "research/configs/sync_ablation_v1/shuffled_seed59.json",
+      "config_sha256": "c5cb0bd51d00484a6b22fb023206b741f00c6ed13920b796b51c0ba50f532a28",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f2765d4be69cd616ec13b3d0ed7059adb6e57f5a5b3003e18493aa2617c45b26",
+      "validation_sha256": "47e1b55c10b9e35355e273f16c310301efaecabfb5ea7eb50d70ec849c74aa55",
+      "evaluation_sha256": "3173163f364d883902632f6a584cf25455ef7fa725c6fb72256e3546288ad3cb",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/shuffled/seed59",
+      "summary_path": "research/results/sync_ablation_v1/shuffled_seed59.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "nodecay_seed59",
+      "study_cell": "nodecay",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "nodecay",
+      "config_overrides": {},
+      "seed": 59,
+      "config": "research/configs/sync_ablation_v1/nodecay_seed59.json",
+      "config_sha256": "c827119ef5e76751de6efa5fa542606b1385acea0b7766cb478ada4532495835",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f2765d4be69cd616ec13b3d0ed7059adb6e57f5a5b3003e18493aa2617c45b26",
+      "validation_sha256": "47e1b55c10b9e35355e273f16c310301efaecabfb5ea7eb50d70ec849c74aa55",
+      "evaluation_sha256": "3173163f364d883902632f6a584cf25455ef7fa725c6fb72256e3546288ad3cb",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/nodecay/seed59",
+      "summary_path": "research/results/sync_ablation_v1/nodecay_seed59.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "current_seed59",
+      "study_cell": "current",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "current",
+      "config_overrides": {},
+      "seed": 59,
+      "config": "research/configs/sync_ablation_v1/current_seed59.json",
+      "config_sha256": "507e4718dc9a17520d766fe5f299f80add3badd06b7f837fc603109babe78199",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f2765d4be69cd616ec13b3d0ed7059adb6e57f5a5b3003e18493aa2617c45b26",
+      "validation_sha256": "47e1b55c10b9e35355e273f16c310301efaecabfb5ea7eb50d70ec849c74aa55",
+      "evaluation_sha256": "3173163f364d883902632f6a584cf25455ef7fa725c6fb72256e3546288ad3cb",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/current/seed59",
+      "summary_path": "research/results/sync_ablation_v1/current_seed59.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "linear_seed59",
+      "study_cell": "linear",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "linear",
+      "config_overrides": {},
+      "seed": 59,
+      "config": "research/configs/sync_ablation_v1/linear_seed59.json",
+      "config_sha256": "4aa379436eb7fec11781ba950e76e36a48adc838c91c0a1b5155d665f54cec1e",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f2765d4be69cd616ec13b3d0ed7059adb6e57f5a5b3003e18493aa2617c45b26",
+      "validation_sha256": "47e1b55c10b9e35355e273f16c310301efaecabfb5ea7eb50d70ec849c74aa55",
+      "evaluation_sha256": "3173163f364d883902632f6a584cf25455ef7fa725c6fb72256e3546288ad3cb",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/linear/seed59",
+      "summary_path": "research/results/sync_ablation_v1/linear_seed59.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "state_seed59",
+      "study_cell": "state",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "state",
+      "config_overrides": {},
+      "seed": 59,
+      "config": "research/configs/sync_ablation_v1/state_seed59.json",
+      "config_sha256": "3b5023794c34716bf2c30c43b49ddb515f5e55998adb758ae3b8f59bb70a412a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f2765d4be69cd616ec13b3d0ed7059adb6e57f5a5b3003e18493aa2617c45b26",
+      "validation_sha256": "47e1b55c10b9e35355e273f16c310301efaecabfb5ea7eb50d70ec849c74aa55",
+      "evaluation_sha256": "3173163f364d883902632f6a584cf25455ef7fa725c6fb72256e3546288ad3cb",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/state/seed59",
+      "summary_path": "research/results/sync_ablation_v1/state_seed59.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "shuffled_seed61",
+      "study_cell": "shuffled",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "shuffled",
+      "config_overrides": {},
+      "seed": 61,
+      "config": "research/configs/sync_ablation_v1/shuffled_seed61.json",
+      "config_sha256": "926deb3a25a09c0aaad03465c89c177c495822cbbb79b68e9b8cdf78ae2009d3",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f4a8ca57bd33b9e31791e40b25acfb2d813f6f96f66936485609744348f16d54",
+      "validation_sha256": "cd7cb655a8935ebf002abf56b5342017ff06d53cd1928e48c82f9b5794aaa3d1",
+      "evaluation_sha256": "86834db6a7aa16ae6e7b6ec5b9aab277260d48448f75e356e193286a598ca90b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/shuffled/seed61",
+      "summary_path": "research/results/sync_ablation_v1/shuffled_seed61.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "nodecay_seed61",
+      "study_cell": "nodecay",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "nodecay",
+      "config_overrides": {},
+      "seed": 61,
+      "config": "research/configs/sync_ablation_v1/nodecay_seed61.json",
+      "config_sha256": "9a170227c519c81da893c843c71fcecb89b74c8e69bc2be66780b851cc938d6f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f4a8ca57bd33b9e31791e40b25acfb2d813f6f96f66936485609744348f16d54",
+      "validation_sha256": "cd7cb655a8935ebf002abf56b5342017ff06d53cd1928e48c82f9b5794aaa3d1",
+      "evaluation_sha256": "86834db6a7aa16ae6e7b6ec5b9aab277260d48448f75e356e193286a598ca90b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/nodecay/seed61",
+      "summary_path": "research/results/sync_ablation_v1/nodecay_seed61.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "current_seed61",
+      "study_cell": "current",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "current",
+      "config_overrides": {},
+      "seed": 61,
+      "config": "research/configs/sync_ablation_v1/current_seed61.json",
+      "config_sha256": "ec346c167bd03a6a3d84c0d8dca26dac18803e0ea6da9fbd51e966d084469e7d",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f4a8ca57bd33b9e31791e40b25acfb2d813f6f96f66936485609744348f16d54",
+      "validation_sha256": "cd7cb655a8935ebf002abf56b5342017ff06d53cd1928e48c82f9b5794aaa3d1",
+      "evaluation_sha256": "86834db6a7aa16ae6e7b6ec5b9aab277260d48448f75e356e193286a598ca90b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/current/seed61",
+      "summary_path": "research/results/sync_ablation_v1/current_seed61.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "linear_seed61",
+      "study_cell": "linear",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "linear",
+      "config_overrides": {},
+      "seed": 61,
+      "config": "research/configs/sync_ablation_v1/linear_seed61.json",
+      "config_sha256": "1ea569b26f7cf7a59f154dbc9c4062a43298259bcd7d2cb44d4c502744b4df10",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f4a8ca57bd33b9e31791e40b25acfb2d813f6f96f66936485609744348f16d54",
+      "validation_sha256": "cd7cb655a8935ebf002abf56b5342017ff06d53cd1928e48c82f9b5794aaa3d1",
+      "evaluation_sha256": "86834db6a7aa16ae6e7b6ec5b9aab277260d48448f75e356e193286a598ca90b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/linear/seed61",
+      "summary_path": "research/results/sync_ablation_v1/linear_seed61.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "state_seed61",
+      "study_cell": "state",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "state",
+      "config_overrides": {},
+      "seed": 61,
+      "config": "research/configs/sync_ablation_v1/state_seed61.json",
+      "config_sha256": "f7cbc64ce74a7bc51ada7a43149fe9b1a5995c70734d75a03d7ba417df345cc3",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f4a8ca57bd33b9e31791e40b25acfb2d813f6f96f66936485609744348f16d54",
+      "validation_sha256": "cd7cb655a8935ebf002abf56b5342017ff06d53cd1928e48c82f9b5794aaa3d1",
+      "evaluation_sha256": "86834db6a7aa16ae6e7b6ec5b9aab277260d48448f75e356e193286a598ca90b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/state/seed61",
+      "summary_path": "research/results/sync_ablation_v1/state_seed61.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "shuffled_seed67",
+      "study_cell": "shuffled",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "shuffled",
+      "config_overrides": {},
+      "seed": 67,
+      "config": "research/configs/sync_ablation_v1/shuffled_seed67.json",
+      "config_sha256": "a03000bcf6fd0eaa97215f87428d3f008d5633897b74051f2d670d378f81b2cc",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "65e09d31eb403c16609541d8b26a7eb76f184ab86b2501c80a92057a67aa8fa9",
+      "validation_sha256": "07908f324cc7e01e7afa55136e5230256f0f2fd112c112a160c658dbc33abf76",
+      "evaluation_sha256": "25adb3a453e274f78f6c46609f7c9976edab1698cfeda38ae3e4bbc3f974fc8c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/shuffled/seed67",
+      "summary_path": "research/results/sync_ablation_v1/shuffled_seed67.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "nodecay_seed67",
+      "study_cell": "nodecay",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "nodecay",
+      "config_overrides": {},
+      "seed": 67,
+      "config": "research/configs/sync_ablation_v1/nodecay_seed67.json",
+      "config_sha256": "bb248eb1d330534c27999df1cf10f60c8453fe3986ae8d871725764450098348",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "65e09d31eb403c16609541d8b26a7eb76f184ab86b2501c80a92057a67aa8fa9",
+      "validation_sha256": "07908f324cc7e01e7afa55136e5230256f0f2fd112c112a160c658dbc33abf76",
+      "evaluation_sha256": "25adb3a453e274f78f6c46609f7c9976edab1698cfeda38ae3e4bbc3f974fc8c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/nodecay/seed67",
+      "summary_path": "research/results/sync_ablation_v1/nodecay_seed67.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "current_seed67",
+      "study_cell": "current",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "current",
+      "config_overrides": {},
+      "seed": 67,
+      "config": "research/configs/sync_ablation_v1/current_seed67.json",
+      "config_sha256": "3db659bf8ad16e9aad08a2b151824f5b4cfa2422c3be2116cff211238cb9b657",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "65e09d31eb403c16609541d8b26a7eb76f184ab86b2501c80a92057a67aa8fa9",
+      "validation_sha256": "07908f324cc7e01e7afa55136e5230256f0f2fd112c112a160c658dbc33abf76",
+      "evaluation_sha256": "25adb3a453e274f78f6c46609f7c9976edab1698cfeda38ae3e4bbc3f974fc8c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/current/seed67",
+      "summary_path": "research/results/sync_ablation_v1/current_seed67.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "linear_seed67",
+      "study_cell": "linear",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "linear",
+      "config_overrides": {},
+      "seed": 67,
+      "config": "research/configs/sync_ablation_v1/linear_seed67.json",
+      "config_sha256": "e49693cc163d56faf9ca3dcde0cc4a40b9a35ca02fb5efeb9ab29bd9c3fb2e09",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "65e09d31eb403c16609541d8b26a7eb76f184ab86b2501c80a92057a67aa8fa9",
+      "validation_sha256": "07908f324cc7e01e7afa55136e5230256f0f2fd112c112a160c658dbc33abf76",
+      "evaluation_sha256": "25adb3a453e274f78f6c46609f7c9976edab1698cfeda38ae3e4bbc3f974fc8c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/linear/seed67",
+      "summary_path": "research/results/sync_ablation_v1/linear_seed67.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "state_seed67",
+      "study_cell": "state",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_ablation",
+      "factory_arg": "state",
+      "config_overrides": {},
+      "seed": 67,
+      "config": "research/configs/sync_ablation_v1/state_seed67.json",
+      "config_sha256": "7a2229fc3d48612cf4fb6c6600d459105e1fdfcdfa67f9d1fbe7391c8183db0a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "65e09d31eb403c16609541d8b26a7eb76f184ab86b2501c80a92057a67aa8fa9",
+      "validation_sha256": "07908f324cc7e01e7afa55136e5230256f0f2fd112c112a160c658dbc33abf76",
+      "evaluation_sha256": "25adb3a453e274f78f6c46609f7c9976edab1698cfeda38ae3e4bbc3f974fc8c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v1/state/seed67",
+      "summary_path": "research/results/sync_ablation_v1/state_seed67.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    }
+  ],
+  "seeds": [
+    47,
+    53,
+    59,
+    61,
+    67
+  ],
+  "ablations": [
+    "shuffled",
+    "nodecay",
+    "current",
+    "linear",
+    "state"
+  ],
+  "controls": {
+    "sync_seed47": {
+      "evaluation": "research/results/group_s3_v1/sync_seed47.evaluation.json",
+      "sha256": "58b870348e9f99f02be867f0cd78eccf1813812664c3418bd23410f61a5ebf66"
+    },
+    "sync_seed53": {
+      "evaluation": "research/results/group_s3_v1/sync_seed53.evaluation.json",
+      "sha256": "c06647bea27d47d42dc8ea0b5daade809c10dbf5695bcb61e62a2e9638947c9b"
+    },
+    "sync_seed59": {
+      "evaluation": "research/results/group_s3_v1/sync_seed59.evaluation.json",
+      "sha256": "3c37916f33f13cba7e3e76d10f18249f8a6dedca82855373143cf377fefb42f6"
+    },
+    "sync_seed61": {
+      "evaluation": "research/results/group_s3_v1/sync_seed61.evaluation.json",
+      "sha256": "c4e734da172f3b6fcc7497410b065f1086b9cd4aa4e42e8849bdaee7e8b4262c"
+    },
+    "sync_seed67": {
+      "evaluation": "research/results/group_s3_v1/sync_seed67.evaluation.json",
+      "sha256": "d5ca4299185ca0963efe0615fd76355f93dfab2d20f2d8d8f6a3db9f991ff43e"
+    },
+    "rdt_seed47": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed47.evaluation.json",
+      "sha256": "c5a60770b5b50569d29b20760397d9cc7b0980d4f4ae8510e37c186eb8c0f7f4"
+    },
+    "rdt_seed53": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed53.evaluation.json",
+      "sha256": "8b65047cc5370cac020257fef978044799f029572e1461ee731ce2ceafd93a84"
+    },
+    "rdt_seed59": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed59.evaluation.json",
+      "sha256": "777b29b4d119be62c2f5f7f15338a9b29e14b96c05a27832da36869d10044045"
+    },
+    "rdt_seed61": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed61.evaluation.json",
+      "sha256": "47e7ffb192ec73d10f1e9637ba58b0c51521533932ce24b7cef0185392e48386"
+    },
+    "rdt_seed67": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed67.evaluation.json",
+      "sha256": "ed410e9f1cb2c325de024ec035be15872659584982c515e360ac84552d2261c8"
+    },
+    "rdt_wide_seed47": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed47.evaluation.json",
+      "sha256": "3dcb89f0096ab056fa8aab2ab14a5e99e6a5f38bc67dc00369e029790f7d120c"
+    },
+    "rdt_wide_seed53": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed53.evaluation.json",
+      "sha256": "74248154bf7d55018a54a9f33fa993865bd7c90149656f07186340e19a1ee2ad"
+    },
+    "rdt_wide_seed59": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed59.evaluation.json",
+      "sha256": "e40ea29c6246eea2e2c6eaef3aa743ad7d680deb07c5021381bddcbb8341af58"
+    },
+    "rdt_wide_seed61": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed61.evaluation.json",
+      "sha256": "5f7fe151b4c7bd3f5d1991cba929b071379da36151d87fbce6174624b826b619"
+    },
+    "rdt_wide_seed67": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed67.evaluation.json",
+      "sha256": "4525cf682524f48621f560c6ef3d528a8a61d479bd0372b1f83f8eb36241bd74"
+    }
+  },
+  "control_study": "research/results/group_s3_v1",
+  "control_checkpoints_sha256": "5f5e47a7d2ab6aba78d8649305c6912fb468534bde0201df5ab42bd7d59cd13d",
+  "control_summary_sha256": "811b8d6d0f86774a33783da1b19747ab67aa9942fed8e8968e2c5751c6692224",
+  "role": "development mechanism ablations of the sync cell on the S3 study data; paired with frozen controls; no test set",
+  "dataset": "research/data/group_s3_v1",
+  "dataset_manifest_sha256": "5b13e9696463117afa3d6edd32194a988a7b5b4cfe694b2e3336ffdd86dde3d6",
+  "training_source_sha256": {
+    "ctm_transformer/dense_experiment.py": "661ebf10abf894e1ca346cd8cc6312f10fbdb121686d5f28eb8cb27456eefdde",
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "ctm_transformer/ctm_variants.py": "5bd30fce9b0c8bedab531ef66d1e3c9e7f417914f76c7a1bf2e6ac5c610b9c85",
+    "ctm_transformer/sync_rdt.py": "e0f26f7fe65f30c1c9c5519238411d82433c25f81c9298618a0544a19f88b0f4",
+    "ctm_transformer/sync_ablations.py": "928bb8b7e5c1962c1e725000909c01f7b736b9f229c6022426b33833ca8d5817",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5",
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36"
+  },
+  "primary_checkpoint_step": 10000,
+  "warmup_steps": 100,
+  "eval_interval": 250,
+  "learning_rate": 0.0003,
+  "train_max_len": 16,
+  "evaluation_length": 32,
+  "chance": 0.16666666666666666,
+  "gpu_queues": {
+    "cuda:0#0": [
+      "shuffled_seed47",
+      "nodecay_seed53",
+      "current_seed59",
+      "linear_seed61",
+      "state_seed67"
+    ],
+    "cuda:0#1": [
+      "nodecay_seed47",
+      "current_seed53",
+      "linear_seed59",
+      "state_seed61"
+    ],
+    "cuda:0#2": [
+      "current_seed47",
+      "linear_seed53",
+      "state_seed59",
+      "shuffled_seed67"
+    ],
+    "cuda:1#3": [
+      "linear_seed47",
+      "state_seed53",
+      "shuffled_seed61",
+      "nodecay_seed67"
+    ],
+    "cuda:1#4": [
+      "state_seed47",
+      "shuffled_seed59",
+      "nodecay_seed61",
+      "current_seed67"
+    ],
+    "cuda:1#5": [
+      "shuffled_seed53",
+      "nodecay_seed59",
+      "current_seed61",
+      "linear_seed67"
+    ]
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "shuffled_seed47",
+      "nodecay_seed47",
+      "current_seed47",
+      "linear_seed47",
+      "state_seed47",
+      "shuffled_seed53",
+      "nodecay_seed53",
+      "current_seed53",
+      "linear_seed53",
+      "state_seed53",
+      "shuffled_seed59",
+      "nodecay_seed59",
+      "current_seed59",
+      "linear_seed59",
+      "state_seed59"
+    ],
+    "cuda:1": [
+      "shuffled_seed61",
+      "nodecay_seed61",
+      "current_seed61",
+      "linear_seed61",
+      "state_seed61",
+      "shuffled_seed67",
+      "nodecay_seed67",
+      "current_seed67",
+      "linear_seed67",
+      "state_seed67"
+    ]
+  }
+}
