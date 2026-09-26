@@ -16,3 +16,4 @@ research/data/dense_calibration_v1/pointer/train_fresh_onehop.jsonl
 research/data/dense_calibration_v1/pointer/train_fresh_multihop.jsonl
 research/runs/pointer_probes/*/data/train.jsonl
 research/data/syncrdt_retrieval_v1/seed*/train.jsonl
+research/runs/group_probes/*/data/train.jsonl
