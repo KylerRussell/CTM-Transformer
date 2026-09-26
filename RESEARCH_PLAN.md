@@ -222,3 +222,14 @@ Exploratory probes found a learnable retrieval format (all-keys MQAR) and two st
 To test CTM's mechanisms where retrieval is possible, [Sync-RDT](research/SYNC_RDT_DESIGN.md) adds them to the RDT scaffold. With both mechanisms off it reproduces RDT exactly. A frozen [six-cell, five-seed study](research/results/syncrdt_retrieval_v1/RESULTS.md) found **no declared effect** of either mechanism on retrieval sample efficiency. A single-seed development advantage for synchronization did not replicate. The width-matched RDT control was the only cell to learn at every seed.
 
 The mechanisms still need testing on multi-step computation, which retrieval does not require. Next is a serial-depth task that needs iteration without first needing in-context retrieval. See [interpretation](research/results/syncrdt_retrieval_v1/INTERPRETATION.md).
+
+
+## First positive mechanism result: synchronization extends serial state — 2026-09-26
+
+On the S₃ word problem (running products, dense labels, fresh words of lengths 1–16), a frozen [seven-cell, five-seed study](research/results/group_s3_v1/RESULTS.md) found:
+- **CTM's synchronization-derived query terms inside the recurrent-depth scaffold roughly double the correct running-product prefix at the same step budget** (median 10 against 5). The effect holds at every seed against both RDT and a width-matched RDT, and sync's gain keeps growing with inference steps (median 3, 7, 10, 11 at T = 4, 8, 16, 32).
+- CTM's temporal MLPs do not help alone and dilute the effect when combined.
+- The standalone reference CTM does not use its ticks and matches the fixed-depth Transformer.
+- Plain recurrence uses its steps but does not reliably beat fixed depth. No model extrapolates past its trained lengths.
+
+This supports a specific claim: synchronization of recurrent state histories, used to steer attention, makes recurrent depth more effective. It is not a claim for the CTM architecture as a whole. Before it becomes a paper claim, it needs locked confirmation and mechanism ablations; see the [plan](research/SYNC_CONFIRMATION_PLAN.md) and [interpretation](research/results/group_s3_v1/INTERPRETATION.md).

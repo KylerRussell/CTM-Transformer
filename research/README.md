@@ -265,11 +265,16 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 - [x] Design and implement [Sync-RDT](SYNC_RDT_DESIGN.md), CTM's temporal MLPs and synchronization queries inside the RDT scaffold. With both mechanisms off it reproduces RDT exactly.
 - [x] Freeze and run the [retrieval sample-efficiency study](SYNC_RDT_RETRIEVAL.md) (6 cells × 5 seeds). **No declared mechanism effect.** The width-matched RDT is the only cell to learn at every seed. See [results](results/syncrdt_retrieval_v1/RESULTS.md) and [interpretation](results/syncrdt_retrieval_v1/INTERPRETATION.md).
 
+## Serial-depth task: S₃ word problem
+
+- [x] Implement the group word problem (running products over Z₂, S₃ and A₅) as dense sequence labeling with no label leak. Development probes: on S₃, RDT's correct prefix grows with inference steps, CTM's does not, and A₅ is at the floor. See [probes](results/group_probes/GROUP_PROBES.md).
+- [x] Freeze and run the [S₃ study](GROUP_S3.md) (7 cells × 5 seeds). **Synchronization-derived queries extend serial state tracking:** median correct prefix 10 against 5 for both RDT controls, larger at every seed. Temporal MLPs alone do not help. The reference CTM does not use its ticks, and plain RDT does not beat the Transformer. See [results](results/group_s3_v1/RESULTS.md) and [interpretation](results/group_s3_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Design and calibrate a serial-depth task that needs iteration without first needing in-context retrieval. Test the CTM mechanisms there under the fixed operating-point rules, with at least five seeds and escape counts reported. See [draft design](SERIAL_DEPTH_DESIGN.md).
+1. Confirm the synchronization result on locked data (fresh seeds, a pre-registered test set, a second setting), and run mechanism ablations that identify what in synchronization matters. See the [confirmation and ablation plan](SYNC_CONFIRMATION_PLAN.md).
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

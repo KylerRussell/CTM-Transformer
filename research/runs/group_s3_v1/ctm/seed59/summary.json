@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "model_family": "ctm",
+  "steps": 10000,
+  "runner": "shared_research_v3",
+  "tokens_seen": 3360000,
+  "supervised_tokens_seen": 3040000,
+  "examples_seen": 320000,
+  "padded_token_positions": 5716448,
+  "token_block_applications": 182926336,
+  "depth_counts": {
+    "16": 10000
+  },
+  "training_seconds": 6092.271814563486,
+  "training_tokens_per_second": 551.5183994200603,
+  "wall_seconds": 6204.465900898998,
+  "best_validation_loss": 0.4432914100195232,
+  "best_readout_policy": "confidence",
+  "best_validation_loss_by_readout": {
+    "confidence": 0.4432914100195232
+  },
+  "peak_allocated_bytes": 848156672,
+  "parameters": {
+    "total": 544839,
+    "token_embedding": 9088,
+    "position_embedding": 16384,
+    "readout": 42311,
+    "other": 477056
+  },
+  "config_identity": {
+    "name": "ctm_seed59_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/group_s3_v1/ctm_seed59.json",
+    "sha256": "e78de02c433dbf27733901a1c095923726a8bbc518db483d6986d1a730f9d51c"
+  }
+}

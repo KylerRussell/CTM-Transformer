@@ -94,3 +94,14 @@ The freeze audit checks, for every run:
 - The reference CTM keeps its recipe objective (uniform temporal supervision). Other families use final CE, so CTM-versus-RDT differences include the objective.
 - Parameter counts differ by up to 7.7%. `rdt_wide` controls the largest difference.
 - Development data, not a locked test.
+
+## Outcome — 2026-09-26, 17:14 UTC
+
+All 35 runs completed and passed the freeze audit.
+- **Sync extends state tracking:** it exceeds both `rdt` (5/5 seeds, median +7 positions) and `rdt_wide` (5/5, +4), with median correct prefix 10 against 5.
+- `sync_rdt` also exceeds both (4/5, +4). `history` does not.
+- Every recurrent Sync-RDT/RDT cell uses its steps. The reference CTM does not (prefix 5 at every budget, like the Transformer).
+- Plain RDT does not exceed the Transformer.
+- No cell extrapolates past the trained lengths.
+
+See [results](results/group_s3_v1/RESULTS.md) and [interpretation](results/group_s3_v1/INTERPRETATION.md).
