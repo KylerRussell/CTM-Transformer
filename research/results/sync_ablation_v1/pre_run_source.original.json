@@ -20,13 +20,13 @@
     "scripts/run_sync_ablation.py": "d64fe33941bbf6f5933cc890f9d205528cb7b5dbf3d87c364aaf5cc1835163b3",
     "scripts/freeze_sync_ablation.py": "b7635fdb92a5f07ad586e4bcacd1a5ee4f0546218124b991086720b7f157b419",
     "scripts/evaluate_sync_ablation.py": "4e41eb823fcf8416642e96bbac041a4430baaece02280c167da26f260dba9381",
-    "scripts/summarize_sync_ablation.py": "a8484afc0238fe92c897f336ff2d0106dc96793d2493a4ebafb69b0133146f5f",
+    "scripts/summarize_sync_ablation.py": "18b6b68ef68c08b41bc2184a81389fcb4a750e4a00d32e1d6bb8350045e05c6b",
     "scripts/study_supervisor.py": "d9e0eb79113c3be6491f9748e3a805ba37505cbd01b98a12c828aba41d84d14f",
     "scripts/supervise_sync_ablation.py": "08ce6a3d55fd84bd3fc57d53ca0141f014451631caac954f248e5f6b1762bb62",
     "tests/test_sync_ablations.py": "4aa11d902ee84732114e0b234e60cee18eeb491809e4006d6ffa0930e5bf9072",
     "tests/test_sync_rdt.py": "534533d4cbb495a2d0153ff609a58b31ea9e81c8f99bdd98ded102bf52b01865",
     "tests/test_group_s3.py": "5b18fb6e028f1297eccfab8450c819d58d9f79706adb4d683d49a8fe7ed43446",
-    "research/results/sync_ablation_v1/registry.json": "473f4f5f7811983a08c75024ea701915efe0120f5e130a2b3d3a9560b3ec6604",
+    "research/results/sync_ablation_v1/registry.json": "da7ab155ac21e17bc2695c046ee8bf55963abb9d148cb4148145803b818f65f4",
     "research/results/sync_ablation_v1/PLAN_BEFORE_RUNS.md": "b1655cfcccc50047c8d26105f71009373633ae93e410d26d24a55a4da842285e",
     "research/results/sync_ablation_v1/checks.xml": "07d96a5838d9d4b9e89221ad4303d50f83fd47f3d36ddeb7c044f388a0e813e6",
     "research/data/group_s3_v1/manifest.json": "5b13e9696463117afa3d6edd32194a988a7b5b4cfe694b2e3336ffdd86dde3d6",
@@ -56,13 +56,7 @@
     "research/configs/sync_ablation_v1/nodecay_seed67.json": "bb248eb1d330534c27999df1cf10f60c8453fe3986ae8d871725764450098348",
     "research/configs/sync_ablation_v1/current_seed67.json": "3db659bf8ad16e9aad08a2b151824f5b4cfa2422c3be2116cff211238cb9b657",
     "research/configs/sync_ablation_v1/linear_seed67.json": "e49693cc163d56faf9ca3dcde0cc4a40b9a35ca02fb5efeb9ab29bd9c3fb2e09",
-    "research/configs/sync_ablation_v1/state_seed67.json": "7a2229fc3d48612cf4fb6c6600d459105e1fdfcdfa67f9d1fbe7391c8183db0a",
-    "research/results/sync_ablation_v1/AMENDMENT_1.md": "41a5d770be5dd693749b6733cab837068683fe4fb1a2a5196951b7582852d4aa"
+    "research/configs/sync_ablation_v1/state_seed67.json": "7a2229fc3d48612cf4fb6c6600d459105e1fdfcdfa67f9d1fbe7391c8183db0a"
   },
-  "archive_sha256": "782408ab4030b261031fcd4ef3f2a7ded3bbb194ae8d4e7b3db3323004617703",
-  "amendment": {
-    "id": 1,
-    "original": "pre_run_source.original.json",
-    "document": "AMENDMENT_1.md"
-  }
+  "archive_sha256": "782408ab4030b261031fcd4ef3f2a7ded3bbb194ae8d4e7b3db3323004617703"
 }

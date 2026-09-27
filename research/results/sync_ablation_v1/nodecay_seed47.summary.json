@@ -1,0 +1,39 @@
+{
+  "complete": true,
+  "model_family": "recurrent_depth",
+  "steps": 10000,
+  "runner": "shared_research_v3",
+  "tokens_seen": 3360000,
+  "supervised_tokens_seen": 3040000,
+  "examples_seen": 320000,
+  "padded_token_positions": 5714304,
+  "token_block_applications": 194286336,
+  "depth_counts": {
+    "16": 10000
+  },
+  "training_seconds": 3793.284247560543,
+  "training_tokens_per_second": 885.7759610714152,
+  "wall_seconds": 3876.897989858,
+  "best_validation_loss": 0.12613515555858612,
+  "best_readout_policy": "confidence",
+  "best_validation_loss_by_readout": {
+    "confidence": 0.12613515555858612
+  },
+  "peak_allocated_bytes": 244520448,
+  "parameters": {
+    "total": 550688,
+    "token_embedding": 6816,
+    "position_embedding": 12288,
+    "readout": 6816,
+    "other": 524768
+  },
+  "config_identity": {
+    "name": "nodecay_seed47_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/sync_ablation_v1/nodecay_seed47.json",
+    "sha256": "278682d3be7ad6d5610e502547a8c73d18117d1aa59a0ac89f48575a1f415b84"
+  },
+  "cell": "nodecay_seed47",
+  "seed": 47,
+  "worker_source_sha256": "d64fe33941bbf6f5933cc890f9d205528cb7b5dbf3d87c364aaf5cc1835163b3"
+}

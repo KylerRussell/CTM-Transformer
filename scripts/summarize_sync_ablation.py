@@ -61,6 +61,11 @@ def main():
         f=lambda x:f"{x['larger_seeds']}/{x['smaller_seeds']}, {x['median_difference']:+g}"
         L.append(f"| {kind} | {f(o['sync_vs_ablation'])} | {f(o['ablation_vs_rdt'])} | {f(o['ablation_vs_rdt_wide'])} | "
                  f"{'yes' if o['uses_steps']['first_exceeds'] else 'no'} | **{o['classification']}** |")
+    for kind,d in registry.get('diverged',{}).items():
+        steps=', '.join(f"{seed}: step {v['last_completed_step']}" for seed,v in d['evidence'].items())
+        L+=['',f"**{kind}: diverged at every seed** ({d['error']}; last completed updates {steps}). Recorded, not retried; see [amendment 1](AMENDMENT_1.md)."]
+        report['diverged']=registry['diverged']
+    (ROOT/'summary.json').write_text(json.dumps(report,indent=2)+'\n')
     L+=['','![Accuracy by position](accuracy_by_position.png)','','See [frozen protocol](PLAN_BEFORE_RUNS.md), `registry.json`, `checkpoints.json` and the per-run evaluation files.']
     (ROOT/'RESULTS.md').write_text('\n'.join(L)+'\n')
 

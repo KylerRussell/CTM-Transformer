@@ -1,0 +1,23 @@
+{"step": 1, "tokens_seen": 388, "supervised_tokens_seen": 356, "examples_seen": 32, "padded_token_positions": 576, "loss": 4.2518439292907715, "thought_steps": 16, "block_applications_per_sequence": 34, "lr": 2.9999999999999997e-06, "gradient_norm": 4.4934401512146, "update_seconds": 0.9660236470226664}
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/kasm-user/Documents/CTM-Transformer/scripts/run_sync_ablation.py", line 57, in <module>
+    if __name__=='__main__':main()
+  File "/home/kasm-user/Documents/CTM-Transformer/scripts/run_sync_ablation.py", line 52, in main
+    try:run_cell(r,entries[cell],device)
+  File "/home/kasm-user/Documents/CTM-Transformer/scripts/run_sync_ablation.py", line 35, in run_cell
+    result=train_dense_experiment(c,identity,entry['seed'],train,valid,evaluate_dense,entry['selection_readouts'],
+  File "/home/kasm-user/Documents/CTM-Transformer/ctm_transformer/dense_experiment.py", line 153, in train_dense_experiment
+    norm=torch.nn.utils.clip_grad_norm_(model.parameters(),config.grad_clip,error_if_nonfinite=True)
+  File "/home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/torch/nn/utils/clip_grad.py", line 34, in _no_grad_wrapper
+    return func(*args, **kwargs)
+  File "/home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/torch/nn/utils/clip_grad.py", line 215, in clip_grad_norm_
+    total_norm = _get_total_norm(grads, norm_type, error_if_nonfinite, foreach)
+  File "/home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/torch/nn/utils/clip_grad.py", line 34, in _no_grad_wrapper
+    return func(*args, **kwargs)
+  File "/home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/torch/nn/utils/clip_grad.py", line 102, in _get_total_norm
+    raise RuntimeError(
+RuntimeError: The total norm of order 2.0 for gradients from `parameters` is non-finite, so it cannot be clipped. To disable this error and scale the gradients by the non-finite norm anyway, set `error_if_nonfinite=False`
