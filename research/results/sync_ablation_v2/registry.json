@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "name": "sync_ablation_v2",
+  "runner": "shared_research_v3",
+  "entries": [
+    {
+      "cell": "self_seed47",
+      "study_cell": "self",
+      "model_family": "recurrent_depth",
+      "factory_kind": "self_pair",
+      "factory_arg": "self",
+      "config_overrides": {},
+      "seed": 47,
+      "config": "research/configs/sync_ablation_v2/self_seed47.json",
+      "config_sha256": "d4342e76cefb0508a559abf3a808b1f3f1218392f2e6bf69bbd8c18241379074",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "85e38f4f6b9c016b722ba617a995073af2887a172d022ad16de10133c9d7e9d4",
+      "validation_sha256": "68afd6c16ff4070f77bcd0636c20a6bb1107c52daa30286dad1710aba3164029",
+      "evaluation_sha256": "55589cfab067dd6393303726e4d01f112e0fd622d63a83764c656a1b08bddc9a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v2/self/seed47",
+      "summary_path": "research/results/sync_ablation_v2/self_seed47.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "self_seed53",
+      "study_cell": "self",
+      "model_family": "recurrent_depth",
+      "factory_kind": "self_pair",
+      "factory_arg": "self",
+      "config_overrides": {},
+      "seed": 53,
+      "config": "research/configs/sync_ablation_v2/self_seed53.json",
+      "config_sha256": "d64d47f78ee0844263436eca3214cf6585edf1df22b1df999d2a70314107203a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e870c147fb84242e1bbab2468b436880954fbb113afbd62d4c9cf3e8de493b2a",
+      "validation_sha256": "ad39404ce14a71ebc2df71fda4d70dc89f7f927b5fd1a3b859101629d986f9d9",
+      "evaluation_sha256": "9ce012af5894ffe2362aa3c6d8dae2a8500b0bd53ef7d64fd63b0b09bd2bff11",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v2/self/seed53",
+      "summary_path": "research/results/sync_ablation_v2/self_seed53.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "self_seed59",
+      "study_cell": "self",
+      "model_family": "recurrent_depth",
+      "factory_kind": "self_pair",
+      "factory_arg": "self",
+      "config_overrides": {},
+      "seed": 59,
+      "config": "research/configs/sync_ablation_v2/self_seed59.json",
+      "config_sha256": "ac020fad935575ce47b36a1411422c3e5e67027577e3ef3c53b81f47df345366",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f2765d4be69cd616ec13b3d0ed7059adb6e57f5a5b3003e18493aa2617c45b26",
+      "validation_sha256": "47e1b55c10b9e35355e273f16c310301efaecabfb5ea7eb50d70ec849c74aa55",
+      "evaluation_sha256": "3173163f364d883902632f6a584cf25455ef7fa725c6fb72256e3546288ad3cb",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v2/self/seed59",
+      "summary_path": "research/results/sync_ablation_v2/self_seed59.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "self_seed61",
+      "study_cell": "self",
+      "model_family": "recurrent_depth",
+      "factory_kind": "self_pair",
+      "factory_arg": "self",
+      "config_overrides": {},
+      "seed": 61,
+      "config": "research/configs/sync_ablation_v2/self_seed61.json",
+      "config_sha256": "d84243bdf9bd909f989a69eb3461ebb54d81cbe80d8b05fe4de4fac9e95a68cf",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f4a8ca57bd33b9e31791e40b25acfb2d813f6f96f66936485609744348f16d54",
+      "validation_sha256": "cd7cb655a8935ebf002abf56b5342017ff06d53cd1928e48c82f9b5794aaa3d1",
+      "evaluation_sha256": "86834db6a7aa16ae6e7b6ec5b9aab277260d48448f75e356e193286a598ca90b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v2/self/seed61",
+      "summary_path": "research/results/sync_ablation_v2/self_seed61.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    {
+      "cell": "self_seed67",
+      "study_cell": "self",
+      "model_family": "recurrent_depth",
+      "factory_kind": "self_pair",
+      "factory_arg": "self",
+      "config_overrides": {},
+      "seed": 67,
+      "config": "research/configs/sync_ablation_v2/self_seed67.json",
+      "config_sha256": "97c9accfe38f91aee9a3f29b9894a02c70def2e04e229f3c0ecea56d754e2940",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "65e09d31eb403c16609541d8b26a7eb76f184ab86b2501c80a92057a67aa8fa9",
+      "validation_sha256": "07908f324cc7e01e7afa55136e5230256f0f2fd112c112a160c658dbc33abf76",
+      "evaluation_sha256": "25adb3a453e274f78f6c46609f7c9976edab1698cfeda38ae3e4bbc3f974fc8c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/sync_ablation_v2/self/seed67",
+      "summary_path": "research/results/sync_ablation_v2/self_seed67.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    }
+  ],
+  "seeds": [
+    47,
+    53,
+    59,
+    61,
+    67
+  ],
+  "ablations": [
+    "self"
+  ],
+  "controls": {
+    "sync_seed47": {
+      "evaluation": "research/results/group_s3_v1/sync_seed47.evaluation.json",
+      "sha256": "58b870348e9f99f02be867f0cd78eccf1813812664c3418bd23410f61a5ebf66"
+    },
+    "sync_seed53": {
+      "evaluation": "research/results/group_s3_v1/sync_seed53.evaluation.json",
+      "sha256": "c06647bea27d47d42dc8ea0b5daade809c10dbf5695bcb61e62a2e9638947c9b"
+    },
+    "sync_seed59": {
+      "evaluation": "research/results/group_s3_v1/sync_seed59.evaluation.json",
+      "sha256": "3c37916f33f13cba7e3e76d10f18249f8a6dedca82855373143cf377fefb42f6"
+    },
+    "sync_seed61": {
+      "evaluation": "research/results/group_s3_v1/sync_seed61.evaluation.json",
+      "sha256": "c4e734da172f3b6fcc7497410b065f1086b9cd4aa4e42e8849bdaee7e8b4262c"
+    },
+    "sync_seed67": {
+      "evaluation": "research/results/group_s3_v1/sync_seed67.evaluation.json",
+      "sha256": "d5ca4299185ca0963efe0615fd76355f93dfab2d20f2d8d8f6a3db9f991ff43e"
+    },
+    "rdt_seed47": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed47.evaluation.json",
+      "sha256": "c5a60770b5b50569d29b20760397d9cc7b0980d4f4ae8510e37c186eb8c0f7f4"
+    },
+    "rdt_seed53": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed53.evaluation.json",
+      "sha256": "8b65047cc5370cac020257fef978044799f029572e1461ee731ce2ceafd93a84"
+    },
+    "rdt_seed59": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed59.evaluation.json",
+      "sha256": "777b29b4d119be62c2f5f7f15338a9b29e14b96c05a27832da36869d10044045"
+    },
+    "rdt_seed61": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed61.evaluation.json",
+      "sha256": "47e7ffb192ec73d10f1e9637ba58b0c51521533932ce24b7cef0185392e48386"
+    },
+    "rdt_seed67": {
+      "evaluation": "research/results/group_s3_v1/rdt_seed67.evaluation.json",
+      "sha256": "ed410e9f1cb2c325de024ec035be15872659584982c515e360ac84552d2261c8"
+    },
+    "rdt_wide_seed47": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed47.evaluation.json",
+      "sha256": "3dcb89f0096ab056fa8aab2ab14a5e99e6a5f38bc67dc00369e029790f7d120c"
+    },
+    "rdt_wide_seed53": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed53.evaluation.json",
+      "sha256": "74248154bf7d55018a54a9f33fa993865bd7c90149656f07186340e19a1ee2ad"
+    },
+    "rdt_wide_seed59": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed59.evaluation.json",
+      "sha256": "e40ea29c6246eea2e2c6eaef3aa743ad7d680deb07c5021381bddcbb8341af58"
+    },
+    "rdt_wide_seed61": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed61.evaluation.json",
+      "sha256": "5f7fe151b4c7bd3f5d1991cba929b071379da36151d87fbce6174624b826b619"
+    },
+    "rdt_wide_seed67": {
+      "evaluation": "research/results/group_s3_v1/rdt_wide_seed67.evaluation.json",
+      "sha256": "4525cf682524f48621f560c6ef3d528a8a61d479bd0372b1f83f8eb36241bd74"
+    }
+  },
+  "control_study": "research/results/group_s3_v1",
+  "control_checkpoints_sha256": "5f5e47a7d2ab6aba78d8649305c6912fb468534bde0201df5ab42bd7d59cd13d",
+  "control_summary_sha256": "811b8d6d0f86774a33783da1b19747ab67aa9942fed8e8968e2c5751c6692224",
+  "role": "development ablation A7 (self-pairs) of the sync cell on the S3 study data; paired with frozen controls; no test set",
+  "dataset": "research/data/group_s3_v1",
+  "dataset_manifest_sha256": "5b13e9696463117afa3d6edd32194a988a7b5b4cfe694b2e3336ffdd86dde3d6",
+  "training_source_sha256": {
+    "ctm_transformer/dense_experiment.py": "661ebf10abf894e1ca346cd8cc6312f10fbdb121686d5f28eb8cb27456eefdde",
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "ctm_transformer/ctm_variants.py": "5bd30fce9b0c8bedab531ef66d1e3c9e7f417914f76c7a1bf2e6ac5c610b9c85",
+    "ctm_transformer/sync_rdt.py": "e0f26f7fe65f30c1c9c5519238411d82433c25f81c9298618a0544a19f88b0f4",
+    "ctm_transformer/sync_ablations.py": "928bb8b7e5c1962c1e725000909c01f7b736b9f229c6022426b33833ca8d5817",
+    "ctm_transformer/sync_ablation_self.py": "e6a8b8a9b54f49fb2674b3f7ee0459f4a1f6f49e1240dfd6dc687d5c076b9a8c",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5",
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36"
+  },
+  "primary_checkpoint_step": 10000,
+  "warmup_steps": 100,
+  "eval_interval": 250,
+  "learning_rate": 0.0003,
+  "train_max_len": 16,
+  "evaluation_length": 32,
+  "chance": 0.16666666666666666,
+  "gpu_queues": {
+    "cuda:0#0": [
+      "self_seed47"
+    ],
+    "cuda:0#1": [
+      "self_seed53"
+    ],
+    "cuda:0#2": [
+      "self_seed59"
+    ],
+    "cuda:1#3": [
+      "self_seed61"
+    ],
+    "cuda:1#4": [
+      "self_seed67"
+    ],
+    "cuda:1#5": []
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "self_seed47",
+      "self_seed53",
+      "self_seed59"
+    ],
+    "cuda:1": [
+      "self_seed61",
+      "self_seed67"
+    ]
+  }
+}
