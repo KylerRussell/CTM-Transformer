@@ -53,3 +53,12 @@ The freeze audit uses the S₃ study's audit, with this study's factory and work
 - The A4 and A5 parameter counts differ from `sync` (by +98,304 and −12,288).
 - Five seeds.
 - A6–A8 (replacing the queries, self-pairs, and a low-gate combination) are declared later, if needed.
+
+## Outcome — 2026-09-27, 06:52 UTC
+
+Twenty A1–A4 runs completed and passed the freeze audit. A5 diverged at every seed ([amendment 1](results/sync_ablation_v1/AMENDMENT_1.md)).
+- **A2 (no decay) and A3 (current state only) preserve the effect** (median 11 each).
+- **A4 (linear history features) removes it** (median 3, below RDT).
+- A1 (shuffled history) is classified *removes* (sync is larger in 4 of 5 seeds, median +3), although it still exceeds both RDT controls.
+
+The benefit comes from **pairwise products of the current recurrent state feeding the attention queries**, not from temporal history or decay. See [results](results/sync_ablation_v1/RESULTS.md) and [interpretation](results/sync_ablation_v1/INTERPRETATION.md).

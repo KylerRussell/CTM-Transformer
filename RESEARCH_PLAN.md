@@ -233,3 +233,13 @@ On the S₃ word problem (running products, dense labels, fresh words of lengths
 - Plain recurrence uses its steps but does not reliably beat fixed depth. No model extrapolates past its trained lengths.
 
 This supports a specific claim: synchronization of recurrent state histories, used to steer attention, makes recurrent depth more effective. It is not a claim for the CTM architecture as a whole. Before it becomes a paper claim, it needs locked confirmation and mechanism ablations; see the [plan](research/SYNC_CONFIRMATION_PLAN.md) and [interpretation](research/results/group_s3_v1/INTERPRETATION.md).
+
+
+## What in synchronization helps: pairwise state products in the queries — 2026-09-27
+
+[Mechanism ablations](research/results/sync_ablation_v1/INTERPRETATION.md) of the `sync` cell on the S₃ data found:
+- removing learned decay, or computing synchronization from the **current state only** (no history), **preserves** the gain (median correct prefix 11 against 10);
+- replacing the pairwise products with linear features of the same history **removes** it (median 3, below plain RDT);
+- adding the term to the recurrent state instead of the queries diverges at every seed.
+
+The claim therefore narrows: **pairwise multiplicative features of the recurrent state, used to form attention queries, roughly double how far recurrent depth tracks state.** CTM's temporal machinery (history window, decay, ordering) does not carry the benefit here. Next come A7 (self-pairs only), then a locked confirmation of `sync` and `current` with seven new seeds.

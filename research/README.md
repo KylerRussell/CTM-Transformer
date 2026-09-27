@@ -270,11 +270,15 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 - [x] Implement the group word problem (running products over Z₂, S₃ and A₅) as dense sequence labeling with no label leak. Development probes: on S₃, RDT's correct prefix grows with inference steps, CTM's does not, and A₅ is at the floor. See [probes](results/group_probes/GROUP_PROBES.md).
 - [x] Freeze and run the [S₃ study](GROUP_S3.md) (7 cells × 5 seeds). **Synchronization-derived queries extend serial state tracking:** median correct prefix 10 against 5 for both RDT controls, larger at every seed. Temporal MLPs alone do not help. The reference CTM does not use its ticks, and plain RDT does not beat the Transformer. See [results](results/group_s3_v1/RESULTS.md) and [interpretation](results/group_s3_v1/INTERPRETATION.md).
 
+## Synchronization mechanism ablations
+
+- [x] Freeze and run [ablations A1–A5](SYNC_ABLATION.md) of the `sync` cell on the S₃ data. A5 (added to the state) diverged at every seed and was recorded without retry ([amendment 1](results/sync_ablation_v1/AMENDMENT_1.md)). **No decay (A2) and current state only (A3) preserve the effect. Linear history features without products (A4) remove it.** The benefit is pairwise products of the current state in the attention queries, not temporal history. See [results](results/sync_ablation_v1/RESULTS.md) and [interpretation](results/sync_ablation_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Confirm the synchronization result on locked data (fresh seeds, a pre-registered test set, a second setting), and run mechanism ablations that identify what in synchronization matters. See the [confirmation and ablation plan](SYNC_CONFIRMATION_PLAN.md).
+1. Run A7 (self-pairs only) to test whether cross-channel products are needed, then declare the locked confirmation (`sync`, `current`, RDT controls and Transformer; seven new seeds; a test set evaluated once). See the [plan](SYNC_CONFIRMATION_PLAN.md).
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 
