@@ -37,3 +37,7 @@ The freeze audit is the A1–A5 audit with the A7 factory and worker. `research/
 ### Interpretation limits
 
 Development data and seeds already used by the S₃ study; five seeds. Self-pairs are computed over the 8-step history, as in `sync`. A3 showed that history is not needed, so a current-state self-pair variant would give the same answer to this question, and it is not run.
+
+## Outcome — 2026-09-27, 12:27 UTC
+
+All five runs completed and passed the freeze audit. **A7 is partial**: median correct prefix 6 (15, 3, 6, 5, 11). `sync` was not larger at the declared margin (3/5, +1), and A7 did not exceed both RDT controls. Per-channel energy matches `sync` at two seeds and stays near RDT at three; cross-channel products are the reliable form. See [results](results/sync_ablation_v2/RESULTS.md) and [interpretation](results/sync_ablation_v2/INTERPRETATION.md).

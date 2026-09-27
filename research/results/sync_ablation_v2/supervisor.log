@@ -1,0 +1,60 @@
+2026-09-27T11:19:06.405362+00:00 preflight 
+............................                                             [100%]
+=============================== warnings summary ===============================
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+28 passed, 14 warnings in 30.20s
+...                                                                      [100%]
+3 passed, 10 deselected in 18.82s
+2026-09-27T11:19:59.821408+00:00 training {"workers": {"cuda:0#0": {"pid": 200862, "cells": ["self_seed47"]}, "cuda:0#1": {"pid": 200863, "cells": ["self_seed53"]}, "cuda:0#2": {"pid": 200864, "cells": ["self_seed59"]}, "cuda:1#3": {"pid": 200865, "cells": ["self_seed61"]}, "cuda:1#4": {"pid": 200866, "cells": ["self_seed67"]}}}
+2026-09-27T12:25:54.252015+00:00 training_complete 
+2026-09-27T12:25:54.253047+00:00 freezing_final_checkpoints 
+Audited 50,000 updates and froze 5 final checkpoints before evaluation.
+2026-09-27T12:25:59.717343+00:00 evaluation {"worker_pids": [203791, 203792]}
+2026-09-27T12:26:44.386998+00:00 summarizing 
+# Sync-RDT ablation A7: self-pairs only (S3 word problem)
+
+5 ablation runs (1 ablations × 5 seeds [47, 53, 59, 61, 67]) on the S3 study data, paired with its frozen `sync`, `rdt` and `rdt_wide` runs. Correct prefix = leading positions with at least 90% held-out accuracy on length-32 words, at T=16. Development data; no test set.
+
+| Cell | Correct prefix per seed | Median | Mean accuracy, positions 9–16 | Median prefix at T=4/8/16/32 |
+|---|---|---:|---:|---|
+| sync | 12, 10, 7, 16, 10 | 10 | 77.6% | 3/7/10/11 |
+| rdt | 4, 3, 5, 8, 8 | 5 | 43.3% | 2/5/5/5 |
+| rdt_wide | 4, 6, 4, 5, 8 | 5 | 36.4% | 3/4/5/5 |
+| self | 15, 3, 6, 5, 11 | 6 | 54.4% | 1/3/6/6 |
+
+## Declared classification
+
+Removes: `sync` exceeds the ablation. Preserves: the ablation exceeds both `rdt` and `rdt_wide`. Otherwise partial. Rule: larger in ≥ 4 of 5 seeds, median difference ≥ 2 positions.
+
+| Ablation | sync vs ablation (larger seeds, median) | ablation vs rdt | ablation vs rdt_wide | Uses steps (T16 vs T4) | Classification |
+|---|---|---|---|---|---|
+| self | 3/2, +1 | 3/1, +1 | 3/1, +2 | yes | **partial** |
+
+![Accuracy by position](accuracy_by_position.png)
+2026-09-27T12:26:48.986200+00:00 complete_pending_documentation_and_archive 

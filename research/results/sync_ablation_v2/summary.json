@@ -1,0 +1,278 @@
+{
+  "complete": true,
+  "no_test_evaluation": true,
+  "correct_prefix": {
+    "sync": {
+      "4": [
+        3,
+        3,
+        2,
+        4,
+        4
+      ],
+      "8": [
+        7,
+        6,
+        5,
+        8,
+        7
+      ],
+      "16": [
+        12,
+        10,
+        7,
+        16,
+        10
+      ],
+      "32": [
+        12,
+        10,
+        7,
+        16,
+        11
+      ]
+    },
+    "rdt": {
+      "4": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "8": [
+        3,
+        3,
+        5,
+        6,
+        6
+      ],
+      "16": [
+        4,
+        3,
+        5,
+        8,
+        8
+      ],
+      "32": [
+        4,
+        3,
+        5,
+        8,
+        8
+      ]
+    },
+    "rdt_wide": {
+      "4": [
+        0,
+        3,
+        2,
+        3,
+        3
+      ],
+      "8": [
+        4,
+        5,
+        3,
+        4,
+        5
+      ],
+      "16": [
+        4,
+        6,
+        4,
+        5,
+        8
+      ],
+      "32": [
+        4,
+        6,
+        4,
+        5,
+        8
+      ]
+    },
+    "self": {
+      "4": [
+        4,
+        1,
+        1,
+        1,
+        3
+      ],
+      "8": [
+        8,
+        2,
+        3,
+        2,
+        7
+      ],
+      "16": [
+        15,
+        3,
+        6,
+        5,
+        11
+      ],
+      "32": [
+        14,
+        3,
+        6,
+        5,
+        12
+      ]
+    }
+  },
+  "primary_correct_prefix": {
+    "sync": [
+      12,
+      10,
+      7,
+      16,
+      10
+    ],
+    "rdt": [
+      4,
+      3,
+      5,
+      8,
+      8
+    ],
+    "rdt_wide": [
+      4,
+      6,
+      4,
+      5,
+      8
+    ],
+    "self": [
+      15,
+      3,
+      6,
+      5,
+      11
+    ]
+  },
+  "mean_accuracy_positions_9_16": {
+    "sync": [
+      0.8458251953125,
+      0.739013671875,
+      0.4771728515625,
+      0.9859619140625,
+      0.8331298828125
+    ],
+    "rdt": [
+      0.258544921875,
+      0.2333984375,
+      0.32958984375,
+      0.8094482421875,
+      0.5316162109375
+    ],
+    "rdt_wide": [
+      0.2318115234375,
+      0.4981689453125,
+      0.2542724609375,
+      0.3975830078125,
+      0.4388427734375
+    ],
+    "self": [
+      0.95263671875,
+      0.302001953125,
+      0.3797607421875,
+      0.2510986328125,
+      0.8349609375
+    ]
+  },
+  "outcomes": {
+    "self": {
+      "classification": "partial",
+      "sync_vs_ablation": {
+        "differences": [
+          -3,
+          7,
+          1,
+          11,
+          -1
+        ],
+        "larger_seeds": 3,
+        "smaller_seeds": 2,
+        "median_difference": 1,
+        "first_exceeds": false,
+        "second_exceeds": false
+      },
+      "ablation_vs_rdt": {
+        "differences": [
+          11,
+          0,
+          1,
+          -3,
+          3
+        ],
+        "larger_seeds": 3,
+        "smaller_seeds": 1,
+        "median_difference": 1,
+        "first_exceeds": false,
+        "second_exceeds": false
+      },
+      "ablation_vs_rdt_wide": {
+        "differences": [
+          11,
+          -3,
+          2,
+          0,
+          3
+        ],
+        "larger_seeds": 3,
+        "smaller_seeds": 1,
+        "median_difference": 2,
+        "first_exceeds": false,
+        "second_exceeds": false
+      },
+      "uses_steps": {
+        "differences": [
+          11,
+          2,
+          5,
+          4,
+          8
+        ],
+        "larger_seeds": 5,
+        "smaller_seeds": 0,
+        "median_difference": 5,
+        "first_exceeds": true,
+        "second_exceeds": false
+      }
+    }
+  },
+  "parameters": {
+    "self": 550688
+  },
+  "training_minutes": {
+    "self": 63.14892659281613
+  },
+  "control_checkpoints_sha256": "5f5e47a7d2ab6aba78d8649305c6912fb468534bde0201df5ab42bd7d59cd13d",
+  "checkpoint_freeze_sha256": "2c724e0c66b645483de6880e87b84930f57e125b6401f1df03d20bed6ac29acc",
+  "analysis_source_sha256": "d76b6543775141c40bfd02ae87ae2ec779eb8f4372328b42b463e4032f41ec6d",
+  "evaluations": {
+    "self_seed47": {
+      "path": "research/results/sync_ablation_v2/self_seed47.evaluation.json",
+      "sha256": "980efba63f0863b34daf12e3e463b539a76ff00d90fc9fc5782c976eb63e3260"
+    },
+    "self_seed53": {
+      "path": "research/results/sync_ablation_v2/self_seed53.evaluation.json",
+      "sha256": "e154507f3c7c7337d3a2afcb88cdd301776ca701cfa964607ce6c1611249348c"
+    },
+    "self_seed59": {
+      "path": "research/results/sync_ablation_v2/self_seed59.evaluation.json",
+      "sha256": "708db2ef0cab60e00843ab14c28d5b1316f5566b75025202687892eb09709621"
+    },
+    "self_seed61": {
+      "path": "research/results/sync_ablation_v2/self_seed61.evaluation.json",
+      "sha256": "907c36ea289d9dab4a9d974a43a43fac1062b021e199bf3183208862cb463d37"
+    },
+    "self_seed67": {
+      "path": "research/results/sync_ablation_v2/self_seed67.evaluation.json",
+      "sha256": "d7d7728c735c20099c5b543430908fa038022bed4ec723e76d9462f82e8f5f7f"
+    }
+  }
+}

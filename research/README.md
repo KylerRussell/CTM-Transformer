@@ -274,11 +274,13 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 
 - [x] Freeze and run [ablations A1–A5](SYNC_ABLATION.md) of the `sync` cell on the S₃ data. A5 (added to the state) diverged at every seed and was recorded without retry ([amendment 1](results/sync_ablation_v1/AMENDMENT_1.md)). **No decay (A2) and current state only (A3) preserve the effect. Linear history features without products (A4) remove it.** The benefit is pairwise products of the current state in the attention queries, not temporal history. See [results](results/sync_ablation_v1/RESULTS.md) and [interpretation](results/sync_ablation_v1/INTERPRETATION.md).
 
+- [x] Run [A7](SYNC_ABLATION_A7.md) (self-pairs only): **partial**, median 6. Per-channel energy matches `sync` at 2 of 5 seeds; cross-channel products are the reliable form. See [interpretation](results/sync_ablation_v2/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Run A7 (self-pairs only) to test whether cross-channel products are needed, then declare the locked confirmation (`sync`, `current`, RDT controls and Transformer; seven new seeds; a test set evaluated once). See the [plan](SYNC_CONFIRMATION_PLAN.md).
+1. Declare and run the locked confirmation (`sync`, `current`, RDT controls and Transformer; seven new seeds; a test set evaluated once). See the [plan](SYNC_CONFIRMATION_PLAN.md).
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 
