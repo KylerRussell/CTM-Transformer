@@ -276,11 +276,17 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 
 - [x] Run [A7](SYNC_ABLATION_A7.md) (self-pairs only): **partial**, median 6. Per-channel energy matches `sync` at 2 of 5 seeds; cross-channel products are the reliable form. See [interpretation](results/sync_ablation_v2/INTERPRETATION.md).
 
+## Pre-LM review and CTM-LM
+
+- [x] Commission an external [deep-research review](DEEP_RESEARCH_REPORT.md) ([prompt](DEEP_RESEARCH_PROMPT.md)). Main points: de-confound the synchronization result (learning rate, query scale, fixed-depth training); treat S₃ as weak and make A₅ the hard task; the earlier reference CTM departs from the published CTM; strengthen the statistics; drop the bio factor.
+- [x] Adopt the revised pre-LM plan and design **CTM-LM**, a CTM as faithful as language-model scale allows ([design](CTM_LM_DESIGN.md)). It has a causal backbone for keys and values, output and action synchronization computed recursively, private NLMs, a U-Net synapse, CTM's min-loss plus max-certainty loss, a learned initial state and history, and RoPE. The earlier model is now the "CTM-inspired reference".
+- [x] Implement and test the tiny CTM-LM (636,928 parameters, about 0.27 s per update at T = 16).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Declare and run the locked confirmation (`sync`, `current`, RDT controls and Transformer; seven new seeds; a test set evaluated once). See the [plan](SYNC_CONFIRMATION_PLAN.md).
+1. Complete the locked confirmation, then follow the [adopted pre-LM plan](CTM_LM_DESIGN.md#adopted-pre-lm-plan-revised-after-the-review): CTM-LM capability checks, the Sync-RDT confound sweep, randomized depth, A₅, equal compute, and a mini language-model gate.
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

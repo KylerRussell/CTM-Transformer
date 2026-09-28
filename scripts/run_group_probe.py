@@ -35,8 +35,10 @@ def main():
                    log_interval=max(1,a.steps//20),device=a.device,checkpoint_dir=str(directory/'run'))
     from ctm_transformer.ctm_variants import variant_config,variant_factory
     from ctm_transformer.sync_rdt import cell_factory
-    if a.family=='ctm':config=variant_config(config,a.variant)
-    factory=variant_factory(a.variant) if a.family=='ctm' else cell_factory(a.cell) if a.cell else None
+    from ctm_transformer.ctm_lm import ctm_lm_factory,lm_config
+    if a.family=='ctm' and a.variant=='ctm_lm':config=lm_config(config)  # CTM-LM (research/CTM_LM_DESIGN.md)
+    elif a.family=='ctm':config=variant_config(config,a.variant)
+    factory=ctm_lm_factory() if a.variant=='ctm_lm' else variant_factory(a.variant) if a.family=='ctm' else cell_factory(a.cell) if a.cell else None
     group=Group(a.group);base=int(hashlib.sha256((a.data_name or a.name).encode()).hexdigest()[:8],16)
     train_lengths=list(range(1,a.train_max_len+1))
     ev=write_group_split(data/'eval.jsonl',group,a.eval_lengths,128*len(a.eval_lengths),base+2)
@@ -63,7 +65,7 @@ def main():
         'training_minutes':summary['training_seconds']/60,'final_train_ce_last100':sum(r['loss'] for r in rows[-100:])/100,
         'validation_curve':curve,'eval_by_ticks':sweep,
         'source_sha256':{s:file_hash(s) for s in ('ctm_transformer/group_word.py','scripts/run_group_probe.py','ctm_transformer/dense_experiment.py',
-                                                  'ctm_transformer/dense_pointer.py','ctm_transformer/sync_rdt.py','ctm_transformer/ctm_variants.py')}}
+                                                  'ctm_transformer/dense_pointer.py','ctm_transformer/sync_rdt.py','ctm_transformer/ctm_variants.py','ctm_transformer/ctm_lm.py')}}
     OUT.mkdir(parents=True,exist_ok=True);(OUT/f'{a.name}.json').write_text(json.dumps(record,indent=2)+'\n')
     trained=str(config.max_thought_steps if a.family!='transformer' else 1)
     primary=sweep[trained] if trained in sweep else sweep[str(ticks[-1])]

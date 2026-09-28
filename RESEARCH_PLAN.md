@@ -243,3 +243,17 @@ This supports a specific claim: synchronization of recurrent state histories, us
 - adding the term to the recurrent state instead of the queries diverges at every seed.
 
 The claim therefore narrows: **pairwise multiplicative features of the recurrent state, used to form attention queries, roughly double how far recurrent depth tracks state.** CTM's temporal machinery (history window, decay, ordering) does not carry the benefit here. Next come A7 (self-pairs only), then a locked confirmation of `sync` and `current` with seven new seeds.
+
+
+## Pre-LM review and course correction — 2026-09-28
+
+An external [deep-research review](research/DEEP_RESEARCH_REPORT.md) concluded that the language-model phase should wait. The synchronization result must first be separated from learning-rate, query-scale and fixed-depth-training confounds, and tested on the non-solvable A₅. The earlier CTM departs from the published CTM (readout, loss, ticks, budget), so its failures are weak evidence about CTM itself.
+
+The project keeps a CTM-inspired but **maximally faithful, scalable** design, [CTM-LM](research/CTM_LM_DESIGN.md), and adopts the review's pre-LM plan:
+1. CTM-LM capability checks;
+2. the Sync-RDT confound sweep (per-cell learning rates and scale controls, plus a gated-attention competitor);
+3. randomized-depth training;
+4. A₅ with a curriculum, plus equal-compute comparisons;
+5. a mini language-model stability gate.
+
+Future protocols add continuous primary metrics and exact paired p-values with Holm correction. The bio-inspired factor is dropped.

@@ -46,9 +46,11 @@ def main():
     if phases:write_curriculum_split(data/'train.jsonl',a.format,phases,config.batch_size,base+3,exclude=val|ev,queries=a.queries)
     else:write_probe_split(data/'train.jsonl',a.format,a.hops,a.steps*config.batch_size,base+3,exclude=val|ev,nodes=tuple(a.train_nodes),queries=a.queries)
     from ctm_transformer.ctm_variants import build_variant,variant_config,variant_factory
-    if a.family=='ctm':config=variant_config(config,a.variant)
+    from ctm_transformer.ctm_lm import ctm_lm_factory,lm_config
+    if a.family=='ctm' and a.variant=='ctm_lm':config=lm_config(config)  # CTM-LM (research/CTM_LM_DESIGN.md)
+    elif a.family=='ctm':config=variant_config(config,a.variant)
     from ctm_transformer.sync_rdt import cell_factory
-    factory=variant_factory(a.variant) if a.family=='ctm' else cell_factory(a.cell) if a.cell else None
+    factory=ctm_lm_factory() if a.variant=='ctm_lm' else variant_factory(a.variant) if a.family=='ctm' else cell_factory(a.cell) if a.cell else None
     tokenizer=AlgorithmicTokenizer()
     train=(InOrderDataset if phases else ProbeDataset)(data/'train.jsonl',tokenizer,config.seq_len)
     valid,evaluation=(ProbeDataset(data/f'{s}.jsonl',tokenizer,config.seq_len) for s in ('validation','eval'))
@@ -68,7 +70,7 @@ def main():
         'final_train_ce_last100':sum(r['loss'] for r in rows[-100:])/min(100,len(rows)),'validation_curve':curve,
         'eval_answer_accuracy':final['answer_accuracy'],'eval_sequence_exact':final['sequence_exact'],
         'eval_by_hop':{h:v['answer_accuracy'] for h,v in final['by_hop'].items()},'eval_by_position':final['answer_accuracy_by_position'],
-        'source_sha256':{s:file_hash(s) for s in ('ctm_transformer/pointer_probes.py','scripts/run_pointer_probe.py','ctm_transformer/dense_experiment.py','ctm_transformer/dense_pointer.py','ctm_transformer/ctm_variants.py','ctm_transformer/sync_rdt.py')}}
+        'source_sha256':{s:file_hash(s) for s in ('ctm_transformer/pointer_probes.py','scripts/run_pointer_probe.py','ctm_transformer/dense_experiment.py','ctm_transformer/dense_pointer.py','ctm_transformer/ctm_variants.py','ctm_transformer/ctm_lm.py','ctm_transformer/sync_rdt.py')}}
     OUT.mkdir(parents=True,exist_ok=True);(OUT/f'{a.name}.json').write_text(json.dumps(record,indent=2)+'\n')
     print(json.dumps({k:record[k] for k in ('name','eval_answer_accuracy','eval_sequence_exact','eval_by_hop','final_train_ce_last100')}),flush=True)
 
