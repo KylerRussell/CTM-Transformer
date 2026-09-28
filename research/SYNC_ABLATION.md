@@ -62,3 +62,5 @@ Twenty A1–A4 runs completed and passed the freeze audit. A5 diverged at every 
 - A1 (shuffled history) is classified *removes* (sync is larger in 4 of 5 seeds, median +3), although it still exceeds both RDT controls.
 
 The benefit comes from **pairwise products of the current recurrent state feeding the attention queries**, not from temporal history or decay. See [results](results/sync_ablation_v1/RESULTS.md) and [interpretation](results/sync_ablation_v1/INTERPRETATION.md).
+
+**Superseded (2026-09-28):** the [locked confirmation](SYNC_CONFIRMATION.md#outcome--2026-09-28-0551-utc) did not replicate the synchronization effect on fresh seeds and data. The mechanism conclusions drawn from this development study are withdrawn. See its [interpretation](results/sync_confirmation_v1/INTERPRETATION.md).

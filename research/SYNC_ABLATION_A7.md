@@ -41,3 +41,5 @@ Development data and seeds already used by the S₃ study; five seeds. Self-pair
 ## Outcome — 2026-09-27, 12:27 UTC
 
 All five runs completed and passed the freeze audit. **A7 is partial**: median correct prefix 6 (15, 3, 6, 5, 11). `sync` was not larger at the declared margin (3/5, +1), and A7 did not exceed both RDT controls. Per-channel energy matches `sync` at two seeds and stays near RDT at three; cross-channel products are the reliable form. See [results](results/sync_ablation_v2/RESULTS.md) and [interpretation](results/sync_ablation_v2/INTERPRETATION.md).
+
+**Superseded (2026-09-28):** the [locked confirmation](SYNC_CONFIRMATION.md#outcome--2026-09-28-0551-utc) did not replicate the synchronization effect on fresh seeds and data. The mechanism conclusions drawn from this development study are withdrawn. See its [interpretation](results/sync_confirmation_v1/INTERPRETATION.md).

@@ -105,3 +105,5 @@ All 35 runs completed and passed the freeze audit.
 - No cell extrapolates past the trained lengths.
 
 See [results](results/group_s3_v1/RESULTS.md) and [interpretation](results/group_s3_v1/INTERPRETATION.md).
+
+**Superseded (2026-09-28):** the [locked confirmation](SYNC_CONFIRMATION.md#outcome--2026-09-28-0551-utc) did not replicate the synchronization effect on fresh seeds and data. The mechanism conclusions drawn from this development study are withdrawn. See its [interpretation](results/sync_confirmation_v1/INTERPRETATION.md).

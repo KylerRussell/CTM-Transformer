@@ -282,11 +282,15 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 - [x] Adopt the revised pre-LM plan and design **CTM-LM**, a CTM as faithful as language-model scale allows ([design](CTM_LM_DESIGN.md)). It has a causal backbone for keys and values, output and action synchronization computed recursively, private NLMs, a U-Net synapse, CTM's min-loss plus max-certainty loss, a learned initial state and history, and RoPE. The earlier model is now the "CTM-inspired reference".
 - [x] Implement and test the tiny CTM-LM (636,928 parameters, about 0.27 s per update at T = 16).
 
+## Locked confirmation: not replicated
+
+- [x] Run the [locked confirmation](SYNC_CONFIRMATION.md) (5 cells × 7 unused seeds; test evaluated once). **Neither `sync` nor `current` exceeds the RDT controls** (median correct prefix 5–6 for every cell). Outcomes are bimodal by seed: each recurrent cell escapes to the serial solution at 1–2 of 7 seeds. **The synchronization claim from the development S₃ study is withdrawn.** Robust findings: recurrent cells use their steps; nothing extrapolates past the trained length; the CTM-inspired reference does not use its ticks. See [interpretation](results/sync_confirmation_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Complete the locked confirmation, then follow the [adopted pre-LM plan](CTM_LM_DESIGN.md#adopted-pre-lm-plan-revised-after-the-review): CTM-LM capability checks, the Sync-RDT confound sweep, randomized depth, A₅, equal compute, and a mini language-model gate.
+1. Re-prioritize the pre-LM plan around the reliability of serial learning. Estimate escape probability with many seeds and a continuous metric; test randomized depth, length curriculum and per-cell learning rates as ways to make escape reliable; then run CTM-LM checks and A₅ against that reliability baseline. CTM-LM capability probes are running.
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

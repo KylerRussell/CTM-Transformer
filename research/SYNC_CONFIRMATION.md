@@ -69,3 +69,7 @@ The freeze audit is the S₃ audit. The study runs under the restart-safe superv
 - One task family and one learning rate.
 - The primary setting deliberately replicates the development setting, so the confirmation tests *reproducibility on fresh data and seeds*, not generality. The secondary settings address generality.
 - Related work on multiplicative interactions and bilinear or gated query formation must be reviewed before any novelty claim.
+
+## Outcome — 2026-09-28, 05:51 UTC
+
+All 35 runs completed and passed the freeze audit, and the locked test was evaluated once. **Neither C1 nor C2 is confirmed**: median correct prefix is 5, 5, 5, 5 and 6 for the Transformer, RDT, RDT wide, sync and current. Every recurrent cell uses its steps (7 of 7 seeds). Outcomes are bimodal by seed: a run escapes to the serial solution at 1–2 of 7 seeds for every recurrent cell. The development S₃ effect was most plausibly a chance fluctuation, and **the synchronization claim is withdrawn**. See [results](results/sync_confirmation_v1/RESULTS.md) and [interpretation](results/sync_confirmation_v1/INTERPRETATION.md).

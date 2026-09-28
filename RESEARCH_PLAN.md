@@ -257,3 +257,10 @@ The project keeps a CTM-inspired but **maximally faithful, scalable** design, [C
 5. a mini language-model stability gate.
 
 Future protocols add continuous primary metrics and exact paired p-values with Holm correction. The bio-inspired factor is dropped.
+
+
+## Locked confirmation: the synchronization effect did not replicate — 2026-09-28
+
+On seven never-used seeds with a locked test evaluated once, **neither `sync` nor `current` exceeded the RDT controls**: median correct prefix 5–6 for every cell ([interpretation](research/results/sync_confirmation_v1/INTERPRETATION.md)). Outcomes are bimodal by seed. Every recurrent cell sometimes escapes to a serial solution of positions 9–16 (at 1–2 of 7 seeds) and otherwise stays near the fixed-depth profile. The development study's 5-of-5 pattern was most plausibly chance, which is the statistical weakness the external review flagged. **The claim that second-order query features extend state tracking is withdrawn**, and the ablation conclusions built on it are superseded.
+
+What remains: recurrent models use extra steps; nothing generalizes past the trained length; the CTM-inspired reference does not use its ticks; and the retrieval findings stand. The central open problem is now **making serial learning reliable**. Architecture comparisons need escape-probability endpoints with many more seeds, and training changes (randomized depth, curriculum, learning rate) come before any mechanism claim or language-model phase.
