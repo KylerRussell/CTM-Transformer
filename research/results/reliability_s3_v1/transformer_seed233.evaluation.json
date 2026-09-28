@@ -1,0 +1,336 @@
+{
+  "complete": true,
+  "cell": "transformer_seed233",
+  "selected": {
+    "cell": "transformer_seed233",
+    "study_cell": "transformer",
+    "model_family": "transformer",
+    "factory_kind": null,
+    "factory_arg": null,
+    "seed": 233,
+    "readout": "final",
+    "trained_thought_steps": 1,
+    "evaluation_thought_steps": [
+      1
+    ],
+    "step": 10000,
+    "checkpoint": "research/runs/reliability_s3_v1/transformer/seed233/final.pt",
+    "checkpoint_sha256": "3d59a561c5dd38e0b5633574a521fcc0e2ae6a148da63a0124b0cf6615151784",
+    "validation_curve": [
+      {
+        "step": 250,
+        "ce": 1.165831823098032,
+        "answer_accuracy": 0.4069393382352941,
+        "sequence_exact": 0.16015625
+      },
+      {
+        "step": 500,
+        "ce": 0.9842492530220434,
+        "answer_accuracy": 0.4958639705882353,
+        "sequence_exact": 0.23046875
+      },
+      {
+        "step": 750,
+        "ce": 0.7778155991905614,
+        "answer_accuracy": 0.5592830882352942,
+        "sequence_exact": 0.248046875
+      },
+      {
+        "step": 1000,
+        "ce": 0.6941970837743658,
+        "answer_accuracy": 0.5909926470588235,
+        "sequence_exact": 0.267578125
+      },
+      {
+        "step": 1250,
+        "ce": 0.6354448638464275,
+        "answer_accuracy": 0.6008731617647058,
+        "sequence_exact": 0.2890625
+      },
+      {
+        "step": 1500,
+        "ce": 0.600981288834622,
+        "answer_accuracy": 0.6176470588235294,
+        "sequence_exact": 0.28125
+      },
+      {
+        "step": 1750,
+        "ce": 0.5853729404901203,
+        "answer_accuracy": 0.6243106617647058,
+        "sequence_exact": 0.30078125
+      },
+      {
+        "step": 2000,
+        "ce": 0.5562940490873236,
+        "answer_accuracy": 0.6463694852941176,
+        "sequence_exact": 0.33984375
+      },
+      {
+        "step": 2250,
+        "ce": 0.5340886116027832,
+        "answer_accuracy": 0.6654411764705882,
+        "sequence_exact": 0.33203125
+      },
+      {
+        "step": 2500,
+        "ce": 0.5279793127586967,
+        "answer_accuracy": 0.6833639705882353,
+        "sequence_exact": 0.345703125
+      },
+      {
+        "step": 2750,
+        "ce": 0.5191261266407213,
+        "answer_accuracy": 0.6762408088235294,
+        "sequence_exact": 0.34375
+      },
+      {
+        "step": 3000,
+        "ce": 0.5007685564066234,
+        "answer_accuracy": 0.6865808823529411,
+        "sequence_exact": 0.3671875
+      },
+      {
+        "step": 3250,
+        "ce": 0.4939831134520079,
+        "answer_accuracy": 0.6780790441176471,
+        "sequence_exact": 0.369140625
+      },
+      {
+        "step": 3500,
+        "ce": 0.46955574656787674,
+        "answer_accuracy": 0.6884191176470589,
+        "sequence_exact": 0.3671875
+      },
+      {
+        "step": 3750,
+        "ce": 0.4775274317515524,
+        "answer_accuracy": 0.6957720588235294,
+        "sequence_exact": 0.353515625
+      },
+      {
+        "step": 4000,
+        "ce": 0.4649375833963093,
+        "answer_accuracy": 0.7026654411764706,
+        "sequence_exact": 0.375
+      },
+      {
+        "step": 4250,
+        "ce": 0.45345054488433034,
+        "answer_accuracy": 0.7130055147058824,
+        "sequence_exact": 0.375
+      },
+      {
+        "step": 4500,
+        "ce": 0.449069071757166,
+        "answer_accuracy": 0.7102481617647058,
+        "sequence_exact": 0.400390625
+      },
+      {
+        "step": 4750,
+        "ce": 0.4467125346786098,
+        "answer_accuracy": 0.7141544117647058,
+        "sequence_exact": 0.41015625
+      },
+      {
+        "step": 5000,
+        "ce": 0.4305027048838766,
+        "answer_accuracy": 0.7286305147058824,
+        "sequence_exact": 0.416015625
+      },
+      {
+        "step": 5250,
+        "ce": 0.4262763057884417,
+        "answer_accuracy": 0.7329963235294118,
+        "sequence_exact": 0.40625
+      },
+      {
+        "step": 5500,
+        "ce": 0.4096835522275222,
+        "answer_accuracy": 0.7352941176470589,
+        "sequence_exact": 0.421875
+      },
+      {
+        "step": 5750,
+        "ce": 0.41136684229499415,
+        "answer_accuracy": 0.7300091911764706,
+        "sequence_exact": 0.419921875
+      },
+      {
+        "step": 6000,
+        "ce": 0.39828939343753617,
+        "answer_accuracy": 0.7375919117647058,
+        "sequence_exact": 0.421875
+      },
+      {
+        "step": 6250,
+        "ce": 0.38761159150223984,
+        "answer_accuracy": 0.7486213235294118,
+        "sequence_exact": 0.44921875
+      },
+      {
+        "step": 6500,
+        "ce": 0.3785962446739799,
+        "answer_accuracy": 0.7536764705882353,
+        "sequence_exact": 0.44140625
+      },
+      {
+        "step": 6750,
+        "ce": 0.37957921781037984,
+        "answer_accuracy": 0.7610294117647058,
+        "sequence_exact": 0.443359375
+      },
+      {
+        "step": 7000,
+        "ce": 0.37107703560277033,
+        "answer_accuracy": 0.7651654411764706,
+        "sequence_exact": 0.443359375
+      },
+      {
+        "step": 7250,
+        "ce": 0.3649311661720276,
+        "answer_accuracy": 0.7674632352941176,
+        "sequence_exact": 0.44921875
+      },
+      {
+        "step": 7500,
+        "ce": 0.36092022688765274,
+        "answer_accuracy": 0.7653952205882353,
+        "sequence_exact": 0.45703125
+      },
+      {
+        "step": 7750,
+        "ce": 0.3579246966462386,
+        "answer_accuracy": 0.7720588235294118,
+        "sequence_exact": 0.44921875
+      },
+      {
+        "step": 8000,
+        "ce": 0.3507623186236934,
+        "answer_accuracy": 0.7750459558823529,
+        "sequence_exact": 0.455078125
+      },
+      {
+        "step": 8250,
+        "ce": 0.34966679936961126,
+        "answer_accuracy": 0.7768841911764706,
+        "sequence_exact": 0.4765625
+      },
+      {
+        "step": 8500,
+        "ce": 0.34877284733872665,
+        "answer_accuracy": 0.7748161764705882,
+        "sequence_exact": 0.455078125
+      },
+      {
+        "step": 8750,
+        "ce": 0.3416084741291247,
+        "answer_accuracy": 0.7814797794117647,
+        "sequence_exact": 0.470703125
+      },
+      {
+        "step": 9000,
+        "ce": 0.33727719438703435,
+        "answer_accuracy": 0.7911305147058824,
+        "sequence_exact": 0.478515625
+      },
+      {
+        "step": 9250,
+        "ce": 0.3336647199956994,
+        "answer_accuracy": 0.7874540441176471,
+        "sequence_exact": 0.47265625
+      },
+      {
+        "step": 9500,
+        "ce": 0.3317697754031734,
+        "answer_accuracy": 0.7876838235294118,
+        "sequence_exact": 0.478515625
+      },
+      {
+        "step": 9750,
+        "ce": 0.3292536327713414,
+        "answer_accuracy": 0.7913602941176471,
+        "sequence_exact": 0.486328125
+      },
+      {
+        "step": 10000,
+        "ce": 0.3334222404580367,
+        "answer_accuracy": 0.7948069852941176,
+        "sequence_exact": 0.486328125
+      }
+    ],
+    "final_training_loss_last100": 0.32199110701680184,
+    "parameters": {
+      "total": 548660,
+      "token_embedding": 9940,
+      "position_embedding": 17920,
+      "readout": 9940,
+      "other": 510860
+    },
+    "training_seconds": 397.31365032622125,
+    "wall_seconds": 408.4140259799897,
+    "peak_allocated_bytes": 37714944,
+    "run_directory": "research/runs/reliability_s3_v1/transformer/seed233",
+    "summary_path": "research/results/reliability_s3_v1/transformer_seed233.summary.json",
+    "summary_sha256": "69ae9878a901d0193c24e12523fa766e8ce947a781741c9af6807878f2295a9b",
+    "metrics_sha256": "1dcbf000d3d1b879abceb3ed7f2b88a03eacb0fc8727b95766aa7d87b6129fe0",
+    "config": "research/configs/reliability_s3_v1/transformer_seed233.json",
+    "config_sha256": "70271408d2f8d9ad1f1d08869858ed9b0d8f1ef859ba21ea84073da2f387a93e"
+  },
+  "dataset": {
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/data/reliability_s3_v1/seed233/evaluation.jsonl",
+    "sha256": "c2f85a190f2e1574b53f992f14841334c40b8ad8e9119e69bfa287c903121b2f",
+    "examples": 1024,
+    "max_input_length": 34,
+    "supervised_tokens": 33792,
+    "task": "group_word_S3",
+    "lengths": [
+      32
+    ]
+  },
+  "readout": "final",
+  "results": {
+    "1": {
+      "answer_accuracy": 0.40643310546875,
+      "sequence_exact": 0.0,
+      "loss": 2.5904278899684097,
+      "by_position": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.9951171875,
+        0.9423828125,
+        0.810546875,
+        0.6474609375,
+        0.4931640625,
+        0.4140625,
+        0.3447265625,
+        0.3564453125,
+        0.3408203125,
+        0.3330078125,
+        0.33984375,
+        0.30859375,
+        0.1630859375,
+        0.1611328125,
+        0.1376953125,
+        0.2236328125,
+        0.1591796875,
+        0.18359375,
+        0.146484375,
+        0.17578125,
+        0.1396484375,
+        0.1669921875,
+        0.1806640625,
+        0.166015625,
+        0.169921875,
+        0.1826171875,
+        0.1650390625,
+        0.158203125
+      ]
+    }
+  },
+  "checkpoint_freeze_sha256": "62f9755fbd134101006cd8907315e29c4aacae21240c1e7233eb536abb9ba9a1",
+  "device": "cuda:1",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "no_test_evaluation": true
+}

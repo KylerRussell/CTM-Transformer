@@ -1,0 +1,137 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "started_utc": "2026-09-28T07:45:06.494910+00:00",
+      "pid": 248860,
+      "supervisor_sha256": "d9e0eb79113c3be6491f9748e3a805ba37505cbd01b98a12c828aba41d84d14f",
+      "events": [
+        {
+          "phase": "preflight",
+          "time_utc": "2026-09-28T07:45:06.495472+00:00"
+        },
+        {
+          "phase": "training",
+          "time_utc": "2026-09-28T07:46:02.678717+00:00",
+          "workers": {
+            "cuda:0#0": {
+              "pid": 249359,
+              "cells": [
+                "ctm_lm_seed131",
+                "ctm_lm_seed163",
+                "ctm_lm_seed193",
+                "ctm_lm_seed229",
+                "rdt_seed173",
+                "rdt_seed199",
+                "transformer_seed131",
+                "transformer_seed139",
+                "transformer_seed151",
+                "transformer_seed163",
+                "transformer_seed173",
+                "transformer_seed181",
+                "transformer_seed193",
+                "transformer_seed199"
+              ]
+            },
+            "cuda:0#1": {
+              "pid": 249360,
+              "cells": [
+                "ctm_lm_seed137",
+                "ctm_lm_seed167",
+                "ctm_lm_seed197",
+                "ctm_lm_seed233",
+                "rdt_seed179",
+                "rdt_seed211",
+                "transformer_seed137",
+                "transformer_seed149",
+                "transformer_seed157",
+                "transformer_seed167",
+                "transformer_seed179",
+                "transformer_seed191",
+                "transformer_seed197",
+                "transformer_seed211"
+              ]
+            },
+            "cuda:0#2": {
+              "pid": 249361,
+              "cells": [
+                "ctm_lm_seed139",
+                "ctm_lm_seed173",
+                "ctm_lm_seed199",
+                "rdt_seed131",
+                "rdt_seed151",
+                "rdt_seed181",
+                "rdt_seed223",
+                "transformer_seed223"
+              ]
+            },
+            "cuda:1#3": {
+              "pid": 249362,
+              "cells": [
+                "ctm_lm_seed149",
+                "ctm_lm_seed179",
+                "ctm_lm_seed211",
+                "rdt_seed137",
+                "rdt_seed157",
+                "rdt_seed191",
+                "rdt_seed227",
+                "transformer_seed227"
+              ]
+            },
+            "cuda:1#4": {
+              "pid": 249363,
+              "cells": [
+                "ctm_lm_seed151",
+                "ctm_lm_seed181",
+                "ctm_lm_seed223",
+                "rdt_seed139",
+                "rdt_seed163",
+                "rdt_seed193",
+                "rdt_seed229",
+                "transformer_seed229"
+              ]
+            },
+            "cuda:1#5": {
+              "pid": 249364,
+              "cells": [
+                "ctm_lm_seed157",
+                "ctm_lm_seed191",
+                "ctm_lm_seed227",
+                "rdt_seed149",
+                "rdt_seed167",
+                "rdt_seed197",
+                "rdt_seed233",
+                "transformer_seed233"
+              ]
+            }
+          }
+        },
+        {
+          "phase": "training_complete",
+          "time_utc": "2026-09-28T13:52:22.882626+00:00"
+        },
+        {
+          "phase": "freezing_final_checkpoints",
+          "time_utc": "2026-09-28T13:52:22.883947+00:00"
+        },
+        {
+          "phase": "evaluation",
+          "time_utc": "2026-09-28T13:53:02.855048+00:00",
+          "worker_pids": [
+            8080,
+            8081
+          ]
+        },
+        {
+          "phase": "summarizing",
+          "time_utc": "2026-09-28T13:56:26.350877+00:00"
+        },
+        {
+          "phase": "complete_pending_documentation_and_archive",
+          "time_utc": "2026-09-28T13:56:36.219597+00:00"
+        }
+      ]
+    }
+  ],
+  "phase": "complete_pending_documentation_and_archive"
+}

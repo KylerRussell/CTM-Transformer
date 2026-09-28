@@ -1,0 +1,1 @@
+{"alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:", "name": "algorithmic_char_v1", "special_tokens": {"BOS": 1, "EOS": 2, "PAD": 0}, "vocab_size": 71}

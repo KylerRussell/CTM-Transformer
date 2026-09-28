@@ -1,0 +1,661 @@
+{
+  "complete": true,
+  "escape_rule": "mean accuracy over positions 9-16 at the trained budget >= 0.9",
+  "escape": {
+    "transformer": {
+      "escaped": 0,
+      "n": 20,
+      "probability": 0.0,
+      "ci95": [
+        0.0,
+        0.1684334709830853
+      ]
+    },
+    "rdt": {
+      "escaped": 2,
+      "n": 20,
+      "probability": 0.1,
+      "ci95": [
+        0.012348527170294813,
+        0.31698271401908235
+      ]
+    },
+    "ctm_lm": {
+      "escaped": 0,
+      "n": 20,
+      "probability": 0.0,
+      "ci95": [
+        0.0,
+        0.1684334709830853
+      ]
+    }
+  },
+  "mean_accuracy_positions_9_16": {
+    "transformer": [
+      0.3551025390625,
+      0.385498046875,
+      0.3494873046875,
+      0.335693359375,
+      0.336669921875,
+      0.340576171875,
+      0.3365478515625,
+      0.3392333984375,
+      0.3387451171875,
+      0.336669921875,
+      0.3448486328125,
+      0.34619140625,
+      0.331298828125,
+      0.3385009765625,
+      0.3443603515625,
+      0.33349609375,
+      0.3243408203125,
+      0.346435546875,
+      0.331298828125,
+      0.3663330078125
+    ],
+    "rdt": [
+      0.957763671875,
+      0.8338623046875,
+      0.3035888671875,
+      0.4625244140625,
+      0.4212646484375,
+      0.7930908203125,
+      0.2835693359375,
+      0.6123046875,
+      0.2139892578125,
+      0.3106689453125,
+      0.6964111328125,
+      0.322509765625,
+      0.9932861328125,
+      0.2718505859375,
+      0.2550048828125,
+      0.3048095703125,
+      0.4000244140625,
+      0.50048828125,
+      0.3328857421875,
+      0.8385009765625
+    ],
+    "ctm_lm": [
+      0.3450927734375,
+      0.3572998046875,
+      0.33642578125,
+      0.339111328125,
+      0.316650390625,
+      0.3389892578125,
+      0.336669921875,
+      0.2578125,
+      0.3350830078125,
+      0.33740234375,
+      0.31982421875,
+      0.2677001953125,
+      0.34619140625,
+      0.3214111328125,
+      0.1650390625,
+      0.359130859375,
+      0.3433837890625,
+      0.3385009765625,
+      0.33447265625,
+      0.1845703125
+    ]
+  },
+  "mean_accuracy_positions_1_16": {
+    "transformer": [
+      0.63494873046875,
+      0.6590576171875,
+      0.61700439453125,
+      0.613525390625,
+      0.61175537109375,
+      0.60467529296875,
+      0.56884765625,
+      0.61712646484375,
+      0.60394287109375,
+      0.605224609375,
+      0.59478759765625,
+      0.6192626953125,
+      0.5904541015625,
+      0.5909423828125,
+      0.59649658203125,
+      0.57373046875,
+      0.55401611328125,
+      0.59552001953125,
+      0.5869140625,
+      0.6453857421875
+    ],
+    "rdt": [
+      0.97784423828125,
+      0.90496826171875,
+      0.56927490234375,
+      0.7103271484375,
+      0.6375732421875,
+      0.89410400390625,
+      0.56683349609375,
+      0.789306640625,
+      0.54193115234375,
+      0.559814453125,
+      0.8424072265625,
+      0.5557861328125,
+      0.99609375,
+      0.53955078125,
+      0.550048828125,
+      0.62005615234375,
+      0.64752197265625,
+      0.71685791015625,
+      0.57635498046875,
+      0.90777587890625
+    ],
+    "ctm_lm": [
+      0.58160400390625,
+      0.6318359375,
+      0.59063720703125,
+      0.58203125,
+      0.53851318359375,
+      0.6173095703125,
+      0.56549072265625,
+      0.5640869140625,
+      0.54241943359375,
+      0.57244873046875,
+      0.55084228515625,
+      0.51336669921875,
+      0.5943603515625,
+      0.54644775390625,
+      0.43701171875,
+      0.6240234375,
+      0.5902099609375,
+      0.56329345703125,
+      0.5958251953125,
+      0.5147705078125
+    ]
+  },
+  "correct_prefix": {
+    "transformer": {
+      "1": [
+        6,
+        6,
+        5,
+        6,
+        5,
+        5,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        4,
+        5,
+        5,
+        6
+      ]
+    },
+    "rdt": {
+      "4": [
+        4,
+        3,
+        1,
+        2,
+        0,
+        4,
+        1,
+        1,
+        2,
+        2,
+        4,
+        1,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        3
+      ],
+      "8": [
+        8,
+        7,
+        3,
+        7,
+        0,
+        8,
+        4,
+        5,
+        4,
+        4,
+        7,
+        3,
+        9,
+        3,
+        4,
+        4,
+        4,
+        4,
+        3,
+        7
+      ],
+      "16": [
+        15,
+        11,
+        4,
+        7,
+        0,
+        11,
+        5,
+        7,
+        5,
+        4,
+        9,
+        4,
+        16,
+        4,
+        4,
+        6,
+        4,
+        6,
+        4,
+        10
+      ],
+      "32": [
+        16,
+        11,
+        4,
+        7,
+        0,
+        11,
+        5,
+        7,
+        5,
+        4,
+        9,
+        4,
+        16,
+        4,
+        4,
+        6,
+        4,
+        6,
+        4,
+        10
+      ]
+    },
+    "ctm_lm": {
+      "4": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "8": [
+        2,
+        4,
+        3,
+        3,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        4,
+        3,
+        0,
+        0,
+        3,
+        5
+      ],
+      "16": [
+        4,
+        6,
+        5,
+        4,
+        4,
+        5,
+        4,
+        5,
+        4,
+        4,
+        4,
+        4,
+        5,
+        4,
+        4,
+        5,
+        4,
+        4,
+        5,
+        5
+      ],
+      "32": [
+        4,
+        5,
+        4,
+        4,
+        3,
+        5,
+        3,
+        4,
+        3,
+        3,
+        0,
+        4,
+        4,
+        3,
+        4,
+        0,
+        4,
+        4,
+        4,
+        4
+      ]
+    }
+  },
+  "tests": [
+    {
+      "comparison": "rdt_vs_transformer",
+      "metric": "mean accuracy positions 1-16 (paired sign-flip)",
+      "mean_difference": 0.1010406494140625,
+      "p": 0.0073375701904296875,
+      "p_holm": 0.022012710571289062
+    },
+    {
+      "comparison": "rdt_vs_transformer",
+      "metric": "escape (paired exact McNemar)",
+      "first_only": 2,
+      "second_only": 0,
+      "p": 0.5,
+      "p_holm": 1.0
+    },
+    {
+      "comparison": "ctm_lm_vs_rdt",
+      "metric": "mean accuracy positions 1-16 (paired sign-flip)",
+      "mean_difference": -0.1393951416015625,
+      "p": 0.000324249267578125,
+      "p_holm": 0.0012969970703125
+    },
+    {
+      "comparison": "ctm_lm_vs_rdt",
+      "metric": "escape (paired exact McNemar)",
+      "first_only": 0,
+      "second_only": 2,
+      "p": 0.5,
+      "p_holm": 1.0
+    }
+  ],
+  "parameters": {
+    "transformer": 548660,
+    "rdt": 525984,
+    "ctm_lm": 636928
+  },
+  "training_minutes": {
+    "transformer": 4.751211770910449,
+    "rdt": 52.17279749044236,
+    "ctm_lm": 45.11348081048253
+  },
+  "checkpoint_freeze_sha256": "62f9755fbd134101006cd8907315e29c4aacae21240c1e7233eb536abb9ba9a1",
+  "analysis_source_sha256": "34d4877c603c0d0512ca39b35549569c78ff281fcc21c23e3b5d2d8777647a37",
+  "evaluations": {
+    "transformer_seed131": {
+      "path": "research/results/reliability_s3_v1/transformer_seed131.evaluation.json",
+      "sha256": "b5689de5c6cdc27f4f909b190708dd94715807bcaaa0580c43c95db3cdf2b205"
+    },
+    "rdt_seed131": {
+      "path": "research/results/reliability_s3_v1/rdt_seed131.evaluation.json",
+      "sha256": "7798c7a78fbde14eedfef69ca11c54535af3ff8ef8e1f4a736d9fc7b8409609b"
+    },
+    "ctm_lm_seed131": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed131.evaluation.json",
+      "sha256": "7683473bbb4edad6418e7d7591f8358225c078fc69b0b12e454ae4336b0870c5"
+    },
+    "transformer_seed137": {
+      "path": "research/results/reliability_s3_v1/transformer_seed137.evaluation.json",
+      "sha256": "0fd05bec2e4bc38226d3fad85c29e5c8327970bae97648b5c99b8a54d807d2be"
+    },
+    "rdt_seed137": {
+      "path": "research/results/reliability_s3_v1/rdt_seed137.evaluation.json",
+      "sha256": "0217b0597d510febf89396e28007ce3008d1af352998c4ef07b611262173a908"
+    },
+    "ctm_lm_seed137": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed137.evaluation.json",
+      "sha256": "6249d517833756efedeaad9fb49dc305667dc993f06c1686ef0cb735444595c4"
+    },
+    "transformer_seed139": {
+      "path": "research/results/reliability_s3_v1/transformer_seed139.evaluation.json",
+      "sha256": "e911d089539bac5917cad1bfd466acdebe33b74b925318aff2214801ff16246d"
+    },
+    "rdt_seed139": {
+      "path": "research/results/reliability_s3_v1/rdt_seed139.evaluation.json",
+      "sha256": "8a1101b4faf7907faec9d8e854b03103e1efb1d08f3b1b515e0d35beec846406"
+    },
+    "ctm_lm_seed139": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed139.evaluation.json",
+      "sha256": "86b3f1e0b43e8e4b1460a1b49fb133f8b975eda746e66f2f86c76f8822810e88"
+    },
+    "transformer_seed149": {
+      "path": "research/results/reliability_s3_v1/transformer_seed149.evaluation.json",
+      "sha256": "4997e4d79bbb7bb1f233fdb9229f1f3105d823e61c5d228b5c1d7509c7e10772"
+    },
+    "rdt_seed149": {
+      "path": "research/results/reliability_s3_v1/rdt_seed149.evaluation.json",
+      "sha256": "a01123faa911fc8e162e81f83c17ad500ff32cd735bb779e7cdd2858bfb7e415"
+    },
+    "ctm_lm_seed149": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed149.evaluation.json",
+      "sha256": "064d755ebe5905e14a8204fb6b59a2de5c802bf5d5df21a5d0ab24e0ce904eef"
+    },
+    "transformer_seed151": {
+      "path": "research/results/reliability_s3_v1/transformer_seed151.evaluation.json",
+      "sha256": "f3a7948072e329af1919f1551eead52277b4e252eb241e6cce13cd074486174d"
+    },
+    "rdt_seed151": {
+      "path": "research/results/reliability_s3_v1/rdt_seed151.evaluation.json",
+      "sha256": "5ba242eb077227ecf775819edd175a304ff7bad3cb8a69993d6b683ef71cfa72"
+    },
+    "ctm_lm_seed151": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed151.evaluation.json",
+      "sha256": "3a3f4a81d1888fa7d6994b6fcb56aa642239388630536da97edbd0510f751d5b"
+    },
+    "transformer_seed157": {
+      "path": "research/results/reliability_s3_v1/transformer_seed157.evaluation.json",
+      "sha256": "5ca0b441e04dbf6d0b4b66370a4e46dbe479252faba071275b3e49b9dde8fc8d"
+    },
+    "rdt_seed157": {
+      "path": "research/results/reliability_s3_v1/rdt_seed157.evaluation.json",
+      "sha256": "c392cdfa97c112d4d2ef73bf109e5b9f154798c3401adfc5e37989e1a5b8261a"
+    },
+    "ctm_lm_seed157": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed157.evaluation.json",
+      "sha256": "b6220bbd97558e2b42ecac5479305535d584ead164348ce2b0adb778c3c572a8"
+    },
+    "transformer_seed163": {
+      "path": "research/results/reliability_s3_v1/transformer_seed163.evaluation.json",
+      "sha256": "22650116fea7740b640d9d3b22137076ca47f15a711964507108471bb6c23a65"
+    },
+    "rdt_seed163": {
+      "path": "research/results/reliability_s3_v1/rdt_seed163.evaluation.json",
+      "sha256": "bd61524b79f24468b1f6bf4f638c8776013a97901a24948b005054db95d24eb2"
+    },
+    "ctm_lm_seed163": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed163.evaluation.json",
+      "sha256": "23cd4be68e82ded6f057fbc1ab6cae3ac48f9fb0de038d2325ad320522296a69"
+    },
+    "transformer_seed167": {
+      "path": "research/results/reliability_s3_v1/transformer_seed167.evaluation.json",
+      "sha256": "9e040ca74b0e5477df67512e6036589da6e414e1edb79a6ee380ce091323c7b6"
+    },
+    "rdt_seed167": {
+      "path": "research/results/reliability_s3_v1/rdt_seed167.evaluation.json",
+      "sha256": "54179f563c82fe3e8fe872385a73b8f5d34e5e4a44bac0f1b27a8d608ac1edf9"
+    },
+    "ctm_lm_seed167": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed167.evaluation.json",
+      "sha256": "bdb5546ca94fbf2785583dc9d5650d8d7977f104c75ccc9018d85ed1a758719e"
+    },
+    "transformer_seed173": {
+      "path": "research/results/reliability_s3_v1/transformer_seed173.evaluation.json",
+      "sha256": "d8da5aee2a94a21ddb412b067c01aebbade78a5f2c2a9d94854780711bb2ecc6"
+    },
+    "rdt_seed173": {
+      "path": "research/results/reliability_s3_v1/rdt_seed173.evaluation.json",
+      "sha256": "16f562fb4efbf6377955194f305fe503329f951eb9306d5a5cff651bf3bb6283"
+    },
+    "ctm_lm_seed173": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed173.evaluation.json",
+      "sha256": "b2d0ed026fcca832e5f98a8b74294998d2073eab1bc1508d98164d0f3e292a92"
+    },
+    "transformer_seed179": {
+      "path": "research/results/reliability_s3_v1/transformer_seed179.evaluation.json",
+      "sha256": "c74f0ae9d3642f22c3ac6a92bdc8d1b8e46ea9b4d504820b2cbb574ac1609d35"
+    },
+    "rdt_seed179": {
+      "path": "research/results/reliability_s3_v1/rdt_seed179.evaluation.json",
+      "sha256": "17ca8b26b4435859b9448b297731b413b476aef30a5b63a723b8d302580dea1d"
+    },
+    "ctm_lm_seed179": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed179.evaluation.json",
+      "sha256": "410aea5484f7a09db2348563e78937a8089a0c1c13fc6a3dfd6966e89a7afbfc"
+    },
+    "transformer_seed181": {
+      "path": "research/results/reliability_s3_v1/transformer_seed181.evaluation.json",
+      "sha256": "a59ce58fa17e25b54d585d672dc57aefebc8c440690dfddef358c85dece99308"
+    },
+    "rdt_seed181": {
+      "path": "research/results/reliability_s3_v1/rdt_seed181.evaluation.json",
+      "sha256": "99e905ce31e02ad58aa649b733b59af3cdff4bdbae6b14b8aa7ba46508c86c47"
+    },
+    "ctm_lm_seed181": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed181.evaluation.json",
+      "sha256": "e1c365b74453fe975ef4f10c3b7615be15a3ced536e701180a6feb4051f6cc99"
+    },
+    "transformer_seed191": {
+      "path": "research/results/reliability_s3_v1/transformer_seed191.evaluation.json",
+      "sha256": "009bf7abc5c8a95aa6773b32e3d116856c47bc3cd15468782a4aa3c4c6348331"
+    },
+    "rdt_seed191": {
+      "path": "research/results/reliability_s3_v1/rdt_seed191.evaluation.json",
+      "sha256": "ae6cda7fd9da2b53bc9809c7bda464f11b8878301fa3700047b1f1950ef946d1"
+    },
+    "ctm_lm_seed191": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed191.evaluation.json",
+      "sha256": "cd59f49cac38d84fd6a048cd81111abec9a89c2c0d6213e1e4b11025127d4338"
+    },
+    "transformer_seed193": {
+      "path": "research/results/reliability_s3_v1/transformer_seed193.evaluation.json",
+      "sha256": "605847b99dedcd5aa420dcff1fecf0fd7daa0ecb7928a764f424dd2e76242d12"
+    },
+    "rdt_seed193": {
+      "path": "research/results/reliability_s3_v1/rdt_seed193.evaluation.json",
+      "sha256": "023f533662b51da65cc9ee62036b058337e4577cb1d61e3ab9a40a0254079bd5"
+    },
+    "ctm_lm_seed193": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed193.evaluation.json",
+      "sha256": "7fea2ffafcdcd839a683719454cfe00c57237d323f73a20b5ae0b27ed0261da9"
+    },
+    "transformer_seed197": {
+      "path": "research/results/reliability_s3_v1/transformer_seed197.evaluation.json",
+      "sha256": "e365fb29bafb23e3d386fbe2370ec2fbe153c22058b912e2a83f1a993182ab5f"
+    },
+    "rdt_seed197": {
+      "path": "research/results/reliability_s3_v1/rdt_seed197.evaluation.json",
+      "sha256": "5585aa59ab6a1024f376402b707d8b288425dae44874a2bb8730bc1ee9a94f30"
+    },
+    "ctm_lm_seed197": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed197.evaluation.json",
+      "sha256": "725fdb2a2beb29e30ef6145485193a5984df698100b8c2e32679d7ced6a571f2"
+    },
+    "transformer_seed199": {
+      "path": "research/results/reliability_s3_v1/transformer_seed199.evaluation.json",
+      "sha256": "54a58022b19bfc0f9d6942bc1bf7081db2fa646ccbfa934ad6dc20e7777cd36b"
+    },
+    "rdt_seed199": {
+      "path": "research/results/reliability_s3_v1/rdt_seed199.evaluation.json",
+      "sha256": "762710e9742597e06c20bc15fae3177ef9c9a950c8bcac2f89edb4742525020b"
+    },
+    "ctm_lm_seed199": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed199.evaluation.json",
+      "sha256": "85daec47bdc77ace7a4211ce18485ce5cf1c59b0316e6479bff993a8cca052cc"
+    },
+    "transformer_seed211": {
+      "path": "research/results/reliability_s3_v1/transformer_seed211.evaluation.json",
+      "sha256": "c280b925931baa802c98901630d70084f76aa4125e4f5ba12d9fbfd9eb6f188d"
+    },
+    "rdt_seed211": {
+      "path": "research/results/reliability_s3_v1/rdt_seed211.evaluation.json",
+      "sha256": "9c12fae5b1501d5c19ce9ff5d34cbeefb688db5aa109f67618508719ef7925e0"
+    },
+    "ctm_lm_seed211": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed211.evaluation.json",
+      "sha256": "f485552c9032a0dc1f421398eca47b0df4e2982574521cf6ccefb7d219ef9fdf"
+    },
+    "transformer_seed223": {
+      "path": "research/results/reliability_s3_v1/transformer_seed223.evaluation.json",
+      "sha256": "b6133b45cde9078ecb67773b4d3123e6371baa43ecb31f96eafcf9ec6e6f590d"
+    },
+    "rdt_seed223": {
+      "path": "research/results/reliability_s3_v1/rdt_seed223.evaluation.json",
+      "sha256": "11ff5cb4970697c46a1b3b86aa46f5ef82f0336e0cce1c553b72a9e7098581d2"
+    },
+    "ctm_lm_seed223": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed223.evaluation.json",
+      "sha256": "3401e72321c2f63a4876926b73df7f3d553154d02aaa43912c0cc25bce81a8ea"
+    },
+    "transformer_seed227": {
+      "path": "research/results/reliability_s3_v1/transformer_seed227.evaluation.json",
+      "sha256": "942e4790df1fac9f47913253cbd59aa72053b0a524595cdba77606c98c598b27"
+    },
+    "rdt_seed227": {
+      "path": "research/results/reliability_s3_v1/rdt_seed227.evaluation.json",
+      "sha256": "04e5dde343f419352cd0b4f82a17e83235308db08c2812c35a05aacb012faa47"
+    },
+    "ctm_lm_seed227": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed227.evaluation.json",
+      "sha256": "b69312cf7a248e60ea11032eb61202f72924980cc9aedcf164e1ec138f62fbc4"
+    },
+    "transformer_seed229": {
+      "path": "research/results/reliability_s3_v1/transformer_seed229.evaluation.json",
+      "sha256": "5959a0dd81797923ce6c907f656849a7e1e488e34e377b2d28734ad5ef932ecc"
+    },
+    "rdt_seed229": {
+      "path": "research/results/reliability_s3_v1/rdt_seed229.evaluation.json",
+      "sha256": "97741e0f5c0e3a8a92040bafd131e77482ed32faa321343dd32c1df6fc5b3552"
+    },
+    "ctm_lm_seed229": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed229.evaluation.json",
+      "sha256": "09ff92aefb1d3fc431c18dd68864f74954af33b187838d556b748281f55c7a35"
+    },
+    "transformer_seed233": {
+      "path": "research/results/reliability_s3_v1/transformer_seed233.evaluation.json",
+      "sha256": "aaeaa9e4506f1cf501c929a64f474b7772dfcc42338f5c050dbf31abeee1a68b"
+    },
+    "rdt_seed233": {
+      "path": "research/results/reliability_s3_v1/rdt_seed233.evaluation.json",
+      "sha256": "9e166fc05e3cb0a83a0be8d243e35e75cdd93e187f4173d37fca366e9b9d0e4d"
+    },
+    "ctm_lm_seed233": {
+      "path": "research/results/reliability_s3_v1/ctm_lm_seed233.evaluation.json",
+      "sha256": "aa68da030f9078d8443f1079a982421ef98d931a4e46e6f90550fe29d58f5732"
+    }
+  }
+}

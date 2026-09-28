@@ -1,0 +1,52 @@
+2026-09-28T07:45:06.495837+00:00 preflight 
+..................................                                       [100%]
+=============================== warnings summary ===============================
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+34 passed, 14 warnings in 29.93s
+...                                                                      [100%]
+3 passed, 10 deselected in 16.80s
+2026-09-28T07:46:02.679519+00:00 training {"workers": {"cuda:0#0": {"pid": 249359, "cells": ["ctm_lm_seed131", "ctm_lm_seed163", "ctm_lm_seed193", "ctm_lm_seed229", "rdt_seed173", "rdt_seed199", "transformer_seed131", "transformer_seed139", "transformer_seed151", "transformer_seed163", "transformer_seed173", "transformer_seed181", "transformer_seed193", "transformer_seed199"]}, "cuda:0#1": {"pid": 249360, "cells": ["ctm_lm_seed137", "ctm_lm_seed167", "ctm_lm_seed197", "ctm_lm_seed233", "rdt_seed179", "rdt_seed211", "transformer_seed137", "transformer_seed149", "transformer_seed157", "transformer_seed167", "transformer_seed179", "transformer_seed191", "transformer_seed197", "transformer_seed211"]}, "cuda:0#2": {"pid": 249361, "cells": ["ctm_lm_seed139", "ctm_lm_seed173", "ctm_lm_seed199", "rdt_seed131", "rdt_seed151", "rdt_seed181", "rdt_seed223", "transformer_seed223"]}, "cuda:1#3": {"pid": 249362, "cells": ["ctm_lm_seed149", "ctm_lm_seed179", "ctm_lm_seed211", "rdt_seed137", "rdt_seed157", "rdt_seed191", "rdt_seed227", "transformer_seed227"]}, "cuda:1#4": {"pid": 249363, "cells": ["ctm_lm_seed151", "ctm_lm_seed181", "ctm_lm_seed223", "rdt_seed139", "rdt_seed163", "rdt_seed193", "rdt_seed229", "transformer_seed229"]}, "cuda:1#5": {"pid": 249364, "cells": ["ctm_lm_seed157", "ctm_lm_seed191", "ctm_lm_seed227", "rdt_seed149", "rdt_seed167", "rdt_seed197", "rdt_seed233", "transformer_seed233"]}}}
+2026-09-28T13:52:22.883833+00:00 training_complete 
+2026-09-28T13:52:22.884428+00:00 freezing_final_checkpoints 
+Audited 600,000 updates and froze 60 final checkpoints before evaluation.
+2026-09-28T13:53:02.855748+00:00 evaluation {"worker_pids": [8080, 8081]}
+2026-09-28T13:56:26.352761+00:00 summarizing 
+# S3 reliability: escape probability over twenty seeds
+
+60 runs (3 cells × 20 seeds), S₃ running products, training lengths 1–16, 10,000 updates, peak LR 0.0003. Evaluation: 1,024 held-out length-32 words per seed, evaluated once after the freeze. A run **escapes** if its mean accuracy over positions 9–16 at the trained budget (Transformer T=1, others T=16) is ≥ 90%.
+
+## Primary: escape probability
+
+| Cell | Parameters | Escaped | Probability | 95% CI (Clopper–Pearson) | Mean accuracy, positions 1–16 | Median correct prefix | Train min |
+|---|---:|---:|---:|---|---:|---:|---:|
+| transformer | 548,660 | 0/20 | 0.0% | 0.0%–16.8% | 60.4% | 5 | 5 |
+| rdt | 525,984 | 2/20 | 10.0% | 1.2%–31.7% | 70.5% | 5.5 | 52 |
+| ctm_lm | 636,928 | 0/20 | 0.0% | 0.0%–16.8% | 56.6% | 4 | 45 |
+
+2026-09-28T13:56:36.221423+00:00 complete_pending_documentation_and_archive 
