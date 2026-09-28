@@ -31,3 +31,19 @@ S₃ meets the fixed operating-point rule: across evaluated lengths 24–64, the
 - the correct-prefix length (last position with at least 90% accuracy) at the trained budget;
 - its growth with the inference step budget;
 - accuracy at positions 9–16 (trained lengths that need depth).
+
+## Round c1: CTM-LM on S₃ — 2026-09-28
+
+The faithful-as-scalable CTM-LM ([design](../../CTM_LM_DESIGN.md)), with one seed (41), fresh data (`c1_s3`) and 10,000 updates, trained at T = 16 with CTM's min-loss plus max-certainty loss and the confidence readout. Held-out accuracy by position:
+
+| LR | Ticks | p4 | p6 | p8 | p10 | p12 | p14 | p16 | p20 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.0003 | 4 | 18 | 16 | 16 | 16 | 18 | 16 | 20 | 18 |
+| 0.0003 | 8 | 69 | 45 | 37 | 33 | 30 | 31 | 35 | 21 |
+| 0.0003 | **16** | **100** | **92** | **62** | 44 | 37 | 34 | 34 | 15 |
+| 0.0003 | 32 | 90 | 55 | 30 | 22 | 20 | 15 | 16 | 15 |
+| 0.0001 | 16 | 100 | 65 | 37 | 32 | 32 | 31 | 30 | 12 |
+
+- **CTM-LM uses its ticks.** Accuracy rises sharply from T = 4, which is at chance, to T = 16. The CTM-inspired reference was identical from T = 4 to T = 32. This fits the review's suggestion that the reference's flat profile came from its departures from the published design: the latent-plus-token readout shortcut and uniform tick supervision. It is one seed and development only.
+- **It does not exceed fixed depth.** The correct prefix is about 6 (exact through position 4); the Transformer and RDT typically reach 5.
+- **Extra ticks beyond training hurt** (T = 32 is below T = 16), so randomized-tick training is the natural next change.

@@ -117,3 +117,14 @@ All-keys permutation MQAR, one hop, LR 0.0003, 10,000 updates, seed 41. All four
 - **Caveats.** This is one seed. Escape timing varies strongly with seed and data: plain RDT escaped at about 6,500 updates in r10b, on other data, and at about 5,000 here. Parameter counts differ by up to 7.7%. The history cell's slower start is consistent with CTM's gate initialization (σ(0) = 0.5), which halves the state update at initialization; this is a hypothesis that has not been tested.
 
 These are development observations. They motivate a seed-replicated, frozen sample-efficiency comparison. They are not evidence of a mechanism effect.
+
+## Round c1: CTM-LM on all-keys MQAR — 2026-09-28
+
+CTM-LM (causal backbone K/V, RoPE, both synchronization sets, CTM loss), one-hop all-keys MQAR, one seed (41), 10,000 updates:
+
+| LR | Answer acc. | Position 1 | All correct |
+|---|---:|---:|---:|
+| 0.0003 | 28.2% | 9.4% | 0% |
+| 0.0001 | 28.2% | 8.6% | 0% |
+
+**CTM-LM does not learn in-context retrieval within 10,000 updates** (position 1 is at chance, 9.1%). Contextual keys and values and RoPE are not sufficient here. The first query comes from the shared learned state, so retrieval needs a multi-tick composition: locate the position's own token, then match it. This is one seed. For comparison, the Transformer and RDT escape at 2,400–8,000 updates in this format, and CTM-LM may need longer or a different initialization.
