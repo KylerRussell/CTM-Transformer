@@ -286,11 +286,16 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 
 - [x] Run the [locked confirmation](SYNC_CONFIRMATION.md) (5 cells × 7 unused seeds; test evaluated once). **Neither `sync` nor `current` exceeds the RDT controls** (median correct prefix 5–6 for every cell). Outcomes are bimodal by seed: each recurrent cell escapes to the serial solution at 1–2 of 7 seeds. **The synchronization claim from the development S₃ study is withdrawn.** Robust findings: recurrent cells use their steps; nothing extrapolates past the trained length; the CTM-inspired reference does not use its ticks. See [interpretation](results/sync_confirmation_v1/INTERPRETATION.md).
 
+## Reliability and training recipe
+
+- [x] Run the [reliability study](RELIABILITY_S3.md) (Transformer, RDT and CTM-LM × 20 new seeds). RDT beats the Transformer by +10.1 points on positions 1–16 (Holm p = 0.022). CTM-LM is below RDT by −13.9 (Holm p = 0.0013). Escape is rare: RDT 2/20, others 0/20. See [interpretation](results/reliability_s3_v1/INTERPRETATION.md).
+- [x] Run [randomized-depth training](RANDDEPTH_S3.md) against those controls. No declared test is significant after Holm. RDT's direction is favourable: escape 7/20 against 2/20, and +9.9 points; progress per step is faster and stable to T = 64. CTM-LM loses its tick use. **Extrapolation was unmeasurable:** learned absolute position rows beyond the trained length 16 are never trained, in this and every earlier S₃ study. See [interpretation](results/randdepth_s3_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Re-prioritize the pre-LM plan around the reliability of serial learning. Estimate escape probability with many seeds and a continuous metric; test randomized depth, length curriculum and per-cell learning rates as ways to make escape reliable; then run CTM-LM checks and A₅ against that reliability baseline. CTM-LM capability probes are running.
+1. Next S₃ recipe study: switch to NoPE or RoPE (so extrapolation is measurable), keep randomized depth for RDT, add a length curriculum and per-cell learning rates, and confirm the escape gain with enough seeds. Then run A₅ and CTM-LM retrieval with the improved recipe.
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

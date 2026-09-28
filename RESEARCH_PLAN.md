@@ -264,3 +264,19 @@ Future protocols add continuous primary metrics and exact paired p-values with H
 On seven never-used seeds with a locked test evaluated once, **neither `sync` nor `current` exceeded the RDT controls**: median correct prefix 5–6 for every cell ([interpretation](research/results/sync_confirmation_v1/INTERPRETATION.md)). Outcomes are bimodal by seed. Every recurrent cell sometimes escapes to a serial solution of positions 9–16 (at 1–2 of 7 seeds) and otherwise stays near the fixed-depth profile. The development study's 5-of-5 pattern was most plausibly chance, which is the statistical weakness the external review flagged. **The claim that second-order query features extend state tracking is withdrawn**, and the ablation conclusions built on it are superseded.
 
 What remains: recurrent models use extra steps; nothing generalizes past the trained length; the CTM-inspired reference does not use its ticks; and the retrieval findings stand. The central open problem is now **making serial learning reliable**. Architecture comparisons need escape-probability endpoints with many more seeds, and training changes (randomized depth, curriculum, learning rate) come before any mechanism claim or language-model phase.
+
+
+## Reliability baseline and randomized depth — 2026-09-28
+
+The [reliability study](research/results/reliability_s3_v1/INTERPRETATION.md) (3 cells × 20 new seeds) established the baseline:
+- **RDT beats the fixed-depth Transformer by 10.1 points** on positions 1–16 (Holm p = 0.022). This is the project's first result under exact paired tests with multiplicity control.
+- **CTM-LM is 13.9 points below RDT** (Holm p = 0.0013).
+- Escape to the serial solution is rare: 2/20 for RDT and 0/20 for the others.
+
+[Randomized-depth training](research/results/randdepth_s3_v1/INTERPRETATION.md) (log-normal Poisson, mean about 16) was then compared on the same seeds.
+- **No declared test was significant after Holm.**
+- For RDT, the direction is favourable: escape 7/20 against 2/20, +9.9 points, 13 of 20 seeds improved. It also made progress per step faster and extra steps harmless.
+- For CTM-LM, randomized depth under CTM's loss removed tick use entirely.
+
+**Positional-encoding flaw.** The study also showed that **no S₃ study so far could have measured length extrapolation**. Every model uses learned absolute position embeddings, and training lengths stop at 16, so position rows 17 and later are untrained. The "nothing extrapolates" finding is withdrawn as an architectural statement. The next S₃ protocol uses NoPE or RoPE, keeps randomized depth for RDT, and adds a length curriculum and per-cell learning rates.
+

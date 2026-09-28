@@ -1,5 +1,12 @@
 # S3 randomized-depth training versus fixed depth
 
+> **Outcome (2026-09-28): no declared test significant after Holm.**
+> - RDT escape was 7/20 against 2/20 (Holm p = 0.47), and +9.9 points on positions 1–16 (Holm p = 0.31).
+> - Randomized depth removed CTM-LM's tick use.
+> - The extrapolation endpoint was uninformative by construction: learned absolute position rows 17–32 are never trained.
+>
+> See [interpretation](results/randdepth_s3_v1/INTERPRETATION.md).
+
 ## Protocol declared before new scientific training — 2026-09-28
 
 This protocol was declared while the [reliability study](RELIABILITY_S3.md) was still training, before any of its results were seen.

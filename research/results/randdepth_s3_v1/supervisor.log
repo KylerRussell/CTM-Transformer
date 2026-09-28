@@ -1,0 +1,50 @@
+2026-09-28T13:57:18.566066+00:00 preflight 
+.................................                                        [100%]
+=============================== warnings summary ===============================
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+33 passed, 14 warnings in 44.15s
+.....                                                                    [100%]
+5 passed, 13 deselected in 26.33s
+2026-09-28T13:58:39.163025+00:00 training {"workers": {"cuda:0#0": {"pid": 8994, "cells": ["ctm_lm_rand_seed131", "ctm_lm_rand_seed163", "ctm_lm_rand_seed193", "ctm_lm_rand_seed229", "rdt_rand_seed173", "rdt_rand_seed199"]}, "cuda:0#1": {"pid": 8995, "cells": ["ctm_lm_rand_seed137", "ctm_lm_rand_seed167", "ctm_lm_rand_seed197", "ctm_lm_rand_seed233", "rdt_rand_seed179", "rdt_rand_seed211"]}, "cuda:0#2": {"pid": 8996, "cells": ["ctm_lm_rand_seed139", "ctm_lm_rand_seed173", "ctm_lm_rand_seed199", "rdt_rand_seed131", "rdt_rand_seed151", "rdt_rand_seed181", "rdt_rand_seed223"]}, "cuda:1#3": {"pid": 8997, "cells": ["ctm_lm_rand_seed149", "ctm_lm_rand_seed179", "ctm_lm_rand_seed211", "rdt_rand_seed137", "rdt_rand_seed157", "rdt_rand_seed191", "rdt_rand_seed227"]}, "cuda:1#4": {"pid": 8998, "cells": ["ctm_lm_rand_seed151", "ctm_lm_rand_seed181", "ctm_lm_rand_seed223", "rdt_rand_seed139", "rdt_rand_seed163", "rdt_rand_seed193", "rdt_rand_seed229"]}, "cuda:1#5": {"pid": 8999, "cells": ["ctm_lm_rand_seed157", "ctm_lm_rand_seed191", "ctm_lm_rand_seed227", "rdt_rand_seed149", "rdt_rand_seed167", "rdt_rand_seed197", "rdt_rand_seed233"]}}}
+2026-09-28T19:47:48.570849+00:00 training_complete 
+2026-09-28T19:47:48.571975+00:00 freezing_final_checkpoints 
+Audited 400,000 updates and froze 40 final checkpoints before evaluation.
+2026-09-28T19:48:35.136405+00:00 evaluation {"worker_pids": [26261, 26262]}
+2026-09-28T19:57:32.252447+00:00 summarizing 
+# S3 randomized-depth training versus fixed depth
+
+RDT and CTM-LM trained with {'kind': 'lognormal_poisson', 'mean': 15, 'sigma': 0.5, 'maximum': 48} (expected depth about 16), paired by seed and data with the fixed-T=16 runs of the reliability study (20 seeds). Escape: mean accuracy over positions 9–16 ≥ 90%. Evaluation words have length 32.
+
+| Cell | Escape at T=16 | 95% CI | Escape at T=32 | Positions 1–16 at T=16 | Positions 17–32 at T=32 | Median prefix T=4/8/16/32/48/64 |
+|---|---:|---|---:|---:|---:|---|
+| rdt_rand | 7/20 | 15.4%–59.2% | 7/20 | 80.4% | 16.8% | 6/8.5/9.5/9.5/9.5/9.5 |
+| rdt | 2/20 | 1.2%–31.7% | 2/20 | 70.5% | 16.5% | 2/4/5.5/5.5/—/— |
+| ctm_lm_rand | 0/20 | 0.0%–16.8% | 0/20 | 52.6% | 16.8% | 4/4/4/4/4/4 |
+| ctm_lm | 0/20 | 0.0%–16.8% | 0/20 | 56.6% | 16.9% | 0/1/4/4/—/— |
+2026-09-28T19:57:45.948434+00:00 complete_pending_documentation_and_archive 
