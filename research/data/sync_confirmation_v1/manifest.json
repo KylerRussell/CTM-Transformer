@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "name": "sync_confirmation_v1",
+  "group": "S3",
+  "group_size": 6,
+  "train_lengths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "evaluation_length": 32,
+  "min_held_out_length": 8,
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "generator_sha256": {
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5"
+  },
+  "role": "development study data; no locked test split",
+  "seeds": {
+    "97": {
+      "train": {
+        "path": "seed97/train.jsonl",
+        "examples": 320000,
+        "sha256": "5729019b9dcf98618fd844a40c5b9f4429be0b74a97dca495e81256f7936cc1a"
+      },
+      "validation": {
+        "path": "seed97/validation.jsonl",
+        "examples": 512,
+        "sha256": "b2bb70590af8ec20d1605d1a892d4c6daaf87b40b17d48080a4ac1afc3ce99a9"
+      },
+      "evaluation": {
+        "path": "seed97/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "26fa93334e74d31d5e2eb68fbce3c30981efe29efbf6f7708d57cd49f266d7d4"
+      }
+    },
+    "101": {
+      "train": {
+        "path": "seed101/train.jsonl",
+        "examples": 320000,
+        "sha256": "020b6eca16cde44d2b11953d9d746e3ab379260ff424269f050f9e1ecc3f8dab"
+      },
+      "validation": {
+        "path": "seed101/validation.jsonl",
+        "examples": 512,
+        "sha256": "94a2e40205e46174160e6bc9f1d435615b3ecc9aef5c28e169a1cccf9b82ee4e"
+      },
+      "evaluation": {
+        "path": "seed101/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "05f02b9bcaaaae3e0744d8eb6aeacd21953a622dfdfd126a2fc9a6c0bb4bd109"
+      }
+    },
+    "103": {
+      "train": {
+        "path": "seed103/train.jsonl",
+        "examples": 320000,
+        "sha256": "04c80fccbcc125c4d305e188854555c7719d706a56fc9d0d3b4908d2402ae64d"
+      },
+      "validation": {
+        "path": "seed103/validation.jsonl",
+        "examples": 512,
+        "sha256": "b7ca14dfef2808308d16e86a2ae5cf721e6ceecbf85c98c8829410048d7731bd"
+      },
+      "evaluation": {
+        "path": "seed103/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "5ab0e19151fd51c0cb16a5abf6c9f4e4542498fe6beca355a784494ae8d3d520"
+      }
+    },
+    "107": {
+      "train": {
+        "path": "seed107/train.jsonl",
+        "examples": 320000,
+        "sha256": "1fdec4e5893efff769ce9d183a597f95d5b1d94bdc43c5ebae0c27587f983e4e"
+      },
+      "validation": {
+        "path": "seed107/validation.jsonl",
+        "examples": 512,
+        "sha256": "c44d30d171278c1965d4bcc61cbd7c8f5a85905c615425dc4c078e67d95c83bc"
+      },
+      "evaluation": {
+        "path": "seed107/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "d828d1a420e066894b2c3bde2326246a83840322eb12e324d7e13b4fc99ee67d"
+      }
+    },
+    "109": {
+      "train": {
+        "path": "seed109/train.jsonl",
+        "examples": 320000,
+        "sha256": "4c5af516222558bac47362343af06f037bf5db1e4bf72bb6f9a8241e9fb25ffc"
+      },
+      "validation": {
+        "path": "seed109/validation.jsonl",
+        "examples": 512,
+        "sha256": "2d6bb43408c27f09b9164c1dc65aa8d2efd0799574e332e605c6c062944a8fa0"
+      },
+      "evaluation": {
+        "path": "seed109/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "c22daee2e5e55bf4257a8faae2c116b4b697572d3b36d799a445fd9413ae6243"
+      }
+    },
+    "113": {
+      "train": {
+        "path": "seed113/train.jsonl",
+        "examples": 320000,
+        "sha256": "8b735a66ec9c998a819a68f3c4d9aa92d98b5f3844560a57f4263742bf60b8b1"
+      },
+      "validation": {
+        "path": "seed113/validation.jsonl",
+        "examples": 512,
+        "sha256": "4cd390efc0106fc8d64e7edd627dc69e8c193170c28b4ba08e3e53a161902586"
+      },
+      "evaluation": {
+        "path": "seed113/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "250e254f59106b331175157f3776743426dc12e6190bd846cdc4795c79e52945"
+      }
+    },
+    "127": {
+      "train": {
+        "path": "seed127/train.jsonl",
+        "examples": 320000,
+        "sha256": "dc31a1272fe7fcb6f57939e21fe4734d7688eb027119da836dfa7ca6dd5757d7"
+      },
+      "validation": {
+        "path": "seed127/validation.jsonl",
+        "examples": 512,
+        "sha256": "7d928e86f2178b4d0f97b7ecc37bc78ead2d958d7522875c02c6cb77c838fa3b"
+      },
+      "evaluation": {
+        "path": "seed127/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "687afcfa223bcb73dc748fff88a283165b241da112a07115ad50f86262ad9697"
+      }
+    }
+  }
+}

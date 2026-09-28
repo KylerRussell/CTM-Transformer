@@ -21,3 +21,5 @@ research/data/group_s3_v1/seed*/train.jsonl
 research/runs/group_s3_v1/*/*/data/
 research/runs/sync_ablation_v1/*/*/data/
 research/runs/sync_ablation_v2/*/*/data/
+research/data/sync_confirmation_v1/seed*/train.jsonl
+research/runs/sync_confirmation_v1/*/*/data/
