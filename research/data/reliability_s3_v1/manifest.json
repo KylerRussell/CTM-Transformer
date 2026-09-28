@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "name": "reliability_s3_v1",
+  "group": "S3",
+  "group_size": 6,
+  "train_lengths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "evaluation_length": 32,
+  "min_held_out_length": 8,
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "generator_sha256": {
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5"
+  },
+  "role": "development study data; no locked test split",
+  "seeds": {
+    "131": {
+      "train": {
+        "path": "seed131/train.jsonl",
+        "examples": 320000,
+        "sha256": "695526fd8a71c19b9eaaeb17aadc5e24eda0e2f276db73a909f5cf6191d7995a"
+      },
+      "validation": {
+        "path": "seed131/validation.jsonl",
+        "examples": 512,
+        "sha256": "6e4444cc7a94355e05bc39ae15ac4a24a8756e247d29319a9aa166b2f2ba94dd"
+      },
+      "evaluation": {
+        "path": "seed131/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "c5176dbd05d2384d63dff2148593e5a7a44944a5fd2626924e9944d638ab53c6"
+      }
+    },
+    "137": {
+      "train": {
+        "path": "seed137/train.jsonl",
+        "examples": 320000,
+        "sha256": "3150b20bc7d676354bdfcf25d0ab5db5e6e0ea431160d266e2addd9a2cd39a0e"
+      },
+      "validation": {
+        "path": "seed137/validation.jsonl",
+        "examples": 512,
+        "sha256": "67e342915d9dc329caa2ce71fd22e185c36f0642d863c948181835e38a15764f"
+      },
+      "evaluation": {
+        "path": "seed137/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "57816c1a97d3eba98d55e259afb56597bb8439a3ddc9cd0f06366a26c4ee52a6"
+      }
+    },
+    "139": {
+      "train": {
+        "path": "seed139/train.jsonl",
+        "examples": 320000,
+        "sha256": "2189f84b8b50a55d1ff7e77fa04d71b5d958f52af9356b2328b78e48f75ef7d4"
+      },
+      "validation": {
+        "path": "seed139/validation.jsonl",
+        "examples": 512,
+        "sha256": "f7a0ded177568a6f4d413abcdebf889e1545ff52b343b5c7419905d8b2a52bf6"
+      },
+      "evaluation": {
+        "path": "seed139/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "d86df1c88f3e8a97fbaff15feae3b4fbaf1c1c920c36454ee33403a19024a557"
+      }
+    },
+    "149": {
+      "train": {
+        "path": "seed149/train.jsonl",
+        "examples": 320000,
+        "sha256": "1b6252b85c9412d3c2755aee3070aec1f47544d3aebc0fc88a7e5f505fb58758"
+      },
+      "validation": {
+        "path": "seed149/validation.jsonl",
+        "examples": 512,
+        "sha256": "3f138ff0ed8430ddf9d7dbcb129b471bd15c872622a52af84c468ddffa60cab4"
+      },
+      "evaluation": {
+        "path": "seed149/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "2c77b9ea4e80a44906567a5c86f5b1b5762319c1bdf67d76debda5412b344736"
+      }
+    },
+    "151": {
+      "train": {
+        "path": "seed151/train.jsonl",
+        "examples": 320000,
+        "sha256": "48c7928d6d31468903ac5020e3ded24f248a18e4414c9ffb2e0263630846fca5"
+      },
+      "validation": {
+        "path": "seed151/validation.jsonl",
+        "examples": 512,
+        "sha256": "94d6b085f55369f9f226d50222a6cab3a886dbb7fadc86bb6ebb05f8abe13430"
+      },
+      "evaluation": {
+        "path": "seed151/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "70df787833b6dcd24b48517791e6c745143de231d3ff6ea7457781fdc5e23cfa"
+      }
+    },
+    "157": {
+      "train": {
+        "path": "seed157/train.jsonl",
+        "examples": 320000,
+        "sha256": "bf8d60d5587f826a0f3d1456bc79d71ca469fad8bbec91a10b49f464348861cb"
+      },
+      "validation": {
+        "path": "seed157/validation.jsonl",
+        "examples": 512,
+        "sha256": "214e8eca42e893e58f86490c54b3302a4780b60fe06b927788f5d0eaa8d377ff"
+      },
+      "evaluation": {
+        "path": "seed157/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "c3b1fdb6456f068eb4aa2367b82fa7f3d54c628073ce262c8a0853cca6445e19"
+      }
+    },
+    "163": {
+      "train": {
+        "path": "seed163/train.jsonl",
+        "examples": 320000,
+        "sha256": "678fbda1752019680ddbb0db3e9975f390c49566dd7209457a8adf78876c396e"
+      },
+      "validation": {
+        "path": "seed163/validation.jsonl",
+        "examples": 512,
+        "sha256": "52c15f50cbd55802dde7384c68d3809b7b2e2bf60a2c07b90f23649d3f6ae3e2"
+      },
+      "evaluation": {
+        "path": "seed163/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "7a8b1dec32a5e828e6e9475cf8afe7da8cbb80c0af1e60ab06e8e76d747e5d1b"
+      }
+    },
+    "167": {
+      "train": {
+        "path": "seed167/train.jsonl",
+        "examples": 320000,
+        "sha256": "70acf780e7f1e3b37876ac5448134f13c927c6e02009668617d1ab1b2478a0a9"
+      },
+      "validation": {
+        "path": "seed167/validation.jsonl",
+        "examples": 512,
+        "sha256": "d05bba99c94fc5cd28ccbcd16e29300d923447002815efe43051d6541e477433"
+      },
+      "evaluation": {
+        "path": "seed167/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "4e251e3413e398bdad963c51d9954b764c5c70082d8bb39bf47504d163f351aa"
+      }
+    },
+    "173": {
+      "train": {
+        "path": "seed173/train.jsonl",
+        "examples": 320000,
+        "sha256": "b7bc36917e798fcb7db3a69e3e18e6f542a0c5f9dd92661f52ecde8dbdccfa39"
+      },
+      "validation": {
+        "path": "seed173/validation.jsonl",
+        "examples": 512,
+        "sha256": "2ee58801458792ea41f08bd7520b7b91cc13d50e859299f8c974a0c7e0af91ba"
+      },
+      "evaluation": {
+        "path": "seed173/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "51436efbb3b2500361739c545a78c2103a13b3c84024470f779956600c47427c"
+      }
+    },
+    "179": {
+      "train": {
+        "path": "seed179/train.jsonl",
+        "examples": 320000,
+        "sha256": "91ff301a92ded84fb4cfb6314e77dfe3c9636cbce5c978f7d88068e8502731e8"
+      },
+      "validation": {
+        "path": "seed179/validation.jsonl",
+        "examples": 512,
+        "sha256": "03db03608fd07045f213b878f25ed845607dc5fddf462057435a5cf9a95be0de"
+      },
+      "evaluation": {
+        "path": "seed179/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "c6bb87196882390e9c28d90bb2b4444d79eea2fcd5cbff1e4fccbbcfe920e45c"
+      }
+    },
+    "181": {
+      "train": {
+        "path": "seed181/train.jsonl",
+        "examples": 320000,
+        "sha256": "dff89a2189a3993b4211b77acdd1165e1d305359a1cc2b4c1160a9cb08cb7fba"
+      },
+      "validation": {
+        "path": "seed181/validation.jsonl",
+        "examples": 512,
+        "sha256": "69c4a19f76ba32c7e9f3847a9b9bcb36b5519ca69270b1418d943a99c670dcda"
+      },
+      "evaluation": {
+        "path": "seed181/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "d0bf6e5e4f507a4d321bc7037d45fa75c1eda152705cdf67900e39ab454873ba"
+      }
+    },
+    "191": {
+      "train": {
+        "path": "seed191/train.jsonl",
+        "examples": 320000,
+        "sha256": "af3cbff325c7bbd6f2753468f07d15db32069e7b70ea4778a62f7def0187a43c"
+      },
+      "validation": {
+        "path": "seed191/validation.jsonl",
+        "examples": 512,
+        "sha256": "d1c1823ea46061a44b487130cac280a2af050e2d05639b1d1e4cca9c57d1995c"
+      },
+      "evaluation": {
+        "path": "seed191/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "a52abbf5de1b68adb1239aeafe8ac81a37b88ca34743adb38c392ee5a9fd2020"
+      }
+    },
+    "193": {
+      "train": {
+        "path": "seed193/train.jsonl",
+        "examples": 320000,
+        "sha256": "d7231eb763ad89b2e6dad969ff801a1615d4138ccc6939cac7a7dd7be955adda"
+      },
+      "validation": {
+        "path": "seed193/validation.jsonl",
+        "examples": 512,
+        "sha256": "bc87c2ec48f5a1218e619845c6ef101fb522e7200b631a28f516c3870e5cb1f1"
+      },
+      "evaluation": {
+        "path": "seed193/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "93a66398e46dd071f5fb1c3f9d6bc7e9656febcdb06cf68849ac42ffeea5b612"
+      }
+    },
+    "197": {
+      "train": {
+        "path": "seed197/train.jsonl",
+        "examples": 320000,
+        "sha256": "1f0c9f9eaa90f6c801993e620fab0af32026356669245a02d24dd603db0e0088"
+      },
+      "validation": {
+        "path": "seed197/validation.jsonl",
+        "examples": 512,
+        "sha256": "2044ba676389198f531e5171a3d69a134cefcbc158885b31fbed2f55465b4475"
+      },
+      "evaluation": {
+        "path": "seed197/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "00e46cd66dbe081b9f8ad666668b1ba7283c9085f9f073bae127c1328b26098b"
+      }
+    },
+    "199": {
+      "train": {
+        "path": "seed199/train.jsonl",
+        "examples": 320000,
+        "sha256": "31e98d9801331581574f00d2f48c1ea49d2ec5c83ba60d4803766032c1a02810"
+      },
+      "validation": {
+        "path": "seed199/validation.jsonl",
+        "examples": 512,
+        "sha256": "69f6f4ee4a6cee95467c34153aaac27ac84c3585c8d53f281ef35e0168453f5b"
+      },
+      "evaluation": {
+        "path": "seed199/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "4a7701e5e19bb623aed9aec61af020a6bfcb1e7ed3972ab7c4ef0132e00a7420"
+      }
+    },
+    "211": {
+      "train": {
+        "path": "seed211/train.jsonl",
+        "examples": 320000,
+        "sha256": "97d5e3bfaf1abbe78ae079a251d5bdbe17a00a94a15bae35a032d910fff24d85"
+      },
+      "validation": {
+        "path": "seed211/validation.jsonl",
+        "examples": 512,
+        "sha256": "6898b817dfad98ddb5da37a667c435379f08019f1f4fd7eb90c3bf306100fb2a"
+      },
+      "evaluation": {
+        "path": "seed211/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "1322e12b383c0b8798cde7a28e9384270755dc21c71dfd8d9f942159458bf0c8"
+      }
+    },
+    "223": {
+      "train": {
+        "path": "seed223/train.jsonl",
+        "examples": 320000,
+        "sha256": "bc3be1b38cc88d88af875f5ddadf47f9e7099e8749a5798c6fa2aa2481c05f59"
+      },
+      "validation": {
+        "path": "seed223/validation.jsonl",
+        "examples": 512,
+        "sha256": "0bd38e9db9e1382267a809f844fadf1380489002562328bf0af1fe7c86023e96"
+      },
+      "evaluation": {
+        "path": "seed223/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "b3e4dfb659cfa7855f43c91f709babf72f7291a0cbb72126ec5d1cc4983b4df7"
+      }
+    },
+    "227": {
+      "train": {
+        "path": "seed227/train.jsonl",
+        "examples": 320000,
+        "sha256": "3bf1af0ab568db8c814671bdbaa498b8932e8608afb230c0a8802a364a97f450"
+      },
+      "validation": {
+        "path": "seed227/validation.jsonl",
+        "examples": 512,
+        "sha256": "138bfec8390a4580ee7a3cc998406661318cb0aeca6ad1fc7ad1d3fb38412fa8"
+      },
+      "evaluation": {
+        "path": "seed227/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "f3ff0d1a44c9100cd62bd2fe91db229d92d4177447fb59e21a1e7cf2082a1ea5"
+      }
+    },
+    "229": {
+      "train": {
+        "path": "seed229/train.jsonl",
+        "examples": 320000,
+        "sha256": "da4196f768236584e166a1c173641ac0589620ce1e2b2dca2eb1f0e4d2abae6b"
+      },
+      "validation": {
+        "path": "seed229/validation.jsonl",
+        "examples": 512,
+        "sha256": "4a41b6830343f847143d0e4ba0e9137c87f221d9df7cf3602b1bbb05ccf9bc99"
+      },
+      "evaluation": {
+        "path": "seed229/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "57f8ee8f83c670b149eb4ab42e7fa42c96527ec0e498ea2373e165ecfac415b5"
+      }
+    },
+    "233": {
+      "train": {
+        "path": "seed233/train.jsonl",
+        "examples": 320000,
+        "sha256": "659d1941a237b82394bc8ad43e399d15fcf0e492f499ff190bc4d56a2b46af54"
+      },
+      "validation": {
+        "path": "seed233/validation.jsonl",
+        "examples": 512,
+        "sha256": "4a115d36c501a4188fe72b67fb255052b5820eef4ee85170f4f5f464f10fcd9e"
+      },
+      "evaluation": {
+        "path": "seed233/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "c2f85a190f2e1574b53f992f14841334c40b8ad8e9119e69bfa287c903121b2f"
+      }
+    }
+  }
+}

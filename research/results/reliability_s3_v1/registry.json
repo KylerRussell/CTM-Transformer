@@ -1,0 +1,1983 @@
+{
+  "schema_version": 1,
+  "name": "reliability_s3_v1",
+  "runner": "shared_research_v3",
+  "entries": [
+    {
+      "cell": "transformer_seed131",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 131,
+      "config": "research/configs/reliability_s3_v1/transformer_seed131.json",
+      "config_sha256": "c9e6fa55d96e45b243357e527a5d0cc0e0765c032e6dbe66f9419ed22b3ea3c6",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "695526fd8a71c19b9eaaeb17aadc5e24eda0e2f276db73a909f5cf6191d7995a",
+      "validation_sha256": "6e4444cc7a94355e05bc39ae15ac4a24a8756e247d29319a9aa166b2f2ba94dd",
+      "evaluation_sha256": "c5176dbd05d2384d63dff2148593e5a7a44944a5fd2626924e9944d638ab53c6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed131",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed131.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed131",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 131,
+      "config": "research/configs/reliability_s3_v1/rdt_seed131.json",
+      "config_sha256": "1e000a1ee0d713faea6caaced36fb8884ff4801ca5684713a3b0383f3615ed07",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "695526fd8a71c19b9eaaeb17aadc5e24eda0e2f276db73a909f5cf6191d7995a",
+      "validation_sha256": "6e4444cc7a94355e05bc39ae15ac4a24a8756e247d29319a9aa166b2f2ba94dd",
+      "evaluation_sha256": "c5176dbd05d2384d63dff2148593e5a7a44944a5fd2626924e9944d638ab53c6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed131",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed131.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed131",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 131,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed131.json",
+      "config_sha256": "fb98e21564ed1db9b09534919a4dc1c2cafb525da639153fb5bb82784e0a538b",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "695526fd8a71c19b9eaaeb17aadc5e24eda0e2f276db73a909f5cf6191d7995a",
+      "validation_sha256": "6e4444cc7a94355e05bc39ae15ac4a24a8756e247d29319a9aa166b2f2ba94dd",
+      "evaluation_sha256": "c5176dbd05d2384d63dff2148593e5a7a44944a5fd2626924e9944d638ab53c6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed131",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed131.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed137",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 137,
+      "config": "research/configs/reliability_s3_v1/transformer_seed137.json",
+      "config_sha256": "aad4c6beeef727f6428ad0b28f9bdba1756b4a1f89c02e021a7eb579c76dcf5f",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "3150b20bc7d676354bdfcf25d0ab5db5e6e0ea431160d266e2addd9a2cd39a0e",
+      "validation_sha256": "67e342915d9dc329caa2ce71fd22e185c36f0642d863c948181835e38a15764f",
+      "evaluation_sha256": "57816c1a97d3eba98d55e259afb56597bb8439a3ddc9cd0f06366a26c4ee52a6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed137",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed137.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed137",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 137,
+      "config": "research/configs/reliability_s3_v1/rdt_seed137.json",
+      "config_sha256": "f2892068003d201c6c1234ae27fd031e1e597e034fb28f6c8b4cf46928e970cf",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "3150b20bc7d676354bdfcf25d0ab5db5e6e0ea431160d266e2addd9a2cd39a0e",
+      "validation_sha256": "67e342915d9dc329caa2ce71fd22e185c36f0642d863c948181835e38a15764f",
+      "evaluation_sha256": "57816c1a97d3eba98d55e259afb56597bb8439a3ddc9cd0f06366a26c4ee52a6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed137",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed137.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed137",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 137,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed137.json",
+      "config_sha256": "6c2df7af2e51ca71d1588b97296215e0ef9f49f8ac35e19129a80388df266cb3",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "3150b20bc7d676354bdfcf25d0ab5db5e6e0ea431160d266e2addd9a2cd39a0e",
+      "validation_sha256": "67e342915d9dc329caa2ce71fd22e185c36f0642d863c948181835e38a15764f",
+      "evaluation_sha256": "57816c1a97d3eba98d55e259afb56597bb8439a3ddc9cd0f06366a26c4ee52a6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed137",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed137.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed139",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 139,
+      "config": "research/configs/reliability_s3_v1/transformer_seed139.json",
+      "config_sha256": "ccef17d8958b1669ec387718287b381d273d5af2f1d2a60668438014ac319917",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "2189f84b8b50a55d1ff7e77fa04d71b5d958f52af9356b2328b78e48f75ef7d4",
+      "validation_sha256": "f7a0ded177568a6f4d413abcdebf889e1545ff52b343b5c7419905d8b2a52bf6",
+      "evaluation_sha256": "d86df1c88f3e8a97fbaff15feae3b4fbaf1c1c920c36454ee33403a19024a557",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed139",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed139.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed139",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 139,
+      "config": "research/configs/reliability_s3_v1/rdt_seed139.json",
+      "config_sha256": "49a413631b55caddb42da55a77d5e5e62cdb53d3ada9ecbe713cbaef27bd5363",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "2189f84b8b50a55d1ff7e77fa04d71b5d958f52af9356b2328b78e48f75ef7d4",
+      "validation_sha256": "f7a0ded177568a6f4d413abcdebf889e1545ff52b343b5c7419905d8b2a52bf6",
+      "evaluation_sha256": "d86df1c88f3e8a97fbaff15feae3b4fbaf1c1c920c36454ee33403a19024a557",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed139",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed139.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed139",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 139,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed139.json",
+      "config_sha256": "ec437b36a7af278a00a653823fc3af877ac29871c81f6085d5405b03042c19cf",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "2189f84b8b50a55d1ff7e77fa04d71b5d958f52af9356b2328b78e48f75ef7d4",
+      "validation_sha256": "f7a0ded177568a6f4d413abcdebf889e1545ff52b343b5c7419905d8b2a52bf6",
+      "evaluation_sha256": "d86df1c88f3e8a97fbaff15feae3b4fbaf1c1c920c36454ee33403a19024a557",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed139",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed139.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed149",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 149,
+      "config": "research/configs/reliability_s3_v1/transformer_seed149.json",
+      "config_sha256": "f1b74b3dfdd164217d096e911cf47216de456c529ec93df3b747e5a8bce21b51",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "1b6252b85c9412d3c2755aee3070aec1f47544d3aebc0fc88a7e5f505fb58758",
+      "validation_sha256": "3f138ff0ed8430ddf9d7dbcb129b471bd15c872622a52af84c468ddffa60cab4",
+      "evaluation_sha256": "2c77b9ea4e80a44906567a5c86f5b1b5762319c1bdf67d76debda5412b344736",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed149",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed149.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed149",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 149,
+      "config": "research/configs/reliability_s3_v1/rdt_seed149.json",
+      "config_sha256": "301e94af52a05c560d1ac25ad458d10c6da29b00ef8ff3e33bb9c55acab3bae2",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "1b6252b85c9412d3c2755aee3070aec1f47544d3aebc0fc88a7e5f505fb58758",
+      "validation_sha256": "3f138ff0ed8430ddf9d7dbcb129b471bd15c872622a52af84c468ddffa60cab4",
+      "evaluation_sha256": "2c77b9ea4e80a44906567a5c86f5b1b5762319c1bdf67d76debda5412b344736",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed149",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed149.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed149",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 149,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed149.json",
+      "config_sha256": "8e6bc04c135436bc41d66be94321fb546d2b3ae93eb4080a84457d60d437b73d",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "1b6252b85c9412d3c2755aee3070aec1f47544d3aebc0fc88a7e5f505fb58758",
+      "validation_sha256": "3f138ff0ed8430ddf9d7dbcb129b471bd15c872622a52af84c468ddffa60cab4",
+      "evaluation_sha256": "2c77b9ea4e80a44906567a5c86f5b1b5762319c1bdf67d76debda5412b344736",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed149",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed149.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed151",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 151,
+      "config": "research/configs/reliability_s3_v1/transformer_seed151.json",
+      "config_sha256": "e8edd29b11ac240864b9add391f2cd06a3f6262ec51e06981746a1fe2b0ae554",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "48c7928d6d31468903ac5020e3ded24f248a18e4414c9ffb2e0263630846fca5",
+      "validation_sha256": "94d6b085f55369f9f226d50222a6cab3a886dbb7fadc86bb6ebb05f8abe13430",
+      "evaluation_sha256": "70df787833b6dcd24b48517791e6c745143de231d3ff6ea7457781fdc5e23cfa",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed151",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed151.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed151",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 151,
+      "config": "research/configs/reliability_s3_v1/rdt_seed151.json",
+      "config_sha256": "d77e13bd1a969f260d84ec68aaf1547dbde65c0a63e9a0ba32686bc050af5f99",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "48c7928d6d31468903ac5020e3ded24f248a18e4414c9ffb2e0263630846fca5",
+      "validation_sha256": "94d6b085f55369f9f226d50222a6cab3a886dbb7fadc86bb6ebb05f8abe13430",
+      "evaluation_sha256": "70df787833b6dcd24b48517791e6c745143de231d3ff6ea7457781fdc5e23cfa",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed151",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed151.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed151",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 151,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed151.json",
+      "config_sha256": "7f4811f7d57d5b88f5ccd1f6760c783d2025f1f041c606a55670f463251cc311",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "48c7928d6d31468903ac5020e3ded24f248a18e4414c9ffb2e0263630846fca5",
+      "validation_sha256": "94d6b085f55369f9f226d50222a6cab3a886dbb7fadc86bb6ebb05f8abe13430",
+      "evaluation_sha256": "70df787833b6dcd24b48517791e6c745143de231d3ff6ea7457781fdc5e23cfa",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed151",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed151.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed157",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 157,
+      "config": "research/configs/reliability_s3_v1/transformer_seed157.json",
+      "config_sha256": "2cfe47abc2f770b772906922ae0da12ac555503afe051156f022d4eeb094caad",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "bf8d60d5587f826a0f3d1456bc79d71ca469fad8bbec91a10b49f464348861cb",
+      "validation_sha256": "214e8eca42e893e58f86490c54b3302a4780b60fe06b927788f5d0eaa8d377ff",
+      "evaluation_sha256": "c3b1fdb6456f068eb4aa2367b82fa7f3d54c628073ce262c8a0853cca6445e19",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed157",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed157.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed157",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 157,
+      "config": "research/configs/reliability_s3_v1/rdt_seed157.json",
+      "config_sha256": "e887416c5e22e0543a01df545f315711926f508321a030201ccf296d8c9f91ea",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "bf8d60d5587f826a0f3d1456bc79d71ca469fad8bbec91a10b49f464348861cb",
+      "validation_sha256": "214e8eca42e893e58f86490c54b3302a4780b60fe06b927788f5d0eaa8d377ff",
+      "evaluation_sha256": "c3b1fdb6456f068eb4aa2367b82fa7f3d54c628073ce262c8a0853cca6445e19",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed157",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed157.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed157",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 157,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed157.json",
+      "config_sha256": "07df67d72490dcc4381e61f95219adc259ca6fc9d811a653158c9a50f7b95303",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "bf8d60d5587f826a0f3d1456bc79d71ca469fad8bbec91a10b49f464348861cb",
+      "validation_sha256": "214e8eca42e893e58f86490c54b3302a4780b60fe06b927788f5d0eaa8d377ff",
+      "evaluation_sha256": "c3b1fdb6456f068eb4aa2367b82fa7f3d54c628073ce262c8a0853cca6445e19",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed157",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed157.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed163",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 163,
+      "config": "research/configs/reliability_s3_v1/transformer_seed163.json",
+      "config_sha256": "130a5e67ef6dcedd52871318705612dbdf52f5a7f4a695a92c225494f5753175",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "678fbda1752019680ddbb0db3e9975f390c49566dd7209457a8adf78876c396e",
+      "validation_sha256": "52c15f50cbd55802dde7384c68d3809b7b2e2bf60a2c07b90f23649d3f6ae3e2",
+      "evaluation_sha256": "7a8b1dec32a5e828e6e9475cf8afe7da8cbb80c0af1e60ab06e8e76d747e5d1b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed163",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed163.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed163",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 163,
+      "config": "research/configs/reliability_s3_v1/rdt_seed163.json",
+      "config_sha256": "7d95c108d10cb7b615343e0132b0b6466d0fc7894a81d2190a2d0f2da5016d8a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "678fbda1752019680ddbb0db3e9975f390c49566dd7209457a8adf78876c396e",
+      "validation_sha256": "52c15f50cbd55802dde7384c68d3809b7b2e2bf60a2c07b90f23649d3f6ae3e2",
+      "evaluation_sha256": "7a8b1dec32a5e828e6e9475cf8afe7da8cbb80c0af1e60ab06e8e76d747e5d1b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed163",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed163.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed163",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 163,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed163.json",
+      "config_sha256": "91c581b7d25c1ce8f0674d1f2cdbf1716385734d9116e55c2e3ca30c560996e6",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "678fbda1752019680ddbb0db3e9975f390c49566dd7209457a8adf78876c396e",
+      "validation_sha256": "52c15f50cbd55802dde7384c68d3809b7b2e2bf60a2c07b90f23649d3f6ae3e2",
+      "evaluation_sha256": "7a8b1dec32a5e828e6e9475cf8afe7da8cbb80c0af1e60ab06e8e76d747e5d1b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed163",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed163.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed167",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 167,
+      "config": "research/configs/reliability_s3_v1/transformer_seed167.json",
+      "config_sha256": "962c14f23a3ece13f0ad5e047231bdd6c24c86d2ccce16ce896da4bacc3f5129",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "70acf780e7f1e3b37876ac5448134f13c927c6e02009668617d1ab1b2478a0a9",
+      "validation_sha256": "d05bba99c94fc5cd28ccbcd16e29300d923447002815efe43051d6541e477433",
+      "evaluation_sha256": "4e251e3413e398bdad963c51d9954b764c5c70082d8bb39bf47504d163f351aa",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed167",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed167.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed167",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 167,
+      "config": "research/configs/reliability_s3_v1/rdt_seed167.json",
+      "config_sha256": "e00f91e2885a6406da01340d0c6ff1e8b15ea2b9f56e6af5a28b1b0cb3560e3a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "70acf780e7f1e3b37876ac5448134f13c927c6e02009668617d1ab1b2478a0a9",
+      "validation_sha256": "d05bba99c94fc5cd28ccbcd16e29300d923447002815efe43051d6541e477433",
+      "evaluation_sha256": "4e251e3413e398bdad963c51d9954b764c5c70082d8bb39bf47504d163f351aa",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed167",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed167.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed167",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 167,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed167.json",
+      "config_sha256": "f17d28e923639afa210943fcc35508edeb277af53aee5e74e004040990942b25",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "70acf780e7f1e3b37876ac5448134f13c927c6e02009668617d1ab1b2478a0a9",
+      "validation_sha256": "d05bba99c94fc5cd28ccbcd16e29300d923447002815efe43051d6541e477433",
+      "evaluation_sha256": "4e251e3413e398bdad963c51d9954b764c5c70082d8bb39bf47504d163f351aa",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed167",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed167.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed173",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 173,
+      "config": "research/configs/reliability_s3_v1/transformer_seed173.json",
+      "config_sha256": "5a06e1879d7bc0d3b1e6c173a3840dbef15fd87d231bde8581add8e11daebc59",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "b7bc36917e798fcb7db3a69e3e18e6f542a0c5f9dd92661f52ecde8dbdccfa39",
+      "validation_sha256": "2ee58801458792ea41f08bd7520b7b91cc13d50e859299f8c974a0c7e0af91ba",
+      "evaluation_sha256": "51436efbb3b2500361739c545a78c2103a13b3c84024470f779956600c47427c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed173",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed173.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed173",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 173,
+      "config": "research/configs/reliability_s3_v1/rdt_seed173.json",
+      "config_sha256": "ff2b7ca5018a04ee4d9192d285d7bc55d969095a2f3342909996ce91c374817e",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "b7bc36917e798fcb7db3a69e3e18e6f542a0c5f9dd92661f52ecde8dbdccfa39",
+      "validation_sha256": "2ee58801458792ea41f08bd7520b7b91cc13d50e859299f8c974a0c7e0af91ba",
+      "evaluation_sha256": "51436efbb3b2500361739c545a78c2103a13b3c84024470f779956600c47427c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed173",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed173.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed173",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 173,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed173.json",
+      "config_sha256": "00a419b02482472147c7631ef0987f669d19745af13237c71813a42fd85bcc73",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "b7bc36917e798fcb7db3a69e3e18e6f542a0c5f9dd92661f52ecde8dbdccfa39",
+      "validation_sha256": "2ee58801458792ea41f08bd7520b7b91cc13d50e859299f8c974a0c7e0af91ba",
+      "evaluation_sha256": "51436efbb3b2500361739c545a78c2103a13b3c84024470f779956600c47427c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed173",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed173.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed179",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 179,
+      "config": "research/configs/reliability_s3_v1/transformer_seed179.json",
+      "config_sha256": "d132a0c08a2108f5533880edca63f5dd88d61c88a04346d194c5bd2e7993cffe",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "91ff301a92ded84fb4cfb6314e77dfe3c9636cbce5c978f7d88068e8502731e8",
+      "validation_sha256": "03db03608fd07045f213b878f25ed845607dc5fddf462057435a5cf9a95be0de",
+      "evaluation_sha256": "c6bb87196882390e9c28d90bb2b4444d79eea2fcd5cbff1e4fccbbcfe920e45c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed179",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed179.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed179",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 179,
+      "config": "research/configs/reliability_s3_v1/rdt_seed179.json",
+      "config_sha256": "4976137234b51bd797d4b9249fbc62d4b96797e1260c77a7a102e458f6c417df",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "91ff301a92ded84fb4cfb6314e77dfe3c9636cbce5c978f7d88068e8502731e8",
+      "validation_sha256": "03db03608fd07045f213b878f25ed845607dc5fddf462057435a5cf9a95be0de",
+      "evaluation_sha256": "c6bb87196882390e9c28d90bb2b4444d79eea2fcd5cbff1e4fccbbcfe920e45c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed179",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed179.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed179",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 179,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed179.json",
+      "config_sha256": "6cb735a8fbd4c748b34f886eed2856f8ee726c5976b2cb138e8915f0d5ce1399",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "91ff301a92ded84fb4cfb6314e77dfe3c9636cbce5c978f7d88068e8502731e8",
+      "validation_sha256": "03db03608fd07045f213b878f25ed845607dc5fddf462057435a5cf9a95be0de",
+      "evaluation_sha256": "c6bb87196882390e9c28d90bb2b4444d79eea2fcd5cbff1e4fccbbcfe920e45c",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed179",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed179.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed181",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 181,
+      "config": "research/configs/reliability_s3_v1/transformer_seed181.json",
+      "config_sha256": "f6d4e31591de3c29618e088fbfcc773d76028562a594d63d927f68b1be6b1402",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "dff89a2189a3993b4211b77acdd1165e1d305359a1cc2b4c1160a9cb08cb7fba",
+      "validation_sha256": "69c4a19f76ba32c7e9f3847a9b9bcb36b5519ca69270b1418d943a99c670dcda",
+      "evaluation_sha256": "d0bf6e5e4f507a4d321bc7037d45fa75c1eda152705cdf67900e39ab454873ba",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed181",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed181.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed181",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 181,
+      "config": "research/configs/reliability_s3_v1/rdt_seed181.json",
+      "config_sha256": "4dbc604f63adc56fddb4afb08487c0017ec13db8f221e65821859ec8910c2cc4",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "dff89a2189a3993b4211b77acdd1165e1d305359a1cc2b4c1160a9cb08cb7fba",
+      "validation_sha256": "69c4a19f76ba32c7e9f3847a9b9bcb36b5519ca69270b1418d943a99c670dcda",
+      "evaluation_sha256": "d0bf6e5e4f507a4d321bc7037d45fa75c1eda152705cdf67900e39ab454873ba",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed181",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed181.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed181",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 181,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed181.json",
+      "config_sha256": "b531b9d90fbff5cb181fdd14a177e1f6732b5ec82e21023933a0359c5ac8a546",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "dff89a2189a3993b4211b77acdd1165e1d305359a1cc2b4c1160a9cb08cb7fba",
+      "validation_sha256": "69c4a19f76ba32c7e9f3847a9b9bcb36b5519ca69270b1418d943a99c670dcda",
+      "evaluation_sha256": "d0bf6e5e4f507a4d321bc7037d45fa75c1eda152705cdf67900e39ab454873ba",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed181",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed181.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed191",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 191,
+      "config": "research/configs/reliability_s3_v1/transformer_seed191.json",
+      "config_sha256": "471a3ac5feb9cb70dc8e0de958fa7053f088875e3682878fa9f6cbef4a0cbeca",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "af3cbff325c7bbd6f2753468f07d15db32069e7b70ea4778a62f7def0187a43c",
+      "validation_sha256": "d1c1823ea46061a44b487130cac280a2af050e2d05639b1d1e4cca9c57d1995c",
+      "evaluation_sha256": "a52abbf5de1b68adb1239aeafe8ac81a37b88ca34743adb38c392ee5a9fd2020",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed191",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed191.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed191",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 191,
+      "config": "research/configs/reliability_s3_v1/rdt_seed191.json",
+      "config_sha256": "82c017155f1240fba59c23c6e5ae3f2d3bc272dd9d3bc77b9872303029674a83",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "af3cbff325c7bbd6f2753468f07d15db32069e7b70ea4778a62f7def0187a43c",
+      "validation_sha256": "d1c1823ea46061a44b487130cac280a2af050e2d05639b1d1e4cca9c57d1995c",
+      "evaluation_sha256": "a52abbf5de1b68adb1239aeafe8ac81a37b88ca34743adb38c392ee5a9fd2020",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed191",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed191.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed191",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 191,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed191.json",
+      "config_sha256": "9cb38d79a223ee33ce0aad9d3ac4214ef45bc40e4d58f174e36cebb45ac84b95",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "af3cbff325c7bbd6f2753468f07d15db32069e7b70ea4778a62f7def0187a43c",
+      "validation_sha256": "d1c1823ea46061a44b487130cac280a2af050e2d05639b1d1e4cca9c57d1995c",
+      "evaluation_sha256": "a52abbf5de1b68adb1239aeafe8ac81a37b88ca34743adb38c392ee5a9fd2020",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed191",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed191.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed193",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 193,
+      "config": "research/configs/reliability_s3_v1/transformer_seed193.json",
+      "config_sha256": "ac64d5043a562950a05a32f0dba2738d86058ea1ef5f95240473cb23d775c136",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "d7231eb763ad89b2e6dad969ff801a1615d4138ccc6939cac7a7dd7be955adda",
+      "validation_sha256": "bc87c2ec48f5a1218e619845c6ef101fb522e7200b631a28f516c3870e5cb1f1",
+      "evaluation_sha256": "93a66398e46dd071f5fb1c3f9d6bc7e9656febcdb06cf68849ac42ffeea5b612",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed193",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed193.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed193",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 193,
+      "config": "research/configs/reliability_s3_v1/rdt_seed193.json",
+      "config_sha256": "02e6cad75267eb05a77941bf705a61e0315f61fd7a8d1f308d95d161dd8ed678",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "d7231eb763ad89b2e6dad969ff801a1615d4138ccc6939cac7a7dd7be955adda",
+      "validation_sha256": "bc87c2ec48f5a1218e619845c6ef101fb522e7200b631a28f516c3870e5cb1f1",
+      "evaluation_sha256": "93a66398e46dd071f5fb1c3f9d6bc7e9656febcdb06cf68849ac42ffeea5b612",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed193",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed193.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed193",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 193,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed193.json",
+      "config_sha256": "0e28d6b66a19e93bd7a72726bbf0f041cc74cfb114dc3cc952aa72f5b6cb98a4",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "d7231eb763ad89b2e6dad969ff801a1615d4138ccc6939cac7a7dd7be955adda",
+      "validation_sha256": "bc87c2ec48f5a1218e619845c6ef101fb522e7200b631a28f516c3870e5cb1f1",
+      "evaluation_sha256": "93a66398e46dd071f5fb1c3f9d6bc7e9656febcdb06cf68849ac42ffeea5b612",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed193",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed193.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed197",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 197,
+      "config": "research/configs/reliability_s3_v1/transformer_seed197.json",
+      "config_sha256": "ecfcbffa335244f643503d0aa1eaf99e2bb27cb9cbc3db5e7e3d777ae9c5e482",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "1f0c9f9eaa90f6c801993e620fab0af32026356669245a02d24dd603db0e0088",
+      "validation_sha256": "2044ba676389198f531e5171a3d69a134cefcbc158885b31fbed2f55465b4475",
+      "evaluation_sha256": "00e46cd66dbe081b9f8ad666668b1ba7283c9085f9f073bae127c1328b26098b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed197",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed197.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed197",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 197,
+      "config": "research/configs/reliability_s3_v1/rdt_seed197.json",
+      "config_sha256": "ee79fa668ce185075efde496e5726b7dd7a20f14e84c852fe0bece8c10d721f0",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "1f0c9f9eaa90f6c801993e620fab0af32026356669245a02d24dd603db0e0088",
+      "validation_sha256": "2044ba676389198f531e5171a3d69a134cefcbc158885b31fbed2f55465b4475",
+      "evaluation_sha256": "00e46cd66dbe081b9f8ad666668b1ba7283c9085f9f073bae127c1328b26098b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed197",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed197.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed197",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 197,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed197.json",
+      "config_sha256": "cc0d380c4bbfb2e648e28b9d9600611106e13026a8ca17a4298bf91c5a698025",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "1f0c9f9eaa90f6c801993e620fab0af32026356669245a02d24dd603db0e0088",
+      "validation_sha256": "2044ba676389198f531e5171a3d69a134cefcbc158885b31fbed2f55465b4475",
+      "evaluation_sha256": "00e46cd66dbe081b9f8ad666668b1ba7283c9085f9f073bae127c1328b26098b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed197",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed197.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed199",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 199,
+      "config": "research/configs/reliability_s3_v1/transformer_seed199.json",
+      "config_sha256": "32d5564118162901f5c27396795c5e3347ee52b4bec68f4f7fcecdc01cf00508",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "31e98d9801331581574f00d2f48c1ea49d2ec5c83ba60d4803766032c1a02810",
+      "validation_sha256": "69f6f4ee4a6cee95467c34153aaac27ac84c3585c8d53f281ef35e0168453f5b",
+      "evaluation_sha256": "4a7701e5e19bb623aed9aec61af020a6bfcb1e7ed3972ab7c4ef0132e00a7420",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed199",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed199.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed199",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 199,
+      "config": "research/configs/reliability_s3_v1/rdt_seed199.json",
+      "config_sha256": "7f272501f83bf1da3329091743f845520af558144d8f012fdb8189f810bbd577",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "31e98d9801331581574f00d2f48c1ea49d2ec5c83ba60d4803766032c1a02810",
+      "validation_sha256": "69f6f4ee4a6cee95467c34153aaac27ac84c3585c8d53f281ef35e0168453f5b",
+      "evaluation_sha256": "4a7701e5e19bb623aed9aec61af020a6bfcb1e7ed3972ab7c4ef0132e00a7420",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed199",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed199.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed199",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 199,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed199.json",
+      "config_sha256": "09671fe95c764a69424d707ff7a72c3f85fcdb5728eba1995ea333153ab0cf4a",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "31e98d9801331581574f00d2f48c1ea49d2ec5c83ba60d4803766032c1a02810",
+      "validation_sha256": "69f6f4ee4a6cee95467c34153aaac27ac84c3585c8d53f281ef35e0168453f5b",
+      "evaluation_sha256": "4a7701e5e19bb623aed9aec61af020a6bfcb1e7ed3972ab7c4ef0132e00a7420",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed199",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed199.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed211",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 211,
+      "config": "research/configs/reliability_s3_v1/transformer_seed211.json",
+      "config_sha256": "729574b77f9bde63deaabd853527eadf23fff00821c42d24933bdee322659cce",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "97d5e3bfaf1abbe78ae079a251d5bdbe17a00a94a15bae35a032d910fff24d85",
+      "validation_sha256": "6898b817dfad98ddb5da37a667c435379f08019f1f4fd7eb90c3bf306100fb2a",
+      "evaluation_sha256": "1322e12b383c0b8798cde7a28e9384270755dc21c71dfd8d9f942159458bf0c8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed211",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed211.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed211",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 211,
+      "config": "research/configs/reliability_s3_v1/rdt_seed211.json",
+      "config_sha256": "7d4da53359e6426f0c213d8f39b923253b4bf93d993ff752448f0188de11b816",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "97d5e3bfaf1abbe78ae079a251d5bdbe17a00a94a15bae35a032d910fff24d85",
+      "validation_sha256": "6898b817dfad98ddb5da37a667c435379f08019f1f4fd7eb90c3bf306100fb2a",
+      "evaluation_sha256": "1322e12b383c0b8798cde7a28e9384270755dc21c71dfd8d9f942159458bf0c8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed211",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed211.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed211",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 211,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed211.json",
+      "config_sha256": "16c6015402e09b84c2eefdf85c6998afd0370a78b6c8e86c6c39e18ef7b11bd4",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "97d5e3bfaf1abbe78ae079a251d5bdbe17a00a94a15bae35a032d910fff24d85",
+      "validation_sha256": "6898b817dfad98ddb5da37a667c435379f08019f1f4fd7eb90c3bf306100fb2a",
+      "evaluation_sha256": "1322e12b383c0b8798cde7a28e9384270755dc21c71dfd8d9f942159458bf0c8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed211",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed211.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed223",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 223,
+      "config": "research/configs/reliability_s3_v1/transformer_seed223.json",
+      "config_sha256": "0f048698fb5576ba85a7e97d54a87dd833c8c08bf88e231dcac4e31562ff3aab",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "bc3be1b38cc88d88af875f5ddadf47f9e7099e8749a5798c6fa2aa2481c05f59",
+      "validation_sha256": "0bd38e9db9e1382267a809f844fadf1380489002562328bf0af1fe7c86023e96",
+      "evaluation_sha256": "b3e4dfb659cfa7855f43c91f709babf72f7291a0cbb72126ec5d1cc4983b4df7",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed223",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed223.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed223",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 223,
+      "config": "research/configs/reliability_s3_v1/rdt_seed223.json",
+      "config_sha256": "f9db57ecb8540aabc9394c33e7d16e15ef9f50e9d35fcade706027cd3f7bfc87",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "bc3be1b38cc88d88af875f5ddadf47f9e7099e8749a5798c6fa2aa2481c05f59",
+      "validation_sha256": "0bd38e9db9e1382267a809f844fadf1380489002562328bf0af1fe7c86023e96",
+      "evaluation_sha256": "b3e4dfb659cfa7855f43c91f709babf72f7291a0cbb72126ec5d1cc4983b4df7",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed223",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed223.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed223",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 223,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed223.json",
+      "config_sha256": "a3bd134c31002d1c6419d387a7ed21c61c9e26f749f8c000d029f82d28a1b63d",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "bc3be1b38cc88d88af875f5ddadf47f9e7099e8749a5798c6fa2aa2481c05f59",
+      "validation_sha256": "0bd38e9db9e1382267a809f844fadf1380489002562328bf0af1fe7c86023e96",
+      "evaluation_sha256": "b3e4dfb659cfa7855f43c91f709babf72f7291a0cbb72126ec5d1cc4983b4df7",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed223",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed223.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed227",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 227,
+      "config": "research/configs/reliability_s3_v1/transformer_seed227.json",
+      "config_sha256": "e979dda4a4ec27f7c570dcd6568de5fc013d8e6af88b06170c6e0bcdbc525dcb",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "3bf1af0ab568db8c814671bdbaa498b8932e8608afb230c0a8802a364a97f450",
+      "validation_sha256": "138bfec8390a4580ee7a3cc998406661318cb0aeca6ad1fc7ad1d3fb38412fa8",
+      "evaluation_sha256": "f3ff0d1a44c9100cd62bd2fe91db229d92d4177447fb59e21a1e7cf2082a1ea5",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed227",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed227.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed227",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 227,
+      "config": "research/configs/reliability_s3_v1/rdt_seed227.json",
+      "config_sha256": "79f8728c6d08541495f9eab6b4ee7b46f34d4abcc4e3edf639bd81503c501e56",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "3bf1af0ab568db8c814671bdbaa498b8932e8608afb230c0a8802a364a97f450",
+      "validation_sha256": "138bfec8390a4580ee7a3cc998406661318cb0aeca6ad1fc7ad1d3fb38412fa8",
+      "evaluation_sha256": "f3ff0d1a44c9100cd62bd2fe91db229d92d4177447fb59e21a1e7cf2082a1ea5",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed227",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed227.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed227",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 227,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed227.json",
+      "config_sha256": "3c76ed04501917bbb5643b0a04e0c2295b033f5c89aeabd68df494192b37904d",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "3bf1af0ab568db8c814671bdbaa498b8932e8608afb230c0a8802a364a97f450",
+      "validation_sha256": "138bfec8390a4580ee7a3cc998406661318cb0aeca6ad1fc7ad1d3fb38412fa8",
+      "evaluation_sha256": "f3ff0d1a44c9100cd62bd2fe91db229d92d4177447fb59e21a1e7cf2082a1ea5",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed227",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed227.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed229",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 229,
+      "config": "research/configs/reliability_s3_v1/transformer_seed229.json",
+      "config_sha256": "4696c938afc1613e4488eb2904ca507c98490d25fbac779e48dcb18da57e242b",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "da4196f768236584e166a1c173641ac0589620ce1e2b2dca2eb1f0e4d2abae6b",
+      "validation_sha256": "4a41b6830343f847143d0e4ba0e9137c87f221d9df7cf3602b1bbb05ccf9bc99",
+      "evaluation_sha256": "57f8ee8f83c670b149eb4ab42e7fa42c96527ec0e498ea2373e165ecfac415b5",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed229",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed229.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed229",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 229,
+      "config": "research/configs/reliability_s3_v1/rdt_seed229.json",
+      "config_sha256": "3b32e271271bf323175e3900927f9b3b0df97cb06c1ae687f81b8579f216afd1",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "da4196f768236584e166a1c173641ac0589620ce1e2b2dca2eb1f0e4d2abae6b",
+      "validation_sha256": "4a41b6830343f847143d0e4ba0e9137c87f221d9df7cf3602b1bbb05ccf9bc99",
+      "evaluation_sha256": "57f8ee8f83c670b149eb4ab42e7fa42c96527ec0e498ea2373e165ecfac415b5",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed229",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed229.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed229",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 229,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed229.json",
+      "config_sha256": "5dfe7a99697d0680c737415da1af2f0ecdf6fd59e380b101e54b93389d215646",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "da4196f768236584e166a1c173641ac0589620ce1e2b2dca2eb1f0e4d2abae6b",
+      "validation_sha256": "4a41b6830343f847143d0e4ba0e9137c87f221d9df7cf3602b1bbb05ccf9bc99",
+      "evaluation_sha256": "57f8ee8f83c670b149eb4ab42e7fa42c96527ec0e498ea2373e165ecfac415b5",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed229",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed229.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    },
+    {
+      "cell": "transformer_seed233",
+      "study_cell": "transformer",
+      "model_family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "seed": 233,
+      "config": "research/configs/reliability_s3_v1/transformer_seed233.json",
+      "config_sha256": "70271408d2f8d9ad1f1d08869858ed9b0d8f1ef859ba21ea84073da2f387a93e",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "659d1941a237b82394bc8ad43e399d15fcf0e492f499ff190bc4d56a2b46af54",
+      "validation_sha256": "4a115d36c501a4188fe72b67fb255052b5820eef4ee85170f4f5f464f10fcd9e",
+      "evaluation_sha256": "c2f85a190f2e1574b53f992f14841334c40b8ad8e9119e69bfa287c903121b2f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/transformer/seed233",
+      "summary_path": "research/results/reliability_s3_v1/transformer_seed233.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "estimated_minutes": 5
+    },
+    {
+      "cell": "rdt_seed233",
+      "study_cell": "rdt",
+      "model_family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "seed": 233,
+      "config": "research/configs/reliability_s3_v1/rdt_seed233.json",
+      "config_sha256": "2e733faba3822a891418ed3a716e68be2a4e78acab81f77ef83468e02fb3fe60",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "659d1941a237b82394bc8ad43e399d15fcf0e492f499ff190bc4d56a2b46af54",
+      "validation_sha256": "4a115d36c501a4188fe72b67fb255052b5820eef4ee85170f4f5f464f10fcd9e",
+      "evaluation_sha256": "c2f85a190f2e1574b53f992f14841334c40b8ad8e9119e69bfa287c903121b2f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/rdt/seed233",
+      "summary_path": "research/results/reliability_s3_v1/rdt_seed233.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 55
+    },
+    {
+      "cell": "ctm_lm_seed233",
+      "study_cell": "ctm_lm",
+      "model_family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "seed": 233,
+      "config": "research/configs/reliability_s3_v1/ctm_lm_seed233.json",
+      "config_sha256": "5bee7d983ac042d9d82f4f7ba574d76e168a0560593b161819fb2d72eed8d62d",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "659d1941a237b82394bc8ad43e399d15fcf0e492f499ff190bc4d56a2b46af54",
+      "validation_sha256": "4a115d36c501a4188fe72b67fb255052b5820eef4ee85170f4f5f464f10fcd9e",
+      "evaluation_sha256": "c2f85a190f2e1574b53f992f14841334c40b8ad8e9119e69bfa287c903121b2f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/reliability_s3_v1/ctm_lm/seed233",
+      "summary_path": "research/results/reliability_s3_v1/ctm_lm_seed233.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "estimated_minutes": 75
+    }
+  ],
+  "seeds": [
+    131,
+    137,
+    139,
+    149,
+    151,
+    157,
+    163,
+    167,
+    173,
+    179,
+    181,
+    191,
+    193,
+    197,
+    199,
+    211,
+    223,
+    227,
+    229,
+    233
+  ],
+  "cells": {
+    "transformer": {
+      "family": "transformer",
+      "factory_kind": null,
+      "factory_arg": null,
+      "config_overrides": {},
+      "readout": "final",
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    "rdt": {
+      "family": "recurrent_depth",
+      "factory_kind": "sync_rdt",
+      "factory_arg": "rdt",
+      "config_overrides": {},
+      "readout": "confidence",
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    "ctm_lm": {
+      "family": "ctm",
+      "factory_kind": "ctm_lm",
+      "factory_arg": "tiny",
+      "config_overrides": {},
+      "readout": "confidence",
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32
+      ]
+    }
+  },
+  "role": "reliability baseline (escape probability) on S3; the evaluation split is evaluated once after the checkpoint freeze",
+  "dataset": "research/data/reliability_s3_v1",
+  "dataset_manifest_sha256": "21af5cb9499cf01b8e91196f3a983511cfd217b48ff6372c4437aed2662ebb51",
+  "training_source_sha256": {
+    "ctm_transformer/dense_experiment.py": "661ebf10abf894e1ca346cd8cc6312f10fbdb121686d5f28eb8cb27456eefdde",
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "ctm_transformer/ctm_variants.py": "5bd30fce9b0c8bedab531ef66d1e3c9e7f417914f76c7a1bf2e6ac5c610b9c85",
+    "ctm_transformer/sync_rdt.py": "e0f26f7fe65f30c1c9c5519238411d82433c25f81c9298618a0544a19f88b0f4",
+    "ctm_transformer/ctm_lm.py": "7f389b648d92349ef5727f06d4d6b3d00a1bea8a073cc57045ad2b4d5774ec51",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5",
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36"
+  },
+  "primary_checkpoint_step": 10000,
+  "warmup_steps": 100,
+  "eval_interval": 250,
+  "learning_rate": 0.0003,
+  "train_max_len": 16,
+  "evaluation_length": 32,
+  "chance": 0.16666666666666666,
+  "gpu_queues": {
+    "cuda:0#0": [
+      "ctm_lm_seed131",
+      "ctm_lm_seed163",
+      "ctm_lm_seed193",
+      "ctm_lm_seed229",
+      "rdt_seed173",
+      "rdt_seed199",
+      "transformer_seed131",
+      "transformer_seed139",
+      "transformer_seed151",
+      "transformer_seed163",
+      "transformer_seed173",
+      "transformer_seed181",
+      "transformer_seed193",
+      "transformer_seed199"
+    ],
+    "cuda:0#1": [
+      "ctm_lm_seed137",
+      "ctm_lm_seed167",
+      "ctm_lm_seed197",
+      "ctm_lm_seed233",
+      "rdt_seed179",
+      "rdt_seed211",
+      "transformer_seed137",
+      "transformer_seed149",
+      "transformer_seed157",
+      "transformer_seed167",
+      "transformer_seed179",
+      "transformer_seed191",
+      "transformer_seed197",
+      "transformer_seed211"
+    ],
+    "cuda:0#2": [
+      "ctm_lm_seed139",
+      "ctm_lm_seed173",
+      "ctm_lm_seed199",
+      "rdt_seed131",
+      "rdt_seed151",
+      "rdt_seed181",
+      "rdt_seed223",
+      "transformer_seed223"
+    ],
+    "cuda:1#3": [
+      "ctm_lm_seed149",
+      "ctm_lm_seed179",
+      "ctm_lm_seed211",
+      "rdt_seed137",
+      "rdt_seed157",
+      "rdt_seed191",
+      "rdt_seed227",
+      "transformer_seed227"
+    ],
+    "cuda:1#4": [
+      "ctm_lm_seed151",
+      "ctm_lm_seed181",
+      "ctm_lm_seed223",
+      "rdt_seed139",
+      "rdt_seed163",
+      "rdt_seed193",
+      "rdt_seed229",
+      "transformer_seed229"
+    ],
+    "cuda:1#5": [
+      "ctm_lm_seed157",
+      "ctm_lm_seed191",
+      "ctm_lm_seed227",
+      "rdt_seed149",
+      "rdt_seed167",
+      "rdt_seed197",
+      "rdt_seed233",
+      "transformer_seed233"
+    ]
+  },
+  "estimated_slot_minutes": {
+    "cuda:0#0": 450,
+    "cuda:0#1": 450,
+    "cuda:0#2": 450,
+    "cuda:1#3": 450,
+    "cuda:1#4": 450,
+    "cuda:1#5": 450
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "transformer_seed131",
+      "rdt_seed131",
+      "ctm_lm_seed131",
+      "transformer_seed137",
+      "rdt_seed137",
+      "ctm_lm_seed137",
+      "transformer_seed139",
+      "rdt_seed139",
+      "ctm_lm_seed139",
+      "transformer_seed149",
+      "rdt_seed149",
+      "ctm_lm_seed149",
+      "transformer_seed151",
+      "rdt_seed151",
+      "ctm_lm_seed151",
+      "transformer_seed157",
+      "rdt_seed157",
+      "ctm_lm_seed157",
+      "transformer_seed163",
+      "rdt_seed163",
+      "ctm_lm_seed163",
+      "transformer_seed167",
+      "rdt_seed167",
+      "ctm_lm_seed167",
+      "transformer_seed173",
+      "rdt_seed173",
+      "ctm_lm_seed173",
+      "transformer_seed179",
+      "rdt_seed179",
+      "ctm_lm_seed179"
+    ],
+    "cuda:1": [
+      "transformer_seed181",
+      "rdt_seed181",
+      "ctm_lm_seed181",
+      "transformer_seed191",
+      "rdt_seed191",
+      "ctm_lm_seed191",
+      "transformer_seed193",
+      "rdt_seed193",
+      "ctm_lm_seed193",
+      "transformer_seed197",
+      "rdt_seed197",
+      "ctm_lm_seed197",
+      "transformer_seed199",
+      "rdt_seed199",
+      "ctm_lm_seed199",
+      "transformer_seed211",
+      "rdt_seed211",
+      "ctm_lm_seed211",
+      "transformer_seed223",
+      "rdt_seed223",
+      "ctm_lm_seed223",
+      "transformer_seed227",
+      "rdt_seed227",
+      "ctm_lm_seed227",
+      "transformer_seed229",
+      "rdt_seed229",
+      "ctm_lm_seed229",
+      "transformer_seed233",
+      "rdt_seed233",
+      "ctm_lm_seed233"
+    ]
+  }
+}
