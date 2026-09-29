@@ -26,3 +26,8 @@ research/runs/sync_confirmation_v1/*/*/data/
 research/data/reliability_s3_v1/seed*/train.jsonl
 research/runs/reliability_s3_v1/*/*/data/
 research/runs/randdepth_s3_v1/*/*/data/
+research/data/recipe_dev_s3/seed*/train.jsonl
+research/data/recipe_s3_v1/seed*/train.jsonl
+# Development probe logs and per-update metrics stay local (the per-run JSON records hold the results)
+research/results/recipe_probes/logs/
+research/runs/recipe_probes/*/metrics.jsonl

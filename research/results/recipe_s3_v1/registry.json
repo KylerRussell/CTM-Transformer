@@ -1,0 +1,4724 @@
+{
+  "schema_version": 1,
+  "name": "recipe_s3_v1",
+  "runner": "shared_research_v5",
+  "entries": [
+    {
+      "cell": "transformer_rope_seed347",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 347,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed347.json",
+      "config_sha256": "6fe273a699833ac1e8a2815953ac1001fc0c2159d33df50d1e7b87052f3271d4",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "a75f9fe84f362c4fc8f0e404095c71804e4797a053f58222045cbc09c34dfb87",
+      "validation_sha256": "45debf5425d30f77d704055001a969ff4f4322f5cfb4540e0ce18cbde2b33e15",
+      "evaluation_sha256": "7ac4ec3cd7c7ab2bb0676d9dc041c7cea115410d1c661541d015edfcc171fa4f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed347",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed347.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed347",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 347,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed347.json",
+      "config_sha256": "0684a754a542c2b80ac1216489a7b39ad9526e43f1652a6f9bede04dafb65be6",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a75f9fe84f362c4fc8f0e404095c71804e4797a053f58222045cbc09c34dfb87",
+      "validation_sha256": "45debf5425d30f77d704055001a969ff4f4322f5cfb4540e0ce18cbde2b33e15",
+      "evaluation_sha256": "7ac4ec3cd7c7ab2bb0676d9dc041c7cea115410d1c661541d015edfcc171fa4f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed347",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed347.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed347",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 347,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed347.json",
+      "config_sha256": "9f02bc5f43a35ee97c6b57a9dab27ab6b18640fd0fa7c4de22b880702b1c77d4",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a75f9fe84f362c4fc8f0e404095c71804e4797a053f58222045cbc09c34dfb87",
+      "validation_sha256": "45debf5425d30f77d704055001a969ff4f4322f5cfb4540e0ce18cbde2b33e15",
+      "evaluation_sha256": "7ac4ec3cd7c7ab2bb0676d9dc041c7cea115410d1c661541d015edfcc171fa4f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed347",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed347.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed347",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 347,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed347.json",
+      "config_sha256": "dfd5f97f1ac0763ea16acf494d1e15016fb5c3881596736e454b0ea4ae29ae1e",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "a75f9fe84f362c4fc8f0e404095c71804e4797a053f58222045cbc09c34dfb87",
+      "validation_sha256": "45debf5425d30f77d704055001a969ff4f4322f5cfb4540e0ce18cbde2b33e15",
+      "evaluation_sha256": "7ac4ec3cd7c7ab2bb0676d9dc041c7cea115410d1c661541d015edfcc171fa4f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed347",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed347.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed349",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 349,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed349.json",
+      "config_sha256": "cc9a5720275d1df4203327b239c7fe365b15332caebaebdb8daa6258c95870b6",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "371e2374d7ee2f2751f99cdb62e32215ce2d67e15ccface462a7adfe36a415ba",
+      "validation_sha256": "8b3f4b94130b8aef4f2916ca5afe5db87b855fb2e6324011229430d21004711c",
+      "evaluation_sha256": "c484e6ce153b0089d7b345818949657f50c231149e6eb425f582a746a3483620",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed349",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed349.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed349",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 349,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed349.json",
+      "config_sha256": "e46a4b325a05b73df4a7d48ffee19403da64082b7405e320e37366c3284171f1",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "371e2374d7ee2f2751f99cdb62e32215ce2d67e15ccface462a7adfe36a415ba",
+      "validation_sha256": "8b3f4b94130b8aef4f2916ca5afe5db87b855fb2e6324011229430d21004711c",
+      "evaluation_sha256": "c484e6ce153b0089d7b345818949657f50c231149e6eb425f582a746a3483620",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed349",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed349.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed349",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 349,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed349.json",
+      "config_sha256": "872a7f9ab869f3447373f90adbbdc062daebcb18835d56cadb0d4d6af1322cc8",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "371e2374d7ee2f2751f99cdb62e32215ce2d67e15ccface462a7adfe36a415ba",
+      "validation_sha256": "8b3f4b94130b8aef4f2916ca5afe5db87b855fb2e6324011229430d21004711c",
+      "evaluation_sha256": "c484e6ce153b0089d7b345818949657f50c231149e6eb425f582a746a3483620",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed349",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed349.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed349",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 349,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed349.json",
+      "config_sha256": "4396996b44ad2eff4164dc2e977f0a6e683d366744e0620b855f6deb7e6dcddd",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "371e2374d7ee2f2751f99cdb62e32215ce2d67e15ccface462a7adfe36a415ba",
+      "validation_sha256": "8b3f4b94130b8aef4f2916ca5afe5db87b855fb2e6324011229430d21004711c",
+      "evaluation_sha256": "c484e6ce153b0089d7b345818949657f50c231149e6eb425f582a746a3483620",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed349",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed349.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed353",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 353,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed353.json",
+      "config_sha256": "29269c9ca18ec7023cdff005d44423a3b5dcd386fa1eaa8b4b2a1a38c1584697",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "f754d46a73a8cae4c3f1c0e9350950cabea7a9848ca68ed2e00cdc1ffd668994",
+      "validation_sha256": "433e4e41fe024abcdd492b6733baacee90fa78b4b3b29e0be0b1f017738d012e",
+      "evaluation_sha256": "57f19a69a0864d183200c9527a89972792de20569d204baeaf936f9829926645",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed353",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed353.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed353",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 353,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed353.json",
+      "config_sha256": "2c91b44b6fa3b66cb85d52714cf04a69761c67bc9166bed1901043c96e752f9f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f754d46a73a8cae4c3f1c0e9350950cabea7a9848ca68ed2e00cdc1ffd668994",
+      "validation_sha256": "433e4e41fe024abcdd492b6733baacee90fa78b4b3b29e0be0b1f017738d012e",
+      "evaluation_sha256": "57f19a69a0864d183200c9527a89972792de20569d204baeaf936f9829926645",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed353",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed353.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed353",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 353,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed353.json",
+      "config_sha256": "5a44e34bf20f362f9cf00e04b2eb6c0552edf5b0f6da52aeb7acf15c96fa3710",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f754d46a73a8cae4c3f1c0e9350950cabea7a9848ca68ed2e00cdc1ffd668994",
+      "validation_sha256": "433e4e41fe024abcdd492b6733baacee90fa78b4b3b29e0be0b1f017738d012e",
+      "evaluation_sha256": "57f19a69a0864d183200c9527a89972792de20569d204baeaf936f9829926645",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed353",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed353.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed353",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 353,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed353.json",
+      "config_sha256": "00fdd04eb3173bc03e4abb3604e5ae03443f8182c0cbac2633b917f057ec7e7e",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "f754d46a73a8cae4c3f1c0e9350950cabea7a9848ca68ed2e00cdc1ffd668994",
+      "validation_sha256": "433e4e41fe024abcdd492b6733baacee90fa78b4b3b29e0be0b1f017738d012e",
+      "evaluation_sha256": "57f19a69a0864d183200c9527a89972792de20569d204baeaf936f9829926645",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed353",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed353.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed359",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 359,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed359.json",
+      "config_sha256": "0dfc5f605750ba678a1900a4fa4c1c2050606ad31132c461201ebacafb5ee764",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "62ccad0ea562409ce72bd90322784d51df1541b05141b4eca37f15a5372de3e3",
+      "validation_sha256": "e629dd21caae23d8f2e928d05350a2fb32109bec8248f4058c82383ab4e65e49",
+      "evaluation_sha256": "ad3fe919abc5b6569782aeb85e42a8ee5a426d36445e62a98d77096357326d01",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed359",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed359.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed359",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 359,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed359.json",
+      "config_sha256": "32d38ce1bccac7d2602210a9089d3acf86fad36a62c9aa267a4ce935e43d331b",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "62ccad0ea562409ce72bd90322784d51df1541b05141b4eca37f15a5372de3e3",
+      "validation_sha256": "e629dd21caae23d8f2e928d05350a2fb32109bec8248f4058c82383ab4e65e49",
+      "evaluation_sha256": "ad3fe919abc5b6569782aeb85e42a8ee5a426d36445e62a98d77096357326d01",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed359",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed359.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed359",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 359,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed359.json",
+      "config_sha256": "c988e04cae2f2eba334718619cd297eb2d5a2739ff5f454bf318871fda25ee38",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "62ccad0ea562409ce72bd90322784d51df1541b05141b4eca37f15a5372de3e3",
+      "validation_sha256": "e629dd21caae23d8f2e928d05350a2fb32109bec8248f4058c82383ab4e65e49",
+      "evaluation_sha256": "ad3fe919abc5b6569782aeb85e42a8ee5a426d36445e62a98d77096357326d01",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed359",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed359.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed359",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 359,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed359.json",
+      "config_sha256": "c708beebdc0dc44663655f3762159257272941a1aab53d91850b92f3d2b83a65",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "62ccad0ea562409ce72bd90322784d51df1541b05141b4eca37f15a5372de3e3",
+      "validation_sha256": "e629dd21caae23d8f2e928d05350a2fb32109bec8248f4058c82383ab4e65e49",
+      "evaluation_sha256": "ad3fe919abc5b6569782aeb85e42a8ee5a426d36445e62a98d77096357326d01",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed359",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed359.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed367",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 367,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed367.json",
+      "config_sha256": "a03c44496bc6016ba658dc3bb7192e7a18f86c1484606821ac9fc3b9ba406984",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "68453dd5bdf6c4aa4d4ab68b3f9fbc7028b9f23b991ab707200add7d62f3b8f8",
+      "validation_sha256": "c47ea8b939e633ec3a9e7e8a6856dbc58b7d78142f9b88f1813ecbc220d61d99",
+      "evaluation_sha256": "be2cb59b4006f1e2c9790de346759e5f4b13234678ff33816559e52c06b9717a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed367",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed367.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed367",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 367,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed367.json",
+      "config_sha256": "a15378ff6be61959b083fe662046351a153eb89c5eefd708b289fd815318d0fd",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "68453dd5bdf6c4aa4d4ab68b3f9fbc7028b9f23b991ab707200add7d62f3b8f8",
+      "validation_sha256": "c47ea8b939e633ec3a9e7e8a6856dbc58b7d78142f9b88f1813ecbc220d61d99",
+      "evaluation_sha256": "be2cb59b4006f1e2c9790de346759e5f4b13234678ff33816559e52c06b9717a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed367",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed367.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed367",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 367,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed367.json",
+      "config_sha256": "e8148475d928698bf7a5cb82d64cd81e2efdf42e31667ea3a884e88d7f7cbf51",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "68453dd5bdf6c4aa4d4ab68b3f9fbc7028b9f23b991ab707200add7d62f3b8f8",
+      "validation_sha256": "c47ea8b939e633ec3a9e7e8a6856dbc58b7d78142f9b88f1813ecbc220d61d99",
+      "evaluation_sha256": "be2cb59b4006f1e2c9790de346759e5f4b13234678ff33816559e52c06b9717a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed367",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed367.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed367",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 367,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed367.json",
+      "config_sha256": "916acc89c2a9762c9759f7aca3b02e270d23d140e35d4031f36fc4b43e04faf8",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "68453dd5bdf6c4aa4d4ab68b3f9fbc7028b9f23b991ab707200add7d62f3b8f8",
+      "validation_sha256": "c47ea8b939e633ec3a9e7e8a6856dbc58b7d78142f9b88f1813ecbc220d61d99",
+      "evaluation_sha256": "be2cb59b4006f1e2c9790de346759e5f4b13234678ff33816559e52c06b9717a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed367",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed367.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed373",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 373,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed373.json",
+      "config_sha256": "cf7a758b1b68f6d3f9bd6fee359786a0109b4bd12bf254d308d956627d65247e",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "fae9f8503d127f674e42d20855c5aa9b8e6d84bcf4eb242e2c74ee81e07b06a1",
+      "validation_sha256": "9503378311127055f57178ff6069a01a1c9032be7631fa64f6178464606a088e",
+      "evaluation_sha256": "0dacaf03a42519fd02da1ae199985978c95a5203930d09d17680bdcfb2ff8ea0",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed373",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed373.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed373",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 373,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed373.json",
+      "config_sha256": "accd294d1c1b581a5d0724826b1c68088a202ce997632b6f099e0793b87d612c",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "fae9f8503d127f674e42d20855c5aa9b8e6d84bcf4eb242e2c74ee81e07b06a1",
+      "validation_sha256": "9503378311127055f57178ff6069a01a1c9032be7631fa64f6178464606a088e",
+      "evaluation_sha256": "0dacaf03a42519fd02da1ae199985978c95a5203930d09d17680bdcfb2ff8ea0",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed373",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed373.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed373",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 373,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed373.json",
+      "config_sha256": "c985dc9c6b1c83410c55a2bdfaa3c461bcbce9c97efe8c9f260479139691d4ed",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "fae9f8503d127f674e42d20855c5aa9b8e6d84bcf4eb242e2c74ee81e07b06a1",
+      "validation_sha256": "9503378311127055f57178ff6069a01a1c9032be7631fa64f6178464606a088e",
+      "evaluation_sha256": "0dacaf03a42519fd02da1ae199985978c95a5203930d09d17680bdcfb2ff8ea0",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed373",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed373.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed373",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 373,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed373.json",
+      "config_sha256": "c3a91df6289a40d60da72b132daeb92be7d35f2f48bb3d97d1ddd0464ddd94c0",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "fae9f8503d127f674e42d20855c5aa9b8e6d84bcf4eb242e2c74ee81e07b06a1",
+      "validation_sha256": "9503378311127055f57178ff6069a01a1c9032be7631fa64f6178464606a088e",
+      "evaluation_sha256": "0dacaf03a42519fd02da1ae199985978c95a5203930d09d17680bdcfb2ff8ea0",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed373",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed373.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed379",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 379,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed379.json",
+      "config_sha256": "91a11f944f29dfdaa2dee9e4b601e12db867fd29c147a2deeb71cdedcbd665e3",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "356d1c7c7c3781f86ff52f9dd8a5b1c3f4ecc43404cb8d3c8814bffaa9b583f7",
+      "validation_sha256": "9514a237c69e0b8936252d77f6c33917674e7b7f07dbbb57a4a10c9d98c89bc6",
+      "evaluation_sha256": "0238a9ed35eed0012ab166acf4eab3ecaddc059af2bdef52c9a1e462df3fe6da",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed379",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed379.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed379",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 379,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed379.json",
+      "config_sha256": "20490795c6141c03f4c1b8e3b7b1a450f45c7efa9129cb9638bfa364cdc52b7d",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "356d1c7c7c3781f86ff52f9dd8a5b1c3f4ecc43404cb8d3c8814bffaa9b583f7",
+      "validation_sha256": "9514a237c69e0b8936252d77f6c33917674e7b7f07dbbb57a4a10c9d98c89bc6",
+      "evaluation_sha256": "0238a9ed35eed0012ab166acf4eab3ecaddc059af2bdef52c9a1e462df3fe6da",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed379",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed379.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed379",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 379,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed379.json",
+      "config_sha256": "08207290910ee0443222e669676bceb8b795d36296ca753b5c9925fcebd6163f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "356d1c7c7c3781f86ff52f9dd8a5b1c3f4ecc43404cb8d3c8814bffaa9b583f7",
+      "validation_sha256": "9514a237c69e0b8936252d77f6c33917674e7b7f07dbbb57a4a10c9d98c89bc6",
+      "evaluation_sha256": "0238a9ed35eed0012ab166acf4eab3ecaddc059af2bdef52c9a1e462df3fe6da",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed379",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed379.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed379",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 379,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed379.json",
+      "config_sha256": "b7a9cd738e4d52da5e42761a3d16c569ee1dec0a3a9f48e78c934a634495f955",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "356d1c7c7c3781f86ff52f9dd8a5b1c3f4ecc43404cb8d3c8814bffaa9b583f7",
+      "validation_sha256": "9514a237c69e0b8936252d77f6c33917674e7b7f07dbbb57a4a10c9d98c89bc6",
+      "evaluation_sha256": "0238a9ed35eed0012ab166acf4eab3ecaddc059af2bdef52c9a1e462df3fe6da",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed379",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed379.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed383",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 383,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed383.json",
+      "config_sha256": "11d2c9c4e32885406a0faf2a9988ed704d7aa551dd0cb9afc2d7d4a3a74c86b3",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "37e219d40907f20c7695d4b44df3df08f6667684d39a45b200d5f1462ea2cb3a",
+      "validation_sha256": "d363dad75c1bc1b60863140b74278388eba31f90b6696d4883eee61ed666651c",
+      "evaluation_sha256": "ea427b1f01e1c1a027fd9c71911e574897fbe549e7ea21ff237eea0d2ffbbe4b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed383",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed383.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed383",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 383,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed383.json",
+      "config_sha256": "13ac2d16b8bd0cf5fa32bc9602ff532f07e918c1cb9f2f0a7f41fcf04d6a0b6b",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "37e219d40907f20c7695d4b44df3df08f6667684d39a45b200d5f1462ea2cb3a",
+      "validation_sha256": "d363dad75c1bc1b60863140b74278388eba31f90b6696d4883eee61ed666651c",
+      "evaluation_sha256": "ea427b1f01e1c1a027fd9c71911e574897fbe549e7ea21ff237eea0d2ffbbe4b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed383",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed383.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed383",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 383,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed383.json",
+      "config_sha256": "484607bdadd0048e4e4744db96f53bc5f3b927f466440490de33ce1dd659d3d8",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "37e219d40907f20c7695d4b44df3df08f6667684d39a45b200d5f1462ea2cb3a",
+      "validation_sha256": "d363dad75c1bc1b60863140b74278388eba31f90b6696d4883eee61ed666651c",
+      "evaluation_sha256": "ea427b1f01e1c1a027fd9c71911e574897fbe549e7ea21ff237eea0d2ffbbe4b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed383",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed383.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed383",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 383,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed383.json",
+      "config_sha256": "826ab974192debe859d35502eb694c8a94df5a055b660179f5a4c92ccae83673",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "37e219d40907f20c7695d4b44df3df08f6667684d39a45b200d5f1462ea2cb3a",
+      "validation_sha256": "d363dad75c1bc1b60863140b74278388eba31f90b6696d4883eee61ed666651c",
+      "evaluation_sha256": "ea427b1f01e1c1a027fd9c71911e574897fbe549e7ea21ff237eea0d2ffbbe4b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed383",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed383.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed389",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 389,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed389.json",
+      "config_sha256": "18114f63386de4a64cc9f064b7097932e91b0a34e20595de442d575000594e80",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "d891ece9d0d601b9f0d6c160d7e639163c4aaff7ef37b521508ba9ae823a76cc",
+      "validation_sha256": "7a2e862fc7e8a235de0b8ec3e767595186e7a6478dc148815323393e358bec01",
+      "evaluation_sha256": "94f5af27d5b78d651e7a6eddb549a324cb922102bfadca70e5f44b281f034a34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed389",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed389.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed389",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 389,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed389.json",
+      "config_sha256": "13dc0aeb58d5e26cd0c35465a3b021a81e20fc4c9583537c7ca3788ab1d3593c",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "d891ece9d0d601b9f0d6c160d7e639163c4aaff7ef37b521508ba9ae823a76cc",
+      "validation_sha256": "7a2e862fc7e8a235de0b8ec3e767595186e7a6478dc148815323393e358bec01",
+      "evaluation_sha256": "94f5af27d5b78d651e7a6eddb549a324cb922102bfadca70e5f44b281f034a34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed389",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed389.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed389",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 389,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed389.json",
+      "config_sha256": "6596d69d766334b16ca05a8ac31659c321c4e537baaa2b9dccd74789dee3c449",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "d891ece9d0d601b9f0d6c160d7e639163c4aaff7ef37b521508ba9ae823a76cc",
+      "validation_sha256": "7a2e862fc7e8a235de0b8ec3e767595186e7a6478dc148815323393e358bec01",
+      "evaluation_sha256": "94f5af27d5b78d651e7a6eddb549a324cb922102bfadca70e5f44b281f034a34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed389",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed389.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed389",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 389,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed389.json",
+      "config_sha256": "bce211cba02a3dbb4686f4e0b26e5b2c4e3baaa547f901642006da903603c763",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "d891ece9d0d601b9f0d6c160d7e639163c4aaff7ef37b521508ba9ae823a76cc",
+      "validation_sha256": "7a2e862fc7e8a235de0b8ec3e767595186e7a6478dc148815323393e358bec01",
+      "evaluation_sha256": "94f5af27d5b78d651e7a6eddb549a324cb922102bfadca70e5f44b281f034a34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed389",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed389.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed397",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 397,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed397.json",
+      "config_sha256": "71f98e8a1063b50ff8d881725cdd437ba33d1df129d4e01ab37ffedb48e78191",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "0ab10a78da24dbebfa45ff48caf1ccc93718843b2a4264bd8928bee71e2dd138",
+      "validation_sha256": "e5b6351c57dd21d7f321cc1d1f1370211a24aaee1a6c97432b468c1986ca18db",
+      "evaluation_sha256": "8ba15b15a5cc5feb181d77f7927b7bd5d432b9728ae4322b01fbac023b0b2d2b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed397",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed397.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed397",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 397,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed397.json",
+      "config_sha256": "05f3cff9af81b5b6bab84c0e196ba42900014f8bf14987c4282ac5625a09e9c8",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "0ab10a78da24dbebfa45ff48caf1ccc93718843b2a4264bd8928bee71e2dd138",
+      "validation_sha256": "e5b6351c57dd21d7f321cc1d1f1370211a24aaee1a6c97432b468c1986ca18db",
+      "evaluation_sha256": "8ba15b15a5cc5feb181d77f7927b7bd5d432b9728ae4322b01fbac023b0b2d2b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed397",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed397.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed397",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 397,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed397.json",
+      "config_sha256": "cf26fe697ef08dc61d2d2f2eca2cc005912ef34949360d7e774002618fbb4d9b",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "0ab10a78da24dbebfa45ff48caf1ccc93718843b2a4264bd8928bee71e2dd138",
+      "validation_sha256": "e5b6351c57dd21d7f321cc1d1f1370211a24aaee1a6c97432b468c1986ca18db",
+      "evaluation_sha256": "8ba15b15a5cc5feb181d77f7927b7bd5d432b9728ae4322b01fbac023b0b2d2b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed397",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed397.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed397",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 397,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed397.json",
+      "config_sha256": "d79842afc451aaf1fcce51379ab69d559c6eba05c6e8db29fa136375b5533221",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "0ab10a78da24dbebfa45ff48caf1ccc93718843b2a4264bd8928bee71e2dd138",
+      "validation_sha256": "e5b6351c57dd21d7f321cc1d1f1370211a24aaee1a6c97432b468c1986ca18db",
+      "evaluation_sha256": "8ba15b15a5cc5feb181d77f7927b7bd5d432b9728ae4322b01fbac023b0b2d2b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed397",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed397.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed401",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 401,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed401.json",
+      "config_sha256": "242e18a0f2dfd33731eb85e43d0787df6b2dceccdea5e669e03ab2ecd785a45c",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "299292f02d2f5bf971730bb97a1ec985c7cab3239ad02562b9efe8d270f11a32",
+      "validation_sha256": "71cd7beb33195ffd3a75c761d81926bcef68300c6ec6422d1af048dceea4d28c",
+      "evaluation_sha256": "6c7385d107f238de626a7b947438269a172334d08cb23a1d761d304048741527",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed401",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed401.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed401",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 401,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed401.json",
+      "config_sha256": "1091a590a30be8aaf75db35f4b2285c2673efa68616d87241d7f45b632d9a7f8",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "299292f02d2f5bf971730bb97a1ec985c7cab3239ad02562b9efe8d270f11a32",
+      "validation_sha256": "71cd7beb33195ffd3a75c761d81926bcef68300c6ec6422d1af048dceea4d28c",
+      "evaluation_sha256": "6c7385d107f238de626a7b947438269a172334d08cb23a1d761d304048741527",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed401",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed401.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed401",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 401,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed401.json",
+      "config_sha256": "697334d5394e0f16688b55779832d093579d566bbe3cae0d759abd926361914f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "299292f02d2f5bf971730bb97a1ec985c7cab3239ad02562b9efe8d270f11a32",
+      "validation_sha256": "71cd7beb33195ffd3a75c761d81926bcef68300c6ec6422d1af048dceea4d28c",
+      "evaluation_sha256": "6c7385d107f238de626a7b947438269a172334d08cb23a1d761d304048741527",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed401",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed401.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed401",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 401,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed401.json",
+      "config_sha256": "6de08fb5cf12de75b44255e6ae6310e34fcd19804fe43ebda2668e9804d9e1d0",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "299292f02d2f5bf971730bb97a1ec985c7cab3239ad02562b9efe8d270f11a32",
+      "validation_sha256": "71cd7beb33195ffd3a75c761d81926bcef68300c6ec6422d1af048dceea4d28c",
+      "evaluation_sha256": "6c7385d107f238de626a7b947438269a172334d08cb23a1d761d304048741527",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed401",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed401.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed409",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 409,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed409.json",
+      "config_sha256": "a447801545b09dc8445e83cb4dfb3194eb91c6fd2a95b1c130d8d3084596c663",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "36ddb8b112d9732188a71e6eb55d0268c9b82cd88e7e538919e639526c6b73ae",
+      "validation_sha256": "145b08551f8ea5979c548b4f5ceefd95f8196faf6aa6cce24abac6cd0105a87b",
+      "evaluation_sha256": "6d8ec74bec99761d444580f8be2e5c61bf2835347751483057b8a405fa7de186",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed409",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed409.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed409",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 409,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed409.json",
+      "config_sha256": "d7b272ab05241de68db08be2453d9394737535ab2b8c9b475eed575fcbc2b1c1",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "36ddb8b112d9732188a71e6eb55d0268c9b82cd88e7e538919e639526c6b73ae",
+      "validation_sha256": "145b08551f8ea5979c548b4f5ceefd95f8196faf6aa6cce24abac6cd0105a87b",
+      "evaluation_sha256": "6d8ec74bec99761d444580f8be2e5c61bf2835347751483057b8a405fa7de186",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed409",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed409.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed409",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 409,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed409.json",
+      "config_sha256": "dbf3ef17dc5820c35cf7d71384ac0d6170ac41c74b4cf047f0c66954a4262bf1",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "36ddb8b112d9732188a71e6eb55d0268c9b82cd88e7e538919e639526c6b73ae",
+      "validation_sha256": "145b08551f8ea5979c548b4f5ceefd95f8196faf6aa6cce24abac6cd0105a87b",
+      "evaluation_sha256": "6d8ec74bec99761d444580f8be2e5c61bf2835347751483057b8a405fa7de186",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed409",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed409.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed409",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 409,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed409.json",
+      "config_sha256": "5f6c55a7f4552993d9efca300e1e1bcb525a2fd86d97e464ec05a9e47327d8f9",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "36ddb8b112d9732188a71e6eb55d0268c9b82cd88e7e538919e639526c6b73ae",
+      "validation_sha256": "145b08551f8ea5979c548b4f5ceefd95f8196faf6aa6cce24abac6cd0105a87b",
+      "evaluation_sha256": "6d8ec74bec99761d444580f8be2e5c61bf2835347751483057b8a405fa7de186",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed409",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed409.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed419",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 419,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed419.json",
+      "config_sha256": "e9ee54bed84188894758ad482ac9ea230a41a42034701bc1081b9f5c398e8d94",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "fa1bbe891f22aad2c1a8c107c3a38a6a32ddf2edd38909d84648c3e51cfc9ef1",
+      "validation_sha256": "2c2a6e1295a392724d8c116ff3ced0146cb137d52e561de1e5153624c91cc916",
+      "evaluation_sha256": "f1465266e0b1aefb5bd3e515ff7139ba1042a6afcdeb68354fbd6eec00ccc0e4",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed419",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed419.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed419",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 419,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed419.json",
+      "config_sha256": "efa8d472b787dd0355ebfa4047f4f1ede0a8a9f1a509baf69470dc3d765222de",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "fa1bbe891f22aad2c1a8c107c3a38a6a32ddf2edd38909d84648c3e51cfc9ef1",
+      "validation_sha256": "2c2a6e1295a392724d8c116ff3ced0146cb137d52e561de1e5153624c91cc916",
+      "evaluation_sha256": "f1465266e0b1aefb5bd3e515ff7139ba1042a6afcdeb68354fbd6eec00ccc0e4",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed419",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed419.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed419",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 419,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed419.json",
+      "config_sha256": "9eb83fa952772d979bc5e6f6616f7001e401886f55ee062025f0aab30fbc5641",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "fa1bbe891f22aad2c1a8c107c3a38a6a32ddf2edd38909d84648c3e51cfc9ef1",
+      "validation_sha256": "2c2a6e1295a392724d8c116ff3ced0146cb137d52e561de1e5153624c91cc916",
+      "evaluation_sha256": "f1465266e0b1aefb5bd3e515ff7139ba1042a6afcdeb68354fbd6eec00ccc0e4",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed419",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed419.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed419",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 419,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed419.json",
+      "config_sha256": "af3dad49e69439d158d930ac840d9bf8ac0ebed2ef063711799f3092f47175c1",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "fa1bbe891f22aad2c1a8c107c3a38a6a32ddf2edd38909d84648c3e51cfc9ef1",
+      "validation_sha256": "2c2a6e1295a392724d8c116ff3ced0146cb137d52e561de1e5153624c91cc916",
+      "evaluation_sha256": "f1465266e0b1aefb5bd3e515ff7139ba1042a6afcdeb68354fbd6eec00ccc0e4",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed419",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed419.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed421",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 421,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed421.json",
+      "config_sha256": "8c3adf99d0441c44f764549c5841502ec3b6238af5e004eb24f623a2df69f087",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "837d79061a840127d67d2da77aa3d79645aa0009a6c9d9c8a2c8d67405499989",
+      "validation_sha256": "ffc19b8978c9d6884b979670a55e0de6f49b4683c0c490ef4806f825a183b44a",
+      "evaluation_sha256": "52f1006b8c5290c541a6cf72b25942eb953e0a721b2ad917edea11e3895a940f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed421",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed421.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed421",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 421,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed421.json",
+      "config_sha256": "b1a09f1dd68b36f09ef8e191569487e67b5189cb61a97f3e6a6782b2c0f851b4",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "837d79061a840127d67d2da77aa3d79645aa0009a6c9d9c8a2c8d67405499989",
+      "validation_sha256": "ffc19b8978c9d6884b979670a55e0de6f49b4683c0c490ef4806f825a183b44a",
+      "evaluation_sha256": "52f1006b8c5290c541a6cf72b25942eb953e0a721b2ad917edea11e3895a940f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed421",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed421.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed421",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 421,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed421.json",
+      "config_sha256": "5a2dfbe6b45c67507d42e655effd5240d6706ab47eb161f72e0c678d89c7055e",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "837d79061a840127d67d2da77aa3d79645aa0009a6c9d9c8a2c8d67405499989",
+      "validation_sha256": "ffc19b8978c9d6884b979670a55e0de6f49b4683c0c490ef4806f825a183b44a",
+      "evaluation_sha256": "52f1006b8c5290c541a6cf72b25942eb953e0a721b2ad917edea11e3895a940f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed421",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed421.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed421",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 421,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed421.json",
+      "config_sha256": "e69d7b9c98af0cf1cae0112d86288ec406b59dbc9b7bb6a216f3b89f50c4ccec",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "837d79061a840127d67d2da77aa3d79645aa0009a6c9d9c8a2c8d67405499989",
+      "validation_sha256": "ffc19b8978c9d6884b979670a55e0de6f49b4683c0c490ef4806f825a183b44a",
+      "evaluation_sha256": "52f1006b8c5290c541a6cf72b25942eb953e0a721b2ad917edea11e3895a940f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed421",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed421.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed431",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 431,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed431.json",
+      "config_sha256": "fa2e30919d7e69e3f6807f1ca1adcad93af3823d812efa32c7c1ca86c76b89f8",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "e79b4e233cfaa74ca3767198fe1423a043b88b1bd53fd47cf27aa002b4d62493",
+      "validation_sha256": "9a5a230d3ad0b86435708de0ccd55831adfc73e8ae1ead16c5b7be559de1cd48",
+      "evaluation_sha256": "53eb71f84ac8b87fda731da176d67cd6e03c64029f14c6c8eb12e63f231ac46a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed431",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed431.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed431",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 431,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed431.json",
+      "config_sha256": "840debf8d75c8af9af413c7d07ab84cc3e9ce86abcf16cb403655e6dcfd938b0",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e79b4e233cfaa74ca3767198fe1423a043b88b1bd53fd47cf27aa002b4d62493",
+      "validation_sha256": "9a5a230d3ad0b86435708de0ccd55831adfc73e8ae1ead16c5b7be559de1cd48",
+      "evaluation_sha256": "53eb71f84ac8b87fda731da176d67cd6e03c64029f14c6c8eb12e63f231ac46a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed431",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed431.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed431",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 431,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed431.json",
+      "config_sha256": "95d93a5cc24d8cf039af271838996c0de651c9383faa234e7b4e4323235baa38",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e79b4e233cfaa74ca3767198fe1423a043b88b1bd53fd47cf27aa002b4d62493",
+      "validation_sha256": "9a5a230d3ad0b86435708de0ccd55831adfc73e8ae1ead16c5b7be559de1cd48",
+      "evaluation_sha256": "53eb71f84ac8b87fda731da176d67cd6e03c64029f14c6c8eb12e63f231ac46a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed431",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed431.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed431",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 431,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed431.json",
+      "config_sha256": "d0055add64e59a7bc4464137b7e265d0bc6e21a94392a613132793d3fdf15399",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "e79b4e233cfaa74ca3767198fe1423a043b88b1bd53fd47cf27aa002b4d62493",
+      "validation_sha256": "9a5a230d3ad0b86435708de0ccd55831adfc73e8ae1ead16c5b7be559de1cd48",
+      "evaluation_sha256": "53eb71f84ac8b87fda731da176d67cd6e03c64029f14c6c8eb12e63f231ac46a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed431",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed431.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed433",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 433,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed433.json",
+      "config_sha256": "4fd4730dd797ed6c0cb76c1b490818615c8db19826f57cf0b503c199bde83053",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "4a30b6c88d26e9ef397495fbb69fdeaadddf02196f02e412e8ed532edef50745",
+      "validation_sha256": "5a4ae0f0ab984be3d407bf0d852bd8742657b126528df753499104040e0fd557",
+      "evaluation_sha256": "fcc75fe8dfc625a33c68def1b7077b2ed3560994b512d16695857af13af992a8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed433",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed433.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed433",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 433,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed433.json",
+      "config_sha256": "309283482c47ede2a3db0abc7472a3863bfa7c23b86c6c65a4b7ff5853ced1bd",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "4a30b6c88d26e9ef397495fbb69fdeaadddf02196f02e412e8ed532edef50745",
+      "validation_sha256": "5a4ae0f0ab984be3d407bf0d852bd8742657b126528df753499104040e0fd557",
+      "evaluation_sha256": "fcc75fe8dfc625a33c68def1b7077b2ed3560994b512d16695857af13af992a8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed433",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed433.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed433",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 433,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed433.json",
+      "config_sha256": "f7c2e2f4c7d2a1efbaea9c85c619aaad841c775813a93f8fd2307836907619f7",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "4a30b6c88d26e9ef397495fbb69fdeaadddf02196f02e412e8ed532edef50745",
+      "validation_sha256": "5a4ae0f0ab984be3d407bf0d852bd8742657b126528df753499104040e0fd557",
+      "evaluation_sha256": "fcc75fe8dfc625a33c68def1b7077b2ed3560994b512d16695857af13af992a8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed433",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed433.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed433",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 433,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed433.json",
+      "config_sha256": "d22d318d79631e8caeb36179eda3f52db656c9f953b5b84d58e1ed8d055f6089",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "4a30b6c88d26e9ef397495fbb69fdeaadddf02196f02e412e8ed532edef50745",
+      "validation_sha256": "5a4ae0f0ab984be3d407bf0d852bd8742657b126528df753499104040e0fd557",
+      "evaluation_sha256": "fcc75fe8dfc625a33c68def1b7077b2ed3560994b512d16695857af13af992a8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed433",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed433.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed439",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 439,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed439.json",
+      "config_sha256": "310ac02bd141ec8efe6cecedc54bb35ba0f3b9a3bede0b7b92b3b79eb5e7bc1e",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "045cbe1bd8de8e054f727a937fe02bd3246b64f0cfe2e8e0f686f1a8d81d381b",
+      "validation_sha256": "fb55b421f905bf9a1f796c04e7de1399ca09e73c2490e50108f934c6e4b39d22",
+      "evaluation_sha256": "1cdcda0db351d9c880750d3f51a3fda6237dcc1fa1a90d5b170a15478e22c2dd",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed439",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed439.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed439",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 439,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed439.json",
+      "config_sha256": "3fa508456e185f289f768d96b3b9a059090bf2af87415b68f485c66922083662",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "045cbe1bd8de8e054f727a937fe02bd3246b64f0cfe2e8e0f686f1a8d81d381b",
+      "validation_sha256": "fb55b421f905bf9a1f796c04e7de1399ca09e73c2490e50108f934c6e4b39d22",
+      "evaluation_sha256": "1cdcda0db351d9c880750d3f51a3fda6237dcc1fa1a90d5b170a15478e22c2dd",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed439",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed439.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed439",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 439,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed439.json",
+      "config_sha256": "3de6ed866128a7d0940802e7448e26c6a56b489949533ebe467d6a5f0b4f5464",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "045cbe1bd8de8e054f727a937fe02bd3246b64f0cfe2e8e0f686f1a8d81d381b",
+      "validation_sha256": "fb55b421f905bf9a1f796c04e7de1399ca09e73c2490e50108f934c6e4b39d22",
+      "evaluation_sha256": "1cdcda0db351d9c880750d3f51a3fda6237dcc1fa1a90d5b170a15478e22c2dd",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed439",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed439.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed439",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 439,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed439.json",
+      "config_sha256": "f1b84808874fc34c36ae97da6a2a232d15e3b4a4b07703889463ee1381e15bc8",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "045cbe1bd8de8e054f727a937fe02bd3246b64f0cfe2e8e0f686f1a8d81d381b",
+      "validation_sha256": "fb55b421f905bf9a1f796c04e7de1399ca09e73c2490e50108f934c6e4b39d22",
+      "evaluation_sha256": "1cdcda0db351d9c880750d3f51a3fda6237dcc1fa1a90d5b170a15478e22c2dd",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed439",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed439.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed443",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 443,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed443.json",
+      "config_sha256": "1d95bb61b75134ca18914e132ddd19d77e7c703fc550972583b5b0ce862beae7",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "1bee82eb88a5c927a8551c48dc36d5fc085743fe79cce007ae89ea0287fe1438",
+      "validation_sha256": "fd0f3e39244eb50b7337ec2363b2c10c46c5e1c18e5feb3898753b214decd72f",
+      "evaluation_sha256": "540a8c3935cae4c256d413864ba46853a6586148c6840f7ac4d3f7156a4ffb78",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed443",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed443.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed443",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 443,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed443.json",
+      "config_sha256": "d14b02afe08a5ca0bd33820f3af82a0c22cf032c9709db7453fa10a59dc63f46",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "1bee82eb88a5c927a8551c48dc36d5fc085743fe79cce007ae89ea0287fe1438",
+      "validation_sha256": "fd0f3e39244eb50b7337ec2363b2c10c46c5e1c18e5feb3898753b214decd72f",
+      "evaluation_sha256": "540a8c3935cae4c256d413864ba46853a6586148c6840f7ac4d3f7156a4ffb78",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed443",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed443.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed443",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 443,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed443.json",
+      "config_sha256": "bd9c3d2e9bc8c6e7984372eb18b1f75d3e92c0385a34703334de7db7b6445c3f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "1bee82eb88a5c927a8551c48dc36d5fc085743fe79cce007ae89ea0287fe1438",
+      "validation_sha256": "fd0f3e39244eb50b7337ec2363b2c10c46c5e1c18e5feb3898753b214decd72f",
+      "evaluation_sha256": "540a8c3935cae4c256d413864ba46853a6586148c6840f7ac4d3f7156a4ffb78",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed443",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed443.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed443",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 443,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed443.json",
+      "config_sha256": "91e0a48f2ffe13e02ee5c4158da31aa86fbf3550445b833979ab6d4576ba15a2",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "1bee82eb88a5c927a8551c48dc36d5fc085743fe79cce007ae89ea0287fe1438",
+      "validation_sha256": "fd0f3e39244eb50b7337ec2363b2c10c46c5e1c18e5feb3898753b214decd72f",
+      "evaluation_sha256": "540a8c3935cae4c256d413864ba46853a6586148c6840f7ac4d3f7156a4ffb78",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed443",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed443.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed449",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 449,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed449.json",
+      "config_sha256": "7ea6be26442e9c6b1b34954a1f9fd077e2080e9e22a7ba0dd371396c3728dc61",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "a67c197c204d60cf1c2e03340f7ca7abbfbacbd04db3de31cb199c3b3af21020",
+      "validation_sha256": "c961060c04fe8822cac1fab1b8204f3d0c6f807730f7949711a02f50e3024156",
+      "evaluation_sha256": "f02a88615edb9917c239ffd2918886c7ed462f02df8c8a8d750d4cfcb1b2ec34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed449",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed449.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed449",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 449,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed449.json",
+      "config_sha256": "26c17410a1b832939854570f708820cfcdf04b7f377721da30dc924f9535aa9e",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a67c197c204d60cf1c2e03340f7ca7abbfbacbd04db3de31cb199c3b3af21020",
+      "validation_sha256": "c961060c04fe8822cac1fab1b8204f3d0c6f807730f7949711a02f50e3024156",
+      "evaluation_sha256": "f02a88615edb9917c239ffd2918886c7ed462f02df8c8a8d750d4cfcb1b2ec34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed449",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed449.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed449",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 449,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed449.json",
+      "config_sha256": "8144c6a3fdc32cb7214517fd92ac477b5a945c339a19f76f1deb11d0bde369ef",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a67c197c204d60cf1c2e03340f7ca7abbfbacbd04db3de31cb199c3b3af21020",
+      "validation_sha256": "c961060c04fe8822cac1fab1b8204f3d0c6f807730f7949711a02f50e3024156",
+      "evaluation_sha256": "f02a88615edb9917c239ffd2918886c7ed462f02df8c8a8d750d4cfcb1b2ec34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed449",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed449.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed449",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 449,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed449.json",
+      "config_sha256": "e60d2c3932d52ae84c95c5aa5c4d9907646e23f5ca9fb621d4b78c54fb77fd14",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "a67c197c204d60cf1c2e03340f7ca7abbfbacbd04db3de31cb199c3b3af21020",
+      "validation_sha256": "c961060c04fe8822cac1fab1b8204f3d0c6f807730f7949711a02f50e3024156",
+      "evaluation_sha256": "f02a88615edb9917c239ffd2918886c7ed462f02df8c8a8d750d4cfcb1b2ec34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed449",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed449.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed457",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 457,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed457.json",
+      "config_sha256": "2296a1b0a393bc5b71c24fcde0b4e0c2785b4f599f34916d9fe46f29bb3b9c4c",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "3d95132f3acb3a0d50f70aa375fd0701173467680e15ec65f8edce993f94b5c0",
+      "validation_sha256": "a44da3a4c197b31af6e3ca6f9eb8a295d48858875363003ebc4b7b7f1b5e6b5a",
+      "evaluation_sha256": "22f17dd53aeed61f68d51f55ce4796bf817b3d1174a90e01c507a51a89a17ea1",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed457",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed457.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed457",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 457,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed457.json",
+      "config_sha256": "a6b9d13a5b7e0941c9bc9ef941bf029368523349c6ab1241e8a413a98f4eca1f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "3d95132f3acb3a0d50f70aa375fd0701173467680e15ec65f8edce993f94b5c0",
+      "validation_sha256": "a44da3a4c197b31af6e3ca6f9eb8a295d48858875363003ebc4b7b7f1b5e6b5a",
+      "evaluation_sha256": "22f17dd53aeed61f68d51f55ce4796bf817b3d1174a90e01c507a51a89a17ea1",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed457",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed457.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed457",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 457,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed457.json",
+      "config_sha256": "231d0cff8d53d72efa70423931942cabf5212df40c392d838481ecb2ea170356",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "3d95132f3acb3a0d50f70aa375fd0701173467680e15ec65f8edce993f94b5c0",
+      "validation_sha256": "a44da3a4c197b31af6e3ca6f9eb8a295d48858875363003ebc4b7b7f1b5e6b5a",
+      "evaluation_sha256": "22f17dd53aeed61f68d51f55ce4796bf817b3d1174a90e01c507a51a89a17ea1",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed457",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed457.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed457",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 457,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed457.json",
+      "config_sha256": "30d1035c8c99ba9112c94ccd7406c6c120268d0ccbb4ada568ae37512a270706",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "3d95132f3acb3a0d50f70aa375fd0701173467680e15ec65f8edce993f94b5c0",
+      "validation_sha256": "a44da3a4c197b31af6e3ca6f9eb8a295d48858875363003ebc4b7b7f1b5e6b5a",
+      "evaluation_sha256": "22f17dd53aeed61f68d51f55ce4796bf817b3d1174a90e01c507a51a89a17ea1",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed457",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed457.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed461",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 461,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed461.json",
+      "config_sha256": "fbb06d9fc1833e6bccc9a8c9d41051317ed1cffca7895f09f2fb0a8836abe623",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "c08da9291ed7fb39ec80537b8b12239ce0bef6b99f416cfa5d759cf3b2051b3f",
+      "validation_sha256": "2b66f632df6cdaee56838569cb093dad1805575b2875fb9938679907b19c4ef2",
+      "evaluation_sha256": "55a9dbc56e5ff8c6841cdaf77269b8cb37a809e3f7aa5608015f49b2085ba71f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed461",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed461.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed461",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 461,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed461.json",
+      "config_sha256": "056f6b7f52e2084ec082d60b2ad53861f0b0df802751bceb5ad1edce88bbffcd",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "c08da9291ed7fb39ec80537b8b12239ce0bef6b99f416cfa5d759cf3b2051b3f",
+      "validation_sha256": "2b66f632df6cdaee56838569cb093dad1805575b2875fb9938679907b19c4ef2",
+      "evaluation_sha256": "55a9dbc56e5ff8c6841cdaf77269b8cb37a809e3f7aa5608015f49b2085ba71f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed461",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed461.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed461",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 461,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed461.json",
+      "config_sha256": "b3598e9a0e1b6b590f8ac57506d9fbfdcd46eb319adb74f1ba104a495e255d5f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "c08da9291ed7fb39ec80537b8b12239ce0bef6b99f416cfa5d759cf3b2051b3f",
+      "validation_sha256": "2b66f632df6cdaee56838569cb093dad1805575b2875fb9938679907b19c4ef2",
+      "evaluation_sha256": "55a9dbc56e5ff8c6841cdaf77269b8cb37a809e3f7aa5608015f49b2085ba71f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed461",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed461.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed461",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 461,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed461.json",
+      "config_sha256": "79327e701f25e63efdb371aef6189e2101b087fc0b8af423507122162ba556ff",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "c08da9291ed7fb39ec80537b8b12239ce0bef6b99f416cfa5d759cf3b2051b3f",
+      "validation_sha256": "2b66f632df6cdaee56838569cb093dad1805575b2875fb9938679907b19c4ef2",
+      "evaluation_sha256": "55a9dbc56e5ff8c6841cdaf77269b8cb37a809e3f7aa5608015f49b2085ba71f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed461",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed461.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed463",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 463,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed463.json",
+      "config_sha256": "c63c06cda89220fb09e23d215a8a5c2a604a88890f8f5c58ea08c62416253439",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "a0ea0f220e3532f1f66230e331b34028f5756f108b0c7857136296bfe6654d28",
+      "validation_sha256": "c407e8eb688606f794840e7c52c5df9aecfbd0bd92782b28888d41ee1e3196fa",
+      "evaluation_sha256": "c4446b29f960bcfc31fd658a4fddfc29d46c1d9582ce0462b57a211ec1cd9ce6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed463",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed463.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed463",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 463,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed463.json",
+      "config_sha256": "1424b14910aa31b9e3055ef04d3a652f4c42e16aca821601402a13b5b9f2ae66",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a0ea0f220e3532f1f66230e331b34028f5756f108b0c7857136296bfe6654d28",
+      "validation_sha256": "c407e8eb688606f794840e7c52c5df9aecfbd0bd92782b28888d41ee1e3196fa",
+      "evaluation_sha256": "c4446b29f960bcfc31fd658a4fddfc29d46c1d9582ce0462b57a211ec1cd9ce6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed463",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed463.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed463",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 463,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed463.json",
+      "config_sha256": "84eea621bf3a5e92bbafb7d0250e134e33c284a57755e326a068fa472a436ec4",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a0ea0f220e3532f1f66230e331b34028f5756f108b0c7857136296bfe6654d28",
+      "validation_sha256": "c407e8eb688606f794840e7c52c5df9aecfbd0bd92782b28888d41ee1e3196fa",
+      "evaluation_sha256": "c4446b29f960bcfc31fd658a4fddfc29d46c1d9582ce0462b57a211ec1cd9ce6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed463",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed463.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed463",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 463,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed463.json",
+      "config_sha256": "f8b8b83a4d4eb76d4bb2d36fb950918808f2c519d357942a27a5aa63ac6c060b",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "a0ea0f220e3532f1f66230e331b34028f5756f108b0c7857136296bfe6654d28",
+      "validation_sha256": "c407e8eb688606f794840e7c52c5df9aecfbd0bd92782b28888d41ee1e3196fa",
+      "evaluation_sha256": "c4446b29f960bcfc31fd658a4fddfc29d46c1d9582ce0462b57a211ec1cd9ce6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed463",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed463.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed467",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 467,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed467.json",
+      "config_sha256": "fddd816e72b3931b5e0bbbd3b400bb62bbae7b695339c67c277dc7afa78974cf",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "e2b710fae0a22377456297a12777d7128d260506cdd3972cd9141ba99ed8f581",
+      "validation_sha256": "1936d2e35fe5b8faa598c36a4fafb044e3d85e300b0ebbbda3b15e004a7a5646",
+      "evaluation_sha256": "2ce7106c775bbd440995cabac1d57e5b14a4a2aeb41bcd16fafb2eeaa01e0bc9",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed467",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed467.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed467",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 467,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed467.json",
+      "config_sha256": "7f29fbed68c2e6e9331bfc52084af4cdb1bc70da939f3bd292fd3a92ebdac318",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e2b710fae0a22377456297a12777d7128d260506cdd3972cd9141ba99ed8f581",
+      "validation_sha256": "1936d2e35fe5b8faa598c36a4fafb044e3d85e300b0ebbbda3b15e004a7a5646",
+      "evaluation_sha256": "2ce7106c775bbd440995cabac1d57e5b14a4a2aeb41bcd16fafb2eeaa01e0bc9",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed467",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed467.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed467",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 467,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed467.json",
+      "config_sha256": "0c852b4b94a68119a274d76a1ddbee78f7edb6ad5f21a07ef565dc894b55c2f3",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e2b710fae0a22377456297a12777d7128d260506cdd3972cd9141ba99ed8f581",
+      "validation_sha256": "1936d2e35fe5b8faa598c36a4fafb044e3d85e300b0ebbbda3b15e004a7a5646",
+      "evaluation_sha256": "2ce7106c775bbd440995cabac1d57e5b14a4a2aeb41bcd16fafb2eeaa01e0bc9",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed467",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed467.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed467",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 467,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed467.json",
+      "config_sha256": "232b3309dcd5ae358c58fc4d4e7f11130331d13e87abbe5e8f89dea99d8796b8",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "e2b710fae0a22377456297a12777d7128d260506cdd3972cd9141ba99ed8f581",
+      "validation_sha256": "1936d2e35fe5b8faa598c36a4fafb044e3d85e300b0ebbbda3b15e004a7a5646",
+      "evaluation_sha256": "2ce7106c775bbd440995cabac1d57e5b14a4a2aeb41bcd16fafb2eeaa01e0bc9",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed467",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed467.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed479",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 479,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed479.json",
+      "config_sha256": "76c1a2501d99fae8061c6b98e4c05caa7af2f3619edecd1ec86272307ccdaf21",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "f6eb2f8217e111ff57f6de360cd8ea804748fb7190c4f645eb95b3f7872ecc9a",
+      "validation_sha256": "f575dc2f45c81f6278667f62280dc9f92cf09eaa5a69406d681bafea01b7e071",
+      "evaluation_sha256": "c26d5ba6421f426d78e1280c972111a67a311ee71a0eda0df7ef8b826a562fa2",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed479",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed479.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed479",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 479,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed479.json",
+      "config_sha256": "8b3f6da27678d3251f5a6a88ee2e48992b0ae522f469cf609848862ee5056a98",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f6eb2f8217e111ff57f6de360cd8ea804748fb7190c4f645eb95b3f7872ecc9a",
+      "validation_sha256": "f575dc2f45c81f6278667f62280dc9f92cf09eaa5a69406d681bafea01b7e071",
+      "evaluation_sha256": "c26d5ba6421f426d78e1280c972111a67a311ee71a0eda0df7ef8b826a562fa2",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed479",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed479.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed479",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 479,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed479.json",
+      "config_sha256": "84f42a89e9319ff9865fa29268061599e6bd60528957e642231f8311ee82bc03",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f6eb2f8217e111ff57f6de360cd8ea804748fb7190c4f645eb95b3f7872ecc9a",
+      "validation_sha256": "f575dc2f45c81f6278667f62280dc9f92cf09eaa5a69406d681bafea01b7e071",
+      "evaluation_sha256": "c26d5ba6421f426d78e1280c972111a67a311ee71a0eda0df7ef8b826a562fa2",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed479",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed479.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed479",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 479,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed479.json",
+      "config_sha256": "7e54df310d24faf147e2e3840620e8905cd4090a53b5e538d231cb94aada810b",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "f6eb2f8217e111ff57f6de360cd8ea804748fb7190c4f645eb95b3f7872ecc9a",
+      "validation_sha256": "f575dc2f45c81f6278667f62280dc9f92cf09eaa5a69406d681bafea01b7e071",
+      "evaluation_sha256": "c26d5ba6421f426d78e1280c972111a67a311ee71a0eda0df7ef8b826a562fa2",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed479",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed479.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed487",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 487,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed487.json",
+      "config_sha256": "22ee17b709a1241756fba9784dcdbc40a88d5a991393ad59b9037e9ffee0f5bf",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "7d2b8aa3a942611588b04e93177df2507c6fc1183951579152ac0b8bfc886ea9",
+      "validation_sha256": "c144c2d6a638e73e6bdf6565339ac8ab1c08a1dd48cd32cf28c695c694fc5bad",
+      "evaluation_sha256": "8caa0ed426d7bcc33728df38b331adcd8cac73db3c340d15459ac8107fac9e6a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed487",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed487.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed487",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 487,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed487.json",
+      "config_sha256": "293d3aeef353e9597dea81861a2cd88be55f2533032749f4ef7041c12c6a154a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "7d2b8aa3a942611588b04e93177df2507c6fc1183951579152ac0b8bfc886ea9",
+      "validation_sha256": "c144c2d6a638e73e6bdf6565339ac8ab1c08a1dd48cd32cf28c695c694fc5bad",
+      "evaluation_sha256": "8caa0ed426d7bcc33728df38b331adcd8cac73db3c340d15459ac8107fac9e6a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed487",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed487.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed487",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 487,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed487.json",
+      "config_sha256": "6d47c3d25a2ebdc778b2b0d7490c7a32a6b9e840fd5a63cf327f896a1b5cac3a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "7d2b8aa3a942611588b04e93177df2507c6fc1183951579152ac0b8bfc886ea9",
+      "validation_sha256": "c144c2d6a638e73e6bdf6565339ac8ab1c08a1dd48cd32cf28c695c694fc5bad",
+      "evaluation_sha256": "8caa0ed426d7bcc33728df38b331adcd8cac73db3c340d15459ac8107fac9e6a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed487",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed487.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed487",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 487,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed487.json",
+      "config_sha256": "edf408f57104cfa8fc7938d5cd65805b4eb944947cb4355c17b1d6f2d84e3c27",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "7d2b8aa3a942611588b04e93177df2507c6fc1183951579152ac0b8bfc886ea9",
+      "validation_sha256": "c144c2d6a638e73e6bdf6565339ac8ab1c08a1dd48cd32cf28c695c694fc5bad",
+      "evaluation_sha256": "8caa0ed426d7bcc33728df38b331adcd8cac73db3c340d15459ac8107fac9e6a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed487",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed487.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed491",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 491,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed491.json",
+      "config_sha256": "a2fd77debfbfb806fb1718eace6ab2cd760c2b4d82d8a8dc670ffd26287c2af6",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "0c6c1a14556a76e9ffd965f25c9640d5db262af2eb4e7f0c9fa31ef595056f46",
+      "validation_sha256": "2f23e688276385a0005ef10fc64f63e5f84614d44db7710c84cbe58f0460762e",
+      "evaluation_sha256": "4d24526a10bf466f1a29cf9960190c4dc2c20e4358b8b5663836d303d7daf06f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed491",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed491.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed491",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 491,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed491.json",
+      "config_sha256": "d6d1e8688142092374e16ab641c2e2f9aa037164df1a33e29ab4eebba6817c2d",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "0c6c1a14556a76e9ffd965f25c9640d5db262af2eb4e7f0c9fa31ef595056f46",
+      "validation_sha256": "2f23e688276385a0005ef10fc64f63e5f84614d44db7710c84cbe58f0460762e",
+      "evaluation_sha256": "4d24526a10bf466f1a29cf9960190c4dc2c20e4358b8b5663836d303d7daf06f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed491",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed491.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed491",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 491,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed491.json",
+      "config_sha256": "8434a88441426a06853a17d7ca4cc299062551699f102d00cdeef6e8e70049f7",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "0c6c1a14556a76e9ffd965f25c9640d5db262af2eb4e7f0c9fa31ef595056f46",
+      "validation_sha256": "2f23e688276385a0005ef10fc64f63e5f84614d44db7710c84cbe58f0460762e",
+      "evaluation_sha256": "4d24526a10bf466f1a29cf9960190c4dc2c20e4358b8b5663836d303d7daf06f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed491",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed491.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed491",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 491,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed491.json",
+      "config_sha256": "6a23fb884653a69245ee3b263ccd5ae788355aadca09d90519e726d27a41a9cc",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "0c6c1a14556a76e9ffd965f25c9640d5db262af2eb4e7f0c9fa31ef595056f46",
+      "validation_sha256": "2f23e688276385a0005ef10fc64f63e5f84614d44db7710c84cbe58f0460762e",
+      "evaluation_sha256": "4d24526a10bf466f1a29cf9960190c4dc2c20e4358b8b5663836d303d7daf06f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed491",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed491.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed499",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 499,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed499.json",
+      "config_sha256": "91ad5dc2693f8b2ffc3791c62ecc8fbf37622ecf8f8f47c681eb0040857ec926",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "2fc36481d66f62e9477891065d891817f41d7a72a67919fc01308f299450b88d",
+      "validation_sha256": "f62d8d4259b848801bb6861399b841fa416453b3138a1c60349c761d4ee20984",
+      "evaluation_sha256": "cbf1fd49a402d612a1534f1333136973a60c0a9d20fa734b025093a15620f628",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed499",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed499.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed499",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 499,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed499.json",
+      "config_sha256": "131b98327c2f083a78cef779d11fcabee3320dc2a278790077ff7b7bfc0ef656",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "2fc36481d66f62e9477891065d891817f41d7a72a67919fc01308f299450b88d",
+      "validation_sha256": "f62d8d4259b848801bb6861399b841fa416453b3138a1c60349c761d4ee20984",
+      "evaluation_sha256": "cbf1fd49a402d612a1534f1333136973a60c0a9d20fa734b025093a15620f628",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed499",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed499.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed499",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 499,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed499.json",
+      "config_sha256": "3631614edf90d8ba9f4faa273b50b70df50546c42d5b04d0ff649431793738cd",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "2fc36481d66f62e9477891065d891817f41d7a72a67919fc01308f299450b88d",
+      "validation_sha256": "f62d8d4259b848801bb6861399b841fa416453b3138a1c60349c761d4ee20984",
+      "evaluation_sha256": "cbf1fd49a402d612a1534f1333136973a60c0a9d20fa734b025093a15620f628",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed499",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed499.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed499",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 499,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed499.json",
+      "config_sha256": "1bda2449681d3400447a1a1c9cd969616868c5f9b807950b7ba5a24ca6553c41",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "2fc36481d66f62e9477891065d891817f41d7a72a67919fc01308f299450b88d",
+      "validation_sha256": "f62d8d4259b848801bb6861399b841fa416453b3138a1c60349c761d4ee20984",
+      "evaluation_sha256": "cbf1fd49a402d612a1534f1333136973a60c0a9d20fa734b025093a15620f628",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed499",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed499.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed503",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 503,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed503.json",
+      "config_sha256": "52161186151c3e5bf95f6bf35cdf799da17ea614f999e0e5be95bd285f0363f3",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "aadff890829ecda9ce8c77786b7a40c757dc5ece0043287d2cb6eb7807331e8a",
+      "validation_sha256": "bc8a1353c42d48d8e1bcbe1b74643b532d74caa284e46879e90007fcdbb1909b",
+      "evaluation_sha256": "88dea644f968042b55577c7cd9140a453f93fb1f7642d2a8770bd491b222f532",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed503",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed503.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed503",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 503,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed503.json",
+      "config_sha256": "a9835b398be40d6d92f9174148e03e0988dc540b2d05f158fe7cfe7b05f5f466",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "aadff890829ecda9ce8c77786b7a40c757dc5ece0043287d2cb6eb7807331e8a",
+      "validation_sha256": "bc8a1353c42d48d8e1bcbe1b74643b532d74caa284e46879e90007fcdbb1909b",
+      "evaluation_sha256": "88dea644f968042b55577c7cd9140a453f93fb1f7642d2a8770bd491b222f532",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed503",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed503.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed503",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 503,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed503.json",
+      "config_sha256": "46227690b0b9d2d9ee6cac076596a1c40a7a39ec077d26eb6cd63959d4338e69",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "aadff890829ecda9ce8c77786b7a40c757dc5ece0043287d2cb6eb7807331e8a",
+      "validation_sha256": "bc8a1353c42d48d8e1bcbe1b74643b532d74caa284e46879e90007fcdbb1909b",
+      "evaluation_sha256": "88dea644f968042b55577c7cd9140a453f93fb1f7642d2a8770bd491b222f532",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed503",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed503.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed503",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 503,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed503.json",
+      "config_sha256": "ddbe3a56d4c36c537233afd9164235a13596e65381b0785d99c1e8b628327f7d",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "aadff890829ecda9ce8c77786b7a40c757dc5ece0043287d2cb6eb7807331e8a",
+      "validation_sha256": "bc8a1353c42d48d8e1bcbe1b74643b532d74caa284e46879e90007fcdbb1909b",
+      "evaluation_sha256": "88dea644f968042b55577c7cd9140a453f93fb1f7642d2a8770bd491b222f532",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed503",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed503.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed509",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 509,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed509.json",
+      "config_sha256": "c52992a3c750df6691a226c77ee1d2e5262f2ed23db1259fa57378e5138a3167",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "72fdd86be0fc87cfc34b667c9c6cb13b9ca11e2d8195a4103f5e26756bef7bd7",
+      "validation_sha256": "e29d07f9d3773c8fdc446d7c0c8c91cbd36c8c2b3c7b5f63cc79eed09056543b",
+      "evaluation_sha256": "ed70e1cf6b6deb4fc008033f5f31fe1a71a998d4745ce14dd84d0e2fd051d325",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed509",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed509.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed509",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 509,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed509.json",
+      "config_sha256": "43525e4f71be62ebad4babab929ba9053c64410ffa219cb28637d4ac27ea5595",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "72fdd86be0fc87cfc34b667c9c6cb13b9ca11e2d8195a4103f5e26756bef7bd7",
+      "validation_sha256": "e29d07f9d3773c8fdc446d7c0c8c91cbd36c8c2b3c7b5f63cc79eed09056543b",
+      "evaluation_sha256": "ed70e1cf6b6deb4fc008033f5f31fe1a71a998d4745ce14dd84d0e2fd051d325",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed509",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed509.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed509",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 509,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed509.json",
+      "config_sha256": "b846cb6fdb9407e6a036f0bc1f02c4dfb97da2270eb5d4bb9033238063ef6c8d",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "72fdd86be0fc87cfc34b667c9c6cb13b9ca11e2d8195a4103f5e26756bef7bd7",
+      "validation_sha256": "e29d07f9d3773c8fdc446d7c0c8c91cbd36c8c2b3c7b5f63cc79eed09056543b",
+      "evaluation_sha256": "ed70e1cf6b6deb4fc008033f5f31fe1a71a998d4745ce14dd84d0e2fd051d325",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed509",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed509.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed509",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 509,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed509.json",
+      "config_sha256": "234e960766517ea18139f241d4634a34b9f5ce3db5ea3b249560ce581917e085",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "72fdd86be0fc87cfc34b667c9c6cb13b9ca11e2d8195a4103f5e26756bef7bd7",
+      "validation_sha256": "e29d07f9d3773c8fdc446d7c0c8c91cbd36c8c2b3c7b5f63cc79eed09056543b",
+      "evaluation_sha256": "ed70e1cf6b6deb4fc008033f5f31fe1a71a998d4745ce14dd84d0e2fd051d325",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed509",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed509.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    },
+    {
+      "cell": "transformer_rope_seed521",
+      "study_cell": "transformer_rope",
+      "model_family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 521,
+      "config": "research/configs/recipe_s3_v1/transformer_rope_seed521.json",
+      "config_sha256": "2d7dceb5c26bb53e3679bc6b1c81f1fdac4f5f2bf2958fce6f536a1a6b2ab4f3",
+      "recipe_source": "research/configs/presentation_control_v1/transformer_shuffled_seed23.json",
+      "train_sha256": "596543fe37e9e76f73213299dbba8b07f9f7f88e89e52c64820ff8425da900cb",
+      "validation_sha256": "c7b72732b93f9a79706a0257c3a1b4a98087f5c3345f884aee872de5c377342d",
+      "evaluation_sha256": "051ef81b677dd97f7811b6c53001c74ebf71660a2f48a71a2e811c891b34ec9d",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/transformer_rope/seed521",
+      "summary_path": "research/results/recipe_s3_v1/transformer_rope_seed521.summary.json",
+      "selection_readouts": [
+        "final"
+      ],
+      "readout": "final",
+      "trained_thought_steps": 1,
+      "evaluation_thought_steps": [
+        1
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 7,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_seed521",
+      "study_cell": "rdt_rope_fixed",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 521,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_fixed_seed521.json",
+      "config_sha256": "bb223075f4e0f5561f15c573bda47abd3eb50b95d145bbb9677b8f0eb9ddd1ae",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "596543fe37e9e76f73213299dbba8b07f9f7f88e89e52c64820ff8425da900cb",
+      "validation_sha256": "c7b72732b93f9a79706a0257c3a1b4a98087f5c3345f884aee872de5c377342d",
+      "evaluation_sha256": "051ef81b677dd97f7811b6c53001c74ebf71660a2f48a71a2e811c891b34ec9d",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_fixed/seed521",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed521.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0006,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_rand_seed521",
+      "study_cell": "rdt_rope_rand",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 521,
+      "config": "research/configs/recipe_s3_v1/rdt_rope_rand_seed521.json",
+      "config_sha256": "5b62f5330862206cff217a6729c00572ccef4c1c1303eb0cbb96bd47ebfac5c9",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "596543fe37e9e76f73213299dbba8b07f9f7f88e89e52c64820ff8425da900cb",
+      "validation_sha256": "c7b72732b93f9a79706a0257c3a1b4a98087f5c3345f884aee872de5c377342d",
+      "evaluation_sha256": "051ef81b677dd97f7811b6c53001c74ebf71660a2f48a71a2e811c891b34ec9d",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/rdt_rope_rand/seed521",
+      "summary_path": "research/results/recipe_s3_v1/rdt_rope_rand_seed521.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      }
+    },
+    {
+      "cell": "ctm_lm_rope_seed521",
+      "study_cell": "ctm_lm_rope",
+      "model_family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 521,
+      "config": "research/configs/recipe_s3_v1/ctm_lm_rope_seed521.json",
+      "config_sha256": "9faae8e870e22db453a75fe18336f9ee3a82fb8104afd2ed3f133ed8c04a9f70",
+      "recipe_source": "research/configs/presentation_control_v1/ctm_shuffled_seed23.json",
+      "train_sha256": "596543fe37e9e76f73213299dbba8b07f9f7f88e89e52c64820ff8425da900cb",
+      "validation_sha256": "c7b72732b93f9a79706a0257c3a1b4a98087f5c3345f884aee872de5c377342d",
+      "evaluation_sha256": "051ef81b677dd97f7811b6c53001c74ebf71660a2f48a71a2e811c891b34ec9d",
+      "train_examples": 320000,
+      "run_directory": "research/runs/recipe_s3_v1/ctm_lm_rope/seed521",
+      "summary_path": "research/results/recipe_s3_v1/ctm_lm_rope_seed521.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.0003,
+      "estimated_minutes": 50,
+      "depth_sampler": null
+    }
+  ],
+  "seeds": [
+    347,
+    349,
+    353,
+    359,
+    367,
+    373,
+    379,
+    383,
+    389,
+    397,
+    401,
+    409,
+    419,
+    421,
+    431,
+    433,
+    439,
+    443,
+    449,
+    457,
+    461,
+    463,
+    467,
+    479,
+    487,
+    491,
+    499,
+    503,
+    509,
+    521
+  ],
+  "cells": {
+    "transformer_rope": {
+      "family": "transformer",
+      "factory_kind": "position",
+      "factory_arg": "transformer,rope",
+      "learning_rate": 0.001,
+      "depth_sampler": null,
+      "readout": "final",
+      "evaluation_thought_steps": [
+        1
+      ]
+    },
+    "rdt_rope_fixed": {
+      "family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "learning_rate": 0.0006,
+      "depth_sampler": null,
+      "readout": "confidence",
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ]
+    },
+    "rdt_rope_rand": {
+      "family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "learning_rate": 0.001,
+      "depth_sampler": {
+        "kind": "lognormal_poisson",
+        "mean": 15,
+        "sigma": 0.5,
+        "maximum": 48
+      },
+      "readout": "confidence",
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ]
+    },
+    "ctm_lm_rope": {
+      "family": "ctm",
+      "factory_kind": "position",
+      "factory_arg": "ctm_lm,rope",
+      "learning_rate": 0.0003,
+      "depth_sampler": null,
+      "readout": "confidence",
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ]
+    }
+  },
+  "role": "S3 recipe confirmation with RoPE; evaluation split read once after the freeze",
+  "dataset": "research/data/recipe_s3_v1",
+  "dataset_manifest_sha256": "ef3337c38bcc59fa4bd7be17ed74aaa55ac53276ce6a07ec726a7d736f329ef0",
+  "training_source_sha256": {
+    "ctm_transformer/dense_experiment_v5.py": "4b456d149f29a5aef138d77a6c6bb61f51b53e8791961acab148e6e417a50bfc",
+    "ctm_transformer/curriculum.py": "9cd993454d7796ba65271c88760572505f78a58baf83b60a6a26782bae806141",
+    "ctm_transformer/positions.py": "afcb4211f5f06d08d9fd3651cee2fa1b43900922e4e8d29dcdb9dce6422b84a3",
+    "ctm_transformer/dense_experiment_v4.py": "22efaf2032d011e89fd3c99483282bf6a7f3a75bc4fa19ac9643a5cf53de8d00",
+    "ctm_transformer/depth_sampling.py": "69f5d628a90612277e8987b3e9d483c0154c486563437d3897e2921bc405d3a7",
+    "ctm_transformer/dense_experiment.py": "661ebf10abf894e1ca346cd8cc6312f10fbdb121686d5f28eb8cb27456eefdde",
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "ctm_transformer/ctm_variants.py": "5bd30fce9b0c8bedab531ef66d1e3c9e7f417914f76c7a1bf2e6ac5c610b9c85",
+    "ctm_transformer/ctm_lm.py": "7f389b648d92349ef5727f06d4d6b3d00a1bea8a073cc57045ad2b4d5774ec51",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5",
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36"
+  },
+  "primary_checkpoint_step": 10000,
+  "warmup_steps": 100,
+  "eval_interval": 250,
+  "train_max_len": 16,
+  "evaluation_length": 32,
+  "chance": 0.16666666666666666,
+  "gpu_queues": {
+    "cuda:0#0": [
+      "rdt_rope_fixed_seed347",
+      "rdt_rope_fixed_seed359",
+      "rdt_rope_fixed_seed379",
+      "rdt_rope_fixed_seed397",
+      "rdt_rope_fixed_seed419",
+      "rdt_rope_fixed_seed433",
+      "rdt_rope_fixed_seed449",
+      "rdt_rope_fixed_seed463",
+      "rdt_rope_fixed_seed487",
+      "rdt_rope_fixed_seed503",
+      "ctm_lm_rope_seed347",
+      "ctm_lm_rope_seed379",
+      "ctm_lm_rope_seed419",
+      "ctm_lm_rope_seed449",
+      "ctm_lm_rope_seed487",
+      "transformer_rope_seed347",
+      "transformer_rope_seed379",
+      "transformer_rope_seed419",
+      "transformer_rope_seed449",
+      "transformer_rope_seed487"
+    ],
+    "cuda:0#1": [
+      "rdt_rope_rand_seed347",
+      "rdt_rope_rand_seed359",
+      "rdt_rope_rand_seed379",
+      "rdt_rope_rand_seed397",
+      "rdt_rope_rand_seed419",
+      "rdt_rope_rand_seed433",
+      "rdt_rope_rand_seed449",
+      "rdt_rope_rand_seed463",
+      "rdt_rope_rand_seed487",
+      "rdt_rope_rand_seed503",
+      "ctm_lm_rope_seed349",
+      "ctm_lm_rope_seed383",
+      "ctm_lm_rope_seed421",
+      "ctm_lm_rope_seed457",
+      "ctm_lm_rope_seed491",
+      "transformer_rope_seed349",
+      "transformer_rope_seed383",
+      "transformer_rope_seed421",
+      "transformer_rope_seed457",
+      "transformer_rope_seed491"
+    ],
+    "cuda:0#2": [
+      "rdt_rope_fixed_seed349",
+      "rdt_rope_fixed_seed367",
+      "rdt_rope_fixed_seed383",
+      "rdt_rope_fixed_seed401",
+      "rdt_rope_fixed_seed421",
+      "rdt_rope_fixed_seed439",
+      "rdt_rope_fixed_seed457",
+      "rdt_rope_fixed_seed467",
+      "rdt_rope_fixed_seed491",
+      "rdt_rope_fixed_seed509",
+      "ctm_lm_rope_seed353",
+      "ctm_lm_rope_seed389",
+      "ctm_lm_rope_seed431",
+      "ctm_lm_rope_seed461",
+      "ctm_lm_rope_seed499",
+      "transformer_rope_seed353",
+      "transformer_rope_seed389",
+      "transformer_rope_seed431",
+      "transformer_rope_seed461",
+      "transformer_rope_seed499"
+    ],
+    "cuda:1#3": [
+      "rdt_rope_rand_seed349",
+      "rdt_rope_rand_seed367",
+      "rdt_rope_rand_seed383",
+      "rdt_rope_rand_seed401",
+      "rdt_rope_rand_seed421",
+      "rdt_rope_rand_seed439",
+      "rdt_rope_rand_seed457",
+      "rdt_rope_rand_seed467",
+      "rdt_rope_rand_seed491",
+      "rdt_rope_rand_seed509",
+      "ctm_lm_rope_seed359",
+      "ctm_lm_rope_seed397",
+      "ctm_lm_rope_seed433",
+      "ctm_lm_rope_seed463",
+      "ctm_lm_rope_seed503",
+      "transformer_rope_seed359",
+      "transformer_rope_seed397",
+      "transformer_rope_seed433",
+      "transformer_rope_seed463",
+      "transformer_rope_seed503"
+    ],
+    "cuda:1#4": [
+      "rdt_rope_fixed_seed353",
+      "rdt_rope_fixed_seed373",
+      "rdt_rope_fixed_seed389",
+      "rdt_rope_fixed_seed409",
+      "rdt_rope_fixed_seed431",
+      "rdt_rope_fixed_seed443",
+      "rdt_rope_fixed_seed461",
+      "rdt_rope_fixed_seed479",
+      "rdt_rope_fixed_seed499",
+      "rdt_rope_fixed_seed521",
+      "ctm_lm_rope_seed367",
+      "ctm_lm_rope_seed401",
+      "ctm_lm_rope_seed439",
+      "ctm_lm_rope_seed467",
+      "ctm_lm_rope_seed509",
+      "transformer_rope_seed367",
+      "transformer_rope_seed401",
+      "transformer_rope_seed439",
+      "transformer_rope_seed467",
+      "transformer_rope_seed509"
+    ],
+    "cuda:1#5": [
+      "rdt_rope_rand_seed353",
+      "rdt_rope_rand_seed373",
+      "rdt_rope_rand_seed389",
+      "rdt_rope_rand_seed409",
+      "rdt_rope_rand_seed431",
+      "rdt_rope_rand_seed443",
+      "rdt_rope_rand_seed461",
+      "rdt_rope_rand_seed479",
+      "rdt_rope_rand_seed499",
+      "rdt_rope_rand_seed521",
+      "ctm_lm_rope_seed373",
+      "ctm_lm_rope_seed409",
+      "ctm_lm_rope_seed443",
+      "ctm_lm_rope_seed479",
+      "ctm_lm_rope_seed521",
+      "transformer_rope_seed373",
+      "transformer_rope_seed409",
+      "transformer_rope_seed443",
+      "transformer_rope_seed479",
+      "transformer_rope_seed521"
+    ]
+  },
+  "estimated_slot_minutes": {
+    "cuda:0#0": 1035,
+    "cuda:0#1": 1035,
+    "cuda:0#2": 1035,
+    "cuda:1#3": 1035,
+    "cuda:1#4": 1035,
+    "cuda:1#5": 1035
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "transformer_rope_seed347",
+      "rdt_rope_fixed_seed347",
+      "rdt_rope_rand_seed347",
+      "ctm_lm_rope_seed347",
+      "transformer_rope_seed349",
+      "rdt_rope_fixed_seed349",
+      "rdt_rope_rand_seed349",
+      "ctm_lm_rope_seed349",
+      "transformer_rope_seed353",
+      "rdt_rope_fixed_seed353",
+      "rdt_rope_rand_seed353",
+      "ctm_lm_rope_seed353",
+      "transformer_rope_seed359",
+      "rdt_rope_fixed_seed359",
+      "rdt_rope_rand_seed359",
+      "ctm_lm_rope_seed359",
+      "transformer_rope_seed367",
+      "rdt_rope_fixed_seed367",
+      "rdt_rope_rand_seed367",
+      "ctm_lm_rope_seed367",
+      "transformer_rope_seed373",
+      "rdt_rope_fixed_seed373",
+      "rdt_rope_rand_seed373",
+      "ctm_lm_rope_seed373",
+      "transformer_rope_seed379",
+      "rdt_rope_fixed_seed379",
+      "rdt_rope_rand_seed379",
+      "ctm_lm_rope_seed379",
+      "transformer_rope_seed383",
+      "rdt_rope_fixed_seed383",
+      "rdt_rope_rand_seed383",
+      "ctm_lm_rope_seed383",
+      "transformer_rope_seed389",
+      "rdt_rope_fixed_seed389",
+      "rdt_rope_rand_seed389",
+      "ctm_lm_rope_seed389",
+      "transformer_rope_seed397",
+      "rdt_rope_fixed_seed397",
+      "rdt_rope_rand_seed397",
+      "ctm_lm_rope_seed397",
+      "transformer_rope_seed401",
+      "rdt_rope_fixed_seed401",
+      "rdt_rope_rand_seed401",
+      "ctm_lm_rope_seed401",
+      "transformer_rope_seed409",
+      "rdt_rope_fixed_seed409",
+      "rdt_rope_rand_seed409",
+      "ctm_lm_rope_seed409",
+      "transformer_rope_seed419",
+      "rdt_rope_fixed_seed419",
+      "rdt_rope_rand_seed419",
+      "ctm_lm_rope_seed419",
+      "transformer_rope_seed421",
+      "rdt_rope_fixed_seed421",
+      "rdt_rope_rand_seed421",
+      "ctm_lm_rope_seed421",
+      "transformer_rope_seed431",
+      "rdt_rope_fixed_seed431",
+      "rdt_rope_rand_seed431",
+      "ctm_lm_rope_seed431"
+    ],
+    "cuda:1": [
+      "transformer_rope_seed433",
+      "rdt_rope_fixed_seed433",
+      "rdt_rope_rand_seed433",
+      "ctm_lm_rope_seed433",
+      "transformer_rope_seed439",
+      "rdt_rope_fixed_seed439",
+      "rdt_rope_rand_seed439",
+      "ctm_lm_rope_seed439",
+      "transformer_rope_seed443",
+      "rdt_rope_fixed_seed443",
+      "rdt_rope_rand_seed443",
+      "ctm_lm_rope_seed443",
+      "transformer_rope_seed449",
+      "rdt_rope_fixed_seed449",
+      "rdt_rope_rand_seed449",
+      "ctm_lm_rope_seed449",
+      "transformer_rope_seed457",
+      "rdt_rope_fixed_seed457",
+      "rdt_rope_rand_seed457",
+      "ctm_lm_rope_seed457",
+      "transformer_rope_seed461",
+      "rdt_rope_fixed_seed461",
+      "rdt_rope_rand_seed461",
+      "ctm_lm_rope_seed461",
+      "transformer_rope_seed463",
+      "rdt_rope_fixed_seed463",
+      "rdt_rope_rand_seed463",
+      "ctm_lm_rope_seed463",
+      "transformer_rope_seed467",
+      "rdt_rope_fixed_seed467",
+      "rdt_rope_rand_seed467",
+      "ctm_lm_rope_seed467",
+      "transformer_rope_seed479",
+      "rdt_rope_fixed_seed479",
+      "rdt_rope_rand_seed479",
+      "ctm_lm_rope_seed479",
+      "transformer_rope_seed487",
+      "rdt_rope_fixed_seed487",
+      "rdt_rope_rand_seed487",
+      "ctm_lm_rope_seed487",
+      "transformer_rope_seed491",
+      "rdt_rope_fixed_seed491",
+      "rdt_rope_rand_seed491",
+      "ctm_lm_rope_seed491",
+      "transformer_rope_seed499",
+      "rdt_rope_fixed_seed499",
+      "rdt_rope_rand_seed499",
+      "ctm_lm_rope_seed499",
+      "transformer_rope_seed503",
+      "rdt_rope_fixed_seed503",
+      "rdt_rope_rand_seed503",
+      "ctm_lm_rope_seed503",
+      "transformer_rope_seed509",
+      "rdt_rope_fixed_seed509",
+      "rdt_rope_rand_seed509",
+      "ctm_lm_rope_seed509",
+      "transformer_rope_seed521",
+      "rdt_rope_fixed_seed521",
+      "rdt_rope_rand_seed521",
+      "ctm_lm_rope_seed521"
+    ]
+  }
+}
