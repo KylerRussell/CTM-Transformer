@@ -1,5 +1,12 @@
 # S3 recipe confirmation with RoPE
 
+> **Outcome (2026-09-30): all four declared tests significant after Holm.**
+> - Randomized-depth RDT beats fixed-depth RDT by +14.3 points and escapes at 24/30 against 0/30.
+> - It stays above the Transformer on positions 17–24, by +26.0 points.
+> - CTM-LM is 22.7 points below fixed-depth RDT.
+>
+> See [interpretation](results/recipe_s3_v1/INTERPRETATION.md).
+
 ## Protocol declared before new scientific training — 2026-09-29
 
 ### Why

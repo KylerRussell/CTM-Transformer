@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "model_family": "transformer",
+  "steps": 10000,
+  "runner": "shared_research_v5",
+  "tokens_seen": 3360000,
+  "supervised_tokens_seen": 3040000,
+  "examples_seen": 320000,
+  "padded_token_positions": 5714944,
+  "token_block_applications": 11429888,
+  "depth_counts": {
+    "1": 10000
+  },
+  "training_seconds": 422.1352049417328,
+  "training_tokens_per_second": 7959.535145768711,
+  "wall_seconds": 433.2659771970357,
+  "best_validation_loss": 0.3757804867468382,
+  "best_readout_policy": "final",
+  "best_validation_loss_by_readout": {
+    "final": 0.3757804867468382
+  },
+  "peak_allocated_bytes": 37507584,
+  "parameters": {
+    "total": 530740,
+    "token_embedding": 9940,
+    "position_embedding": 0,
+    "readout": 9940,
+    "other": 510860
+  },
+  "config_identity": {
+    "name": "transformer_rope_seed457_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/recipe_s3_v1/transformer_rope_seed457.json",
+    "sha256": "2296a1b0a393bc5b71c24fcde0b4e0c2785b4f599f34916d9fe46f29bb3b9c4c"
+  }
+}

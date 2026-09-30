@@ -1,0 +1,197 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "started_utc": "2026-09-29T09:02:19.499159+00:00",
+      "pid": 76113,
+      "supervisor_sha256": "d9e0eb79113c3be6491f9748e3a805ba37505cbd01b98a12c828aba41d84d14f",
+      "events": [
+        {
+          "phase": "preflight",
+          "time_utc": "2026-09-29T09:02:19.499755+00:00"
+        },
+        {
+          "phase": "training",
+          "time_utc": "2026-09-29T09:03:27.344174+00:00",
+          "workers": {
+            "cuda:0#0": {
+              "pid": 76501,
+              "cells": [
+                "rdt_rope_fixed_seed347",
+                "rdt_rope_fixed_seed359",
+                "rdt_rope_fixed_seed379",
+                "rdt_rope_fixed_seed397",
+                "rdt_rope_fixed_seed419",
+                "rdt_rope_fixed_seed433",
+                "rdt_rope_fixed_seed449",
+                "rdt_rope_fixed_seed463",
+                "rdt_rope_fixed_seed487",
+                "rdt_rope_fixed_seed503",
+                "ctm_lm_rope_seed347",
+                "ctm_lm_rope_seed379",
+                "ctm_lm_rope_seed419",
+                "ctm_lm_rope_seed449",
+                "ctm_lm_rope_seed487",
+                "transformer_rope_seed347",
+                "transformer_rope_seed379",
+                "transformer_rope_seed419",
+                "transformer_rope_seed449",
+                "transformer_rope_seed487"
+              ]
+            },
+            "cuda:0#1": {
+              "pid": 76502,
+              "cells": [
+                "rdt_rope_rand_seed347",
+                "rdt_rope_rand_seed359",
+                "rdt_rope_rand_seed379",
+                "rdt_rope_rand_seed397",
+                "rdt_rope_rand_seed419",
+                "rdt_rope_rand_seed433",
+                "rdt_rope_rand_seed449",
+                "rdt_rope_rand_seed463",
+                "rdt_rope_rand_seed487",
+                "rdt_rope_rand_seed503",
+                "ctm_lm_rope_seed349",
+                "ctm_lm_rope_seed383",
+                "ctm_lm_rope_seed421",
+                "ctm_lm_rope_seed457",
+                "ctm_lm_rope_seed491",
+                "transformer_rope_seed349",
+                "transformer_rope_seed383",
+                "transformer_rope_seed421",
+                "transformer_rope_seed457",
+                "transformer_rope_seed491"
+              ]
+            },
+            "cuda:0#2": {
+              "pid": 76503,
+              "cells": [
+                "rdt_rope_fixed_seed349",
+                "rdt_rope_fixed_seed367",
+                "rdt_rope_fixed_seed383",
+                "rdt_rope_fixed_seed401",
+                "rdt_rope_fixed_seed421",
+                "rdt_rope_fixed_seed439",
+                "rdt_rope_fixed_seed457",
+                "rdt_rope_fixed_seed467",
+                "rdt_rope_fixed_seed491",
+                "rdt_rope_fixed_seed509",
+                "ctm_lm_rope_seed353",
+                "ctm_lm_rope_seed389",
+                "ctm_lm_rope_seed431",
+                "ctm_lm_rope_seed461",
+                "ctm_lm_rope_seed499",
+                "transformer_rope_seed353",
+                "transformer_rope_seed389",
+                "transformer_rope_seed431",
+                "transformer_rope_seed461",
+                "transformer_rope_seed499"
+              ]
+            },
+            "cuda:1#3": {
+              "pid": 76504,
+              "cells": [
+                "rdt_rope_rand_seed349",
+                "rdt_rope_rand_seed367",
+                "rdt_rope_rand_seed383",
+                "rdt_rope_rand_seed401",
+                "rdt_rope_rand_seed421",
+                "rdt_rope_rand_seed439",
+                "rdt_rope_rand_seed457",
+                "rdt_rope_rand_seed467",
+                "rdt_rope_rand_seed491",
+                "rdt_rope_rand_seed509",
+                "ctm_lm_rope_seed359",
+                "ctm_lm_rope_seed397",
+                "ctm_lm_rope_seed433",
+                "ctm_lm_rope_seed463",
+                "ctm_lm_rope_seed503",
+                "transformer_rope_seed359",
+                "transformer_rope_seed397",
+                "transformer_rope_seed433",
+                "transformer_rope_seed463",
+                "transformer_rope_seed503"
+              ]
+            },
+            "cuda:1#4": {
+              "pid": 76505,
+              "cells": [
+                "rdt_rope_fixed_seed353",
+                "rdt_rope_fixed_seed373",
+                "rdt_rope_fixed_seed389",
+                "rdt_rope_fixed_seed409",
+                "rdt_rope_fixed_seed431",
+                "rdt_rope_fixed_seed443",
+                "rdt_rope_fixed_seed461",
+                "rdt_rope_fixed_seed479",
+                "rdt_rope_fixed_seed499",
+                "rdt_rope_fixed_seed521",
+                "ctm_lm_rope_seed367",
+                "ctm_lm_rope_seed401",
+                "ctm_lm_rope_seed439",
+                "ctm_lm_rope_seed467",
+                "ctm_lm_rope_seed509",
+                "transformer_rope_seed367",
+                "transformer_rope_seed401",
+                "transformer_rope_seed439",
+                "transformer_rope_seed467",
+                "transformer_rope_seed509"
+              ]
+            },
+            "cuda:1#5": {
+              "pid": 76506,
+              "cells": [
+                "rdt_rope_rand_seed353",
+                "rdt_rope_rand_seed373",
+                "rdt_rope_rand_seed389",
+                "rdt_rope_rand_seed409",
+                "rdt_rope_rand_seed431",
+                "rdt_rope_rand_seed443",
+                "rdt_rope_rand_seed461",
+                "rdt_rope_rand_seed479",
+                "rdt_rope_rand_seed499",
+                "rdt_rope_rand_seed521",
+                "ctm_lm_rope_seed373",
+                "ctm_lm_rope_seed409",
+                "ctm_lm_rope_seed443",
+                "ctm_lm_rope_seed479",
+                "ctm_lm_rope_seed521",
+                "transformer_rope_seed373",
+                "transformer_rope_seed409",
+                "transformer_rope_seed443",
+                "transformer_rope_seed479",
+                "transformer_rope_seed521"
+              ]
+            }
+          }
+        },
+        {
+          "phase": "training_complete",
+          "time_utc": "2026-09-30T02:12:39.363059+00:00"
+        },
+        {
+          "phase": "freezing_final_checkpoints",
+          "time_utc": "2026-09-30T02:12:39.365044+00:00"
+        },
+        {
+          "phase": "evaluation",
+          "time_utc": "2026-09-30T02:14:00.824592+00:00",
+          "worker_pids": [
+            126629,
+            126630
+          ]
+        },
+        {
+          "phase": "summarizing",
+          "time_utc": "2026-09-30T02:45:35.911885+00:00"
+        },
+        {
+          "phase": "complete_pending_documentation_and_archive",
+          "time_utc": "2026-09-30T02:45:45.564695+00:00"
+        }
+      ]
+    }
+  ],
+  "phase": "complete_pending_documentation_and_archive"
+}

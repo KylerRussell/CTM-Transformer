@@ -291,11 +291,14 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 - [x] Run the [reliability study](RELIABILITY_S3.md) (Transformer, RDT and CTM-LM × 20 new seeds). RDT beats the Transformer by +10.1 points on positions 1–16 (Holm p = 0.022). CTM-LM is below RDT by −13.9 (Holm p = 0.0013). Escape is rare: RDT 2/20, others 0/20. See [interpretation](results/reliability_s3_v1/INTERPRETATION.md).
 - [x] Run [randomized-depth training](RANDDEPTH_S3.md) against those controls. No declared test is significant after Holm. RDT's direction is favourable: escape 7/20 against 2/20, and +9.9 points; progress per step is faster and stable to T = 64. CTM-LM loses its tick use. **Extrapolation was unmeasurable:** learned absolute position rows beyond the trained length 16 are never trained, in this and every earlier S₃ study. See [interpretation](results/randdepth_s3_v1/INTERPRETATION.md).
 
+- [x] Run [development recipe probes](results/recipe_probes/RECIPE_PROBES.md): RoPE against learned and NoPE positions, a length curriculum, and per-cell learning rates. RoPE permits short extrapolation. The learning rate dominates: randomized-depth RDT escapes at 3/3 seeds at 1e-3 against 1/6 at 3e-4. The curriculum shows no clear effect.
+- [x] Run the [S₃ recipe confirmation](RECIPE_S3.md) (4 RoPE cells × 30 new seeds, tuned learning rates). **All four declared tests pass after Holm.** Randomized-depth RDT beats fixed depth by +14.3 points and escapes at **24/30 against 0/30**. It beats the Transformer on positions 17–24 by +26.0 points (short extrapolation). CTM-LM is 22.7 points below fixed-depth RDT. See [interpretation](results/recipe_s3_v1/INTERPRETATION.md).
+
 ## Next tasks, in order
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Next S₃ recipe study: switch to NoPE or RoPE (so extrapolation is measurable), keep randomized depth for RDT, add a length curriculum and per-cell learning rates, and confirm the escape gain with enough seeds. Then run A₅ and CTM-LM retrieval with the improved recipe.
+1. With the adopted recipe (RoPE, randomized depth, tuned learning rate), optionally run a learning-rate-matched fixed-depth control. Then run A₅ as the hard serial task, and CTM-LM retrieval (one-hop MQAR) to decide whether any CTM-LM arm joins the language-model phase.
 2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
 3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
 

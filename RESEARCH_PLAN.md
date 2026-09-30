@@ -280,3 +280,20 @@ The [reliability study](research/results/reliability_s3_v1/INTERPRETATION.md) (3
 
 **Positional-encoding flaw.** The study also showed that **no S₃ study so far could have measured length extrapolation**. Every model uses learned absolute position embeddings, and training lengths stop at 16, so position rows 17 and later are untrained. The "nothing extrapolates" finding is withdrawn as an architectural statement. The next S₃ protocol uses NoPE or RoPE, keeps randomized depth for RDT, and adds a length curriculum and per-cell learning rates.
 
+
+## A reliable recipe for serial learning — 2026-09-30
+
+[Development probes](research/results/recipe_probes/RECIPE_PROBES.md) chose RoPE with no absolute position table. They also found that **the learning rate was the dominant factor**: randomized-depth RDT escaped at 1 of 6 seeds at 3e-4 and 3 of 3 at 1e-3.
+
+The frozen [recipe confirmation](research/results/recipe_s3_v1/INTERPRETATION.md) used 4 RoPE cells × 30 new seeds, each cell at its tuned learning rate. **All four declared tests passed after Holm correction.**
+- Randomized-depth RDT beats fixed-depth RDT by **+14.3 points** on positions 1–16 and **escapes at 24/30 against 0/30**.
+- It stays **+26.0 points above the Transformer on positions 17–24**. This is short extrapolation: accuracy is 0.75 and 0.55 at positions 17 and 18, then above chance. It is not length generalization.
+- CTM-LM is **22.7 points below fixed-depth RDT**. Under the declared rule, it leaves the serial-task track.
+- As a secondary result, fixed-depth RDT again beats the Transformer, by +15.7 points.
+
+**Adopted recurrent-depth recipe:** RoPE, log-normal-Poisson randomized depth, and a per-cell tuned learning rate.
+
+**Open caveat:** randomized depth is confounded with its higher tuned learning rate (1e-3 against 6e-4). A learning-rate-matched control would settle it.
+
+**Next:** that control, optionally; then A₅ with the adopted recipe; CTM-LM retrieval; and the mini language-model gate.
+

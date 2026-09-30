@@ -1,0 +1,52 @@
+2026-09-29T09:02:19.500105+00:00 preflight 
+.......................................                                  [100%]
+=============================== warnings summary ===============================
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45
+  /home/kasm-user/.venvs/ctm-research/lib/python3.10/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+39 passed, 14 warnings in 34.99s
+.......                                                                  [100%]
+7 passed, 20 deselected in 20.31s
+2026-09-29T09:03:27.344967+00:00 training {"workers": {"cuda:0#0": {"pid": 76501, "cells": ["rdt_rope_fixed_seed347", "rdt_rope_fixed_seed359", "rdt_rope_fixed_seed379", "rdt_rope_fixed_seed397", "rdt_rope_fixed_seed419", "rdt_rope_fixed_seed433", "rdt_rope_fixed_seed449", "rdt_rope_fixed_seed463", "rdt_rope_fixed_seed487", "rdt_rope_fixed_seed503", "ctm_lm_rope_seed347", "ctm_lm_rope_seed379", "ctm_lm_rope_seed419", "ctm_lm_rope_seed449", "ctm_lm_rope_seed487", "transformer_rope_seed347", "transformer_rope_seed379", "transformer_rope_seed419", "transformer_rope_seed449", "transformer_rope_seed487"]}, "cuda:0#1": {"pid": 76502, "cells": ["rdt_rope_rand_seed347", "rdt_rope_rand_seed359", "rdt_rope_rand_seed379", "rdt_rope_rand_seed397", "rdt_rope_rand_seed419", "rdt_rope_rand_seed433", "rdt_rope_rand_seed449", "rdt_rope_rand_seed463", "rdt_rope_rand_seed487", "rdt_rope_rand_seed503", "ctm_lm_rope_seed349", "ctm_lm_rope_seed383", "ctm_lm_rope_seed421", "ctm_lm_rope_seed457", "ctm_lm_rope_seed491", "transformer_rope_seed349", "transformer_rope_seed383", "transformer_rope_seed421", "transformer_rope_seed457", "transformer_rope_seed491"]}, "cuda:0#2": {"pid": 76503, "cells": ["rdt_rope_fixed_seed349", "rdt_rope_fixed_seed367", "rdt_rope_fixed_seed383", "rdt_rope_fixed_seed401", "rdt_rope_fixed_seed421", "rdt_rope_fixed_seed439", "rdt_rope_fixed_seed457", "rdt_rope_fixed_seed467", "rdt_rope_fixed_seed491", "rdt_rope_fixed_seed509", "ctm_lm_rope_seed353", "ctm_lm_rope_seed389", "ctm_lm_rope_seed431", "ctm_lm_rope_seed461", "ctm_lm_rope_seed499", "transformer_rope_seed353", "transformer_rope_seed389", "transformer_rope_seed431", "transformer_rope_seed461", "transformer_rope_seed499"]}, "cuda:1#3": {"pid": 76504, "cells": ["rdt_rope_rand_seed349", "rdt_rope_rand_seed367", "rdt_rope_rand_seed383", "rdt_rope_rand_seed401", "rdt_rope_rand_seed421", "rdt_rope_rand_seed439", "rdt_rope_rand_seed457", "rdt_rope_rand_seed467", "rdt_rope_rand_seed491", "rdt_rope_rand_seed509", "ctm_lm_rope_seed359", "ctm_lm_rope_seed397", "ctm_lm_rope_seed433", "ctm_lm_rope_seed463", "ctm_lm_rope_seed503", "transformer_rope_seed359", "transformer_rope_seed397", "transformer_rope_seed433", "transformer_rope_seed463", "transformer_rope_seed503"]}, "cuda:1#4": {"pid": 76505, "cells": ["rdt_rope_fixed_seed353", "rdt_rope_fixed_seed373", "rdt_rope_fixed_seed389", "rdt_rope_fixed_seed409", "rdt_rope_fixed_seed431", "rdt_rope_fixed_seed443", "rdt_rope_fixed_seed461", "rdt_rope_fixed_seed479", "rdt_rope_fixed_seed499", "rdt_rope_fixed_seed521", "ctm_lm_rope_seed367", "ctm_lm_rope_seed401", "ctm_lm_rope_seed439", "ctm_lm_rope_seed467", "ctm_lm_rope_seed509", "transformer_rope_seed367", "transformer_rope_seed401", "transformer_rope_seed439", "transformer_rope_seed467", "transformer_rope_seed509"]}, "cuda:1#5": {"pid": 76506, "cells": ["rdt_rope_rand_seed353", "rdt_rope_rand_seed373", "rdt_rope_rand_seed389", "rdt_rope_rand_seed409", "rdt_rope_rand_seed431", "rdt_rope_rand_seed443", "rdt_rope_rand_seed461", "rdt_rope_rand_seed479", "rdt_rope_rand_seed499", "rdt_rope_rand_seed521", "ctm_lm_rope_seed373", "ctm_lm_rope_seed409", "ctm_lm_rope_seed443", "ctm_lm_rope_seed479", "ctm_lm_rope_seed521", "transformer_rope_seed373", "transformer_rope_seed409", "transformer_rope_seed443", "transformer_rope_seed479", "transformer_rope_seed521"]}}}
+2026-09-30T02:12:39.364871+00:00 training_complete 
+2026-09-30T02:12:39.366271+00:00 freezing_final_checkpoints 
+Audited 1,200,000 updates and froze 120 final checkpoints before evaluation.
+2026-09-30T02:14:00.826049+00:00 evaluation {"worker_pids": [126629, 126630]}
+2026-09-30T02:45:35.913674+00:00 summarizing 
+# S3 recipe confirmation with RoPE
+
+Four cells × 30 new seeds, S₃ running products, training lengths 1–16, RoPE in every attention layer and no absolute position table. Escape: mean accuracy over positions 9–16 ≥ 90% at the trained budget (Transformer T=1, others T=16). Evaluation words have length 32; positions 17–32 measure length extrapolation (recurrent cells at T=32).
+
+| Cell | Escaped | 95% CI | Positions 1–16 | Positions 17–24 | Positions 25–32 | Median prefix T=4/8/16/32/48/64 |
+|---|---:|---|---:|---:|---:|---|
+| transformer_rope | 0/30 | 0.0%–11.6% | 65.8% | 17.2% | 16.6% | 6 (T=1) |
+| rdt_rope_fixed | 0/30 | 0.0%–11.6% | 81.5% | 24.2% | 17.5% | 3/7/8/8/8/8 |
+| rdt_rope_rand | 24/30 | 61.4%–92.3% | 95.8% | 43.2% | 21.7% | 10/15/15/15/15/15 |
+| ctm_lm_rope | 0/30 | 0.0%–11.6% | 58.9% | 17.5% | 16.7% | 0/0/5/4/3.5/2 |
+
+## Declared paired tests (Holm over all four)
+2026-09-30T02:45:45.566195+00:00 complete_pending_documentation_and_archive 

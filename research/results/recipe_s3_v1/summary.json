@@ -1,0 +1,1812 @@
+{
+  "complete": true,
+  "escape": {
+    "transformer_rope": {
+      "escaped": 0,
+      "n": 30,
+      "ci95": [
+        0.0,
+        0.11570330822202779
+      ]
+    },
+    "rdt_rope_fixed": {
+      "escaped": 0,
+      "n": 30,
+      "ci95": [
+        0.0,
+        0.11570330822202779
+      ]
+    },
+    "rdt_rope_rand": {
+      "escaped": 24,
+      "n": 30,
+      "ci95": [
+        0.6143334890033929,
+        0.9228644879989344
+      ]
+    },
+    "ctm_lm_rope": {
+      "escaped": 0,
+      "n": 30,
+      "ci95": [
+        0.0,
+        0.11570330822202779
+      ]
+    }
+  },
+  "mean_accuracy_positions_1_16": {
+    "transformer_rope": [
+      0.7188720703125,
+      0.656982421875,
+      0.588134765625,
+      0.6273193359375,
+      0.6431884765625,
+      0.58294677734375,
+      0.68133544921875,
+      0.68951416015625,
+      0.69781494140625,
+      0.72796630859375,
+      0.69989013671875,
+      0.64959716796875,
+      0.60516357421875,
+      0.63372802734375,
+      0.6619873046875,
+      0.729736328125,
+      0.69146728515625,
+      0.597900390625,
+      0.59136962890625,
+      0.6104736328125,
+      0.62957763671875,
+      0.705078125,
+      0.71685791015625,
+      0.603515625,
+      0.73577880859375,
+      0.61810302734375,
+      0.593017578125,
+      0.62164306640625,
+      0.7310791015625,
+      0.70977783203125
+    ],
+    "rdt_rope_fixed": [
+      0.8548583984375,
+      0.84088134765625,
+      0.90087890625,
+      0.67034912109375,
+      0.79498291015625,
+      0.89202880859375,
+      0.83941650390625,
+      0.68890380859375,
+      0.6217041015625,
+      0.8629150390625,
+      0.8050537109375,
+      0.57659912109375,
+      0.84564208984375,
+      0.919921875,
+      0.8428955078125,
+      0.79962158203125,
+      0.85418701171875,
+      0.8968505859375,
+      0.8603515625,
+      0.88519287109375,
+      0.94354248046875,
+      0.6068115234375,
+      0.7685546875,
+      0.93182373046875,
+      0.8455810546875,
+      0.84710693359375,
+      0.86212158203125,
+      0.91455078125,
+      0.705322265625,
+      0.78314208984375
+    ],
+    "rdt_rope_rand": [
+      0.9833984375,
+      0.98199462890625,
+      0.9688720703125,
+      0.9781494140625,
+      0.92474365234375,
+      0.9764404296875,
+      0.9664306640625,
+      0.97216796875,
+      0.96038818359375,
+      0.99993896484375,
+      0.97857666015625,
+      0.980224609375,
+      0.981201171875,
+      0.93182373046875,
+      0.99658203125,
+      0.99560546875,
+      0.993408203125,
+      0.997802734375,
+      0.99993896484375,
+      0.9989013671875,
+      0.991943359375,
+      0.845458984375,
+      0.99176025390625,
+      0.999755859375,
+      0.95166015625,
+      0.80364990234375,
+      0.99957275390625,
+      0.9764404296875,
+      0.9112548828125,
+      0.70220947265625
+    ],
+    "ctm_lm_rope": [
+      0.587158203125,
+      0.5830078125,
+      0.523193359375,
+      0.5816650390625,
+      0.58056640625,
+      0.5748291015625,
+      0.5657958984375,
+      0.6004638671875,
+      0.61041259765625,
+      0.58453369140625,
+      0.5574951171875,
+      0.56756591796875,
+      0.5933837890625,
+      0.64422607421875,
+      0.48223876953125,
+      0.51025390625,
+      0.64031982421875,
+      0.55377197265625,
+      0.54498291015625,
+      0.64093017578125,
+      0.63372802734375,
+      0.578857421875,
+      0.6429443359375,
+      0.6204833984375,
+      0.62762451171875,
+      0.59381103515625,
+      0.60711669921875,
+      0.666259765625,
+      0.5284423828125,
+      0.63067626953125
+    ]
+  },
+  "mean_accuracy_positions_9_16": {
+    "transformer_rope": [
+      0.46240234375,
+      0.38232421875,
+      0.34326171875,
+      0.359375,
+      0.35888671875,
+      0.331787109375,
+      0.40087890625,
+      0.416748046875,
+      0.4268798828125,
+      0.480712890625,
+      0.4327392578125,
+      0.3751220703125,
+      0.338623046875,
+      0.3592529296875,
+      0.3807373046875,
+      0.481689453125,
+      0.416748046875,
+      0.3380126953125,
+      0.336181640625,
+      0.3477783203125,
+      0.3587646484375,
+      0.4384765625,
+      0.4560546875,
+      0.34228515625,
+      0.4884033203125,
+      0.3465576171875,
+      0.339599609375,
+      0.3482666015625,
+      0.4820556640625,
+      0.436279296875
+    ],
+    "rdt_rope_fixed": [
+      0.74462890625,
+      0.7415771484375,
+      0.80810546875,
+      0.402587890625,
+      0.6500244140625,
+      0.8038330078125,
+      0.7071533203125,
+      0.4486083984375,
+      0.365478515625,
+      0.754638671875,
+      0.641845703125,
+      0.3349609375,
+      0.7257080078125,
+      0.8458251953125,
+      0.7242431640625,
+      0.63134765625,
+      0.7225341796875,
+      0.823486328125,
+      0.7335205078125,
+      0.8070068359375,
+      0.8919677734375,
+      0.31884765625,
+      0.5848388671875,
+      0.87158203125,
+      0.725341796875,
+      0.7271728515625,
+      0.7498779296875,
+      0.855712890625,
+      0.4583740234375,
+      0.6094970703125
+    ],
+    "rdt_rope_rand": [
+      0.97021484375,
+      0.968505859375,
+      0.93798828125,
+      0.957275390625,
+      0.8497314453125,
+      0.9534912109375,
+      0.941162109375,
+      0.9453125,
+      0.922119140625,
+      0.9998779296875,
+      0.9610595703125,
+      0.96337890625,
+      0.9632568359375,
+      0.87353515625,
+      0.993408203125,
+      0.99169921875,
+      0.9869384765625,
+      0.9957275390625,
+      0.9998779296875,
+      0.997802734375,
+      0.984619140625,
+      0.70703125,
+      0.9837646484375,
+      0.99951171875,
+      0.9058837890625,
+      0.62109375,
+      0.9991455078125,
+      0.9537353515625,
+      0.824462890625,
+      0.4522705078125
+    ],
+    "ctm_lm_rope": [
+      0.3299560546875,
+      0.23876953125,
+      0.1907958984375,
+      0.309326171875,
+      0.3348388671875,
+      0.337890625,
+      0.32861328125,
+      0.34326171875,
+      0.3359375,
+      0.334716796875,
+      0.2156982421875,
+      0.32861328125,
+      0.3369140625,
+      0.3651123046875,
+      0.184814453125,
+      0.189697265625,
+      0.35693359375,
+      0.2095947265625,
+      0.332275390625,
+      0.365478515625,
+      0.30419921875,
+      0.3402099609375,
+      0.3712158203125,
+      0.349609375,
+      0.3515625,
+      0.3421630859375,
+      0.3463134765625,
+      0.395751953125,
+      0.331787109375,
+      0.358154296875
+    ]
+  },
+  "mean_accuracy_positions_17_24": {
+    "transformer_rope": [
+      0.1728515625,
+      0.1798095703125,
+      0.1788330078125,
+      0.177978515625,
+      0.1649169921875,
+      0.1783447265625,
+      0.167724609375,
+      0.159912109375,
+      0.1641845703125,
+      0.17626953125,
+      0.162109375,
+      0.164794921875,
+      0.169677734375,
+      0.169677734375,
+      0.1669921875,
+      0.1676025390625,
+      0.1966552734375,
+      0.177978515625,
+      0.184326171875,
+      0.1754150390625,
+      0.1593017578125,
+      0.1634521484375,
+      0.1839599609375,
+      0.176513671875,
+      0.1705322265625,
+      0.169921875,
+      0.16943359375,
+      0.1805419921875,
+      0.1651611328125,
+      0.169677734375
+    ],
+    "rdt_rope_fixed": [
+      0.1815185546875,
+      0.2823486328125,
+      0.2244873046875,
+      0.1888427734375,
+      0.1998291015625,
+      0.4420166015625,
+      0.2105712890625,
+      0.1700439453125,
+      0.17333984375,
+      0.214599609375,
+      0.19287109375,
+      0.1593017578125,
+      0.294189453125,
+      0.215087890625,
+      0.1998291015625,
+      0.1951904296875,
+      0.2225341796875,
+      0.303955078125,
+      0.178955078125,
+      0.2454833984375,
+      0.6644287109375,
+      0.172607421875,
+      0.1834716796875,
+      0.3148193359375,
+      0.2347412109375,
+      0.2276611328125,
+      0.192626953125,
+      0.4036865234375,
+      0.1956787109375,
+      0.1790771484375
+    ],
+    "rdt_rope_rand": [
+      0.377197265625,
+      0.3770751953125,
+      0.3157958984375,
+      0.6942138671875,
+      0.22900390625,
+      0.403564453125,
+      0.29345703125,
+      0.4215087890625,
+      0.2613525390625,
+      0.987548828125,
+      0.3677978515625,
+      0.461669921875,
+      0.3819580078125,
+      0.2225341796875,
+      0.4912109375,
+      0.3795166015625,
+      0.375732421875,
+      0.457275390625,
+      0.91162109375,
+      0.53955078125,
+      0.352294921875,
+      0.183349609375,
+      0.8035888671875,
+      0.90869140625,
+      0.2236328125,
+      0.193603515625,
+      0.49072265625,
+      0.3642578125,
+      0.3258056640625,
+      0.167724609375
+    ],
+    "ctm_lm_rope": [
+      0.180419921875,
+      0.1666259765625,
+      0.1693115234375,
+      0.1656494140625,
+      0.17138671875,
+      0.1800537109375,
+      0.1815185546875,
+      0.162841796875,
+      0.1663818359375,
+      0.191650390625,
+      0.16357421875,
+      0.1668701171875,
+      0.168701171875,
+      0.163330078125,
+      0.1707763671875,
+      0.16748046875,
+      0.161376953125,
+      0.1708984375,
+      0.175048828125,
+      0.1715087890625,
+      0.162109375,
+      0.1676025390625,
+      0.169677734375,
+      0.20654296875,
+      0.1685791015625,
+      0.1685791015625,
+      0.17041015625,
+      0.21044921875,
+      0.2032470703125,
+      0.2186279296875
+    ]
+  },
+  "mean_accuracy_positions_25_32": {
+    "transformer_rope": [
+      0.173583984375,
+      0.162841796875,
+      0.16796875,
+      0.1639404296875,
+      0.165283203125,
+      0.15771484375,
+      0.1611328125,
+      0.1658935546875,
+      0.1607666015625,
+      0.166259765625,
+      0.15234375,
+      0.1612548828125,
+      0.16064453125,
+      0.173828125,
+      0.1719970703125,
+      0.1612548828125,
+      0.17529296875,
+      0.1678466796875,
+      0.1719970703125,
+      0.1693115234375,
+      0.170166015625,
+      0.1669921875,
+      0.16796875,
+      0.1632080078125,
+      0.170166015625,
+      0.16455078125,
+      0.1549072265625,
+      0.1744384765625,
+      0.15966796875,
+      0.169677734375
+    ],
+    "rdt_rope_fixed": [
+      0.1612548828125,
+      0.185546875,
+      0.177978515625,
+      0.1702880859375,
+      0.17333984375,
+      0.192138671875,
+      0.171875,
+      0.1651611328125,
+      0.16552734375,
+      0.1705322265625,
+      0.167724609375,
+      0.174560546875,
+      0.1783447265625,
+      0.16064453125,
+      0.1673583984375,
+      0.16845703125,
+      0.1815185546875,
+      0.172607421875,
+      0.16796875,
+      0.185546875,
+      0.2730712890625,
+      0.1634521484375,
+      0.1644287109375,
+      0.17041015625,
+      0.1741943359375,
+      0.1744384765625,
+      0.1668701171875,
+      0.181884765625,
+      0.166748046875,
+      0.1690673828125
+    ],
+    "rdt_rope_rand": [
+      0.243896484375,
+      0.2227783203125,
+      0.22412109375,
+      0.208251953125,
+      0.1578369140625,
+      0.1763916015625,
+      0.1761474609375,
+      0.2259521484375,
+      0.1669921875,
+      0.2257080078125,
+      0.2076416015625,
+      0.225341796875,
+      0.238525390625,
+      0.165771484375,
+      0.2127685546875,
+      0.2115478515625,
+      0.195556640625,
+      0.2423095703125,
+      0.205322265625,
+      0.2645263671875,
+      0.1824951171875,
+      0.1650390625,
+      0.3138427734375,
+      0.3853759765625,
+      0.167724609375,
+      0.161865234375,
+      0.341552734375,
+      0.2349853515625,
+      0.1785888671875,
+      0.168701171875
+    ],
+    "ctm_lm_rope": [
+      0.171875,
+      0.1658935546875,
+      0.1627197265625,
+      0.166748046875,
+      0.1697998046875,
+      0.1688232421875,
+      0.170654296875,
+      0.1651611328125,
+      0.1705322265625,
+      0.1639404296875,
+      0.1678466796875,
+      0.16796875,
+      0.169189453125,
+      0.1614990234375,
+      0.1722412109375,
+      0.1690673828125,
+      0.166748046875,
+      0.1654052734375,
+      0.165283203125,
+      0.162353515625,
+      0.171142578125,
+      0.165283203125,
+      0.1754150390625,
+      0.164306640625,
+      0.167236328125,
+      0.1663818359375,
+      0.149658203125,
+      0.167724609375,
+      0.1683349609375,
+      0.1646728515625
+    ]
+  },
+  "correct_prefix": {
+    "transformer_rope": {
+      "1": [
+        7,
+        6,
+        5,
+        5,
+        6,
+        5,
+        7,
+        7,
+        7,
+        7,
+        7,
+        6,
+        5,
+        6,
+        6,
+        7,
+        7,
+        5,
+        5,
+        5,
+        6,
+        7,
+        7,
+        5,
+        8,
+        5,
+        5,
+        5,
+        7,
+        7
+      ]
+    },
+    "rdt_rope_fixed": {
+      "4": [
+        3,
+        3,
+        4,
+        3,
+        3,
+        3,
+        1,
+        2,
+        2,
+        4,
+        3,
+        1,
+        3,
+        3,
+        0,
+        2,
+        3,
+        2,
+        4,
+        2,
+        4,
+        2,
+        2,
+        5,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2
+      ],
+      "8": [
+        7,
+        6,
+        8,
+        6,
+        5,
+        7,
+        7,
+        4,
+        4,
+        7,
+        6,
+        2,
+        6,
+        10,
+        0,
+        6,
+        7,
+        8,
+        7,
+        8,
+        8,
+        5,
+        6,
+        8,
+        6,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "16": [
+        9,
+        6,
+        10,
+        6,
+        6,
+        9,
+        8,
+        6,
+        5,
+        8,
+        8,
+        2,
+        7,
+        12,
+        0,
+        7,
+        9,
+        11,
+        10,
+        10,
+        11,
+        5,
+        7,
+        11,
+        7,
+        9,
+        10,
+        11,
+        7,
+        7
+      ],
+      "32": [
+        9,
+        6,
+        10,
+        6,
+        6,
+        9,
+        8,
+        6,
+        5,
+        8,
+        8,
+        2,
+        7,
+        12,
+        0,
+        7,
+        9,
+        11,
+        10,
+        10,
+        11,
+        5,
+        7,
+        11,
+        7,
+        9,
+        10,
+        11,
+        7,
+        7
+      ],
+      "48": [
+        9,
+        6,
+        10,
+        6,
+        6,
+        9,
+        8,
+        6,
+        5,
+        8,
+        8,
+        2,
+        7,
+        12,
+        0,
+        7,
+        9,
+        11,
+        10,
+        10,
+        11,
+        5,
+        7,
+        11,
+        7,
+        9,
+        10,
+        11,
+        7,
+        7
+      ],
+      "64": [
+        9,
+        6,
+        10,
+        6,
+        6,
+        9,
+        8,
+        6,
+        5,
+        8,
+        8,
+        2,
+        7,
+        12,
+        0,
+        7,
+        9,
+        11,
+        10,
+        10,
+        11,
+        5,
+        7,
+        11,
+        7,
+        9,
+        10,
+        11,
+        7,
+        7
+      ]
+    },
+    "rdt_rope_rand": {
+      "4": [
+        11,
+        9,
+        11,
+        8,
+        6,
+        10,
+        11,
+        11,
+        11,
+        10,
+        10,
+        8,
+        11,
+        11,
+        6,
+        13,
+        13,
+        10,
+        10,
+        10,
+        12,
+        9,
+        11,
+        7,
+        6,
+        8,
+        11,
+        12,
+        9,
+        6
+      ],
+      "8": [
+        15,
+        15,
+        14,
+        13,
+        11,
+        15,
+        15,
+        14,
+        13,
+        18,
+        15,
+        16,
+        15,
+        12,
+        11,
+        16,
+        16,
+        16,
+        18,
+        17,
+        16,
+        9,
+        17,
+        13,
+        12,
+        9,
+        17,
+        14,
+        11,
+        6
+      ],
+      "16": [
+        15,
+        15,
+        14,
+        16,
+        12,
+        15,
+        15,
+        14,
+        14,
+        24,
+        16,
+        16,
+        15,
+        12,
+        17,
+        16,
+        16,
+        17,
+        22,
+        17,
+        16,
+        9,
+        18,
+        21,
+        13,
+        9,
+        17,
+        14,
+        11,
+        6
+      ],
+      "32": [
+        15,
+        15,
+        14,
+        16,
+        12,
+        15,
+        15,
+        14,
+        13,
+        24,
+        16,
+        16,
+        15,
+        12,
+        17,
+        16,
+        16,
+        17,
+        22,
+        17,
+        16,
+        9,
+        18,
+        21,
+        13,
+        9,
+        17,
+        14,
+        11,
+        6
+      ],
+      "48": [
+        15,
+        15,
+        14,
+        16,
+        12,
+        15,
+        15,
+        14,
+        13,
+        24,
+        16,
+        16,
+        15,
+        12,
+        17,
+        16,
+        16,
+        17,
+        22,
+        17,
+        16,
+        9,
+        18,
+        21,
+        13,
+        9,
+        17,
+        14,
+        11,
+        6
+      ],
+      "64": [
+        15,
+        15,
+        14,
+        16,
+        12,
+        15,
+        15,
+        14,
+        13,
+        24,
+        16,
+        16,
+        15,
+        12,
+        17,
+        16,
+        16,
+        17,
+        22,
+        17,
+        16,
+        9,
+        18,
+        21,
+        13,
+        9,
+        17,
+        14,
+        11,
+        6
+      ]
+    },
+    "ctm_lm_rope": {
+      "4": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "8": [
+        3,
+        1,
+        2,
+        3,
+        3,
+        0,
+        0,
+        0,
+        0,
+        2,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        5,
+        0,
+        0,
+        0,
+        1,
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      "16": [
+        5,
+        6,
+        5,
+        5,
+        5,
+        4,
+        4,
+        5,
+        5,
+        5,
+        6,
+        4,
+        5,
+        6,
+        5,
+        5,
+        6,
+        6,
+        4,
+        6,
+        7,
+        5,
+        6,
+        5,
+        6,
+        5,
+        5,
+        6,
+        3,
+        6
+      ],
+      "32": [
+        4,
+        6,
+        4,
+        5,
+        4,
+        3,
+        4,
+        4,
+        4,
+        2,
+        5,
+        4,
+        4,
+        5,
+        4,
+        4,
+        5,
+        4,
+        3,
+        5,
+        6,
+        2,
+        4,
+        3,
+        5,
+        4,
+        2,
+        2,
+        1,
+        4
+      ],
+      "48": [
+        4,
+        5,
+        0,
+        4,
+        3,
+        3,
+        4,
+        4,
+        4,
+        2,
+        5,
+        3,
+        0,
+        4,
+        1,
+        4,
+        5,
+        4,
+        2,
+        4,
+        5,
+        2,
+        0,
+        3,
+        5,
+        4,
+        2,
+        2,
+        0,
+        3
+      ],
+      "64": [
+        4,
+        5,
+        0,
+        1,
+        2,
+        0,
+        4,
+        3,
+        0,
+        2,
+        5,
+        2,
+        0,
+        3,
+        0,
+        0,
+        5,
+        3,
+        2,
+        1,
+        2,
+        2,
+        0,
+        0,
+        5,
+        4,
+        2,
+        2,
+        0,
+        0
+      ]
+    }
+  },
+  "tests": [
+    {
+      "id": "T1",
+      "comparison": "rdt_rope_rand_vs_rdt_rope_fixed",
+      "metric": "mean accuracy positions 1-16 at T=16 (paired sign-flip)",
+      "mean_difference": 0.14261678059895833,
+      "p": 4.99999750000125e-07,
+      "draws": 2000000,
+      "rng_seed": 20260929,
+      "p_holm": 1.4999992500003749e-06
+    },
+    {
+      "id": "T2",
+      "comparison": "rdt_rope_rand_vs_rdt_rope_fixed",
+      "metric": "escape at T=16 (paired exact McNemar)",
+      "first_only": 24,
+      "second_only": 0,
+      "p": 1.1920928955078125e-07,
+      "p_holm": 4.76837158203125e-07
+    },
+    {
+      "id": "T3",
+      "comparison": "rdt_rope_rand_vs_transformer_rope",
+      "metric": "mean accuracy positions 17-24 (RDT at T=32; paired sign-flip)",
+      "mean_difference": 0.2599568684895833,
+      "p": 4.99999750000125e-07,
+      "draws": 2000000,
+      "rng_seed": 20260929,
+      "p_holm": 1.4999992500003749e-06
+    },
+    {
+      "id": "T4",
+      "comparison": "ctm_lm_rope_vs_rdt_rope_fixed",
+      "metric": "mean accuracy positions 1-16 at T=16 (paired sign-flip)",
+      "mean_difference": -0.22683512369791667,
+      "p": 4.99999750000125e-07,
+      "draws": 2000000,
+      "rng_seed": 20260929,
+      "p_holm": 1.4999992500003749e-06
+    }
+  ],
+  "secondary_tests": [
+    {
+      "comparison": "rdt_rope_fixed_vs_transformer_rope",
+      "metric": "mean accuracy positions 1-16 at the trained budget (paired sign-flip; not corrected)",
+      "mean_difference": 0.15706583658854167,
+      "p": 1.9999990000005e-06,
+      "draws": 2000000,
+      "rng_seed": 20260929
+    },
+    {
+      "comparison": "rdt_rope_fixed_vs_transformer_rope",
+      "metric": "mean accuracy positions 17-24 (RDT at T=32; paired sign-flip; not corrected)",
+      "mean_difference": 0.06997477213541667,
+      "p": 4.99999750000125e-07,
+      "draws": 2000000,
+      "rng_seed": 20260929
+    }
+  ],
+  "accuracy_positions_1_16_by_ticks": {
+    "transformer_rope": {
+      "1": 0.6583272298177083
+    },
+    "rdt_rope_fixed": {
+      "4": 0.5095784505208333,
+      "8": 0.7085428873697917,
+      "16": 0.81539306640625,
+      "32": 0.8167887369791667,
+      "48": 0.8168904622395833,
+      "64": 0.81693115234375
+    },
+    "rdt_rope_rand": {
+      "4": 0.8321024576822916,
+      "8": 0.94903564453125,
+      "16": 0.9580098470052083,
+      "32": 0.9580607096354167,
+      "48": 0.95806884765625,
+      "64": 0.9580810546875
+    },
+    "ctm_lm_rope": {
+      "4": 0.19210001627604167,
+      "8": 0.4433695475260417,
+      "16": 0.5885579427083333,
+      "32": 0.5272318522135416,
+      "48": 0.4884419759114583,
+      "64": 0.46788126627604165
+    }
+  },
+  "accuracy_positions_17_24_by_ticks": {
+    "transformer_rope": {
+      "1": 0.17215169270833333
+    },
+    "rdt_rope_fixed": {
+      "4": 0.17325846354166666,
+      "8": 0.18019612630208334,
+      "16": 0.22130126953125,
+      "32": 0.24212646484375,
+      "48": 0.24219563802083333,
+      "64": 0.242236328125
+    },
+    "rdt_rope_rand": {
+      "4": 0.19483642578125,
+      "8": 0.35002034505208335,
+      "16": 0.429345703125,
+      "32": 0.4321085611979167,
+      "48": 0.43206787109375,
+      "64": 0.43210042317708336
+    },
+    "ctm_lm_rope": {
+      "4": 0.16810709635416668,
+      "8": 0.1785400390625,
+      "16": 0.18270670572916667,
+      "32": 0.17537434895833334,
+      "48": 0.17125244140625,
+      "64": 0.17080891927083333
+    }
+  },
+  "training_minutes": {
+    "transformer_rope": 6.887980224888759,
+    "rdt_rope_fixed": 72.435432847758,
+    "rdt_rope_rand": 70.853676279234,
+    "ctm_lm_rope": 46.12660919943928
+  },
+  "parameters": {
+    "transformer_rope": {
+      "total": 530740,
+      "token_embedding": 9940,
+      "position_embedding": 0,
+      "readout": 9940,
+      "other": 510860
+    },
+    "rdt_rope_fixed": {
+      "total": 513696,
+      "token_embedding": 6816,
+      "position_embedding": 0,
+      "readout": 6816,
+      "other": 500064
+    },
+    "rdt_rope_rand": {
+      "total": 513696,
+      "token_embedding": 6816,
+      "position_embedding": 0,
+      "readout": 6816,
+      "other": 500064
+    },
+    "ctm_lm_rope": {
+      "total": 620544,
+      "token_embedding": 9088,
+      "position_embedding": 0,
+      "readout": 9088,
+      "other": 602368
+    }
+  },
+  "checkpoint_freeze_sha256": "d179c7ea552d8a7f3952300d8c7c00b8d47a4002c831098b17b5fc68cd80a67b",
+  "analysis_source_sha256": "49f5e9ce6bed8ea57bea907ee7865a464ab89d27dbebaa954df95ef37f462acc",
+  "evaluations": {
+    "transformer_rope_seed347": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed347.evaluation.json",
+      "sha256": "a06ed665071935aae222e8f262904548a59e069cd6dcaeefbb858398c9e18e9e"
+    },
+    "rdt_rope_fixed_seed347": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed347.evaluation.json",
+      "sha256": "de69af37e5051359c8fcb5fd15bf3cd9f9576ca9026f64fbf0746619cd3958d6"
+    },
+    "rdt_rope_rand_seed347": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed347.evaluation.json",
+      "sha256": "ef81c1b5abd6b9be3253fa64597accc658566804056574d032ecc0b8417dbfd3"
+    },
+    "ctm_lm_rope_seed347": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed347.evaluation.json",
+      "sha256": "f7767c3c9e0fe5f023c2d0a557d29db22da8075df2ffc644760a9fb60ffefd85"
+    },
+    "transformer_rope_seed349": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed349.evaluation.json",
+      "sha256": "f7f904c3db613514d1697dd0684245e97f8b406a18bb67724a520499708d2d7d"
+    },
+    "rdt_rope_fixed_seed349": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed349.evaluation.json",
+      "sha256": "5f56e1fe5bcbab29c02a040654e1ddf600f268cede6b6c70f76759f3e7408fef"
+    },
+    "rdt_rope_rand_seed349": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed349.evaluation.json",
+      "sha256": "fbf0c4dd7b0a6f193df52d91a6082fcfd7d0d7774619074d8c0a41489349b737"
+    },
+    "ctm_lm_rope_seed349": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed349.evaluation.json",
+      "sha256": "8f56875cf9c597d17292e164a41c61ea7851af6402c2e43f105268dfb453e0b8"
+    },
+    "transformer_rope_seed353": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed353.evaluation.json",
+      "sha256": "d8e93de63738a06463eadd9f00bfae47d2ddbfc8a76c5d942458fcee750db572"
+    },
+    "rdt_rope_fixed_seed353": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed353.evaluation.json",
+      "sha256": "21cc40c8d26e43e2bc6d5b8f66ed53af40917cfcbbc52a14683a91c50f00a49f"
+    },
+    "rdt_rope_rand_seed353": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed353.evaluation.json",
+      "sha256": "1ebc4dec61169a31bc1f67e916d93ce856af9ad9135cfa366e91fb4f56620562"
+    },
+    "ctm_lm_rope_seed353": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed353.evaluation.json",
+      "sha256": "231ec5444e20b1965563af7e03f91dae906329f8a81ba09c8807a304eb454894"
+    },
+    "transformer_rope_seed359": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed359.evaluation.json",
+      "sha256": "382df57f83b573e53f98e8a34a2287f880623843fe0f4a6a86d0fe344cedac13"
+    },
+    "rdt_rope_fixed_seed359": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed359.evaluation.json",
+      "sha256": "79095a1e68122a1a86a61e953f1e00be697a70b2184b178b0f1bda098a396a20"
+    },
+    "rdt_rope_rand_seed359": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed359.evaluation.json",
+      "sha256": "95ad41b07d8da7d86ad33f3d218e4c4230cfdb65b88b5b6b1547daa33e0c77ca"
+    },
+    "ctm_lm_rope_seed359": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed359.evaluation.json",
+      "sha256": "e93c82f2f08e4b5fd52cc3de79f7dffa70106004eb63e7bb4b4de69ba22c5618"
+    },
+    "transformer_rope_seed367": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed367.evaluation.json",
+      "sha256": "267be097d1164bd1db45158d666afa43c0682c7767487af3ef7f8c1614347668"
+    },
+    "rdt_rope_fixed_seed367": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed367.evaluation.json",
+      "sha256": "b8d21a1c363ad534749dfe0b672161527798ab2c2c85b53085709cc7f510d718"
+    },
+    "rdt_rope_rand_seed367": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed367.evaluation.json",
+      "sha256": "505a8ab97f3a9d83dd76226b933502bbdf4bc13aba5044ca051e1bc2866782ec"
+    },
+    "ctm_lm_rope_seed367": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed367.evaluation.json",
+      "sha256": "d1016e906c625459c2fb7cf56f144949a742a53c0c3840ad4d230b4424257613"
+    },
+    "transformer_rope_seed373": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed373.evaluation.json",
+      "sha256": "0ad25400bbd76309bc6b0962fc59ed8ca370e8ce9c38eaeb32622e2a6416bf63"
+    },
+    "rdt_rope_fixed_seed373": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed373.evaluation.json",
+      "sha256": "f0b1c148164af93edb2b9868eeeb1a45b049da0d93d293475b6e599c06dd6572"
+    },
+    "rdt_rope_rand_seed373": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed373.evaluation.json",
+      "sha256": "58f7cd5d2e950d4895c6f13775bf7a41f5c3274b64add030e583198a0fb46f25"
+    },
+    "ctm_lm_rope_seed373": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed373.evaluation.json",
+      "sha256": "a8b8c976a76ed7c99fb236977b2843d326e2cf4b1e56e5c46d1f6d1d3e30717b"
+    },
+    "transformer_rope_seed379": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed379.evaluation.json",
+      "sha256": "b266e40c343dbd36c841d026ffbf725b3b37c239274ce7c6c084ae2f7cdf6acb"
+    },
+    "rdt_rope_fixed_seed379": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed379.evaluation.json",
+      "sha256": "5145ee7d750340f2ac854ad159270d01c3cbfbe9be8fdd6cae409fb21e54eb51"
+    },
+    "rdt_rope_rand_seed379": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed379.evaluation.json",
+      "sha256": "4f496e3ec82693034c9513a3c5b2699ef8f6ced4c1f300926fe037bb72229346"
+    },
+    "ctm_lm_rope_seed379": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed379.evaluation.json",
+      "sha256": "f768efe5d28c6033c66fb3da5cd3537142cea71a33c96b42adbed6eed9864679"
+    },
+    "transformer_rope_seed383": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed383.evaluation.json",
+      "sha256": "67d02e0362939d8d64f64742c4baebb3117cf4177824084fd9c900f327722af7"
+    },
+    "rdt_rope_fixed_seed383": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed383.evaluation.json",
+      "sha256": "e93421a6aea2de3fad7c16f2762b1e5ec31a28dd047f207578f88b6ac583996f"
+    },
+    "rdt_rope_rand_seed383": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed383.evaluation.json",
+      "sha256": "a2ef94bb70d2bbd805efca55f826c44b74136a3903d6fc701b005db4e810beca"
+    },
+    "ctm_lm_rope_seed383": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed383.evaluation.json",
+      "sha256": "7e9bdcbb425ff900427cb3d15b340a6101635a0f573e04dd51a044987a2cd6db"
+    },
+    "transformer_rope_seed389": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed389.evaluation.json",
+      "sha256": "d75c297ce851db6ce0444fa66d81d04b332faf107476d935d187dcbbb819c124"
+    },
+    "rdt_rope_fixed_seed389": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed389.evaluation.json",
+      "sha256": "03d58b715d046cb5dda6a27300bfdc280abbe08eb8785f20dfe6c81589cc17eb"
+    },
+    "rdt_rope_rand_seed389": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed389.evaluation.json",
+      "sha256": "291f63af4a8e825d99de4fcf067cdbf3792df4c605b0a4a1015d865e4f93d718"
+    },
+    "ctm_lm_rope_seed389": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed389.evaluation.json",
+      "sha256": "cc8138c574c06bc9d6ed3344c33559d014ab5b0e76d3f975bf182cab6f3af5de"
+    },
+    "transformer_rope_seed397": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed397.evaluation.json",
+      "sha256": "c0e5885a6fa845b9cdc7d8290e4be8122a966005cf1a127427d4b84352e5b5a1"
+    },
+    "rdt_rope_fixed_seed397": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed397.evaluation.json",
+      "sha256": "72e3d770272abfabcf411c358574f4425bb20c20a3844dc359cfae384713f544"
+    },
+    "rdt_rope_rand_seed397": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed397.evaluation.json",
+      "sha256": "e2a8a1b4d8db466fcfbf0de76e64b14c0b2d092c0a5f4186cb37c34592d2d8fd"
+    },
+    "ctm_lm_rope_seed397": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed397.evaluation.json",
+      "sha256": "2d4ada97510ed7797d304042598c579398361f12e0355937bbbcf91f247997ed"
+    },
+    "transformer_rope_seed401": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed401.evaluation.json",
+      "sha256": "cbf287198fe6b49edd7503a878f7e50633fe0134108fd631bdce4846e6cac38b"
+    },
+    "rdt_rope_fixed_seed401": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed401.evaluation.json",
+      "sha256": "21f0ae79396cbdff9da3ca23dfbbb0c8f92ca5a402df8ee67cd152f2ee36e408"
+    },
+    "rdt_rope_rand_seed401": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed401.evaluation.json",
+      "sha256": "613d41b01e1f21bada9553b505efd3c1084d722d3e08d77f5cd74269244b15b2"
+    },
+    "ctm_lm_rope_seed401": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed401.evaluation.json",
+      "sha256": "9976157b7972965085daeb43077e2b398d1c0423cc0dbc3b69e1ebb48e06d86f"
+    },
+    "transformer_rope_seed409": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed409.evaluation.json",
+      "sha256": "0a5394cd651121e641bd78ffc66b72d9209c94e3ed7e5ce2073609554e748f2c"
+    },
+    "rdt_rope_fixed_seed409": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed409.evaluation.json",
+      "sha256": "a2f62325a07169a8b62104846dd9ded581fc7837e8b0febf82ece48ba557b6e4"
+    },
+    "rdt_rope_rand_seed409": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed409.evaluation.json",
+      "sha256": "fc61ca820b074e69c04f2a7fe57279f0b1305133224537daf60fa470a4c1879c"
+    },
+    "ctm_lm_rope_seed409": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed409.evaluation.json",
+      "sha256": "d41379ea11eca92692cebbc722e06bc37578aa9d8251dcdbab72d42c64ba38b7"
+    },
+    "transformer_rope_seed419": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed419.evaluation.json",
+      "sha256": "77a25eee9a82429f0e21eeb684195b0a6fd3b2bb472ed4d5e55da65c2cc7cc3d"
+    },
+    "rdt_rope_fixed_seed419": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed419.evaluation.json",
+      "sha256": "fd81d5564fa3e2af76610b6be57e7fe0bac83f62c75409bbe794bb9a62cbb037"
+    },
+    "rdt_rope_rand_seed419": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed419.evaluation.json",
+      "sha256": "30ef04988deec25e737b42678a9043d45dde580c72d8f4f1ecc60cd992f73ca9"
+    },
+    "ctm_lm_rope_seed419": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed419.evaluation.json",
+      "sha256": "b8947045d44be8372846b7d5c5e1036976cd8b78b8f6a4ec6262e8d017d3e4e4"
+    },
+    "transformer_rope_seed421": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed421.evaluation.json",
+      "sha256": "b7190d67a90487034852fc9dca2e3ebfc6f5cf79a70a21284fc8fa91e99541b3"
+    },
+    "rdt_rope_fixed_seed421": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed421.evaluation.json",
+      "sha256": "1e32fe45afb2ffb5c418f7f5d99f22773fbc87132bf95479df98c73b2b84ea26"
+    },
+    "rdt_rope_rand_seed421": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed421.evaluation.json",
+      "sha256": "fc1525f30b7b2fc787705bdbcbef096896f5fd7eacea9a31160be14e17a26c3f"
+    },
+    "ctm_lm_rope_seed421": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed421.evaluation.json",
+      "sha256": "d1f9cfad8c1a60729b0bcbc3d6c548d34099f7b3d938b27a56a960f21da162dc"
+    },
+    "transformer_rope_seed431": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed431.evaluation.json",
+      "sha256": "67b37d7a14e27847484b559a4a4c93a4301a9400cf82a523a3090bfb563aa15f"
+    },
+    "rdt_rope_fixed_seed431": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed431.evaluation.json",
+      "sha256": "38a6a2e2ce9e4b60be8f62cf82cadac434feee29f16b4023d80ba2623815fe86"
+    },
+    "rdt_rope_rand_seed431": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed431.evaluation.json",
+      "sha256": "8824c2b72f4eb2b8c33155b2dff6593429d1ed1c68e21979f7d067b33bae5de7"
+    },
+    "ctm_lm_rope_seed431": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed431.evaluation.json",
+      "sha256": "2555c502a2e5cec5af9a2d81d19c0672421d686301b572aeafc249c90802494c"
+    },
+    "transformer_rope_seed433": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed433.evaluation.json",
+      "sha256": "f8d355903f029e5ec004be10bf4ae5d29bedfee0facc44692e73fb5cdd5b5f1c"
+    },
+    "rdt_rope_fixed_seed433": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed433.evaluation.json",
+      "sha256": "ab13c4c4849fccf583d055724f3e451e0caa1ffbc608745753a19137f5db0a12"
+    },
+    "rdt_rope_rand_seed433": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed433.evaluation.json",
+      "sha256": "b46100a281fd5b8edaf351dd4b2d1201c9d5de58700470c85a8048e46c1b992f"
+    },
+    "ctm_lm_rope_seed433": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed433.evaluation.json",
+      "sha256": "f25de52df0054fecad993b9654bcba9dcecc13cdda5f37577a11f156d0c89595"
+    },
+    "transformer_rope_seed439": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed439.evaluation.json",
+      "sha256": "8b57bdf4de847e54f857566206fba4405db26b70b00ced947b79aeac2d69a807"
+    },
+    "rdt_rope_fixed_seed439": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed439.evaluation.json",
+      "sha256": "b03f491284cbbcf8a4be2dd29f95b60149a27fd13e2922ede8d2f64a94a24520"
+    },
+    "rdt_rope_rand_seed439": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed439.evaluation.json",
+      "sha256": "f166233cdf7d4f87c3333d6ddcc2c27f4276ef22f19905451b873416e839abb7"
+    },
+    "ctm_lm_rope_seed439": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed439.evaluation.json",
+      "sha256": "bd0d4be8846160705c2f71a0ddd9811eff0dfd1b797f2d264270ea02fd6b6ce8"
+    },
+    "transformer_rope_seed443": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed443.evaluation.json",
+      "sha256": "12ee37e967200520f00a88d38644148508357f227b1806760458a9f1a64212b9"
+    },
+    "rdt_rope_fixed_seed443": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed443.evaluation.json",
+      "sha256": "0e3272ce6069e1c16f04b94a03c5cad39b0d108a57e7b99f21b0237fe146f0ea"
+    },
+    "rdt_rope_rand_seed443": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed443.evaluation.json",
+      "sha256": "1fc7ac725721c9db45484b48b73095c43452061aad15dea916ded214c49c9bd4"
+    },
+    "ctm_lm_rope_seed443": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed443.evaluation.json",
+      "sha256": "f53cbb0b0d17a907c58a266601bbacd23006eb0d15cc45a9b57f01ae062d3b59"
+    },
+    "transformer_rope_seed449": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed449.evaluation.json",
+      "sha256": "9668731f75f5ae6f24036c398f431bb0d4de4080871dde273dd2b2617b31b944"
+    },
+    "rdt_rope_fixed_seed449": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed449.evaluation.json",
+      "sha256": "6849b283f7a41bee9e4e6e7a64be68736415343c5a6a5348cc2cbe56cd98be3b"
+    },
+    "rdt_rope_rand_seed449": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed449.evaluation.json",
+      "sha256": "b3c0719ad5274ec78c8f933fa74b538209563674ba110f32d4b8a7595e7c51fb"
+    },
+    "ctm_lm_rope_seed449": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed449.evaluation.json",
+      "sha256": "d9666197ae694dae12f6166efe203cce09b035134ae7c99ae18d23bc5f11f8eb"
+    },
+    "transformer_rope_seed457": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed457.evaluation.json",
+      "sha256": "dc399086b57376db2737d3fd4a02317ece4325fde502d17c4f32456f9aba7b35"
+    },
+    "rdt_rope_fixed_seed457": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed457.evaluation.json",
+      "sha256": "f53884f9a4510151a1132141dca10076774293d8ceff75d86a81901169af20a1"
+    },
+    "rdt_rope_rand_seed457": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed457.evaluation.json",
+      "sha256": "781e338d6c07dc69742d1da79f89f405dbe78d65f3eda10a420ac9c8852cfa22"
+    },
+    "ctm_lm_rope_seed457": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed457.evaluation.json",
+      "sha256": "7e3170751dd0c33f44a9505e96f18b969437d4468f9fec5b23b0bd679218606b"
+    },
+    "transformer_rope_seed461": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed461.evaluation.json",
+      "sha256": "372a087fc4cbc4a41caa0a190b08fff37a1a75a64f785185c2ae636648190bed"
+    },
+    "rdt_rope_fixed_seed461": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed461.evaluation.json",
+      "sha256": "8dff8bd3808fb8c28c3c2b2cab015ec215f971cfb6795192ab07d8c3f05fcd59"
+    },
+    "rdt_rope_rand_seed461": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed461.evaluation.json",
+      "sha256": "0132726a4b7d7cca3d46306a47efb73b3f3771b4d1a602339c4d34e6928a355b"
+    },
+    "ctm_lm_rope_seed461": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed461.evaluation.json",
+      "sha256": "3416f74a6cadf9296d2630e948f4d9e7324bc7939cc35814710f1a43788673a1"
+    },
+    "transformer_rope_seed463": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed463.evaluation.json",
+      "sha256": "8d09eef1afab5a54ea58d49411afb882b9de470776c9cb598b3c5d75471d3163"
+    },
+    "rdt_rope_fixed_seed463": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed463.evaluation.json",
+      "sha256": "8b0b8b316a869d383ee67d3d96fc6285d796436b71518b95d51df2bdcbbd33fa"
+    },
+    "rdt_rope_rand_seed463": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed463.evaluation.json",
+      "sha256": "8f8485bb29226dee4383d6ce03efa6c4bd0f3c4bffd54ed3aae879624b4eb0f3"
+    },
+    "ctm_lm_rope_seed463": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed463.evaluation.json",
+      "sha256": "ed895dec3cb44acdf19f6cae62d86ba8924a9c48c5279a3a4081a77b28e37b1c"
+    },
+    "transformer_rope_seed467": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed467.evaluation.json",
+      "sha256": "2e7edb4fd89612b2502ec24ea6b5c409ec6ee0d4dffb6941dc18a34e00a56e38"
+    },
+    "rdt_rope_fixed_seed467": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed467.evaluation.json",
+      "sha256": "e6456f8ed5eb036e79f0a8c8734ccfb3d3e65e4c8f5b9c72b40b90f8c03dd84c"
+    },
+    "rdt_rope_rand_seed467": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed467.evaluation.json",
+      "sha256": "cd356be4e84f2aa54027a3bf3a0b3537c5d0607cf550ea7c718bbd0b20764f5f"
+    },
+    "ctm_lm_rope_seed467": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed467.evaluation.json",
+      "sha256": "00595c1f715a0e86668aafa16ef1a21077983842460071fd73f79b792c7f61f4"
+    },
+    "transformer_rope_seed479": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed479.evaluation.json",
+      "sha256": "61012384de53faad84f47288e967a324676c8ef99ed0efb8daf7e85a06f3eeb1"
+    },
+    "rdt_rope_fixed_seed479": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed479.evaluation.json",
+      "sha256": "104e292891f955d504ffd2a9866f8c53cb31b9d588112fec0ac4ce32dcf5dc03"
+    },
+    "rdt_rope_rand_seed479": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed479.evaluation.json",
+      "sha256": "61641560497b98ed55954ac7c7ceab7e4650065c43d21d3dcd059483549c5c44"
+    },
+    "ctm_lm_rope_seed479": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed479.evaluation.json",
+      "sha256": "c3e558bfa6ff77bf7149e91d1a56d3e8d1a907bd6b453376ea36e44e99aea3fa"
+    },
+    "transformer_rope_seed487": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed487.evaluation.json",
+      "sha256": "0d748bbcda9da3f20eb85bc40bc78fc3253c114fe03c4db82d0958a2d8550370"
+    },
+    "rdt_rope_fixed_seed487": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed487.evaluation.json",
+      "sha256": "27fc633f2b02fd8f7bed5b6c9ce343758c0549983744accca9c5fcde0a4056cb"
+    },
+    "rdt_rope_rand_seed487": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed487.evaluation.json",
+      "sha256": "ebaf62107a0aac1778ee32b74fc8b9b3ed0ecbebe5c2650585166bf020b46899"
+    },
+    "ctm_lm_rope_seed487": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed487.evaluation.json",
+      "sha256": "828b35e224bb7330f0469f14662fabf35d6230a2594e4283efa55a8bbf2f07b7"
+    },
+    "transformer_rope_seed491": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed491.evaluation.json",
+      "sha256": "121a50919013b130b4cc1767cfc92e9d66d24d0bd49643dd33e0b303e1d7bd9c"
+    },
+    "rdt_rope_fixed_seed491": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed491.evaluation.json",
+      "sha256": "251a717abefa06192f267c15ba12c1c613b69128517ff7b13bb8f12a11640338"
+    },
+    "rdt_rope_rand_seed491": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed491.evaluation.json",
+      "sha256": "037d8dc244111cea53406071ecf92304683719e16a79f0147ff1c0c7712b7ffe"
+    },
+    "ctm_lm_rope_seed491": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed491.evaluation.json",
+      "sha256": "87fc23acc18d33a2939a93d86134aecc9c936dee441071afcfa7d66c97d7d20f"
+    },
+    "transformer_rope_seed499": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed499.evaluation.json",
+      "sha256": "3e37b1596e9972d84e4fa3614f60697d30cf77bc394fd1efd778cf1fa3c84788"
+    },
+    "rdt_rope_fixed_seed499": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed499.evaluation.json",
+      "sha256": "cb435569fe48dc1d8b58d85bfe6b0c663ecc0f6612bac73f2b3fbaf3b426f9df"
+    },
+    "rdt_rope_rand_seed499": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed499.evaluation.json",
+      "sha256": "a1931c5022d7e4dddaec0bbf9820bb83b916d2ce6c78c0916d5698a63959e75c"
+    },
+    "ctm_lm_rope_seed499": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed499.evaluation.json",
+      "sha256": "70924b6a9b677f5faa060ebb47d67153374fba577154c380f989645d93dfbff1"
+    },
+    "transformer_rope_seed503": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed503.evaluation.json",
+      "sha256": "8d8bd8553d137948a0d834057d9e18fa73f5784853eafb282f2b0fe121226068"
+    },
+    "rdt_rope_fixed_seed503": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed503.evaluation.json",
+      "sha256": "2dc7319abc296affa8033663f6a99a81a5ab958d346a382f29ba34b936e0999d"
+    },
+    "rdt_rope_rand_seed503": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed503.evaluation.json",
+      "sha256": "c0a5d6e3ff32d194b1ac19e40881e2cf77df1c8e6e223d991a062da5470dc486"
+    },
+    "ctm_lm_rope_seed503": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed503.evaluation.json",
+      "sha256": "8fe4a3793d1fe1db613c3af31e9a69280e5ddfa45cb050baef70f288ba30fe75"
+    },
+    "transformer_rope_seed509": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed509.evaluation.json",
+      "sha256": "463c85c947b83abb32e5a020d15fe5c29d718c6c70e988bab619ed1d25b59a9f"
+    },
+    "rdt_rope_fixed_seed509": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed509.evaluation.json",
+      "sha256": "948dcec4b981e554a6e0bd4ceffc1e7286d5df7bc8f381b7e19bb3d6e5d5a7c1"
+    },
+    "rdt_rope_rand_seed509": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed509.evaluation.json",
+      "sha256": "531eaf697c4082636c196d707c3b9218bffc7b638e5f311e54cf9ec64e8a7024"
+    },
+    "ctm_lm_rope_seed509": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed509.evaluation.json",
+      "sha256": "a697cf11fc8890b8fe12bfd76359daf8e78778adb1d4142c38ffecf28ac38b09"
+    },
+    "transformer_rope_seed521": {
+      "path": "research/results/recipe_s3_v1/transformer_rope_seed521.evaluation.json",
+      "sha256": "608ee5c5dd1dde0ebcc421232840c9c36cfca25c7ce396c3f5e9cb2bf541d714"
+    },
+    "rdt_rope_fixed_seed521": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_fixed_seed521.evaluation.json",
+      "sha256": "df08178bf47436ce88b303ef1ea1a2c0d25c986ab621d546fd7b06356d3e4d42"
+    },
+    "rdt_rope_rand_seed521": {
+      "path": "research/results/recipe_s3_v1/rdt_rope_rand_seed521.evaluation.json",
+      "sha256": "b7a468a8c66e7d269ec321a321e9b6aa31bfb9678dec169b6f86693c3741c7ee"
+    },
+    "ctm_lm_rope_seed521": {
+      "path": "research/results/recipe_s3_v1/ctm_lm_rope_seed521.evaluation.json",
+      "sha256": "22e5505b747b322ce82c1439efb9dbee2a4c99c2dc581d0bd5ff83c7785d32a7"
+    }
+  }
+}
