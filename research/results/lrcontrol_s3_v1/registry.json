@@ -1,0 +1,1253 @@
+{
+  "schema_version": 1,
+  "name": "lrcontrol_s3_v1",
+  "control_study": "research/results/recipe_s3_v1",
+  "control_registry_sha256": "f56b6ab5af1b1a4e3fc68e4bb50854a35a7279c669780fb7361c3d0f4813496a",
+  "control_summary_sha256": "44d3607037cefb79fa869715420394bc6c9d07b9da41ede34d0f324e8d023e6f",
+  "runner": "shared_research_v5",
+  "entries": [
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed347",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 347,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed347.json",
+      "config_sha256": "6e45ebc76e815471841d22343acec5336ad3a2097f300941922529e171a85b04",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a75f9fe84f362c4fc8f0e404095c71804e4797a053f58222045cbc09c34dfb87",
+      "validation_sha256": "45debf5425d30f77d704055001a969ff4f4322f5cfb4540e0ce18cbde2b33e15",
+      "evaluation_sha256": "7ac4ec3cd7c7ab2bb0676d9dc041c7cea115410d1c661541d015edfcc171fa4f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed347",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed347.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed349",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 349,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed349.json",
+      "config_sha256": "fa8fa7aae5bbef1e923ea40e7c8cb42a05edfaf0ac9332f6a975f3539ee60d88",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "371e2374d7ee2f2751f99cdb62e32215ce2d67e15ccface462a7adfe36a415ba",
+      "validation_sha256": "8b3f4b94130b8aef4f2916ca5afe5db87b855fb2e6324011229430d21004711c",
+      "evaluation_sha256": "c484e6ce153b0089d7b345818949657f50c231149e6eb425f582a746a3483620",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed349",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed349.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed353",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 353,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed353.json",
+      "config_sha256": "29cdf164eac0edcbd36d76c19b15d486fa35c49d4a1c4b5bba92bf91f6dc1b4b",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f754d46a73a8cae4c3f1c0e9350950cabea7a9848ca68ed2e00cdc1ffd668994",
+      "validation_sha256": "433e4e41fe024abcdd492b6733baacee90fa78b4b3b29e0be0b1f017738d012e",
+      "evaluation_sha256": "57f19a69a0864d183200c9527a89972792de20569d204baeaf936f9829926645",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed353",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed353.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed359",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 359,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed359.json",
+      "config_sha256": "eb044158801946e0d25eacd9eaf535df106dbdae4a1f5a552fb81c7b720708df",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "62ccad0ea562409ce72bd90322784d51df1541b05141b4eca37f15a5372de3e3",
+      "validation_sha256": "e629dd21caae23d8f2e928d05350a2fb32109bec8248f4058c82383ab4e65e49",
+      "evaluation_sha256": "ad3fe919abc5b6569782aeb85e42a8ee5a426d36445e62a98d77096357326d01",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed359",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed359.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed367",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 367,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed367.json",
+      "config_sha256": "ad51699bcbd5d439ca7c6700aeb690507e06e2ed9e4375c18c55641ea8769e0a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "68453dd5bdf6c4aa4d4ab68b3f9fbc7028b9f23b991ab707200add7d62f3b8f8",
+      "validation_sha256": "c47ea8b939e633ec3a9e7e8a6856dbc58b7d78142f9b88f1813ecbc220d61d99",
+      "evaluation_sha256": "be2cb59b4006f1e2c9790de346759e5f4b13234678ff33816559e52c06b9717a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed367",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed367.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed373",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 373,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed373.json",
+      "config_sha256": "95ba831a0baaf3f698e5c938d1a68f38c80a1b4b27cff08b797c0481063f2fb1",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "fae9f8503d127f674e42d20855c5aa9b8e6d84bcf4eb242e2c74ee81e07b06a1",
+      "validation_sha256": "9503378311127055f57178ff6069a01a1c9032be7631fa64f6178464606a088e",
+      "evaluation_sha256": "0dacaf03a42519fd02da1ae199985978c95a5203930d09d17680bdcfb2ff8ea0",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed373",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed373.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed379",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 379,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed379.json",
+      "config_sha256": "a5e805dbf4c4b0a13b08b40bab552515a0a2d9096440c81d4299048676169549",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "356d1c7c7c3781f86ff52f9dd8a5b1c3f4ecc43404cb8d3c8814bffaa9b583f7",
+      "validation_sha256": "9514a237c69e0b8936252d77f6c33917674e7b7f07dbbb57a4a10c9d98c89bc6",
+      "evaluation_sha256": "0238a9ed35eed0012ab166acf4eab3ecaddc059af2bdef52c9a1e462df3fe6da",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed379",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed379.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed383",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 383,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed383.json",
+      "config_sha256": "15e0228281e427eea9b18bdc8cb4d25bef613f8cbff8f3b4164c37e7093f704b",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "37e219d40907f20c7695d4b44df3df08f6667684d39a45b200d5f1462ea2cb3a",
+      "validation_sha256": "d363dad75c1bc1b60863140b74278388eba31f90b6696d4883eee61ed666651c",
+      "evaluation_sha256": "ea427b1f01e1c1a027fd9c71911e574897fbe549e7ea21ff237eea0d2ffbbe4b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed383",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed383.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed389",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 389,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed389.json",
+      "config_sha256": "a0bb8a69312cb30c9022ebd3a9cfc77d41d7f8162f69f3589d43e1cfb285977b",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "d891ece9d0d601b9f0d6c160d7e639163c4aaff7ef37b521508ba9ae823a76cc",
+      "validation_sha256": "7a2e862fc7e8a235de0b8ec3e767595186e7a6478dc148815323393e358bec01",
+      "evaluation_sha256": "94f5af27d5b78d651e7a6eddb549a324cb922102bfadca70e5f44b281f034a34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed389",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed389.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed397",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 397,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed397.json",
+      "config_sha256": "50446772a748c0c938153aa3bb77e84a0a220a61915088d126745d8493600fc6",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "0ab10a78da24dbebfa45ff48caf1ccc93718843b2a4264bd8928bee71e2dd138",
+      "validation_sha256": "e5b6351c57dd21d7f321cc1d1f1370211a24aaee1a6c97432b468c1986ca18db",
+      "evaluation_sha256": "8ba15b15a5cc5feb181d77f7927b7bd5d432b9728ae4322b01fbac023b0b2d2b",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed397",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed397.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed401",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 401,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed401.json",
+      "config_sha256": "458513159ab9e8cb2709b84b0801c12ae9d58c4d473f5c0553f95422d4f4a463",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "299292f02d2f5bf971730bb97a1ec985c7cab3239ad02562b9efe8d270f11a32",
+      "validation_sha256": "71cd7beb33195ffd3a75c761d81926bcef68300c6ec6422d1af048dceea4d28c",
+      "evaluation_sha256": "6c7385d107f238de626a7b947438269a172334d08cb23a1d761d304048741527",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed401",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed401.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed409",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 409,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed409.json",
+      "config_sha256": "cc25bcba19e0d6584274356112328988e48e400aecdaa46bdc08791e43e8518c",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "36ddb8b112d9732188a71e6eb55d0268c9b82cd88e7e538919e639526c6b73ae",
+      "validation_sha256": "145b08551f8ea5979c548b4f5ceefd95f8196faf6aa6cce24abac6cd0105a87b",
+      "evaluation_sha256": "6d8ec74bec99761d444580f8be2e5c61bf2835347751483057b8a405fa7de186",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed409",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed409.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed419",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 419,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed419.json",
+      "config_sha256": "20c65a79c3990861826da7431cf058c8eed7216984d409ffe9a3f364e2017c4f",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "fa1bbe891f22aad2c1a8c107c3a38a6a32ddf2edd38909d84648c3e51cfc9ef1",
+      "validation_sha256": "2c2a6e1295a392724d8c116ff3ced0146cb137d52e561de1e5153624c91cc916",
+      "evaluation_sha256": "f1465266e0b1aefb5bd3e515ff7139ba1042a6afcdeb68354fbd6eec00ccc0e4",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed419",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed419.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed421",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 421,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed421.json",
+      "config_sha256": "0f646f98aaa7e1bb09f7bcd1162919d40a1b39138887c00d4893e14ee908347a",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "837d79061a840127d67d2da77aa3d79645aa0009a6c9d9c8a2c8d67405499989",
+      "validation_sha256": "ffc19b8978c9d6884b979670a55e0de6f49b4683c0c490ef4806f825a183b44a",
+      "evaluation_sha256": "52f1006b8c5290c541a6cf72b25942eb953e0a721b2ad917edea11e3895a940f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed421",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed421.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed431",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 431,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed431.json",
+      "config_sha256": "6ea17d527a54449813e78a911fdb262d8aa4a5a6d9db002570ba4f829297fecf",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e79b4e233cfaa74ca3767198fe1423a043b88b1bd53fd47cf27aa002b4d62493",
+      "validation_sha256": "9a5a230d3ad0b86435708de0ccd55831adfc73e8ae1ead16c5b7be559de1cd48",
+      "evaluation_sha256": "53eb71f84ac8b87fda731da176d67cd6e03c64029f14c6c8eb12e63f231ac46a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed431",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed431.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed433",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 433,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed433.json",
+      "config_sha256": "ecc70228ea10de2fe3424dc75c789056bf9d9dbf39d9b8f9d7de6bf411c2dd30",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "4a30b6c88d26e9ef397495fbb69fdeaadddf02196f02e412e8ed532edef50745",
+      "validation_sha256": "5a4ae0f0ab984be3d407bf0d852bd8742657b126528df753499104040e0fd557",
+      "evaluation_sha256": "fcc75fe8dfc625a33c68def1b7077b2ed3560994b512d16695857af13af992a8",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed433",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed433.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed439",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 439,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed439.json",
+      "config_sha256": "042467e5602c5a5e6348fad535c68afb2fcfccceab264c4a0f98f260b9d67297",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "045cbe1bd8de8e054f727a937fe02bd3246b64f0cfe2e8e0f686f1a8d81d381b",
+      "validation_sha256": "fb55b421f905bf9a1f796c04e7de1399ca09e73c2490e50108f934c6e4b39d22",
+      "evaluation_sha256": "1cdcda0db351d9c880750d3f51a3fda6237dcc1fa1a90d5b170a15478e22c2dd",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed439",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed439.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed443",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 443,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed443.json",
+      "config_sha256": "773dd4e869fa9f8eab39078a322d920d20771c9ebe9e257142a45b434dab4973",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "1bee82eb88a5c927a8551c48dc36d5fc085743fe79cce007ae89ea0287fe1438",
+      "validation_sha256": "fd0f3e39244eb50b7337ec2363b2c10c46c5e1c18e5feb3898753b214decd72f",
+      "evaluation_sha256": "540a8c3935cae4c256d413864ba46853a6586148c6840f7ac4d3f7156a4ffb78",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed443",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed443.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed449",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 449,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed449.json",
+      "config_sha256": "9baba1f356b73601f4d49df338ae45b99a63b4864abb584179bb54fe3062f292",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a67c197c204d60cf1c2e03340f7ca7abbfbacbd04db3de31cb199c3b3af21020",
+      "validation_sha256": "c961060c04fe8822cac1fab1b8204f3d0c6f807730f7949711a02f50e3024156",
+      "evaluation_sha256": "f02a88615edb9917c239ffd2918886c7ed462f02df8c8a8d750d4cfcb1b2ec34",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed449",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed449.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed457",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 457,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed457.json",
+      "config_sha256": "059d5e253f18db546e4cef4faa216e77aaeac79a9e3444e849e564be234fb9bf",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "3d95132f3acb3a0d50f70aa375fd0701173467680e15ec65f8edce993f94b5c0",
+      "validation_sha256": "a44da3a4c197b31af6e3ca6f9eb8a295d48858875363003ebc4b7b7f1b5e6b5a",
+      "evaluation_sha256": "22f17dd53aeed61f68d51f55ce4796bf817b3d1174a90e01c507a51a89a17ea1",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed457",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed457.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed461",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 461,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed461.json",
+      "config_sha256": "05dc217a1b105abf728c39f67e70ef21f434ce1d0bf56a2475e692bdfeab48ab",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "c08da9291ed7fb39ec80537b8b12239ce0bef6b99f416cfa5d759cf3b2051b3f",
+      "validation_sha256": "2b66f632df6cdaee56838569cb093dad1805575b2875fb9938679907b19c4ef2",
+      "evaluation_sha256": "55a9dbc56e5ff8c6841cdaf77269b8cb37a809e3f7aa5608015f49b2085ba71f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed461",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed461.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed463",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 463,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed463.json",
+      "config_sha256": "d895930f38e286e226a1851619d7c25dbc5a642e23f8bb4852f2ebaa60a81440",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "a0ea0f220e3532f1f66230e331b34028f5756f108b0c7857136296bfe6654d28",
+      "validation_sha256": "c407e8eb688606f794840e7c52c5df9aecfbd0bd92782b28888d41ee1e3196fa",
+      "evaluation_sha256": "c4446b29f960bcfc31fd658a4fddfc29d46c1d9582ce0462b57a211ec1cd9ce6",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed463",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed463.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed467",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 467,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed467.json",
+      "config_sha256": "a4baf842b19c85e142d09d1ad7a070eaff80d020d982962aa692afbff0a267b4",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "e2b710fae0a22377456297a12777d7128d260506cdd3972cd9141ba99ed8f581",
+      "validation_sha256": "1936d2e35fe5b8faa598c36a4fafb044e3d85e300b0ebbbda3b15e004a7a5646",
+      "evaluation_sha256": "2ce7106c775bbd440995cabac1d57e5b14a4a2aeb41bcd16fafb2eeaa01e0bc9",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed467",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed467.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed479",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 479,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed479.json",
+      "config_sha256": "b8799915fd33289731c5738a26ad67952b1d55a5808c683da22cbf05c3d555df",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "f6eb2f8217e111ff57f6de360cd8ea804748fb7190c4f645eb95b3f7872ecc9a",
+      "validation_sha256": "f575dc2f45c81f6278667f62280dc9f92cf09eaa5a69406d681bafea01b7e071",
+      "evaluation_sha256": "c26d5ba6421f426d78e1280c972111a67a311ee71a0eda0df7ef8b826a562fa2",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed479",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed479.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed487",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 487,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed487.json",
+      "config_sha256": "d118caabc830cb89684de72b069b8bbe05d5d8b4ff6be1b6ace24818cdc0adea",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "7d2b8aa3a942611588b04e93177df2507c6fc1183951579152ac0b8bfc886ea9",
+      "validation_sha256": "c144c2d6a638e73e6bdf6565339ac8ab1c08a1dd48cd32cf28c695c694fc5bad",
+      "evaluation_sha256": "8caa0ed426d7bcc33728df38b331adcd8cac73db3c340d15459ac8107fac9e6a",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed487",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed487.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed491",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 491,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed491.json",
+      "config_sha256": "62b806c7ffc093032d4dd789da000dfd4f8aff8097ec4faa3e44414972b3f5a6",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "0c6c1a14556a76e9ffd965f25c9640d5db262af2eb4e7f0c9fa31ef595056f46",
+      "validation_sha256": "2f23e688276385a0005ef10fc64f63e5f84614d44db7710c84cbe58f0460762e",
+      "evaluation_sha256": "4d24526a10bf466f1a29cf9960190c4dc2c20e4358b8b5663836d303d7daf06f",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed491",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed491.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed499",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 499,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed499.json",
+      "config_sha256": "7d6f1142da96075f890a63142bb53689f59c4573ad8d713a132d629d169c9d8b",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "2fc36481d66f62e9477891065d891817f41d7a72a67919fc01308f299450b88d",
+      "validation_sha256": "f62d8d4259b848801bb6861399b841fa416453b3138a1c60349c761d4ee20984",
+      "evaluation_sha256": "cbf1fd49a402d612a1534f1333136973a60c0a9d20fa734b025093a15620f628",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed499",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed499.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed503",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 503,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed503.json",
+      "config_sha256": "6da012ae248ca1bcc4752ace0990ec362a2edee0ac4321a3cc50710a8cab45d4",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "aadff890829ecda9ce8c77786b7a40c757dc5ece0043287d2cb6eb7807331e8a",
+      "validation_sha256": "bc8a1353c42d48d8e1bcbe1b74643b532d74caa284e46879e90007fcdbb1909b",
+      "evaluation_sha256": "88dea644f968042b55577c7cd9140a453f93fb1f7642d2a8770bd491b222f532",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed503",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed503.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed509",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 509,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed509.json",
+      "config_sha256": "258a8b8636c927773c91c197334bdcbfc586ec7bfa0e8084119640248d50f276",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "72fdd86be0fc87cfc34b667c9c6cb13b9ca11e2d8195a4103f5e26756bef7bd7",
+      "validation_sha256": "e29d07f9d3773c8fdc446d7c0c8c91cbd36c8c2b3c7b5f63cc79eed09056543b",
+      "evaluation_sha256": "ed70e1cf6b6deb4fc008033f5f31fe1a71a998d4745ce14dd84d0e2fd051d325",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed509",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed509.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    },
+    {
+      "cell": "rdt_rope_fixed_lr1e3_seed521",
+      "study_cell": "rdt_rope_fixed_lr1e3",
+      "model_family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "config_overrides": {
+        "use_positional_encoding": false
+      },
+      "seed": 521,
+      "config": "research/configs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed521.json",
+      "config_sha256": "0e931d62c3b89bab0c1c4553c8d3bf28c35efdab5b3a5e5f47810c07b910ef34",
+      "recipe_source": "research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+      "train_sha256": "596543fe37e9e76f73213299dbba8b07f9f7f88e89e52c64820ff8425da900cb",
+      "validation_sha256": "c7b72732b93f9a79706a0257c3a1b4a98087f5c3345f884aee872de5c377342d",
+      "evaluation_sha256": "051ef81b677dd97f7811b6c53001c74ebf71660a2f48a71a2e811c891b34ec9d",
+      "train_examples": 320000,
+      "run_directory": "research/runs/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3/seed521",
+      "summary_path": "research/results/lrcontrol_s3_v1/rdt_rope_fixed_lr1e3_seed521.summary.json",
+      "selection_readouts": [
+        "confidence"
+      ],
+      "readout": "confidence",
+      "trained_thought_steps": 16,
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ],
+      "learning_rate": 0.001,
+      "estimated_minutes": 75,
+      "depth_sampler": null
+    }
+  ],
+  "seeds": [
+    347,
+    349,
+    353,
+    359,
+    367,
+    373,
+    379,
+    383,
+    389,
+    397,
+    401,
+    409,
+    419,
+    421,
+    431,
+    433,
+    439,
+    443,
+    449,
+    457,
+    461,
+    463,
+    467,
+    479,
+    487,
+    491,
+    499,
+    503,
+    509,
+    521
+  ],
+  "cells": {
+    "rdt_rope_fixed_lr1e3": {
+      "family": "recurrent_depth",
+      "factory_kind": "position",
+      "factory_arg": "rdt,rope",
+      "learning_rate": 0.001,
+      "depth_sampler": null,
+      "readout": "confidence",
+      "evaluation_thought_steps": [
+        4,
+        8,
+        16,
+        32,
+        48,
+        64
+      ]
+    }
+  },
+  "role": "learning-rate-matched fixed-depth control for the S3 recipe confirmation; evaluation split read once after the freeze",
+  "dataset": "research/data/recipe_s3_v1",
+  "dataset_manifest_sha256": "ef3337c38bcc59fa4bd7be17ed74aaa55ac53276ce6a07ec726a7d736f329ef0",
+  "training_source_sha256": {
+    "ctm_transformer/dense_experiment_v5.py": "4b456d149f29a5aef138d77a6c6bb61f51b53e8791961acab148e6e417a50bfc",
+    "ctm_transformer/curriculum.py": "9cd993454d7796ba65271c88760572505f78a58baf83b60a6a26782bae806141",
+    "ctm_transformer/positions.py": "afcb4211f5f06d08d9fd3651cee2fa1b43900922e4e8d29dcdb9dce6422b84a3",
+    "ctm_transformer/dense_experiment_v4.py": "22efaf2032d011e89fd3c99483282bf6a7f3a75bc4fa19ac9643a5cf53de8d00",
+    "ctm_transformer/depth_sampling.py": "69f5d628a90612277e8987b3e9d483c0154c486563437d3897e2921bc405d3a7",
+    "ctm_transformer/dense_experiment.py": "661ebf10abf894e1ca346cd8cc6312f10fbdb121686d5f28eb8cb27456eefdde",
+    "ctm_transformer/experiment.py": "d05b5b3771071eb7885ac41af23c9d1c273d932d2728b9625af88c9094dba3c2",
+    "ctm_transformer/research.py": "683f8aeb8b7357c781bcc82a5cfd971ed819b340b416dc9059fd355f893919f5",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/model.py": "5028e5fcf64a41c44c5f5172c996e683f79b4b13f5077608ada3dd8f75d38a5c",
+    "ctm_transformer/config.py": "a870a447c3d106a05dc8a6db68e76d062b02c89e5f1bee2e411054e31e43da8e",
+    "ctm_transformer/algorithmic.py": "1a112f7cd1a2d824c6a7ac95e98590d08fa6023634a72cd90dd178e0fd30c9dc",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169",
+    "ctm_transformer/confidence_readout.py": "a70c42affea4535e03daa23f98f8f0de9b90a44a92103cd575ac0c173a26a0a5",
+    "ctm_transformer/readout_selection.py": "60403041fa33184c1c966fd502893c77ce94cf448456fc57f8fcd91719df6ee3",
+    "ctm_transformer/algorithmic_eval.py": "2142cffc073e7d95245cb2a2811472644a98e30d816ea0d103565ab27f48aa25",
+    "ctm_transformer/ctm_variants.py": "5bd30fce9b0c8bedab531ef66d1e3c9e7f417914f76c7a1bf2e6ac5c610b9c85",
+    "ctm_transformer/ctm_lm.py": "7f389b648d92349ef5727f06d4d6b3d00a1bea8a073cc57045ad2b4d5774ec51",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5",
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36"
+  },
+  "primary_checkpoint_step": 10000,
+  "warmup_steps": 100,
+  "eval_interval": 250,
+  "train_max_len": 16,
+  "evaluation_length": 32,
+  "chance": 0.16666666666666666,
+  "gpu_queues": {
+    "cuda:0#0": [
+      "rdt_rope_fixed_lr1e3_seed347",
+      "rdt_rope_fixed_lr1e3_seed367",
+      "rdt_rope_fixed_lr1e3_seed389",
+      "rdt_rope_fixed_lr1e3_seed419",
+      "rdt_rope_fixed_lr1e3_seed439",
+      "rdt_rope_fixed_lr1e3_seed461",
+      "rdt_rope_fixed_lr1e3_seed487",
+      "rdt_rope_fixed_lr1e3_seed509"
+    ],
+    "cuda:0#1": [
+      "rdt_rope_fixed_lr1e3_seed349",
+      "rdt_rope_fixed_lr1e3_seed373",
+      "rdt_rope_fixed_lr1e3_seed397",
+      "rdt_rope_fixed_lr1e3_seed421",
+      "rdt_rope_fixed_lr1e3_seed443",
+      "rdt_rope_fixed_lr1e3_seed463",
+      "rdt_rope_fixed_lr1e3_seed491",
+      "rdt_rope_fixed_lr1e3_seed521"
+    ],
+    "cuda:1#3": [
+      "rdt_rope_fixed_lr1e3_seed353",
+      "rdt_rope_fixed_lr1e3_seed379",
+      "rdt_rope_fixed_lr1e3_seed401",
+      "rdt_rope_fixed_lr1e3_seed431",
+      "rdt_rope_fixed_lr1e3_seed449",
+      "rdt_rope_fixed_lr1e3_seed467",
+      "rdt_rope_fixed_lr1e3_seed499"
+    ],
+    "cuda:1#4": [
+      "rdt_rope_fixed_lr1e3_seed359",
+      "rdt_rope_fixed_lr1e3_seed383",
+      "rdt_rope_fixed_lr1e3_seed409",
+      "rdt_rope_fixed_lr1e3_seed433",
+      "rdt_rope_fixed_lr1e3_seed457",
+      "rdt_rope_fixed_lr1e3_seed479",
+      "rdt_rope_fixed_lr1e3_seed503"
+    ]
+  },
+  "estimated_slot_minutes": {
+    "cuda:0#0": 600,
+    "cuda:0#1": 600,
+    "cuda:1#3": 525,
+    "cuda:1#4": 525
+  },
+  "evaluation_queues": {
+    "cuda:0": [
+      "rdt_rope_fixed_lr1e3_seed347",
+      "rdt_rope_fixed_lr1e3_seed349",
+      "rdt_rope_fixed_lr1e3_seed353",
+      "rdt_rope_fixed_lr1e3_seed359",
+      "rdt_rope_fixed_lr1e3_seed367",
+      "rdt_rope_fixed_lr1e3_seed373",
+      "rdt_rope_fixed_lr1e3_seed379",
+      "rdt_rope_fixed_lr1e3_seed383",
+      "rdt_rope_fixed_lr1e3_seed389",
+      "rdt_rope_fixed_lr1e3_seed397",
+      "rdt_rope_fixed_lr1e3_seed401",
+      "rdt_rope_fixed_lr1e3_seed409",
+      "rdt_rope_fixed_lr1e3_seed419",
+      "rdt_rope_fixed_lr1e3_seed421",
+      "rdt_rope_fixed_lr1e3_seed431"
+    ],
+    "cuda:1": [
+      "rdt_rope_fixed_lr1e3_seed433",
+      "rdt_rope_fixed_lr1e3_seed439",
+      "rdt_rope_fixed_lr1e3_seed443",
+      "rdt_rope_fixed_lr1e3_seed449",
+      "rdt_rope_fixed_lr1e3_seed457",
+      "rdt_rope_fixed_lr1e3_seed461",
+      "rdt_rope_fixed_lr1e3_seed463",
+      "rdt_rope_fixed_lr1e3_seed467",
+      "rdt_rope_fixed_lr1e3_seed479",
+      "rdt_rope_fixed_lr1e3_seed487",
+      "rdt_rope_fixed_lr1e3_seed491",
+      "rdt_rope_fixed_lr1e3_seed499",
+      "rdt_rope_fixed_lr1e3_seed503",
+      "rdt_rope_fixed_lr1e3_seed509",
+      "rdt_rope_fixed_lr1e3_seed521"
+    ]
+  }
+}
