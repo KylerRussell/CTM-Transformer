@@ -32,7 +32,7 @@ def vertex(losses,best):
 
 
 def width_result(arm,d,h):
-    ks=sorted(k for (a,dd,k,hh) in plan()[0] if (a,dd,hh)==(arm,d,h))
+    ks=sorted(k for (a,dd,k,hh,seed) in plan()[0] if (a,dd,hh)==(arm,d,h))
     if not ks:return None
     ks,best,_=grid(arm,d,h,ks)
     if best is None:return None  # unfinished or unresolved

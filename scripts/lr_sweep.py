@@ -17,6 +17,11 @@ swept at 4x the tokens (400M), which measures how the optimum moves with
 training length. Runs use one GPU each, two at a time, and evaluate on
 validation windows disjoint from those the 500M runs report.
 
+Last stage, the CTM-augmented RDT screen (research/CTM_RDT_SCREEN.md): once
+the compute-aware RDT's middle width is resolved, the RDT and each CTM mechanism
+(`ctm_transformer/ctm_rdt.py`) train at that width's best learning rate with
+seeds 1234 and 1235. An arm name `rdt_aware+<mechanism>` adds the mechanism.
+
 Restart-safe and idempotent: a relaunch resumes interrupted runs from their
 checkpoints. A run that exits nonzero is recorded as `failure.json` and never
 retried; it blocks the larger widths of its arm.
@@ -36,16 +41,21 @@ HORIZON_ARMS=('transformer','rdt_aware','ctm_aware')
 PRIORITY=('ctm_heavy','rdt_heavy','ctm_aware','rdt_aware','transformer')
 TOKENS=100_000_000;K_MIN,K_MAX=-6,4;EVAL_OFFSET=40_000
 METRIC={'transformer':'final','rdt':'depth_16','ctm_lm':'most_certain_tick'}
+SEED=1234;SCREEN_ARM,SCREEN_WIDTH=('rdt_aware',512);SCREEN_SEEDS=(1234,1235)
+SCREEN_VARIANTS=('rdt_aware','rdt_aware+sync_query','rdt_aware+sync_readout','rdt_aware+learned_init')
 
 
 def lr_of(k):return 1e-3*2.0**k
-def run_name(arm,d,k,h):return f'{arm}_d{d}_h{h}_k{k:+d}'
+def run_name(arm,d,k,h,seed=SEED):return f'{arm}_d{d}_h{h}_k{k:+d}'+('' if seed==SEED else f'_s{seed}')
 
 
-def sweep_config(arm,d,k,h):
-    a=at_width(ARMS[arm],d);a={**a,'micro_batch':MICRO[arm][LADDER[arm].index(d)],'offload':False}
-    name=run_name(arm,d,k,h);run=config(name,a,TOKENS*h,lr_of(k),world=1);t=run['train'];steps=t['total_steps']
+def sweep_config(arm,d,k,h,seed=SEED):
+    base,*mechanisms=arm.split('+')
+    a=at_width(ARMS[base],d);a={**a,'micro_batch':MICRO[base][LADDER[base].index(d)],'offload':False}
+    name=run_name(arm,d,k,h,seed);run=config(name,a,TOKENS*h,lr_of(k),world=1);t=run['train'];steps=t['total_steps']
     run['run_directory']=str(RUNS/name)
+    if mechanisms:run['mechanisms']=mechanisms
+    if seed!=SEED:run['seed']=seed
     if run['family']=='rdt':run['eval_depths']=[run['eval_depth']]
     t.update(eval_interval=max(1,steps//4),eval_windows=128,final_eval_windows=1024,eval_offset=EVAL_OFFSET,checkpoint_interval=50,
              snapshot_interval=10**12,delete_checkpoint_on_complete=True)
@@ -77,16 +87,19 @@ def grid(arm,d,h,start):
 
 
 def plan():
-    """Every run the current results call for, as (arm, d, k, h), and whether any arm is blocked."""
-    want,blocked=[],False
+    """Every run the current results call for, as (arm, d, k, h, seed), and whether any arm is blocked."""
+    want,blocked,screen_k=[],False,None
     for arm in PRIORITY:
         start=(-1,0,1)
         for i,d in enumerate(LADDER[arm]):
-            ks,best,stop=grid(arm,d,1,start);want+=[(arm,d,k,1) for k in ks];blocked|=stop
+            ks,best,stop=grid(arm,d,1,start);want+=[(arm,d,k,1,SEED) for k in ks];blocked|=stop
             if best is None:break
+            if (arm,d)==(SCREEN_ARM,SCREEN_WIDTH):screen_k=best
             if i==0 and arm in HORIZON_ARMS:
-                hks,_,hstop=grid(arm,d,4,(best-1,best,best+1));want+=[(arm,d,k,4) for k in hks];blocked|=hstop
+                hks,_,hstop=grid(arm,d,4,(best-1,best,best+1));want+=[(arm,d,k,4,SEED) for k in hks];blocked|=hstop
             start=(best-1,best,best+1)
+    if screen_k is not None:
+        want+=[r for v in SCREEN_VARIANTS for seed in SCREEN_SEEDS if (r:=(v,SCREEN_WIDTH,screen_k,1,seed)) not in want]
     return want,blocked
 
 
@@ -111,9 +124,9 @@ def alive(name):
     except (OSError,ValueError,KeyError):return None
 
 
-def launch(arm,d,k,h,gpu):
-    name=run_name(arm,d,k,h);out=RUNS/name;out.mkdir(parents=True,exist_ok=True);cfg=out/'config.json'
-    run=sweep_config(arm,d,k,h)
+def launch(spec,gpu):
+    name=run_name(*spec);out=RUNS/name;out.mkdir(parents=True,exist_ok=True);cfg=out/'config.json'
+    run=sweep_config(*spec)
     if cfg.exists():assert json.loads(cfg.read_text())==run,f'{cfg} differs from the current sweep definition'
     else:cfg.write_text(json.dumps(run,indent=2)+'\n')
     env={**os.environ,'CUDA_VISIBLE_DEVICES':str(gpu),'PYTORCH_CUDA_ALLOC_CONF':'expandable_segments:True','OMP_NUM_THREADS':'8'}
@@ -145,13 +158,14 @@ def supervise():
         for gpu in (0,1):
             if not pending:break
             if gpu in workers or not gpu_free(gpu):continue
-            r=pending.pop(0);workers[gpu]=(run_name(*r),launch(*r,gpu))
+            r=pending.pop(0);workers[gpu]=(run_name(*r),launch(r,gpu))
         state={'time_utc':now(),'running':sorted(n for n,_ in workers.values()),'pending':[run_name(*r) for r in pending],
                'complete':sum(outcome(run_name(*r))[0] in ('complete','diverged') for r in want),'blocked':blocked}
         tmp=RESULTS/'state.tmp';tmp.write_text(json.dumps(state,indent=2)+'\n');tmp.replace(RESULTS/'state.json')
         if not workers and not pending:
             if blocked:log('stopped: a failed run blocks part of the sweep');return
             subprocess.run([sys.executable,'-m','scripts.summarize_lr_sweep'],check=True)
+            subprocess.run([sys.executable,'-m','scripts.summarize_ctm_rdt_screen'],check=True)
             AUTOSTART.unlink(missing_ok=True);log('sweep complete; autostart entry removed');return
         time.sleep(30)
 

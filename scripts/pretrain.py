@@ -3,7 +3,8 @@
     torchrun --nproc_per_node 2 -m scripts.pretrain --config research/configs/pretrain/<arm>.json
 
 The run config names the family (transformer | rdt | ctm_lm), the model overrides
-applied to the family's recipe, the depth sampler, and the training settings.
+applied to the family's recipe, the depth sampler, and the training settings. An
+RDT run may list CTM `mechanisms` (ctm_transformer/ctm_rdt.py).
 The run directory holds `run.json` (config, hashes, environment), `metrics.jsonl`
 (rank 0), `latest.pt` (model, optimizer, step; written atomically every
 `checkpoint_interval` steps) and periodic `step_XXXXXXX.pt` snapshots. A relaunch
@@ -23,6 +24,7 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from ctm_transformer.ctm_lm import lm_config
+from ctm_transformer.ctm_rdt import ctm_rdt_factory
 from ctm_transformer.depth_sampling import lognormal_poisson
 from ctm_transformer.experiment import file_hash
 from ctm_transformer.lm_scale import scaled_factory
@@ -33,7 +35,7 @@ RECIPES={'transformer':'research/configs/presentation_control_v1/transformer_shu
          'rdt':'research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json',
          'ctm_lm':'research/configs/presentation_control_v1/ctm_shuffled_seed23.json'}
 SOURCES=['scripts/pretrain.py','ctm_transformer/pretrain.py','ctm_transformer/lm_scale.py','ctm_transformer/positions.py','ctm_transformer/ctm_lm.py',
-         'ctm_transformer/baselines.py','ctm_transformer/ctm_variants.py','ctm_transformer/depth_sampling.py']
+         'ctm_transformer/baselines.py','ctm_transformer/ctm_variants.py','ctm_transformer/depth_sampling.py','ctm_transformer/ctm_rdt.py']
 
 
 def build_config(run,vocab):
@@ -72,7 +74,10 @@ def main():
     out=Path(run['run_directory']);out.mkdir(parents=True,exist_ok=True)
     config=build_config(run,data['vocab_size']);sampler=sampler_for(run)
     torch.manual_seed(run['seed'])
-    model=scaled_factory(family,t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))(config).to(device)
+    if run.get('mechanisms'):  # CTM-augmented RDT (ctm_transformer/ctm_rdt.py)
+        assert family=='rdt';factory=ctm_rdt_factory(set(run['mechanisms']),t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False),run.get('sync_pairs'))
+    else:factory=scaled_factory(family,t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))
+    model=factory(config).to(device)
     train=TokenWindows([root/s for s in data['train']],t['seq_len'],run['seed'])
     valid=TokenWindows([root/s for s in data['validation']],t['seq_len'],0)
     offset=t.get('eval_offset',0);windows=lambda n:list(range(offset,min(offset+n,len(valid))))

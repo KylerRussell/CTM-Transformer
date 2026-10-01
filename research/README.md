@@ -302,7 +302,7 @@ The evaluation-scoring milestone is implemented and validated; see [evaluation v
 1. ~~Profile costs~~ (done: [profile](results/lm_cost_profile/PROFILE.md)). There are five 500M arms: Transformer, RDT heavy and compute-aware, and CTM-LM heavy and compute-aware.
 2. Optionally, test CTM-LM retrieval at larger width.
 3. **Running:** the learning-rate scaling sweep ([protocol](LR_SCALING.md); `research/launch_lr_sweep.sh`).
-4. Screen the CTM-augmented RDT candidates at the sweep's widths.
+4. Screen the CTM-augmented RDT candidates ([protocol](CTM_RDT_SCREEN.md)); queued as the sweep's last stage.
 5. Pretraining: heavy arms at 1B tokens, compute-aware arms at 2B, Transformer at 1B and at 2B (`scripts/make_pretrain_configs.py`, `scripts/pretrain.py`).
 
 Use the measured costs to select comparable model and budget variants, add FLOP accounting, and begin the main experiment registry.
