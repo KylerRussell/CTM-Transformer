@@ -52,3 +52,30 @@ RDT layouts are prelude/core/coda 1/4/1 at 10M, 2/4/2 at 25M and 2/6/2 at 50M. C
 - **25M non-embedding parameters at 0.5–1B tokens is feasible for all families** after the CTM-LM loss fix: roughly 1–2 days per recurrent arm on both GPUs. 50M doubles that.
 - A sequence length of 512 instead of 1,024 roughly halves attention and logit cost. Tied embeddings or a smaller vocabulary would cut the embedding share.
 - Comparisons should state their matching rule. Matching parameters gives recurrent models 10–30× more compute; matching compute requires fewer tokens or smaller recurrent models. Both are reported in practice (Geiping et al.).
+
+## Update: language-model-scale training paths and 500M — 2026-10-01
+
+`ctm_transformer/lm_scale.py` gives exact training paths. Loss and gradients equal the reference models (`tests/test_lm_scale.py`):
+- a chunked cross-entropy that never stores full logits;
+- CTM's loss with gradient logits only for the two selected ticks;
+- activation checkpointing per block (Transformer and RDT) or per tick (CTM-LM).
+
+One RTX 3090, sequence length 1,024, AdamW state on the GPU, all with checkpointing:
+
+| Family | Non-embedding | Training depth | Largest batch | Tokens/s | Peak GiB |
+|---|---:|---|---:|---:|---:|
+| Transformer (50M, scaled) | 49.6M | — | 64 | 54,167 | 5.4 |
+| RDT (50M, scaled) | 50.4M | T = 16 | 32 | 6,007 | 11.6 |
+| CTM-LM (50M, scaled) | 48.7M | 16 ticks | 4 | 2,645 | 11.8 |
+| **Transformer 500M** (d 1,280, 24 layers) | 476M | — | 32 | **10,536** | 12.9 |
+| **RDT 500M** (d 2,304, 2/4/2) | 520M | T = 16 | 8 | **1,269** | 15.4 |
+| RDT 500M | 520M | T = 48 | 4 | 432 | 17.5 |
+| **CTM-LM 500M** (d 1,536, 12-layer backbone, D 4,096) | 446M | 16 ticks | 1 | **772** | 15.9 |
+
+**Reading at 500M:**
+- **Memory fits for every model, but CTM-LM fits only one sequence.** Its AdamW and master weights take about 10 GiB, and its per-tick state (history and synchronization accumulators) about 3.4 GiB. Offloading optimizer state to system RAM (629 GiB) would free most of the 10 GiB.
+- **Compute is the binding constraint.** Per token, RDT costs about 8× the Transformer and CTM-LM about 14×.
+  - CTM-LM runs near 19 TFLOPS, which is good use of the GPU. Its cost is inherent: a 147M-parameter synapse is applied at every one of 16 ticks, plus CTM's loss needs full logits at every tick (about 4 GFLOP per token without gradient).
+  - RDT's cost comes from its 4 core layers at width 2,304, applied 16 times.
+- **How parameters are placed matters more than how many there are.** Parameters in once-applied layers (RDT prelude and coda, the CTM-LM backbone) cost 1× per token. Parameters in the recurrent block (RDT core, CTM-LM synapse, NLMs and synchronization) cost about T×. A model of 500M total with a small recurrent block would cost only 2–3× the Transformer.
+
