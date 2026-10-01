@@ -79,3 +79,43 @@ One RTX 3090, sequence length 1,024, AdamW state on the GPU, all with checkpoint
   - RDT's cost comes from its 4 core layers at width 2,304, applied 16 times.
 - **How parameters are placed matters more than how many there are.** Parameters in once-applied layers (RDT prelude and coda, the CTM-LM backbone) cost 1× per token. Parameters in the recurrent block (RDT core, CTM-LM synapse, NLMs and synchronization) cost about T×. A model of 500M total with a small recurrent block would cost only 2–3× the Transformer.
 
+
+## Update: the five 500M arms on two GPUs — 2026-10-01
+
+The arms are `scripts/make_pretrain_configs.py` and the trainer is `scripts/pretrain.py`. Both arms of each recurrent family were profiled: one where most parameters recur ("heavy", A) and one where most parameters are applied once ("compute-aware", B).
+
+**Setup:**
+- Real FineWeb-Edu tokens, sequence length 1,024.
+- The true global batch: 256 sequences = 262,144 tokens per optimizer step.
+- DDP over both RTX 3090s, `torch.compile`, activation checkpointing.
+- AdamW in system RAM for the arms marked "offloaded".
+- Each figure is the mean of optimizer steps 2–3, after compilation.
+
+| Arm | Total / non-embedding | Micro-batch × accumulation per GPU | Optimizer | Tokens/s (2 GPUs) | Peak GiB | Hours per 1B tokens |
+|---|---:|---|---|---:|---:|---:|
+| Transformer (d 1,280, 24 layers) | 560M / 476M | 16 × 8 | GPU | 23,200 | 14.4 | 12 |
+| RDT compute-aware (d 1,280, 11/2/11) | 563M / 479M | 8 × 16 | GPU | 9,500 (depths 19, 17) | 15.2 | 29 |
+| CTM-LM compute-aware (d 1,280, 24-layer backbone, D 2,048) | 550M / 441M | 2 × 64 | offloaded | 4,040 | 15.7 | 69 |
+| RDT heavy (d 2,304, 2/4/2) | 671M / 520M | 2 × 64 | offloaded | 2,270 (depths 19, 17) | 10.4 | 122 |
+| CTM-LM heavy (d 1,536, 12-layer backbone, D 4,096) | 631M / 446M | 1 × 128 | offloaded | 2,080 | 14.8 | 134 |
+
+Single-GPU profiles of the compute-aware designs, at their largest batch, were:
+- RDT B: 4,180 tok/s eager and 5,380 compiled.
+- CTM-LM B: 1,660 eager and 2,310 compiled (batch 2).
+
+On two GPUs at the real batch, every arm reaches 1.8–2.3× its single-GPU rate. The offloaded optimizer step costs a few seconds per 262k-token step, which accumulation amortizes.
+
+**Fixes found by these runs:**
+- **DDP + compile + checkpointing.** DDP's graph splitting in `torch.compile` saved different tensors in the forward pass and in the checkpoint recomputation (a `CheckpointError`). The trainer now sets `torch._dynamo.config.optimize_ddp = False`.
+- **RDT-heavy gradient explosion at initialization.** With the small-scale recipe's fixed init std of 0.02, the d 2,304 core's backward pass grows about 1.5× per recurrence. Gradient norms at initialization, on two real sequences:
+
+  | Init | Depth 1 | Depth 4 | Depth 16 | Depth 32 |
+  |---|---:|---:|---:|---:|
+  | std 0.02, RDT heavy | 20.9 | 60.1 | 7,222 | 5,342,472 |
+  | std 0.02, RDT aware | 20.4 | 21.8 | 22.4 | 22.4 |
+  | std √(2/5d), RDT heavy | 9.2 | 10.8 | 11.3 | 11.3 |
+  | std √(2/5d), RDT aware | 11.8 | 12.5 | 12.7 | 12.7 |
+
+  Clipping would hide this, but the clipped direction would be dominated by the exploding path. All Transformer and RDT arms now use the width-scaled std √(2/5d) (as in Huginn). CTM-LM keeps the reference CTM initialization; its initial gradient norm is small (about 0.03), not large, because its synchronization readout starts near zero.
+
+**Budget.** One pass of 1B tokens through all five arms takes about 366 GPU-pair hours, or 15 days of continuous use of both GPUs.

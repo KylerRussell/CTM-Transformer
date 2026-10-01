@@ -58,6 +58,9 @@ def main():
     rank,world=(dist.get_rank(),dist.get_world_size()) if distributed else (0,1)
     device=torch.device(f'cuda:{int(os.environ.get("LOCAL_RANK",0))}');torch.cuda.set_device(device)
     torch.backends.cuda.matmul.allow_tf32=True;torch.backends.cudnn.allow_tf32=True
+    # Compiled blocks run inside activation checkpoints; DDP-aware graph splitting would make the
+    # recomputation save different tensors than the forward pass, so it is disabled.
+    torch._dynamo.config.optimize_ddp=False;torch._dynamo.config.cache_size_limit=64
     run=json.loads(Path(a.config).read_text());t=run['train'];family=run['family']
     data=json.loads(Path(run['data']).read_text());root=Path(run['data']).parent
     out=Path(run['run_directory']);out.mkdir(parents=True,exist_ok=True)
