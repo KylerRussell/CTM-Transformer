@@ -299,10 +299,11 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. Profile costs (throughput, memory, batch size) for Transformer, RDT and CTM-LM at about 10M, 25M and 50M parameters, to fix feasible pretraining sizes and token budgets ([scope update](../RESEARCH_PLAN.md)).
+1. ~~Profile costs~~ (done: [profile](results/lm_cost_profile/PROFILE.md)). There are five 500M arms: Transformer, RDT heavy and compute-aware, and CTM-LM heavy and compute-aware.
 2. Optionally, test CTM-LM retrieval at larger width.
-3. Mini language-model gate for each architecture, plus screened CTM-augmented RDT candidates. CTM-LM joins pretraining regardless.
-4. Pretraining.
+3. **Running:** the learning-rate scaling sweep ([protocol](LR_SCALING.md); `research/launch_lr_sweep.sh`).
+4. Screen the CTM-augmented RDT candidates at the sweep's widths.
+5. Pretraining: heavy arms at 1B tokens, compute-aware arms at 2B, Transformer at 1B and at 2B (`scripts/make_pretrain_configs.py`, `scripts/pretrain.py`).
 
 Use the measured costs to select comparable model and budget variants, add FLOP accounting, and begin the main experiment registry.
 

@@ -331,3 +331,20 @@ At most one or two candidates go forward as a "CTM-augmented RDT" arm, each need
 3. **Mini language-model gate.** Each architecture, plus the screened CTM-augmented RDT candidates, at about 10–20M parameters on a few hundred million FineWeb-Edu tokens, with two learning rates per arm. It checks stability and picks the learning rates.
 4. **Pretraining.** Transformer, RDT, CTM-LM and at most one CTM-augmented RDT, at the sizes and budgets that step 1 shows are feasible.
 
+**Update — 2026-10-01: 500M arms, token budgets and the learning-rate sweep.**
+- **Model size.** The user set about 500M parameters as the minimum. Recurrent families get two designs each:
+  - "heavy", where most parameters recur;
+  - "compute-aware", where most parameters are applied once.
+
+  All five arms run on both RTX 3090s ([profile](research/results/lm_cost_profile/PROFILE.md)).
+- **Token budgets (user decision):**
+  - heavy arms (RDT, CTM-LM): 1B tokens;
+  - compute-aware arms: 2B;
+  - Transformer: both 1B and 2B, as the reference for each group.
+
+  That is about 20 days of both GPUs.
+- **Initialization.** Transformer and RDT arms use the width-scaled std √(2/5d). With the recipe's fixed 0.02, RDT-heavy's gradients grew about 1.5× per recurrence at initialization.
+- **Learning rates.** Step 3 is replaced by a learning-rate scaling sweep ([protocol](research/LR_SCALING.md)). Each arm's optimum is measured at three narrower widths and at two training lengths, then extrapolated to its 500M size and token budget. Its cost is about 6 days of both GPUs.
+
+  The CTM-augmented RDT screen follows the sweep, at the sweep's widths and with the fitted rates.
+
