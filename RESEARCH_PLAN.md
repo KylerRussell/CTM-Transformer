@@ -297,3 +297,37 @@ The frozen [recipe confirmation](research/results/recipe_s3_v1/INTERPRETATION.md
 
 **Next:** that control, optionally; then A₅ with the adopted recipe; CTM-LM retrieval; and the mini language-model gate.
 
+
+## Scope and path to pretraining — 2026-10-01
+
+**Paper scope.** The paper is about the **feasibility and benefits of the CTM compared with standard Transformers and recurrent-depth Transformers (RDTs)**. The synthetic studies were preliminary testing, done to choose recipes before small-scale pretraining of each model type at sizes this system can afford (2× RTX 3090, 24 GiB each).
+
+**What the preliminary phase settled:**
+- **Recurrent-depth recipe:** RoPE, log-normal-Poisson randomized depth (confirmed against a learning-rate-matched control), and a learning rate tuned per architecture.
+- **CTM-LM:** a CTM as faithful as language-model scale allows. It uses its ticks, but at tiny scale (0.6M parameters) it trails RDT on serial state tracking. It has not yet shown one-hop retrieval.
+- **Width matters at tiny scale.** On A₅, RDT at width 96 never learned, while width 192 with randomized depth and 30,000 updates solved it on 2 of 3 development seeds. A matched Transformer handled 2–4 positions. So tiny-model failures can reflect capacity, not design, and that applies to reading CTM-LM's results too. A₅ is kept as a [development observation](research/results/recipe_probes/RECIPE_PROBES.md). A frozen A₅ study is not planned, because it tests recurrent depth rather than the CTM.
+
+**Change to the gate:** CTM-LM joins pretraining **regardless of the synthetic gates**, because it is the paper's subject. The preliminary findings become stated expectations (tick use; weaker serial tracking than RDT at tiny scale; retrieval unproven), to be tested at language-model scale.
+
+**New track: CTM-inspired additions to RDT.** If CTM-LM trains worse than RDT, the paper's constructive question is whether CTM mechanisms improve an RDT. Candidates, with the evidence so far:
+
+| Candidate | Source in the CTM | Prior evidence here |
+|---|---|---|
+| Synchronization-derived query terms in the RDT core | action synchronization driving attention | positive in development; **not replicated** in the locked confirmation, under the old recipe (learned positions, LR 3e-4, fixed depth). Worth one re-screen under the new recipe |
+| Output-synchronization readout | the CTM readout from pairwise state products | untested in RDT |
+| Tick-selection loss and certainty-based early exit | min-loss plus max-certainty loss; adaptive compute | in CTM-LM with randomized depth it collapsed tick use. In RDT it may enable per-token adaptive depth at inference |
+| Learned initial state | CTM's learned start state and history | untested in RDT (RDT starts from zeros) |
+| Neuron-level temporal models over step history | per-neuron temporal MLPs | the `history` cell did not help (development) |
+
+Synthetic S₃ is near ceiling for randomized-depth RDT (95.8%). So candidates are screened where there is headroom:
+- validation loss in the mini language-model gate (the outcome that matters);
+- S₃ at a reduced update budget, or on positions 17–24, as a secondary measure.
+
+At most one or two candidates go forward as a "CTM-augmented RDT" arm, each needing a locked confirmation before it counts as a claim.
+
+**Next steps:**
+1. **Cost profiling.** Throughput, memory and feasible batch size for Transformer, RDT and CTM-LM at about 10M, 25M and 50M parameters, at language-model sequence lengths, on one RTX 3090. This fixes the feasible model sizes and token budgets.
+2. **CTM-LM retrieval at larger width (optional, development).**
+3. **Mini language-model gate.** Each architecture, plus the screened CTM-augmented RDT candidates, at about 10–20M parameters on a few hundred million FineWeb-Edu tokens, with two learning rates per arm. It checks stability and picks the learning rates.
+4. **Pretraining.** Transformer, RDT, CTM-LM and at most one CTM-augmented RDT, at the sizes and budgets that step 1 shows are feasible.
+

@@ -299,8 +299,11 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 
 The evaluation-scoring milestone is implemented and validated; see [evaluation validation](EVALUATION.md). Historical benchmark scores still need reevaluation from their original checkpoints.
 
-1. With the adopted recipe (RoPE, randomized depth, tuned learning rate), optionally run a learning-rate-matched fixed-depth control. Then run A₅ as the hard serial task, and CTM-LM retrieval (one-hop MQAR) to decide whether any CTM-LM arm joins the language-model phase.
-2. Then test serial computation directly: vary hop count at fixed map size, train on bounded hops, and evaluate held-out deeper hops and extra thought ticks. One-hop retrieval alone is not expected to separate recurrent from fixed-depth models.
-3. Use the measured costs to select comparable model/budget variants, add FLOP accounting, and begin the main experiment registry.
+1. Profile costs (throughput, memory, batch size) for Transformer, RDT and CTM-LM at about 10M, 25M and 50M parameters, to fix feasible pretraining sizes and token budgets ([scope update](../RESEARCH_PLAN.md)).
+2. Optionally, test CTM-LM retrieval at larger width.
+3. Mini language-model gate for each architecture, plus screened CTM-augmented RDT candidates. CTM-LM joins pretraining regardless.
+4. Pretraining.
+
+Use the measured costs to select comparable model and budget variants, add FLOP accounting, and begin the main experiment registry.
 
 The controlled-task development comparison, compact fresh-map three-seed confirmation, recurrent temporal-supervision control, and paired presentation control are complete. No paper-scale training run has been launched. See `../RESEARCH_PLAN.md` for the overall study design.
