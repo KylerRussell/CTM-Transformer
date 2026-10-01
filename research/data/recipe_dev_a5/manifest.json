@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "name": "recipe_dev_a5",
+  "group": "A5",
+  "group_size": 60,
+  "train_lengths": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "evaluation_length": 32,
+  "min_held_out_length": 8,
+  "tokenizer": {
+    "name": "algorithmic_char_v1",
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz +>=;:",
+    "special_tokens": {
+      "PAD": 0,
+      "BOS": 1,
+      "EOS": 2
+    },
+    "vocab_size": 71
+  },
+  "generator_sha256": {
+    "ctm_transformer/group_suite.py": "bd09ac31d2a6e9f95891de77efbf4e59ff30ad01910d2511259512b6aebe8d36",
+    "ctm_transformer/group_word.py": "a22793958abd62ab5c66cf236c40538a3b264fabe69c3c4608696e3aafe1ade5"
+  },
+  "role": "development study data; no locked test split",
+  "seeds": {
+    "307": {
+      "train": {
+        "path": "seed307/train.jsonl",
+        "examples": 320000,
+        "sha256": "39aedab108c4078fd678ddf3f86685bd311d3be30dbb672c7fc77c2c6fbda658"
+      },
+      "validation": {
+        "path": "seed307/validation.jsonl",
+        "examples": 512,
+        "sha256": "d01ba03141ed878d631376af292ff31989fcb41cb9f94bb82948995b6aca2383"
+      },
+      "evaluation": {
+        "path": "seed307/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "009fd1631bdf8763a77bdfb34837731453fe8a74cff44679d8885c7f693835d5"
+      }
+    },
+    "311": {
+      "train": {
+        "path": "seed311/train.jsonl",
+        "examples": 320000,
+        "sha256": "0366e8c5571a225783572762f99222a2c9be5433d4c9aecc9eeca3e2e9d795a3"
+      },
+      "validation": {
+        "path": "seed311/validation.jsonl",
+        "examples": 512,
+        "sha256": "97fd174d641e61d8e76d5ec3ee63ffaa9125e65be59dbf91ff56cbba2b4ce7f0"
+      },
+      "evaluation": {
+        "path": "seed311/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "52024f75ccf42b370412edeb7bde203dfd009fa40ac24bc3f23d8921f4e71a11"
+      }
+    },
+    "313": {
+      "train": {
+        "path": "seed313/train.jsonl",
+        "examples": 320000,
+        "sha256": "46e5a69d67b29822d5fa8f2dc290a8bd30315cad5383b40d02004d8e23ae993b"
+      },
+      "validation": {
+        "path": "seed313/validation.jsonl",
+        "examples": 512,
+        "sha256": "58ad82e9fe3a3825389dd6e3349e47df3d7166196b1425c43eaa933936c65d55"
+      },
+      "evaluation": {
+        "path": "seed313/evaluation.jsonl",
+        "examples": 1024,
+        "sha256": "3da2fcd0ef09bd2177dbd1507db40b5414655c6d4bfc0d79c8dd524a10b56180"
+      }
+    }
+  }
+}

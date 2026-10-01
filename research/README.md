@@ -293,6 +293,7 @@ See [protocol](PRESENTATION_CONTROL.md), [results](results/presentation_control_
 
 - [x] Run [development recipe probes](results/recipe_probes/RECIPE_PROBES.md): RoPE against learned and NoPE positions, a length curriculum, and per-cell learning rates. RoPE permits short extrapolation. The learning rate dominates: randomized-depth RDT escapes at 3/3 seeds at 1e-3 against 1/6 at 3e-4. The curriculum shows no clear effect.
 - [x] Run the [S₃ recipe confirmation](RECIPE_S3.md) (4 RoPE cells × 30 new seeds, tuned learning rates). **All four declared tests pass after Holm.** Randomized-depth RDT beats fixed depth by +14.3 points and escapes at **24/30 against 0/30**. It beats the Transformer on positions 17–24 by +26.0 points (short extrapolation). CTM-LM is 22.7 points below fixed-depth RDT. See [interpretation](results/recipe_s3_v1/INTERPRETATION.md).
+- [x] Run the [learning-rate control](LRCONTROL_S3.md): fixed-depth RDT at 1e-3 on the same 30 seeds. **Randomized depth still wins at a matched learning rate**: +11.7 points, 24/30 escapes against 1/30. See [interpretation](results/lrcontrol_s3_v1/INTERPRETATION.md).
 
 ## Next tasks, in order
 

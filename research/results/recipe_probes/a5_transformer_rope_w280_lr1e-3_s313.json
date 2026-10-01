@@ -1,0 +1,237 @@
+{
+  "role": "exploratory development probe; not a paper endpoint",
+  "name": "a5_transformer_rope_w280_lr1e-3_s313",
+  "group": "A5",
+  "model": "transformer",
+  "positions": "rope",
+  "depth": "fixed",
+  "curriculum": "none",
+  "learning_rate": 0.001,
+  "train_depth": 1,
+  "d_model": 280,
+  "steps": 10000,
+  "seed": 313,
+  "parameters": {
+    "total": 2080680,
+    "token_embedding": 19880,
+    "position_embedding": 0,
+    "readout": 19880,
+    "other": 2040920
+  },
+  "training_minutes": 4.735502927393342,
+  "final_train_loss_last100": 2.2942788779735563,
+  "validation_curve": [
+    {
+      "step": 250,
+      "answer_accuracy": 0.13442095588235295
+    },
+    {
+      "step": 500,
+      "answer_accuracy": 0.13534007352941177
+    },
+    {
+      "step": 750,
+      "answer_accuracy": 0.13671875
+    },
+    {
+      "step": 1000,
+      "answer_accuracy": 0.13074448529411764
+    },
+    {
+      "step": 1250,
+      "answer_accuracy": 0.13694852941176472
+    },
+    {
+      "step": 1500,
+      "answer_accuracy": 0.13488051470588236
+    },
+    {
+      "step": 1750,
+      "answer_accuracy": 0.1371783088235294
+    },
+    {
+      "step": 2000,
+      "answer_accuracy": 0.13579963235294118
+    },
+    {
+      "step": 2250,
+      "answer_accuracy": 0.13534007352941177
+    },
+    {
+      "step": 2500,
+      "answer_accuracy": 0.1362591911764706
+    },
+    {
+      "step": 2750,
+      "answer_accuracy": 0.14476102941176472
+    },
+    {
+      "step": 3000,
+      "answer_accuracy": 0.14981617647058823
+    },
+    {
+      "step": 3250,
+      "answer_accuracy": 0.15464154411764705
+    },
+    {
+      "step": 3500,
+      "answer_accuracy": 0.1753216911764706
+    },
+    {
+      "step": 3750,
+      "answer_accuracy": 0.20886948529411764
+    },
+    {
+      "step": 4000,
+      "answer_accuracy": 0.23046875
+    },
+    {
+      "step": 4250,
+      "answer_accuracy": 0.2378216911764706
+    },
+    {
+      "step": 4500,
+      "answer_accuracy": 0.24333639705882354
+    },
+    {
+      "step": 4750,
+      "answer_accuracy": 0.24770220588235295
+    },
+    {
+      "step": 5000,
+      "answer_accuracy": 0.2545955882352941
+    },
+    {
+      "step": 5250,
+      "answer_accuracy": 0.26815257352941174
+    },
+    {
+      "step": 5500,
+      "answer_accuracy": 0.2874540441176471
+    },
+    {
+      "step": 5750,
+      "answer_accuracy": 0.3053768382352941
+    },
+    {
+      "step": 6000,
+      "answer_accuracy": 0.32284007352941174
+    },
+    {
+      "step": 6250,
+      "answer_accuracy": 0.3304227941176471
+    },
+    {
+      "step": 6500,
+      "answer_accuracy": 0.33708639705882354
+    },
+    {
+      "step": 6750,
+      "answer_accuracy": 0.34030330882352944
+    },
+    {
+      "step": 7000,
+      "answer_accuracy": 0.34099264705882354
+    },
+    {
+      "step": 7250,
+      "answer_accuracy": 0.34811580882352944
+    },
+    {
+      "step": 7500,
+      "answer_accuracy": 0.34512867647058826
+    },
+    {
+      "step": 7750,
+      "answer_accuracy": 0.34581801470588236
+    },
+    {
+      "step": 8000,
+      "answer_accuracy": 0.34627757352941174
+    },
+    {
+      "step": 8250,
+      "answer_accuracy": 0.35363051470588236
+    },
+    {
+      "step": 8500,
+      "answer_accuracy": 0.34811580882352944
+    },
+    {
+      "step": 8750,
+      "answer_accuracy": 0.34880514705882354
+    },
+    {
+      "step": 9000,
+      "answer_accuracy": 0.3524816176470588
+    },
+    {
+      "step": 9250,
+      "answer_accuracy": 0.3499540441176471
+    },
+    {
+      "step": 9500,
+      "answer_accuracy": 0.35799632352941174
+    },
+    {
+      "step": 9750,
+      "answer_accuracy": 0.35730698529411764
+    },
+    {
+      "step": 10000,
+      "answer_accuracy": 0.36833639705882354
+    }
+  ],
+  "eval_by_ticks": {
+    "1": {
+      "answer_accuracy": 0.11578369140625,
+      "by_position": [
+        1.0,
+        1.0,
+        0.966796875,
+        0.240234375,
+        0.0361328125,
+        0.0185546875,
+        0.0087890625,
+        0.0107421875,
+        0.017578125,
+        0.013671875,
+        0.021484375,
+        0.01953125,
+        0.0185546875,
+        0.0234375,
+        0.015625,
+        0.015625,
+        0.0166015625,
+        0.0146484375,
+        0.0185546875,
+        0.0185546875,
+        0.0205078125,
+        0.021484375,
+        0.0205078125,
+        0.0166015625,
+        0.015625,
+        0.0166015625,
+        0.015625,
+        0.0146484375,
+        0.021484375,
+        0.0185546875,
+        0.0146484375,
+        0.013671875
+      ],
+      "positions_1_16": 0.21417236328125,
+      "positions_9_16": 0.0181884765625,
+      "positions_17_32": 0.01739501953125
+    }
+  },
+  "data_manifest_sha256": "eea2ce9022e89a86b7f913b9df0e78577b2cdbbee1786a145a0e9e49146319ee",
+  "source_sha256": {
+    "scripts/run_recipe_probe.py": "67d2b3db598f782c3fe93e84d58c309b98f5c542bc3cfbe51511271b2c7432b0",
+    "ctm_transformer/positions.py": "afcb4211f5f06d08d9fd3651cee2fa1b43900922e4e8d29dcdb9dce6422b84a3",
+    "ctm_transformer/dense_experiment_v5.py": "4b456d149f29a5aef138d77a6c6bb61f51b53e8791961acab148e6e417a50bfc",
+    "ctm_transformer/curriculum.py": "9cd993454d7796ba65271c88760572505f78a58baf83b60a6a26782bae806141",
+    "ctm_transformer/ctm_lm.py": "7f389b648d92349ef5727f06d4d6b3d00a1bea8a073cc57045ad2b4d5774ec51",
+    "ctm_transformer/baselines.py": "b50672cc2942168169edeea510f872bce18ad8f4e2c5dc983e4d2c905d0af57f",
+    "ctm_transformer/dense_pointer.py": "961ad88d96d865a8d7fd4e615917b920023b324ee60c9893cf7b055c8628b169"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "started_utc": "2026-09-30T16:14:12.036131+00:00",
+      "pid": 175097,
+      "supervisor_sha256": "d9e0eb79113c3be6491f9748e3a805ba37505cbd01b98a12c828aba41d84d14f",
+      "events": [
+        {
+          "phase": "preflight",
+          "time_utc": "2026-09-30T16:14:12.036785+00:00"
+        },
+        {
+          "phase": "training",
+          "time_utc": "2026-09-30T16:15:01.446281+00:00",
+          "workers": {
+            "cuda:0#0": {
+              "pid": 175543,
+              "cells": [
+                "rdt_rope_fixed_lr1e3_seed347",
+                "rdt_rope_fixed_lr1e3_seed367",
+                "rdt_rope_fixed_lr1e3_seed389",
+                "rdt_rope_fixed_lr1e3_seed419",
+                "rdt_rope_fixed_lr1e3_seed439",
+                "rdt_rope_fixed_lr1e3_seed461",
+                "rdt_rope_fixed_lr1e3_seed487",
+                "rdt_rope_fixed_lr1e3_seed509"
+              ]
+            },
+            "cuda:0#1": {
+              "pid": 175544,
+              "cells": [
+                "rdt_rope_fixed_lr1e3_seed349",
+                "rdt_rope_fixed_lr1e3_seed373",
+                "rdt_rope_fixed_lr1e3_seed397",
+                "rdt_rope_fixed_lr1e3_seed421",
+                "rdt_rope_fixed_lr1e3_seed443",
+                "rdt_rope_fixed_lr1e3_seed463",
+                "rdt_rope_fixed_lr1e3_seed491",
+                "rdt_rope_fixed_lr1e3_seed521"
+              ]
+            },
+            "cuda:1#3": {
+              "pid": 175545,
+              "cells": [
+                "rdt_rope_fixed_lr1e3_seed353",
+                "rdt_rope_fixed_lr1e3_seed379",
+                "rdt_rope_fixed_lr1e3_seed401",
+                "rdt_rope_fixed_lr1e3_seed431",
+                "rdt_rope_fixed_lr1e3_seed449",
+                "rdt_rope_fixed_lr1e3_seed467",
+                "rdt_rope_fixed_lr1e3_seed499"
+              ]
+            },
+            "cuda:1#4": {
+              "pid": 175546,
+              "cells": [
+                "rdt_rope_fixed_lr1e3_seed359",
+                "rdt_rope_fixed_lr1e3_seed383",
+                "rdt_rope_fixed_lr1e3_seed409",
+                "rdt_rope_fixed_lr1e3_seed433",
+                "rdt_rope_fixed_lr1e3_seed457",
+                "rdt_rope_fixed_lr1e3_seed479",
+                "rdt_rope_fixed_lr1e3_seed503"
+              ]
+            }
+          }
+        },
+        {
+          "phase": "training_complete",
+          "time_utc": "2026-10-01T02:23:05.964210+00:00"
+        },
+        {
+          "phase": "freezing_final_checkpoints",
+          "time_utc": "2026-10-01T02:23:05.966092+00:00"
+        },
+        {
+          "phase": "evaluation",
+          "time_utc": "2026-10-01T02:23:30.182987+00:00",
+          "worker_pids": [
+            214182,
+            214183
+          ]
+        },
+        {
+          "phase": "summarizing",
+          "time_utc": "2026-10-01T02:36:56.196879+00:00"
+        },
+        {
+          "phase": "complete_pending_documentation_and_archive",
+          "time_utc": "2026-10-01T02:37:04.406951+00:00"
+        }
+      ]
+    }
+  ],
+  "phase": "complete_pending_documentation_and_archive"
+}

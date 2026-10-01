@@ -293,7 +293,7 @@ The frozen [recipe confirmation](research/results/recipe_s3_v1/INTERPRETATION.md
 
 **Adopted recurrent-depth recipe:** RoPE, log-normal-Poisson randomized depth, and a per-cell tuned learning rate.
 
-**Open caveat:** randomized depth is confounded with its higher tuned learning rate (1e-3 against 6e-4). A learning-rate-matched control would settle it.
+**Caveat resolved (2026-10-01):** a [learning-rate-matched control](research/results/lrcontrol_s3_v1/INTERPRETATION.md) put fixed depth at 1e-3 on the same 30 seeds. Randomized depth still wins by +11.7 points and escapes at 24/30 against 1/30 (Holm p < 10⁻⁶). The effect belongs to randomized depth, not to the learning rate.
 
 **Next:** that control, optionally; then A₅ with the adopted recipe; CTM-LM retrieval; and the mini language-model gate.
 

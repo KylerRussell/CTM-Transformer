@@ -1,5 +1,7 @@
 # S3 learning-rate control for randomized depth
 
+> **Outcome (2026-10-01): both tests significant.** At the same learning rate, randomized depth beats fixed depth by +11.7 points and escapes at 24/30 against 1/30. The effect is attributed to randomized depth. See [interpretation](results/lrcontrol_s3_v1/INTERPRETATION.md).
+
 ## Protocol declared before new scientific training — 2026-09-30
 
 ### Question
