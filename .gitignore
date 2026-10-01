@@ -39,3 +39,7 @@ research/data/recipe_dev_a5/seed*/train.jsonl
 research/runs/lrcontrol_s3_v1/*/*/metrics.jsonl
 research/results/lrcontrol_s3_v1/gpu*.attempt*.log
 research/data/pretrain/fineweb_edu_32k/*.bin
+# lr_sweep: run directories stay local; per-run losses and parameter counts are copied into research/results/lr_sweep/lr_sweep.json
+research/runs/lr_sweep/
+research/results/lr_sweep/supervisor.log
+research/results/lr_sweep/state.tmp

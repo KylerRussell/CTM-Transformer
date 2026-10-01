@@ -9,6 +9,12 @@ The run directory holds `run.json` (config, hashes, environment), `metrics.jsonl
 `checkpoint_interval` steps) and periodic `step_XXXXXXX.pt` snapshots. A relaunch
 resumes from `latest.pt`: data order and depths are functions of (seed, step),
 so a resumed run sees exactly the batches and depths it would have seen.
+
+Optional training settings: `eval_offset` (first validation window evaluated, so
+that hyperparameter selection and the reported evaluation use disjoint windows),
+`final_eval_windows` (a larger evaluation at the last step) and
+`delete_checkpoint_on_complete`. A non-finite gradient norm ends the run with
+`diverged.json` (a result, not a crash).
 """
 import argparse,contextlib,datetime,hashlib,json,os,time
 from dataclasses import asdict,replace
@@ -69,7 +75,8 @@ def main():
     model=scaled_factory(family,t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))(config).to(device)
     train=TokenWindows([root/s for s in data['train']],t['seq_len'],run['seed'])
     valid=TokenWindows([root/s for s in data['validation']],t['seq_len'],0)
-    eval_indices=list(range(min(t['eval_windows'],len(valid))))
+    offset=t.get('eval_offset',0);windows=lambda n:list(range(offset,min(offset+n,len(valid))))
+    eval_indices,final_indices=windows(t['eval_windows']),windows(t.get('final_eval_windows',t['eval_windows']))
     params=[p for p in model.parameters() if p.requires_grad]
     if t.get('offload_optimizer'):optimizer=OffloadedAdamW(params,t['lr'],betas=tuple(t['betas']),weight_decay=t['weight_decay'],threads=t.get('cpu_threads',16))
     else:optimizer=torch.optim.AdamW(params,lr=t['lr'],betas=tuple(t['betas']),weight_decay=t['weight_decay'],fused=True)
@@ -103,14 +110,16 @@ def main():
                 (loss/acc).backward()
             total+=loss.detach()/acc
         norm=torch.nn.utils.clip_grad_norm_(params,t['grad_clip'])
-        if not torch.isfinite(norm):raise FloatingPointError(f'non-finite gradient norm at step {step}')
+        if not torch.isfinite(norm):  # identical on every rank: the gradients are all-reduced
+            if rank==0:(out/'diverged.json').write_text(json.dumps({'diverged':True,'step':step,'loss':float(total),'lr':lr})+'\n')
+            break
         optimizer.step();optimizer.zero_grad(set_to_none=True)
         if distributed:dist.all_reduce(total);total/=world
         done=step+1;row={'step':done,'tokens':done*tokens_per_step,'loss':float(total),'lr':lr,'grad_norm':float(norm),'depth':depth,
              'seconds':time.perf_counter()-tick,'peak_gib':torch.cuda.max_memory_allocated(device)/2**30}
         row['tokens_per_second']=tokens_per_step/row['seconds']
         if done%t['eval_interval']==0 or done==t['total_steps']:
-            if rank==0:row['validation']=evaluate_lm(model,valid,eval_indices,t['eval_micro_batch'],device,family,
+            if rank==0:row['validation']=evaluate_lm(model,valid,final_indices if done==t['total_steps'] else eval_indices,t['eval_micro_batch'],device,family,
                 depths=tuple(run.get('eval_depths',[run.get('eval_depth')])) if family=='rdt' else (None,))
             if distributed:dist.barrier()
         if rank==0:
@@ -122,7 +131,9 @@ def main():
                 atomic_save(payload,latest)
                 if done%t.get('snapshot_interval',10**12)==0 or done==t['total_steps']:atomic_save(payload,out/f'step_{done:07d}.pt')
             if distributed:dist.barrier()
-    if rank==0 and stop==t['total_steps']:(out/'complete.json').write_text(json.dumps({'complete':True,'steps':stop,'tokens':stop*tokens_per_step})+'\n')
+    if rank==0 and stop==t['total_steps'] and not (out/'diverged.json').exists():
+        (out/'complete.json').write_text(json.dumps({'complete':True,'steps':stop,'tokens':stop*tokens_per_step})+'\n')
+        if t.get('delete_checkpoint_on_complete'):latest.unlink(missing_ok=True)
     if distributed:dist.destroy_process_group()
 
 if __name__=='__main__':main()

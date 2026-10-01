@@ -32,6 +32,14 @@ ARMS={
                   micro_batch=2,offload=True,eval_depth=16)}
 
 
+def at_width(arm,d):
+    """The arm with width d: same layer layout, same ratios of FFN width and CTM neurons and pairs to d (rounded to 64)."""
+    m=dict(arm['model']);r=lambda key:max(64,round(m[key]/m['d_model']*d/64)*64)
+    for key in ('ffn_hidden_dim','d_latent','sync_sparse_pairs'):
+        if key in m:m[key]=r(key)
+    m['d_model']=d;return {**arm,'model':m}
+
+
 def config(name,arm,tokens,lr,world=2):
     micro=arm['micro_batch'];assert GLOBAL_SEQS%(world*micro)==0
     steps=round(tokens/(SEQ*GLOBAL_SEQS))
