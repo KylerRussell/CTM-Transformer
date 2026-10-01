@@ -1,0 +1,284 @@
+{
+  "role": "planning measurement; random tokens; one GPU; not a paper endpoint",
+  "vocab": 32768,
+  "sizes": {
+    "transformer": {
+      "10M": {
+        "d_model": 384,
+        "n_layers": 6,
+        "ffn_hidden_dim": 1024
+      },
+      "25M": {
+        "d_model": 512,
+        "n_layers": 8,
+        "ffn_hidden_dim": 1408
+      },
+      "50M": {
+        "d_model": 640,
+        "n_layers": 10,
+        "ffn_hidden_dim": 1728
+      }
+    },
+    "rdt": {
+      "10M": {
+        "d_model": 384,
+        "prelude_layers": 1,
+        "core_layers": 4,
+        "coda_layers": 1,
+        "ffn_hidden_dim": 1024
+      },
+      "25M": {
+        "d_model": 512,
+        "prelude_layers": 2,
+        "core_layers": 4,
+        "coda_layers": 2,
+        "ffn_hidden_dim": 1408
+      },
+      "50M": {
+        "d_model": 640,
+        "prelude_layers": 2,
+        "core_layers": 6,
+        "coda_layers": 2,
+        "ffn_hidden_dim": 1728
+      }
+    },
+    "ctm_lm": {
+      "10M": {
+        "d_model": 384,
+        "n_layers": 4,
+        "d_latent": 512,
+        "sync_sparse_pairs": 512,
+        "history_len": 8,
+        "nlm_hidden_dim": 32
+      },
+      "25M": {
+        "d_model": 512,
+        "n_layers": 4,
+        "d_latent": 1024,
+        "sync_sparse_pairs": 1024,
+        "history_len": 8,
+        "nlm_hidden_dim": 32
+      },
+      "50M": {
+        "d_model": 640,
+        "n_layers": 6,
+        "d_latent": 1536,
+        "sync_sparse_pairs": 1536,
+        "history_len": 8,
+        "nlm_hidden_dim": 32
+      }
+    }
+  },
+  "rows": [
+    {
+      "family": "transformer",
+      "size": "10M",
+      "seq_len": 1024,
+      "depth": 1,
+      "checkpointing": false,
+      "max_batch": 32,
+      "tokens_per_second": 158609.88734525847,
+      "seconds_per_update": 0.2065949389943853,
+      "peak_gib": 16.617539882659912,
+      "parameters": 35792256,
+      "non_embedding_parameters": 10626432,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "transformer",
+      "size": "25M",
+      "seq_len": 1024,
+      "depth": 1,
+      "checkpointing": false,
+      "max_batch": 32,
+      "tokens_per_second": 102793.68632250486,
+      "seconds_per_update": 0.31877444201381877,
+      "peak_gib": 20.185858726501465,
+      "parameters": 59261440,
+      "non_embedding_parameters": 25707008,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "transformer",
+      "size": "50M",
+      "seq_len": 1024,
+      "depth": 1,
+      "checkpointing": false,
+      "max_batch": 16,
+      "tokens_per_second": 62580.03613452313,
+      "seconds_per_update": 0.2618087334558368,
+      "peak_gib": 12.907322406768799,
+      "parameters": 91530880,
+      "non_embedding_parameters": 49587840,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "10M",
+      "seq_len": 1024,
+      "depth": 16,
+      "checkpointing": false,
+      "max_batch": 8,
+      "tokens_per_second": 10060.910948881732,
+      "seconds_per_update": 0.8142403845558874,
+      "peak_gib": 17.733741283416748,
+      "parameters": 36091776,
+      "non_embedding_parameters": 10925952,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "10M",
+      "seq_len": 1024,
+      "depth": 48,
+      "checkpointing": false,
+      "max_batch": 2,
+      "tokens_per_second": 920.8573494572279,
+      "seconds_per_update": 2.2240143939852715,
+      "peak_gib": 12.023353099822998,
+      "parameters": 36091776,
+      "non_embedding_parameters": 10925952,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "10M",
+      "seq_len": 1024,
+      "depth": 48,
+      "checkpointing": true,
+      "max_batch": 16,
+      "tokens_per_second": 4548.825876383979,
+      "seconds_per_update": 3.6018085645046085,
+      "peak_gib": 11.661597728729248,
+      "parameters": 36091776,
+      "non_embedding_parameters": 10925952,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "25M",
+      "seq_len": 1024,
+      "depth": 16,
+      "checkpointing": false,
+      "max_batch": 4,
+      "tokens_per_second": 5411.123124837148,
+      "seconds_per_update": 0.7569593050284311,
+      "peak_gib": 12.42124080657959,
+      "parameters": 59793920,
+      "non_embedding_parameters": 26239488,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "25M",
+      "seq_len": 1024,
+      "depth": 48,
+      "checkpointing": false,
+      "max_batch": 2,
+      "tokens_per_second": 918.5803326061333,
+      "seconds_per_update": 2.229527377523482,
+      "peak_gib": 15.978705406188965,
+      "parameters": 59793920,
+      "non_embedding_parameters": 26239488,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "25M",
+      "seq_len": 1024,
+      "depth": 48,
+      "checkpointing": true,
+      "max_batch": 16,
+      "tokens_per_second": 3578.7974353819172,
+      "seconds_per_update": 4.578074142453261,
+      "peak_gib": 13.74124813079834,
+      "parameters": 59793920,
+      "non_embedding_parameters": 26239488,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "50M",
+      "seq_len": 1024,
+      "depth": 16,
+      "checkpointing": false,
+      "max_batch": 4,
+      "tokens_per_second": 3432.407566846429,
+      "seconds_per_update": 1.1933314795023762,
+      "peak_gib": 20.82879114151001,
+      "parameters": 92362880,
+      "non_embedding_parameters": 50419840,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "50M",
+      "seq_len": 1024,
+      "depth": 48,
+      "checkpointing": false,
+      "max_batch": 1,
+      "tokens_per_second": 315.3561071149645,
+      "seconds_per_update": 3.2471227824571542,
+      "peak_gib": 14.965296268463135,
+      "parameters": 92362880,
+      "non_embedding_parameters": 50419840,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "rdt",
+      "size": "50M",
+      "seq_len": 1024,
+      "depth": 48,
+      "checkpointing": true,
+      "max_batch": 16,
+      "tokens_per_second": 2017.6891347203434,
+      "seconds_per_update": 8.120180516445544,
+      "peak_gib": 19.620401859283447,
+      "parameters": 92362880,
+      "non_embedding_parameters": 50419840,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "ctm_lm",
+      "size": "10M",
+      "seq_len": 1024,
+      "depth": 16,
+      "checkpointing": false,
+      "max_batch": 1,
+      "tokens_per_second": 2790.1294784314423,
+      "seconds_per_update": 0.3670080574811436,
+      "peak_gib": 14.114175796508789,
+      "parameters": 38733696,
+      "non_embedding_parameters": 9373568,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "ctm_lm",
+      "size": "25M",
+      "seq_len": 1024,
+      "depth": 16,
+      "checkpointing": false,
+      "max_batch": 1,
+      "tokens_per_second": 3142.344990668053,
+      "seconds_per_update": 0.32587128499289975,
+      "peak_gib": 18.073237895965576,
+      "parameters": 72254976,
+      "non_embedding_parameters": 21923328,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    {
+      "family": "ctm_lm",
+      "size": "50M",
+      "seq_len": 1024,
+      "depth": 16,
+      "checkpointing": false,
+      "max_batch": 1,
+      "tokens_per_second": 2220.408313043514,
+      "seconds_per_update": 0.4611764394794591,
+      "peak_gib": 22.275980949401855,
+      "parameters": 119967360,
+      "non_embedding_parameters": 48664192,
+      "gpu": "NVIDIA GeForce RTX 3090"
+    }
+  ]
+}
