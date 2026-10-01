@@ -27,11 +27,13 @@ SIZES={
  'rdt':{'10M':dict(d_model=384,prelude_layers=1,core_layers=4,coda_layers=1,ffn_hidden_dim=1024),
         '25M':dict(d_model=512,prelude_layers=2,core_layers=4,coda_layers=2,ffn_hidden_dim=1408),
         '50M':dict(d_model=640,prelude_layers=2,core_layers=6,coda_layers=2,ffn_hidden_dim=1728),
-        '500M':dict(d_model=2304,prelude_layers=2,core_layers=4,coda_layers=2,ffn_hidden_dim=6144)},
+        '500M':dict(d_model=2304,prelude_layers=2,core_layers=4,coda_layers=2,ffn_hidden_dim=6144),
+        '500M_B':dict(d_model=1280,prelude_layers=11,core_layers=2,coda_layers=11,ffn_hidden_dim=3456)},
  'ctm_lm':{'10M':dict(d_model=384,n_layers=4,d_latent=512,sync_sparse_pairs=512,history_len=8,nlm_hidden_dim=32),
            '25M':dict(d_model=512,n_layers=4,d_latent=1024,sync_sparse_pairs=1024,history_len=8,nlm_hidden_dim=32),
            '50M':dict(d_model=640,n_layers=6,d_latent=1536,sync_sparse_pairs=1536,history_len=8,nlm_hidden_dim=32),
-           '500M':dict(d_model=1536,n_layers=12,d_latent=4096,sync_sparse_pairs=4096,history_len=8,nlm_hidden_dim=32)}}
+           '500M':dict(d_model=1536,n_layers=12,d_latent=4096,sync_sparse_pairs=4096,history_len=8,nlm_hidden_dim=32),
+           '500M_B':dict(d_model=1280,n_layers=24,d_latent=2048,sync_sparse_pairs=2048,history_len=8,nlm_hidden_dim=32)}}
 
 
 def build(family,size,seq_len,depth,checkpointing=False,scaled=False):

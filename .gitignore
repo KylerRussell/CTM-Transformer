@@ -38,3 +38,4 @@ research/data/recipe_dev_a5/seed*/train.jsonl
 # lrcontrol_s3_v1: per-update metrics and worker logs stay local; hashes are in checkpoints.json
 research/runs/lrcontrol_s3_v1/*/*/metrics.jsonl
 research/results/lrcontrol_s3_v1/gpu*.attempt*.log
+research/data/pretrain/fineweb_edu_32k/*.bin

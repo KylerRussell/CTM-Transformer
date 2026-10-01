@@ -1,7 +1,7 @@
 | Group | Model | Positions | Depth | Curriculum | LR | Seeds | Positions 9–16 per seed | Mean positions 1–16 | Mean positions 17–24 | Escaped |
 |---|---|---|---|---|---:|---|---|---:|---:|---:|
 | A5 | rdt | rope | fixed | none | 0.0003 | 307 | 0.02 | 0.085 | 0.017 | 0/1 |
-| A5 | rdt | rope | fixed | none | 0.0006 | 307 | 0.02 | 0.084 | 0.016 | 0/1 |
+| A5 | rdt | rope | fixed | none | 0.0006 | 307, 311 | 0.02, 0.79 | 0.485 | 0.239 | 0/2 |
 | A5 | rdt | rope | fixed | none | 0.001 | 307 | 0.01 | 0.079 | 0.016 | 0/1 |
 | A5 | rdt | rope | rand | linear_half | 0.001 | 307, 311, 313 | 0.02, 0.02, 0.02 | 0.085 | 0.016 | 0/3 |
 | A5 | rdt | rope | rand | none | 0.0001 | 307 | 0.01 | 0.077 | 0.015 | 0/1 |

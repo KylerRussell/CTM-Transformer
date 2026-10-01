@@ -115,3 +115,38 @@ def test_scaled_models_train_under_bf16_autocast(model):
         loss = m(x, targets=y)['loss']
     loss.backward()
     assert torch.isfinite(loss) and all(torch.isfinite(p.grad).all() for p in m.parameters() if p.grad is not None)
+
+
+def test_truncated_backpropagation_is_exact_when_it_covers_every_step_and_cuts_early_steps_otherwise():
+    torch.manual_seed(0)
+    full = ScaledBaseline(config('rdt'))
+    torch.manual_seed(0)
+    covered = ScaledBaseline(config('rdt'), backprop_steps=5)
+    torch.manual_seed(0)
+    cut = ScaledBaseline(config('rdt'), backprop_steps=2)
+    x, y = batch()
+    losses = []
+    for m in (full, covered, cut):
+        out = m(x, targets=y)
+        out['loss'].backward()
+        losses.append(out['loss'])
+    assert torch.equal(losses[0], losses[1]) and torch.equal(losses[0], losses[2])  # the forward pass is unchanged
+    g_full, g_cov, g_cut = grads(full), grads(covered), grads(cut)
+    assert all(torch.equal(g_full[k], g_cov[k]) for k in g_full)
+    assert not torch.allclose(g_full['core.0.attn.q.weight'], g_cut['core.0.attn.q.weight'])
+    assert scaled_factory('rdt', backprop_steps=8).__qualname__ == 'scaled_factory[rdt,plain,backprop8]'
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA required')
+@pytest.mark.parametrize('model', ['transformer', 'rdt', 'ctm_lm'])
+def test_compiled_paths_match_eager(model):
+    torch.manual_seed(0)
+    eager = scaled_factory(model, checkpointing=True)(config(model)).cuda()
+    torch.manual_seed(0)
+    compiled = scaled_factory(model, checkpointing=True, compile=True)(config(model)).cuda()
+    x, y = (t.cuda() for t in batch())
+    a, b = eager(x, targets=y), compiled(x, targets=y)
+    a['loss'].backward()
+    b['loss'].backward()
+    ga, gb = grads(eager), grads(compiled)
+    assert torch.allclose(a['loss'], b['loss'], atol=1e-4) and all(torch.allclose(ga[k], gb[k], atol=1e-4, rtol=1e-3) for k in ga)

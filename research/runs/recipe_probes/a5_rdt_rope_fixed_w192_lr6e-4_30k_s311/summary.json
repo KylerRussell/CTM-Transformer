@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "model_family": "recurrent_depth",
+  "steps": 30000,
+  "runner": "shared_research_v5",
+  "tokens_seen": 10080000,
+  "supervised_tokens_seen": 9120000,
+  "examples_seen": 960000,
+  "padded_token_positions": 17147872,
+  "token_block_applications": 583027648,
+  "depth_counts": {
+    "16": 30000
+  },
+  "training_seconds": 15076.67621045257,
+  "training_tokens_per_second": 668.5823758032024,
+  "wall_seconds": 15207.161210287944,
+  "best_validation_loss": 0.7665948459976598,
+  "best_readout_policy": "confidence",
+  "best_validation_loss_by_readout": {
+    "confidence": 0.7665948459976598
+  },
+  "peak_allocated_bytes": 335575040,
+  "parameters": {
+    "total": 2022720,
+    "token_embedding": 13632,
+    "position_embedding": 0,
+    "readout": 13632,
+    "other": 1995456
+  },
+  "config_identity": {
+    "name": "recurrent_depth_shuffled_seed23_v1",
+    "schema_version": 1,
+    "path": "/home/kasm-user/Documents/CTM-Transformer/research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json",
+    "sha256": "a5a91cbf3b2747beeccccb0deb6d9dca05e1602ad08aeec8e048fcb224c6240e"
+  }
+}

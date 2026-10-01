@@ -14,6 +14,12 @@ loss is computed and which activations are kept:
   ticks. Loss and gradients equal ``ctm_lm.ctm_loss`` (tests/test_lm_scale.py).
 * activation checkpointing: per block for the Transformer and RDT (the frozen
   ``gradient_checkpointing`` switch), per tick for CTM-LM.
+* optional truncated backpropagation for RDT (``backprop_steps=k``): the first
+  depth - k recurrence steps run without gradient, as in Geiping et al. (2025).
+  This changes the gradient, so it is a recipe choice. With k >= depth it is exact.
+* optional ``torch.compile``: per block for the Transformer and RDT; for CTM-LM
+  around the (checkpointed) tick, because compiling inside a checkpoint keeps
+  the compiled graph's activations and defeats the checkpoint.
 
 Without targets, or with ``return_all_logits``, the frozen forward runs unchanged.
 """
@@ -72,6 +78,10 @@ def ctm_selected_tick_loss(readouts,weight,targets,chunk=CHUNK_ROWS):
 
 class ScaledBaseline(RoPEBaseline):
     """RoPE Transformer or RDT whose training loss never stores full logits."""
+    def __init__(self,config,backprop_steps=None,compile_blocks=False):
+        super().__init__(config);self.backprop_steps=backprop_steps
+        if compile_blocks:
+            for block in (*self.layers,*self.prelude,*self.core,*self.coda):block.forward=torch.compile(block.forward)
     def forward(self,input_ids,targets=None,max_thought_steps=None,return_all_logits=False):
         if targets is None or return_all_logits:return super().forward(input_ids,targets,max_thought_steps,return_all_logits)
         if input_ids.ndim!=2 or not 0<input_ids.shape[1]<=self.config.max_seq_len:raise ValueError('Expected [batch, sequence] input within max_seq_len')
@@ -84,7 +94,9 @@ class ScaledBaseline(RoPEBaseline):
             x=self._blocks(self.layers,x);applications=len(self.layers)
         else:
             embedded=self._blocks(self.prelude,x);x=torch.zeros_like(embedded)
-            for _ in range(depth):x=self._blocks(self.core,self.injection(torch.cat((x,embedded),dim=-1)))
+            for i in range(depth):
+                with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i>=depth-self.backprop_steps)):
+                    x=self._blocks(self.core,self.injection(torch.cat((x,embedded),dim=-1)))
             x=self._blocks(self.coda,self.final_norm(x));applications=len(self.prelude)+depth*len(self.core)+len(self.coda)
         loss=chunked_cross_entropy(self.final_norm(x),self.lm_head.weight,targets)
         return {'logits':None,'loss':loss,'thought_steps':depth,'block_applications':applications}
@@ -92,8 +104,13 @@ class ScaledBaseline(RoPEBaseline):
 
 class ScaledCTMLM(RoPECTMLM):
     """RoPE CTM-LM with CTM's loss over selected ticks only and optional per-tick activation checkpointing."""
-    def __init__(self,config,checkpoint_ticks=False,**kwargs):
+    def __init__(self,config,checkpoint_ticks=False,compile_ticks=False,**kwargs):
         super().__init__(config,**kwargs);self.checkpoint_ticks=checkpoint_ticks
+        self._compiled_tick=torch.compile(self._checkpointed_tick) if compile_ticks else None
+
+    def _checkpointed_tick(self,*state):
+        if self.checkpoint_ticks and torch.is_grad_enabled():return checkpoint(self._tick,*state,use_reentrant=False)
+        return self._tick(*state)
 
     def _tick(self,z,history,alpha_a,beta_a,alpha_o,beta_o,keys,values,positions):
         B,S=keys.shape[0],keys.shape[2];d,H=self.config.d_model,self.config.n_heads;N=B*S
@@ -120,19 +137,20 @@ class ScaledCTMLM(RoPECTMLM):
         readouts=[]
         for _ in range(T):
             state=(z,history,alpha_a,beta_a,alpha_o,beta_o,keys,values,positions)
-            if self.checkpoint_ticks and torch.is_grad_enabled():out=checkpoint(self._tick,*state,use_reentrant=False)
-            else:out=self._tick(*state)
+            out=(self._compiled_tick or self._checkpointed_tick)(*state)
             z,history,alpha_a,beta_a,alpha_o,beta_o,readout=out;readouts.append(readout.view(B,S,-1))
         result=ctm_selected_tick_loss(torch.stack(readouts,dim=2),self.lm_head.weight,targets)
         return {'logits':None,'thought_steps':T,**result}
 
 
-def scaled_factory(model,checkpointing=False):
-    """Model factory: model is transformer | rdt | ctm_lm; checkpointing enables activation checkpointing."""
+def scaled_factory(model,checkpointing=False,backprop_steps=None,compile=False):
+    """Model factory: model is transformer | rdt | ctm_lm; checkpointing enables activation checkpointing;
+    backprop_steps truncates RDT backpropagation to the last k recurrence steps."""
     from dataclasses import replace
     if model not in ('transformer','rdt','ctm_lm'):raise ValueError(model)
     def factory(config):
-        if model=='ctm_lm':return ScaledCTMLM(config,checkpoint_ticks=checkpointing)
-        return ScaledBaseline(replace(config,gradient_checkpointing=checkpointing))
-    factory.__qualname__=f'scaled_factory[{model},{"checkpointing" if checkpointing else "plain"}]'
+        if model=='ctm_lm':return ScaledCTMLM(config,checkpoint_ticks=checkpointing,compile_ticks=compile)
+        return ScaledBaseline(replace(config,gradient_checkpointing=checkpointing),backprop_steps=backprop_steps if model=='rdt' else None,compile_blocks=compile)
+    if backprop_steps is not None and model!='rdt':raise ValueError('Truncated backpropagation is defined for RDT only')
+    factory.__qualname__=f'scaled_factory[{model},{"checkpointing" if checkpointing else "plain"}'+(f',backprop{backprop_steps}' if backprop_steps else '')+(',compiled' if compile else '')+']'
     return factory

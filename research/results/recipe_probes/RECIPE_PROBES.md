@@ -70,4 +70,5 @@ The A₅ development suite is `research/data/recipe_dev_a5`: seeds 307, 311 and 
 4. **A parameter-matched Transformer (width 280, 2.08M parameters) handles only 2–4 positions** (16–26% on positions 1–16), as expected for fixed depth.
 
 These are development observations from three seeds. A frozen A₅ study (fresh seeds, one presentation of each word, matched controls) is needed before any claim.
+5. **With 30,000 updates, fixed depth at width 192 also learns A₅, less fully.** At learning rate 6e-4 and seed 311 it reaches 88.6% on positions 1–16, against 99.5% for randomized depth on the same seed. Training length matters for both, and randomized depth still leads. The 1e-3 fixed-depth twin was stopped to free its GPU for language-model cost profiling. A₅ is not pursued further (see the scope update in `RESEARCH_PLAN.md`).
 
