@@ -18,6 +18,12 @@ The RDT probes were added after the compute-aware RDT also plateaued at the
 unigram level in the sweep, with its prelude collapsing token information. The
 same "works" rule applies to them; they decide whether the RDT recipe changes.
 
+After the RDT probes showed that unit-scale input embeddings fix the RDT, two CTM
+probes were added: faithful_unit_embedding and A_unit_query_unit_embedding (5e-4).
+Both are initialization-only, so they keep the faithful architecture. The
+smallest-change order becomes: initialization only (unit embedding, A, or both),
+then B.
+
 Measures, on 64 held-out windows from the sweep's selection range (offset 40,000):
 * the held-out loss of the final tick (CTM-LM) or the output (Transformer);
 * context use: the loss with every input token replaced by a random token
@@ -42,7 +48,10 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         'transformer_reference':('transformer',384,None,5e-4),
         # RDT probes (added 2026-10-02): the compute-aware RDT at d 384 also plateaued at the unigram level in the sweep.
         'rdt_aware_baseline':('rdt_aware',384,None,5e-4),'rdt_aware_low_lr':('rdt_aware',384,None,1.25e-4),
-        'rdt_aware_unit_embedding':('rdt_aware',384,None,5e-4,{'embedding_init_std':1.0})}
+        'rdt_aware_unit_embedding':('rdt_aware',384,None,5e-4,{'embedding_init_std':1.0}),
+        # Added after the RDT result: unit-scale input embeddings are also initialization-only for CTM-LM.
+        'faithful_unit_embedding':('ctm_heavy',448,[],5e-4,{'embedding_init_std':1.0}),
+        'A_unit_query_unit_embedding':('ctm_heavy',448,['unit_query'],5e-4,{'embedding_init_std':1.0})}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 
@@ -87,8 +96,9 @@ def summarize(device):
         rows.append({'probe':name,'held_out_loss':real,'random_input_loss':rand,'context_use':rand-real,
                      'final_validation':metrics[-1].get('validation'),'works':real<=WORKS_LOSS and rand-real>=WORKS_CONTEXT})
     ok={r['probe'] for r in rows if r['works']}
-    ok-={r for r in ok if not r.startswith(('faithful','A_','B_'))}
-    choice='A_unit_query' if 'A_unit_query' in ok else 'B_observe_token' if 'B_observe_token' in ok else None
+    order=['faithful_unit_embedding','A_unit_query','A_unit_query_unit_embedding','B_observe_token']  # initialization-only changes first, then B
+    pending=[n for n in order if not (RUNS/n/'complete.json').exists()]
+    choice=next((n for n in order if n in ok),None) if not pending else f'pending ({", ".join(pending)})'
     OUT.mkdir(parents=True,exist_ok=True)
     (OUT/'probes.json').write_text(json.dumps({'probes':rows,'choice':choice,'rule':f'works: loss <= {WORKS_LOSS} and context use >= {WORKS_CONTEXT}; A before B'},indent=2)+'\n')
     lines=['# CTM-LM input-use probes — results','','Protocol: `scripts/ctm_lm_probes.py` (docstring). 300 steps × 32 sequences × 1,024 tokens (9.8M tokens), one GPU.',

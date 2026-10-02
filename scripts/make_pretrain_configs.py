@@ -13,6 +13,10 @@ Transformer and RDT weights use the width-scaled initialization std = sqrt(2 / (
 With the small-scale recipe's fixed 0.02, the d 2,304 RDT core's backward pass grows about 1.5x per
 recurrence at initialization (gradient norm 21 at depth 1, 5.3 million at depth 32); with the scaled
 std it is flat in depth. CTM-LM keeps the reference CTM initialization.
+RDT input embeddings are initialized at std 1 (2026-10-02). With the small std, the sandwich-normed
+RDT collapsed to the unigram level within about 75 updates: its prelude erased token identity, and
+lowering the learning rate did not help. Unit-scale embeddings fixed it
+(research/results/ctm_lm_probes/PROBES.md). The pre-norm Transformer learns normally with the small std.
 """
 import argparse,json,math
 from pathlib import Path
@@ -23,9 +27,9 @@ SAMPLER={'kind':'lognormal_poisson','mean':15,'sigma':0.5,'maximum':48}
 ARMS={
  'transformer':dict(family='transformer',model=dict(d_model=1280,n_layers=24,ffn_hidden_dim=3456),micro_batch=16,offload=False),
  'rdt_heavy':dict(family='rdt',model=dict(d_model=2304,prelude_layers=2,core_layers=4,coda_layers=2,ffn_hidden_dim=6144),micro_batch=2,offload=True,
-                  depth_sampler=SAMPLER,eval_depth=16,eval_depths=[16,32]),
+                  depth_sampler=SAMPLER,eval_depth=16,eval_depths=[16,32],embedding_init_std=1.0),
  'rdt_aware':dict(family='rdt',model=dict(d_model=1280,prelude_layers=11,core_layers=2,coda_layers=11,ffn_hidden_dim=3456),micro_batch=8,offload=False,
-                  depth_sampler=SAMPLER,eval_depth=16,eval_depths=[16,32]),
+                  depth_sampler=SAMPLER,eval_depth=16,eval_depths=[16,32],embedding_init_std=1.0),
  'ctm_heavy':dict(family='ctm_lm',model=dict(d_model=1536,n_layers=12,d_latent=4096,sync_sparse_pairs=4096,history_len=8,nlm_hidden_dim=32,max_thought_steps=16),
                   micro_batch=1,offload=True,eval_depth=16),
  'ctm_aware':dict(family='ctm_lm',model=dict(d_model=1280,n_layers=24,d_latent=2048,sync_sparse_pairs=2048,history_len=8,nlm_hidden_dim=32,max_thought_steps=16),
