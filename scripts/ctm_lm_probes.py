@@ -31,6 +31,20 @@ fix C, training on the mean cross-entropy over ticks: C_mean_tick_loss, A_C and
 B_C. Order of increasing change: initialization (unit embedding, A), loss (C),
 A + C, architecture (B), B + C.
 
+B + C passed and was adopted (user decision). Exploration beyond A, B and C
+(user request), each probe judged against B + C:
+* E_C: the position's own feature enters its tick-attention query (input still only through attention);
+* D_C: token-conditioned start state z_0 = z_init + W f_i;
+* B_final and B_certainty: B with the final-tick loss, or with CTM's label-free half (most certain tick) alone;
+* A_B_C: B + C with the unit query initialization;
+* B_C_state: B + C, reading the output from the neuron state as well as the synchronization.
+
+Replacement rule, fixed before these runs: an alternative replaces B + C if it works
+and either has a held-out loss at least 0.05 nats below B + C, or is within 0.05
+nats while being more faithful (E_C, D_C: input through CTM mechanisms) or
+cheaper (B_final). Context use is measured on each probe's own readout: the most
+certain tick for B_certainty, the final tick otherwise.
+
 Measures, on 64 held-out windows from the sweep's selection range (offset 40,000):
 * the held-out loss of the final tick (CTM-LM) or the output (Transformer);
 * context use: the loss with every input token replaced by a random token
@@ -61,7 +75,12 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         'A_unit_query_unit_embedding':('ctm_heavy',448,['unit_query'],5e-4,{'embedding_init_std':1.0}),
         # Added after per-tick analysis showed CTM's loss trains ticks that hedge (label-selected tick 5.3-5.8 nats, label-free 7.3-7.8).
         'C_mean_tick_loss':('ctm_heavy',448,['mean_tick_loss'],5e-4),'A_C':('ctm_heavy',448,['unit_query','mean_tick_loss'],5e-4),
-        'B_C':('ctm_heavy',448,['observe_token','mean_tick_loss'],5e-4)}
+        'B_C':('ctm_heavy',448,['observe_token','mean_tick_loss'],5e-4),
+        # Exploration beyond A, B and C (user request, 2026-10-02), each judged against B + C.
+        'E_C':('ctm_heavy',448,['query_feature','mean_tick_loss'],5e-4),'D_C':('ctm_heavy',448,['token_start','mean_tick_loss'],5e-4),
+        'B_final':('ctm_heavy',448,['observe_token','final_tick_loss'],5e-4),'B_certainty':('ctm_heavy',448,['observe_token','certainty_loss'],5e-4),
+        'A_B_C':('ctm_heavy',448,['unit_query','observe_token','mean_tick_loss'],5e-4),
+        'B_C_state':('ctm_heavy',448,['observe_token','mean_tick_loss','state_readout'],5e-4)}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 
@@ -76,6 +95,16 @@ def probe_config(name):
     return run
 
 
+def most_certain_ce(tick_logits,y,rows=128):
+    """Mean cross-entropy at each token's most certain tick, in chunks of positions."""
+    total=0.0
+    for j in range(0,y.shape[1],rows):
+        logp=torch.stack([t[0,j:j+rows].float() for t in tick_logits],1).log_softmax(-1)
+        pick=(logp.exp()*logp).sum(-1).argmax(1)
+        total+=float(-logp[torch.arange(len(pick)),pick].gather(-1,y[0,j:j+rows,None]).sum())
+    return total/y.shape[1]
+
+
 def context_use(name,device):
     """Held-out loss with real inputs and with random inputs (same targets), from the final checkpoint."""
     from scripts.pretrain import build_config
@@ -86,13 +115,15 @@ def context_use(name,device):
     config=build_config(run,data['vocab_size'])
     model=(adapted_factory(set(run['ctm_adaptations'])) if 'ctm_adaptations' in run else scaled_factory(run['family']))(config).to(device)
     kwargs={'max_thought_steps':run['eval_depth']} if run['family']=='rdt' else {}
+    certain='certainty_loss' in run.get('ctm_adaptations',[])
     model.load_state_dict(torch.load(RUNS/name/'latest.pt',map_location='cpu',weights_only=False)['model']);model.eval()
     valid=TokenWindows([root/s for s in data['validation']],1024,0);g=torch.Generator().manual_seed(0);real=shuffled=0.0
     with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
         for i in range(OFFSET,OFFSET+WINDOWS):
             x,y=valid.batch([i]);x,y=x.to(device),y.to(device);xr=torch.randint(0,data['vocab_size'],x.shape,generator=g).to(device)
             for inputs,acc in ((x,'real'),(xr,'random')):
-                loss=float(F.cross_entropy(model(inputs,**kwargs)['logits'].float().reshape(-1,data['vocab_size']),y.reshape(-1)))
+                if certain:loss=most_certain_ce(model(inputs,return_all_logits=True)['all_logits'],y)
+                else:loss=float(F.cross_entropy(model(inputs,**kwargs)['logits'].float().reshape(-1,data['vocab_size']),y.reshape(-1)))
                 if acc=='real':real+=loss/WINDOWS
                 else:shuffled+=loss/WINDOWS
     return real,shuffled

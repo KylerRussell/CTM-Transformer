@@ -72,7 +72,7 @@ def test_mean_tick_loss_is_the_mean_cross_entropy_over_ticks():
 
 
 def test_factory_rejects_unknown_adaptations():
-    assert adapted_factory({'unit_query'})(config('ctm_lm')).adaptations == {'unit_query': True, 'observe_token': False, 'mean_tick_loss': False}
+    assert adapted_factory({'unit_query'})(config('ctm_lm')).adaptations['unit_query']
     with pytest.raises(ValueError):
         adapted_factory({'token_shortcut'})
 
@@ -85,3 +85,56 @@ def test_compiled_checkpointed_bf16_training_runs():
         loss = m(x, targets=y)['loss']
     loss.backward()
     assert torch.isfinite(loss)
+
+
+def test_query_feature_lets_the_tick_attention_learn():
+    # A random query projection of a token's own feature is not aligned with its key, so it does not make the
+    # output token-dependent at initialization; it gives the attention a non-negligible query, so keys get gradient.
+    norms = []
+    for kw in ({}, {'query_feature': True}):
+        torch.manual_seed(0)
+        m = AdaptedCTMLM(config('ctm_lm'), mean_tick_loss=True, **kw)
+        x, y = batch()
+        m(x, targets=y)['loss'].backward()
+        norms.append(float(m.key.weight.grad.norm()))
+    assert norms[1] > 50 * norms[0]
+
+
+def test_token_start_makes_the_prediction_depend_on_the_current_token():
+    torch.manual_seed(0)
+    faithful = AdaptedCTMLM(config('ctm_lm'))
+    torch.manual_seed(0)
+    adapted = AdaptedCTMLM(config('ctm_lm'), token_start=True)
+    assert all(torch.equal(p, dict(faithful.named_parameters())[n]) for n, p in adapted.named_parameters() if n in dict(faithful.named_parameters()))
+    x, _ = batch(B=1, S=11)
+    x2 = x.clone()
+    x2[0, -1] = (x[0, -1] + 1) % 71
+    with torch.no_grad():
+        def change(m):
+            return float((m(x)['logits'][0, -1] - m(x2)['logits'][0, -1]).abs().max())
+        assert change(adapted) > 5 * change(faithful)
+
+
+def test_final_tick_and_certainty_losses_equal_their_definitions():
+    x, y = batch()
+    keep = y.ne(-100)
+    torch.manual_seed(0)
+    final = AdaptedCTMLM(config('ctm_lm'), final_tick_loss=True)
+    torch.manual_seed(0)
+    certain = AdaptedCTMLM(config('ctm_lm'), certainty_loss=True)
+    with torch.no_grad():
+        logits = torch.stack(final(x, return_all_logits=True)['all_logits'], dim=2)[keep].float()  # [n, T, V]
+    logp = logits.log_softmax(-1)
+    ce = -logp.gather(-1, y[keep][:, None, None].expand(-1, logits.shape[1], 1)).squeeze(-1)
+    most_certain = (logp.exp() * logp).sum(-1).argmax(-1)
+    assert torch.allclose(final(x, targets=y)['loss'], ce[:, -1].mean(), atol=1e-5)
+    assert torch.allclose(certain(x, targets=y)['loss'], ce.gather(1, most_certain[:, None]).mean(), atol=1e-5)
+
+
+def test_state_readout_adds_a_trained_projection_of_the_state_and_losses_are_exclusive():
+    m = AdaptedCTMLM(config('ctm_lm'), state_readout=True, mean_tick_loss=True)
+    x, y = batch()
+    m(x, targets=y)['loss'].backward()
+    assert m.state_readout.weight.grad is not None and m.state_readout.weight.grad.abs().sum() > 0
+    with pytest.raises(ValueError):
+        AdaptedCTMLM(config('ctm_lm'), mean_tick_loss=True, final_tick_loss=True)
