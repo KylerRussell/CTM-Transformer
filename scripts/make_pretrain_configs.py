@@ -7,7 +7,8 @@ Arms (non-embedding parameters about 440-520M; untied 32k embeddings add the res
   ctm_heavy (A)    d 1536, 12-layer backbone, 4,096 neurons and pairs: a large per-tick synapse
   ctm_aware (B)    d 1280, 24-layer backbone, 2,048 neurons and pairs: most parameters applied once
 RDT trains with the validated randomized depth (log-normal Poisson, mean about 16, cap 48);
-CTM-LM with 16 ticks and CTM's loss. Every arm: RoPE, sequence length 1,024,
+CTM-LM with 16 ticks, adapted for language modelling (token observation in the synapse and the
+mean cross-entropy over ticks in place of CTM's loss; see CTM_ADAPTATIONS). Every arm: RoPE, sequence length 1,024,
 262,144 tokens per optimizer step, bf16 autocast, AdamW (0.9, 0.95), weight decay 0.1.
 Transformer and RDT weights use the width-scaled initialization std = sqrt(2 / (5 d)) (as in Huginn).
 With the small-scale recipe's fixed 0.02, the d 2,304 RDT core's backward pass grows about 1.5x per
@@ -24,6 +25,10 @@ from pathlib import Path
 DATA='research/data/pretrain/fineweb_edu_32k/manifest.json';OUT=Path('research/configs/pretrain')
 SEQ,GLOBAL_SEQS=1024,256
 SAMPLER={'kind':'lognormal_poisson','mean':15,'sigma':0.5,'maximum':48}
+# CTM-LM adapted for language modelling (user decision, 2026-10-02; research/CTM_LM_DESIGN.md): each position's
+# backbone feature enters the synapse (B) and training uses the mean cross-entropy over ticks (C). The faithful
+# CTM-LM learned only token frequencies at this scale; its failure is reported as a result.
+CTM_ADAPTATIONS=['observe_token','mean_tick_loss']
 ARMS={
  'transformer':dict(family='transformer',model=dict(d_model=1280,n_layers=24,ffn_hidden_dim=3456),micro_batch=16,offload=False),
  'rdt_heavy':dict(family='rdt',model=dict(d_model=2304,prelude_layers=2,core_layers=4,coda_layers=2,ffn_hidden_dim=6144),micro_batch=2,offload=True,
@@ -31,9 +36,9 @@ ARMS={
  'rdt_aware':dict(family='rdt',model=dict(d_model=1280,prelude_layers=11,core_layers=2,coda_layers=11,ffn_hidden_dim=3456),micro_batch=8,offload=False,
                   depth_sampler=SAMPLER,eval_depth=16,eval_depths=[16,32],embedding_init_std=1.0),
  'ctm_heavy':dict(family='ctm_lm',model=dict(d_model=1536,n_layers=12,d_latent=4096,sync_sparse_pairs=4096,history_len=8,nlm_hidden_dim=32,max_thought_steps=16),
-                  micro_batch=1,offload=True,eval_depth=16),
+                  micro_batch=1,offload=True,eval_depth=16,ctm_adaptations=CTM_ADAPTATIONS),
  'ctm_aware':dict(family='ctm_lm',model=dict(d_model=1280,n_layers=24,d_latent=2048,sync_sparse_pairs=2048,history_len=8,nlm_hidden_dim=32,max_thought_steps=16),
-                  micro_batch=2,offload=True,eval_depth=16)}
+                  micro_batch=2,offload=True,eval_depth=16,ctm_adaptations=CTM_ADAPTATIONS)}
 
 
 def at_width(arm,d):

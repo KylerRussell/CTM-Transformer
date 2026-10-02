@@ -53,7 +53,7 @@ TOKENS=100_000_000;K_MIN,K_MAX=-6,4;EVAL_OFFSET=40_000
 # It counts as collapsed, with infinite loss, like a divergence. Added 2026-10-02 after RDT-heavy at lr 1e-3
 # collapsed to the unigram level mid-run and every CTM-heavy rate ended at 7.66-7.73.
 COLLAPSED=7.0
-METRIC={'transformer':'final','rdt':'depth_16','ctm_lm':'most_certain_tick'}
+METRIC={'transformer':'final','rdt':'depth_16','ctm_lm':'final_tick'}  # CTM-LM: final tick, since the adapted CTM trains every tick (2026-10-02)
 SEED=1234;SCREEN_ARM,SCREEN_WIDTH=('rdt_aware',512);SCREEN_SEEDS=(1234,1235)
 SCREEN_VARIANTS=('rdt_aware','rdt_aware+sync_query','rdt_aware+sync_readout','rdt_aware+learned_init')
 

@@ -46,7 +46,7 @@ A width is resolved when its best k has evaluated neighbours on both sides. A ru
 **Metric.** The metric is the mean held-out cross-entropy at the end of training. It is computed on 1,024 FineWeb-Edu validation windows (about 1M tokens), starting at window 40,000. The 500M runs report windows 0–255, so selection never touches the reported evaluation. The readout scored depends on the family:
 - Transformer: the output;
 - RDT: depth 16;
-- CTM-LM: the most certain tick, CTM's label-free readout.
+- CTM-LM: the final tick. *(Changed 2026-10-02, before any CTM width was resolved, from the most certain tick. The adapted CTM-LM trains every tick with the mean cross-entropy, so the final tick is its natural readout. The faithful CTM-LM's sweep runs were set aside; see [CTM_LM_DESIGN.md](CTM_LM_DESIGN.md).)*
 
 ## Analysis (`scripts/summarize_lr_sweep.py`, fixed before any run)
 

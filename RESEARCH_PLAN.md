@@ -348,3 +348,18 @@ At most one or two candidates go forward as a "CTM-augmented RDT" arm, each need
 
   The CTM-augmented RDT screen follows the sweep, at the sweep's widths and with the fitted rates.
 
+**Update — 2026-10-02: the faithful CTM-LM fails at language-model scale; the CTM arms use an adapted CTM-LM.**
+- **The failure.** At about 100M parameters the faithful CTM-LM learns only token frequencies, at every learning rate. It has two failure modes ([diagnosis and probes](research/CTM_LM_DESIGN.md)):
+  - its only input pathway, the synchronization-query attention, starts uniform and receives almost no gradient;
+  - CTM's loss trains ticks that make different confident guesses.
+
+  This is a reported result of the paper.
+- **The adaptation (user decision).** The CTM arms use the smallest probed adaptation that works:
+  - **B**, each position's backbone feature enters the synapse;
+  - **C**, training uses the mean cross-entropy over ticks.
+
+  At 9.8M tokens this reaches 6.73 nats with +1.60 nats of context use, against 7.80 for the faithful model. It still trails the Transformer (6.31) and the RDT (5.98). The paper's CTM story becomes: *the CTM needs these adaptations to work at language-model scale; does it then benefit from them?*
+- **Other recipe changes:**
+  - RDT input embeddings start at std 1. With the small std, the sandwich-normed RDT collapsed to the unigram level.
+  - The CTM's mean-tick loss costs about 27% throughput at d 448. It is to be measured at 500M before launch.
+
