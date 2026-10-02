@@ -1,0 +1,145 @@
+{
+  "probes": [
+    {
+      "probe": "faithful",
+      "held_out_loss": 7.796547420322895,
+      "random_input_loss": 7.7979535683989525,
+      "context_use": 0.001406148076057434,
+      "final_validation": {
+        "final_tick": 7.82301614806056,
+        "most_certain_tick": 7.823160246014595
+      },
+      "works": false
+    },
+    {
+      "probe": "faithful_low_lr",
+      "held_out_loss": 7.688908509910107,
+      "random_input_loss": 7.681280396878719,
+      "context_use": -0.007628113031387329,
+      "final_validation": {
+        "final_tick": 7.718929219990969,
+        "most_certain_tick": 7.763698887079954
+      },
+      "works": false
+    },
+    {
+      "probe": "A_unit_query",
+      "held_out_loss": 7.393901608884335,
+      "random_input_loss": 8.311259612441063,
+      "context_use": 0.9173580035567284,
+      "final_validation": {
+        "final_tick": 7.424984527751803,
+        "most_certain_tick": 7.481563812121749
+      },
+      "works": false
+    },
+    {
+      "probe": "B_observe_token",
+      "held_out_loss": 7.4064673483371735,
+      "random_input_loss": 8.325671032071114,
+      "context_use": 0.9192036837339401,
+      "final_validation": {
+        "final_tick": 7.431273324415088,
+        "most_certain_tick": 7.409571457654238
+      },
+      "works": false
+    },
+    {
+      "probe": "transformer_reference",
+      "held_out_loss": 6.311094522476196,
+      "random_input_loss": 8.122869648039341,
+      "context_use": 1.8117751255631447,
+      "final_validation": {
+        "final": 6.346918433904648
+      },
+      "works": true
+    },
+    {
+      "probe": "rdt_aware_baseline",
+      "held_out_loss": 7.590885788202286,
+      "random_input_loss": 7.590865105390549,
+      "context_use": -2.0682811737060547e-05,
+      "final_validation": {
+        "depth_16": 7.61425743252039
+      },
+      "works": false
+    },
+    {
+      "probe": "rdt_aware_low_lr",
+      "held_out_loss": 7.589268893003464,
+      "random_input_loss": 7.589254483580589,
+      "context_use": -1.4409422874450684e-05,
+      "final_validation": {
+        "depth_16": 7.612154670059681
+      },
+      "works": false
+    },
+    {
+      "probe": "rdt_aware_unit_embedding",
+      "held_out_loss": 5.979397147893906,
+      "random_input_loss": 8.745914340019226,
+      "context_use": 2.7665171921253204,
+      "final_validation": {
+        "depth_16": 6.023599401116371
+      },
+      "works": true
+    },
+    {
+      "probe": "faithful_unit_embedding",
+      "held_out_loss": 7.726772822439671,
+      "random_input_loss": 7.7257435992360115,
+      "context_use": -0.0010292232036590576,
+      "final_validation": {
+        "final_tick": 7.751713238656521,
+        "most_certain_tick": 7.7969306614249945
+      },
+      "works": false
+    },
+    {
+      "probe": "A_unit_query_unit_embedding",
+      "held_out_loss": 7.735505446791649,
+      "random_input_loss": 7.735367566347122,
+      "context_use": -0.00013788044452667236,
+      "final_validation": {
+        "final_tick": 7.762334467843175,
+        "most_certain_tick": 7.757827764376998
+      },
+      "works": false
+    },
+    {
+      "probe": "C_mean_tick_loss",
+      "held_out_loss": 7.168032988905907,
+      "random_input_loss": 7.850399896502495,
+      "context_use": 0.6823669075965881,
+      "final_validation": {
+        "final_tick": 7.196685982868075,
+        "most_certain_tick": 7.362999066710472
+      },
+      "works": false
+    },
+    {
+      "probe": "A_C",
+      "held_out_loss": 7.045884981751442,
+      "random_input_loss": 8.186274789273739,
+      "context_use": 1.140389807522297,
+      "final_validation": {
+        "final_tick": 7.075993167236447,
+        "most_certain_tick": 7.277146996930242
+      },
+      "works": false
+    },
+    {
+      "probe": "B_C",
+      "held_out_loss": 6.730703711509705,
+      "random_input_loss": 8.327243961393833,
+      "context_use": 1.5965402498841286,
+      "final_validation": {
+        "final_tick": 6.761783849447966,
+        "most_certain_tick": 6.860554846003652
+      },
+      "works": true
+    }
+  ],
+  "choice": "B_C",
+  "rule": "works: loss <= 7.0 and context use >= 0.5; A before B"
+}

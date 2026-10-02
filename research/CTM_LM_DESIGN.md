@@ -80,3 +80,31 @@ The synthetic studies used sequences of 16–32 tokens, where prefix averaging d
 - **B:** give each position's CTM its own backbone feature in the synapse input. This is an adaptation for sequence models, departing from the CTM's input-only-through-attention design.
 
 The smallest change that works is adopted, and B is reported as an adaptation if it is needed. [Probe results](results/ctm_lm_probes/PROBES.md).
+
+### Probe results (2026-10-02)
+
+A per-tick analysis of the first probes found a **second failure, in CTM's loss**. The loss averages two cross-entropies: one for the tick with the lowest loss (selected with the label) and one for the most certain tick. At 32k vocabulary the ticks learn to make different confident guesses. Early ticks score 12–14 nats, worse than uniform (10.4). The label-selected tick scores 5.3–5.8 nats on held-out data, but every label-free readout scores 7.3–7.8, even in the faithful model. Fix **C** was added: train on the mean cross-entropy over all ticks.
+
+**Setup:** 300 steps × 32 × 1,024 tokens (9.8M), d 448 CTM-heavy, lr 5e-4. The held-out loss is the final tick for CTM-LM, measured on 64 windows. Context use is the loss with random input tokens minus the real loss. The rule, fixed before the runs: a probe works if its loss is ≤ 7.0 and its context use is ≥ 0.5.
+
+| Probe | Change | Held-out loss | Context use | Works |
+|---|---|---:|---:|---|
+| faithful | — | 7.797 | +0.001 | no |
+| faithful, lr 1.25e-4 | — | 7.689 | −0.008 | no |
+| unit embedding | initialization | 7.727 | −0.001 | no |
+| A (unit query) | initialization | 7.394 | +0.917 | no |
+| A + unit embedding | initialization | 7.736 | −0.000 | no |
+| C (mean-tick loss) | loss | 7.168 | +0.682 | no |
+| A + C | initialization + loss | 7.046 | +1.140 | no (0.05 above the bar) |
+| B (token observation) | architecture | 7.406 | +0.919 | no |
+| **B + C** | architecture + loss | **6.731** | **+1.597** | **yes** |
+| Transformer reference (d 384) | — | 6.311 | +1.812 | yes |
+| RDT-aware reference with unit embeddings (d 384) | — | 5.979 | +2.767 | yes |
+
+**What this shows:**
+- **The faithful CTM-LM fails on both counts.** It ignores its input, and its loss rewards hedging.
+- **Each fix contributes.** A and B each restore context use (+0.9 nats). C improves every variant, by 0.36–0.68 nats.
+- **Only B + C clears the bar.** It is an architecture adaptation plus a loss change. A + C, which keeps the architecture, comes within 0.05 nats.
+- **Even B + C trails the references** at this budget, by 0.4 nats against the Transformer and 0.75 against the RDT.
+
+The choice between B + C and A + C is the user's decision, because C changes the CTM's loss. [Full table](results/ctm_lm_probes/PROBES.md).
