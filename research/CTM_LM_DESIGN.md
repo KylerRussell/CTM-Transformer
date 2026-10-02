@@ -54,3 +54,29 @@ The language-model phase starts only if the synchronization effect survives step
 6. **The language-model phase**, designed as in the review: about 40–60M parameters, 1–2B tokens, 32k BPE, 5–10% synthetic data, Parcae-style stable injection, randomized depth, per-arm learning-rate tuning, a gated-attention arm, and measured compute accounting. The CTM-LM joins only if step 1 shows it learns retrieval and uses its ticks. *(Revised 2026-10-01: CTM-LM joins pretraining regardless, as the paper's subject. At most one CTM-augmented RDT arm may join after screening; see the [scope update](../RESEARCH_PLAN.md).)*
 
 **Dropped:** the bio-inspired homeostasis and structural-plasticity factor. The review found no Transformer evidence for it, and its source used SGD on one-hidden-layer MLPs. It is deferred to a separate side study, if pursued at all.
+
+## Language-model scale: the faithful CTM-LM does not use its input (2026-10-02)
+
+In the [learning-rate sweep](LR_SCALING.md), the CTM-heavy arm at width 448 (12-layer backbone, 1,216 neurons and pairs, 16 ticks) was trained on 100M FineWeb-Edu tokens at 5e-4, 1e-3 and 2e-3. Every run ended at the unigram level:
+- held-out loss 7.66–7.73 nats, against 7.62 for a frequency-only model;
+- the RDT-heavy arm at the same width reached 5.13.
+
+A step-250 checkpoint (lr 2e-3) shows why.
+
+**The prediction ignores the input.**
+- The final-tick logits are the same at every position: their spread across positions is 0.0006, against 1.45 across the vocabulary.
+- Replacing every input token with a random token leaves the loss unchanged (7.738 against 7.738).
+
+**The input pathway never trained.** The CTM reads the sequence only through its tick attention, with queries from action synchronization.
+- At initialization the tick-0 query has rms 0.012, so the attention is close to uniform: entropy 5.94 against 6.24 for uniform.
+- The query and key projections receive gradients of about 1e-6, against about 2e-2 for the backbone and the output head.
+- Uniform causal attention over 1,024 tokens gives each position the mean of its prefix, which carries almost no information about the current token.
+- The model learns token frequencies through the output head. The backbone then receives almost no useful gradient (2e-4 at step 250, against 1.8 for the head) and drifts. Its residual stream comes to be dominated by one token-independent vector, whose norm grows from 2 after block 0 to 170 after block 11, while the token-dependent part stays near 0.24. After the final norm, token information is 0.1% of the features. This is not an attention sink: attention mass on position 0 is 0.2%.
+
+The synthetic studies used sequences of 16–32 tokens, where prefix averaging dilutes the current token far less. This is the likely reason CTM-LM learned some state tracking there but never one-hop retrieval.
+
+**This failure is a reported result of the paper** (user decision, 2026-10-02). Two fixes are probed against the faithful model (`ctm_transformer/ctm_lm_adapt.py`, `scripts/ctm_lm_probes.py`):
+- **A:** rescale the query projection so the tick-0 query has unit rms. This changes initialization only; the architecture is unchanged.
+- **B:** give each position's CTM its own backbone feature in the synapse input. This is an adaptation for sequence models, departing from the CTM's input-only-through-attention design.
+
+The smallest change that works is adopted, and B is reported as an adaptation if it is needed. [Probe results](results/ctm_lm_probes/PROBES.md).

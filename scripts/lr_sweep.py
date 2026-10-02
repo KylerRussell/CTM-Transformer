@@ -27,7 +27,8 @@ the compute-aware RDT's middle width is resolved, the RDT and each CTM mechanism
 seeds 1234 and 1235. An arm name `rdt_aware+<mechanism>` adds the mechanism.
 
 Arms listed in `research/results/lr_sweep/hold.json` (a JSON list) are not
-launched while listed; running runs are unaffected. It is read on every cycle.
+launched while listed; running runs are unaffected. An entry "gpu:N" keeps
+the sweep off GPU N. It is read on every cycle.
 
 Restart-safe and idempotent: a relaunch resumes interrupted runs from their
 checkpoints. A run that exits nonzero is recorded as `failure.json` and never
@@ -177,7 +178,7 @@ def supervise():
         pending=[r for r in want if outcome(run_name(*r))[0] is None and run_name(*r) not in busy and r[0].split('+')[0] not in held]
         for gpu in (0,1):
             if not pending:break
-            if gpu in workers or not gpu_free(gpu):continue
+            if gpu in workers or f'gpu:{gpu}' in held or not gpu_free(gpu):continue
             r=pending.pop(0);workers[gpu]=(run_name(*r),launch(r,gpu))
         state={'time_utc':now(),'running':sorted(n for n,_ in workers.values()),'pending':[run_name(*r) for r in pending],
                'complete':sum(outcome(run_name(*r))[0] in ('complete','diverged','collapsed') for r in want),'blocked':blocked,'held':sorted(held)}
@@ -185,7 +186,7 @@ def supervise():
         idle=not workers and not pending and bool(held)
         if idle and not was_idle:log(f'idle: only held arms remain ({sorted(held)})')
         was_idle=idle
-        if not workers and not pending and not held:
+        if not workers and not pending and not any(not h.startswith('gpu:') for h in held):
             if blocked:log('stopped: a failed run blocks part of the sweep');return
             subprocess.run([sys.executable,'-m','scripts.summarize_lr_sweep'],check=True)
             subprocess.run([sys.executable,'-m','scripts.summarize_ctm_rdt_screen'],check=True)

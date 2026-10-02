@@ -43,3 +43,4 @@ research/data/pretrain/fineweb_edu_32k/*.bin
 research/runs/lr_sweep/
 research/results/lr_sweep/supervisor.log
 research/results/lr_sweep/state.tmp
+research/runs/ctm_lm_probes/
