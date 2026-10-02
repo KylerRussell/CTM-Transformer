@@ -24,6 +24,13 @@ Both are initialization-only, so they keep the faithful architecture. The
 smallest-change order becomes: initialization only (unit embedding, A, or both),
 then B.
 
+A per-tick analysis then showed that CTM's loss trains ticks that make
+different confident guesses: the label-selected tick scores 5.3-5.8 nats on
+held-out data while every label-free readout scores 7.3-7.8. Three probes test
+fix C, training on the mean cross-entropy over ticks: C_mean_tick_loss, A_C and
+B_C. Order of increasing change: initialization (unit embedding, A), loss (C),
+A + C, architecture (B), B + C.
+
 Measures, on 64 held-out windows from the sweep's selection range (offset 40,000):
 * the held-out loss of the final tick (CTM-LM) or the output (Transformer);
 * context use: the loss with every input token replaced by a random token
@@ -51,7 +58,10 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         'rdt_aware_unit_embedding':('rdt_aware',384,None,5e-4,{'embedding_init_std':1.0}),
         # Added after the RDT result: unit-scale input embeddings are also initialization-only for CTM-LM.
         'faithful_unit_embedding':('ctm_heavy',448,[],5e-4,{'embedding_init_std':1.0}),
-        'A_unit_query_unit_embedding':('ctm_heavy',448,['unit_query'],5e-4,{'embedding_init_std':1.0})}
+        'A_unit_query_unit_embedding':('ctm_heavy',448,['unit_query'],5e-4,{'embedding_init_std':1.0}),
+        # Added after per-tick analysis showed CTM's loss trains ticks that hedge (label-selected tick 5.3-5.8 nats, label-free 7.3-7.8).
+        'C_mean_tick_loss':('ctm_heavy',448,['mean_tick_loss'],5e-4),'A_C':('ctm_heavy',448,['unit_query','mean_tick_loss'],5e-4),
+        'B_C':('ctm_heavy',448,['observe_token','mean_tick_loss'],5e-4)}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 
@@ -96,7 +106,8 @@ def summarize(device):
         rows.append({'probe':name,'held_out_loss':real,'random_input_loss':rand,'context_use':rand-real,
                      'final_validation':metrics[-1].get('validation'),'works':real<=WORKS_LOSS and rand-real>=WORKS_CONTEXT})
     ok={r['probe'] for r in rows if r['works']}
-    order=['faithful_unit_embedding','A_unit_query','A_unit_query_unit_embedding','B_observe_token']  # initialization-only changes first, then B
+    # smallest change first: initialization only, then the loss change (C), then the architecture change (B)
+    order=['faithful_unit_embedding','A_unit_query','A_unit_query_unit_embedding','C_mean_tick_loss','A_C','B_observe_token','B_C']
     pending=[n for n in order if not (RUNS/n/'complete.json').exists()]
     choice=next((n for n in order if n in ok),None) if not pending else f'pending ({", ".join(pending)})'
     OUT.mkdir(parents=True,exist_ok=True)

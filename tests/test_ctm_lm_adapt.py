@@ -57,8 +57,22 @@ def test_observe_token_makes_the_prediction_depend_on_the_current_token_at_initi
     assert torch.isfinite(loss) and observing.synapse.down1.weight.grad.abs().sum() > 0
 
 
+def test_mean_tick_loss_is_the_mean_cross_entropy_over_ticks():
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), mean_tick_loss=True)
+    x, y = batch()
+    loss = m(x, targets=y)['loss']
+    with torch.no_grad():
+        logits = m(x, return_all_logits=True)['all_logits']
+    keep = y.ne(-100)
+    expected = torch.stack([torch.nn.functional.cross_entropy(l[keep].float(), y[keep]) for l in logits]).mean()
+    assert torch.allclose(loss, expected, atol=1e-5)
+    loss.backward()
+    assert m.query.weight.grad is not None
+
+
 def test_factory_rejects_unknown_adaptations():
-    assert adapted_factory({'unit_query'})(config('ctm_lm')).adaptations == {'unit_query': True, 'observe_token': False}
+    assert adapted_factory({'unit_query'})(config('ctm_lm')).adaptations == {'unit_query': True, 'observe_token': False, 'mean_tick_loss': False}
     with pytest.raises(ValueError):
         adapted_factory({'token_shortcut'})
 

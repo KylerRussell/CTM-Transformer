@@ -16,22 +16,28 @@ its backbone collapses to a token-independent vector.
   [attention output, backbone feature, state] in place of [attention output,
   state]. This departs from the CTM's rule that input arrives only through
   attention.
+* ``mean_tick_loss`` (C, a loss change): training minimizes the mean
+  cross-entropy over all ticks in place of CTM's loss (the mean of the
+  minimum-loss tick, selected with the label, and the most certain tick). At
+  language-model scale CTM's loss is satisfied by ticks that make different
+  confident guesses: on held-out data the label-selected tick scores 5.3-5.8
+  nats while every label-free readout scores 7.3-7.8 (2026-10-02 probes).
 """
 import torch
 from torch.utils.checkpoint import checkpoint
 from torch.nn import functional as F
 
 from ctm_transformer.ctm_lm import Synchronization, UNetSynapse
-from ctm_transformer.lm_scale import ScaledCTMLM, ctm_selected_tick_loss
+from ctm_transformer.lm_scale import ScaledCTMLM, chunked_cross_entropy, ctm_selected_tick_loss
 from ctm_transformer.positions import rope
 
-ADAPTATIONS = ('unit_query', 'observe_token')
+ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss')
 
 
 class AdaptedCTMLM(ScaledCTMLM):
-    def __init__(self, config, unit_query=False, observe_token=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
+    def __init__(self, config, unit_query=False, observe_token=False, mean_tick_loss=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
         super().__init__(config, checkpoint_ticks=checkpoint_ticks, compile_ticks=False, **kwargs)
-        self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token}
+        self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token, 'mean_tick_loss': mean_tick_loss}
         d, D = config.d_model, config.d_latent
         if observe_token:
             self.synapse = UNetSynapse(2 * d + D, self.synapse.out.in_features, D)
@@ -82,6 +88,10 @@ class AdaptedCTMLM(ScaledCTMLM):
         for _ in range(T):
             z, history, alpha_a, beta_a, alpha_o, beta_o, readout = step(z, history, alpha_a, beta_a, alpha_o, beta_o, keys, values, positions, observed)
             readouts.append(readout.view(B, S, -1))
+        if training and self.adaptations['mean_tick_loss']:
+            stacked = torch.stack(readouts, dim=2)  # [B, S, T, P]
+            loss = chunked_cross_entropy(stacked, self.lm_head.weight, targets[:, :, None].expand(-1, -1, T))
+            return {'logits': None, 'thought_steps': T, 'loss': loss}
         if training:
             return {'logits': None, 'thought_steps': T, **ctm_selected_tick_loss(torch.stack(readouts, dim=2), self.lm_head.weight, targets)}
         tick_logits = [self.lm_head(r) for r in readouts]
