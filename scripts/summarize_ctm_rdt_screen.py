@@ -25,7 +25,7 @@ def main():
     want=plan()[0];base='rdt_aware'
     k=next((r[2] for r in want if r[0]==SCREEN_VARIANTS[1] and r[1]==SCREEN_WIDTH),None)  # the screen's grid point
     runs={(r[0],r[4]):r for r in want if r[0] in SCREEN_VARIANTS and r[1:4]==(SCREEN_WIDTH,k,1) and r[4] in SCREEN_SEEDS}
-    if k is None or len(runs)<len(SCREEN_VARIANTS)*len(SCREEN_SEEDS) or any(outcome(run_name(*r))[0] not in ('complete','diverged') for r in runs.values()):
+    if k is None or len(runs)<len(SCREEN_VARIANTS)*len(SCREEN_SEEDS) or any(outcome(run_name(*r))[0] not in ('complete','diverged','collapsed') for r in runs.values()):
         print('screen incomplete');return
     loss={key:outcome(run_name(*r))[1] for key,r in runs.items()}
     speed={key:throughput(run_name(*r)) for key,r in runs.items() if outcome(run_name(*r))[0]=='complete'}

@@ -41,7 +41,7 @@ The optimizer stays on the GPU, which is numerically the same as the offloaded o
 - each larger width (and the 400M sweep) starts at the previous best k and its neighbours;
 - while the best k is at an edge, the grid extends past that edge (k ∈ [−6, 4]).
 
-A width is resolved when its best k has evaluated neighbours on both sides. A run with a non-finite gradient norm stops as **diverged** and counts as infinite loss.
+A width is resolved when its best k has evaluated neighbours on both sides. A run with a non-finite gradient norm stops as **diverged** and counts as infinite loss. *(Added 2026-10-02, before any width was resolved:)* A run ending at a held-out loss of 7.0 nats or more counts as **collapsed**, also with infinite loss. The unigram model scores 7.62. Without this rule, an arm whose every rate collapses to the unigram level would get an "optimum" chosen by noise.
 
 **Metric.** The metric is the mean held-out cross-entropy at the end of training. It is computed on 1,024 FineWeb-Edu validation windows (about 1M tokens), starting at window 40,000. The 500M runs report windows 0–255, so selection never touches the reported evaluation. The readout scored depends on the family:
 - Transformer: the output;

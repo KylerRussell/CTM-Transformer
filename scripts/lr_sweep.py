@@ -10,7 +10,11 @@ a lattice of learning rates lr = 1e-3 * 2^k. The grid is adaptive:
 * while the best k (lowest held-out loss; a diverged run counts as infinite)
   is at an edge of the grid, the grid is extended by one step past that edge
   (k stays within [-6, 4]);
-* a width is resolved once its best k has evaluated neighbours on both sides.
+* a width is resolved once its best k has evaluated neighbours on both sides;
+* a run that ends at a held-out loss of 7.0 nats or more (no better than about
+  the unigram model's 7.62) counts as collapsed, with infinite loss;
+* rates above one that diverged or collapsed are not run (infinite loss), and
+  a width whose every rate fails down to k = -6 is blocked, with no optimum.
 
 At the smallest width the Transformer and both compute-aware arms are also
 swept at 4x the tokens (400M), which measures how the optimum moves with
@@ -21,6 +25,9 @@ Last stage, the CTM-augmented RDT screen (research/CTM_RDT_SCREEN.md): once
 the compute-aware RDT's middle width is resolved, the RDT and each CTM mechanism
 (`ctm_transformer/ctm_rdt.py`) train at that width's best learning rate with
 seeds 1234 and 1235. An arm name `rdt_aware+<mechanism>` adds the mechanism.
+
+Arms listed in `research/results/lr_sweep/hold.json` (a JSON list) are not
+launched while listed; running runs are unaffected. It is read on every cycle.
 
 Restart-safe and idempotent: a relaunch resumes interrupted runs from their
 checkpoints. A run that exits nonzero is recorded as `failure.json` and never
@@ -40,6 +47,11 @@ MICRO={'transformer':[32,32,32],'rdt_aware':[16,16,16],'ctm_aware':[8,8,4],'rdt_
 HORIZON_ARMS=('transformer','rdt_aware','ctm_aware')
 PRIORITY=('ctm_heavy','rdt_heavy','ctm_aware','rdt_aware','transformer')
 TOKENS=100_000_000;K_MIN,K_MAX=-6,4;EVAL_OFFSET=40_000
+# A run whose final held-out loss is at least this has not learned beyond token frequencies (the unigram
+# model scores 7.62 nats on these windows; every arm reaches about 5 nats or lower by 100M tokens when it trains).
+# It counts as collapsed, with infinite loss, like a divergence. Added 2026-10-02 after RDT-heavy at lr 1e-3
+# collapsed to the unigram level mid-run and every CTM-heavy rate ended at 7.66-7.73.
+COLLAPSED=7.0
 METRIC={'transformer':'final','rdt':'depth_16','ctm_lm':'most_certain_tick'}
 SEED=1234;SCREEN_ARM,SCREEN_WIDTH=('rdt_aware',512);SCREEN_SEEDS=(1234,1235)
 SCREEN_VARIANTS=('rdt_aware','rdt_aware+sync_query','rdt_aware+sync_readout','rdt_aware+learned_init')
@@ -63,26 +75,33 @@ def sweep_config(arm,d,k,h,seed=SEED):
 
 
 def outcome(name):
-    """'complete' with the held-out loss, 'diverged' (infinite loss), 'failed', or None (not finished)."""
+    """'complete' with the held-out loss, 'diverged' or 'collapsed' (infinite loss), 'failed', or None (not finished)."""
     d=RUNS/name
     if (d/'failure.json').exists():return 'failed',None
     if (d/'diverged.json').exists():return 'diverged',math.inf
     if (d/'complete.json').exists():
         run=json.loads((d/'config.json').read_text());rows=[json.loads(r) for r in (d/'metrics.jsonl').read_text().splitlines() if r.strip()]
-        return 'complete',rows[-1]['validation'][METRIC[run['family']]]
+        loss=rows[-1]['validation'][METRIC[run['family']]]
+        return ('collapsed',math.inf) if loss>=COLLAPSED else ('complete',loss)
     return None,None
 
 
 def grid(arm,d,h,start):
-    """(runs this width needs now, best k once resolved else None, blocked by a failure)."""
+    """(runs this width needs now, best k once resolved else None, blocked).
+
+    Rates above the lowest rate that diverged or collapsed are not run: instability only grows with the
+    learning rate, so they count as infinite loss. A width whose every rate fails is blocked (no optimum)."""
     ks=set(start)
     while True:
         states={k:outcome(run_name(arm,d,k,h)) for k in ks}
-        if any(s=='failed' for s,_ in states.values()):return sorted(ks),None,True
-        if any(s is None for s,_ in states.values()):return sorted(ks),None,False
+        bad=[k for k,(s,_) in states.items() if s in ('diverged','collapsed')]
+        ks={k for k in ks if not bad or k<=min(bad)}
+        if any(states[k][0]=='failed' for k in ks):return sorted(ks),None,True
+        if any(states[k][0] is None for k in ks):return sorted(ks),None,False
         best=min(ks,key=lambda k:(states[k][1],k))
         if best==min(ks) and best>K_MIN:ks.add(best-1)
-        elif best==max(ks) and best<K_MAX:ks.add(best+1)
+        elif best==max(ks) and best<K_MAX and not bad:ks.add(best+1)
+        elif states[best][1]==math.inf:return sorted(ks),None,True
         else:return sorted(ks),best,False
 
 
@@ -140,7 +159,7 @@ def supervise():
     lock=open(RESULTS/'.supervisor.lock','w')
     try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     except BlockingIOError:log('another supervisor holds the lock');return
-    log(f'supervisor start (pid {os.getpid()})');workers={}  # gpu -> (name, Popen or None for an adopted worker)
+    log(f'supervisor start (pid {os.getpid()})');workers={};was_idle=False  # gpu -> (name, Popen or None for an adopted worker)
     for name in [run_name(*r) for r in plan()[0]]:
         gpu=alive(name)
         if gpu is not None:log(f'{name} is still running on GPU {gpu} from an earlier supervisor; waiting for it');workers[gpu]=(name,None)
@@ -154,15 +173,19 @@ def supervise():
                 else:(RUNS/name/'failure.json').write_text(json.dumps({'returncode':code,'time_utc':now()})+'\n');log(f'{name} FAILED (exit {code}); see train.log')
             else:log(f'{name} finished: {state}')
         want,blocked=plan();busy={n for n,_ in workers.values()}
-        pending=[r for r in want if outcome(run_name(*r))[0] is None and run_name(*r) not in busy]
+        held=set(json.loads((RESULTS/'hold.json').read_text())) if (RESULTS/'hold.json').exists() else set()
+        pending=[r for r in want if outcome(run_name(*r))[0] is None and run_name(*r) not in busy and r[0].split('+')[0] not in held]
         for gpu in (0,1):
             if not pending:break
             if gpu in workers or not gpu_free(gpu):continue
             r=pending.pop(0);workers[gpu]=(run_name(*r),launch(r,gpu))
         state={'time_utc':now(),'running':sorted(n for n,_ in workers.values()),'pending':[run_name(*r) for r in pending],
-               'complete':sum(outcome(run_name(*r))[0] in ('complete','diverged') for r in want),'blocked':blocked}
+               'complete':sum(outcome(run_name(*r))[0] in ('complete','diverged','collapsed') for r in want),'blocked':blocked,'held':sorted(held)}
         tmp=RESULTS/'state.tmp';tmp.write_text(json.dumps(state,indent=2)+'\n');tmp.replace(RESULTS/'state.json')
-        if not workers and not pending:
+        idle=not workers and not pending and bool(held)
+        if idle and not was_idle:log(f'idle: only held arms remain ({sorted(held)})')
+        was_idle=idle
+        if not workers and not pending and not held:
             if blocked:log('stopped: a failed run blocks part of the sweep');return
             subprocess.run([sys.executable,'-m','scripts.summarize_lr_sweep'],check=True)
             subprocess.run([sys.executable,'-m','scripts.summarize_ctm_rdt_screen'],check=True)

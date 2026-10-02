@@ -120,6 +120,24 @@ def test_screen_summary_applies_the_decision_rule(sweep, monkeypatch):
     assert rows['sync_query']['relative_throughput'] == pytest.approx(1 / 1.1)
 
 
+def test_rates_above_a_collapse_are_skipped_and_the_grid_extends_downward(sweep, monkeypatch):
+    real = lr_sweep.outcome
+    def outcome(name):  # ctm_heavy d448: rates k >= 0 collapse; k = -1 learns, k = -2 learns better, k = -3 worse
+        if name.startswith('ctm_heavy_d448_h1_k'):
+            k = int(name.rsplit('_k', 1)[1])
+            return ('collapsed', math.inf) if k >= 0 else ('complete', {-1: 5.0, -2: 4.9, -3: 4.95}.get(k, 5.5))
+        return real(name)
+    monkeypatch.setattr(lr_sweep, 'outcome', outcome)
+    ks, best, blocked = lr_sweep.grid('ctm_heavy', 448, 1, (-1, 0, 1))
+    assert ks == [-3, -2, -1, 0] and best == -2 and not blocked  # k = +1 is never run
+
+
+def test_a_width_where_every_rate_fails_is_blocked(sweep, monkeypatch):
+    monkeypatch.setattr(lr_sweep, 'outcome', lambda name: ('collapsed', math.inf))
+    ks, best, blocked = lr_sweep.grid('ctm_heavy', 448, 1, (-1, 0, 1))
+    assert best is None and blocked and min(ks) == lr_sweep.K_MIN
+
+
 def test_a_failed_run_blocks_its_arm_and_is_not_retried(sweep):
     finish(sweep / 'runs', 'ctm_heavy', 448, 0, 1, fail=True)
     want, blocked = plan()
