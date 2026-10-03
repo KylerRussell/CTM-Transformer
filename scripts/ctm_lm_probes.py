@@ -45,6 +45,9 @@ nats while being more faithful (E_C, D_C: input through CTM mechanisms) or
 cheaper (B_final). Context use is measured on each probe's own readout: the most
 certain tick for B_certainty, the final tick otherwise.
 
+D_final (token-conditioned start with the final-tick loss) was added after D_C
+and B_final led the exploration. The same replacement rule applies.
+
 Measures, on 64 held-out windows from the sweep's selection range (offset 40,000):
 * the held-out loss of the final tick (CTM-LM) or the output (Transformer);
 * context use: the loss with every input token replaced by a random token
@@ -80,7 +83,9 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         'E_C':('ctm_heavy',448,['query_feature','mean_tick_loss'],5e-4),'D_C':('ctm_heavy',448,['token_start','mean_tick_loss'],5e-4),
         'B_final':('ctm_heavy',448,['observe_token','final_tick_loss'],5e-4),'B_certainty':('ctm_heavy',448,['observe_token','certainty_loss'],5e-4),
         'A_B_C':('ctm_heavy',448,['unit_query','observe_token','mean_tick_loss'],5e-4),
-        'B_C_state':('ctm_heavy',448,['observe_token','mean_tick_loss','state_readout'],5e-4)}
+        'B_C_state':('ctm_heavy',448,['observe_token','mean_tick_loss','state_readout'],5e-4),
+        # Added after D_C (6.43) and B_final (6.78 at 1.9x B_C's throughput) led the exploration.
+        'D_final':('ctm_heavy',448,['token_start','final_tick_loss'],5e-4)}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 
