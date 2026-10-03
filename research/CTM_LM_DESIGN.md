@@ -108,3 +108,28 @@ A per-tick analysis of the first probes found a **second failure, in CTM's loss*
 - **Even B + C trails the references** at this budget, by 0.4 nats against the Transformer and 0.75 against the RDT.
 
 The choice between B + C and A + C is the user's decision, because C changes the CTM's loss. [Full table](results/ctm_lm_probes/PROBES.md).
+
+### Exploration beyond A, B and C (2026-10-03)
+
+B + C was adopted first. The user then asked for adaptations beyond A, B and C. Each was judged against B + C under a replacement rule fixed before the runs: an alternative replaces B + C if it works and either is at least 0.05 nats better, or is within 0.05 nats while being more faithful or cheaper. Same setup as above. Throughput is single-GPU training throughput at d 448.
+
+| Probe | Change | Held-out loss | Context use | Throughput |
+|---|---|---:|---:|---:|
+| B + C (adopted first) | token observation in the synapse; mean-tick loss | 6.731 | +1.60 | 3,850 tok/s |
+| **D + C** | token-conditioned start state z₀ = z_init + W·f_i; mean-tick loss | **6.392** | +1.84 | 3,880 |
+| **D + final** | token-conditioned start state; loss on the final tick only | **6.313** | +2.21 | **7,500** |
+| B + final | token observation; final-tick loss | 6.750 | +1.81 | 7,330 |
+| B + certainty | token observation; CTM's label-free half alone (most certain tick) | 6.802 | +1.92 | 5,440 |
+| A + B + C | B + C with unit query initialization | 6.744 | +2.04 | — |
+| B + C + state readout | output also read from the neuron state | 6.839 | +1.68 | — |
+| E + C | the position's feature added to its tick-attention query | 7.115 | +1.07 | 3,880 |
+| Transformer reference | | 6.311 | +1.81 | |
+| RDT-aware reference | | 5.979 | +2.77 | |
+
+**What this shows:**
+- **The token-conditioned start state (D) is the best input fix.** It also uses an existing CTM mechanism, the learned start state, rather than a new synapse input.
+- **Feeding the feature through the attention query (E) is the weakest.** The attention pathway remains hard to train.
+- **Reading out from the neuron state does not help,** so the synchronization readout is not the bottleneck.
+- **The final-tick loss matches or beats the mean-tick loss at about twice the throughput.** But its earlier ticks are untrained: D + final's most-certain-tick readout scores 10.35 nats, worse than uniform. Training on the final tick gives up the CTM's per-tick predictions and its certainty-based adaptive computation, while the mean-tick loss keeps every tick usable.
+
+By the rule, D + C and D + final both replace B + C. The choice between them trades the CTM's per-tick behaviour against cost, so it is the user's decision.

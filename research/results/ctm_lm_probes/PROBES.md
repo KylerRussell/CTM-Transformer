@@ -18,5 +18,12 @@ Held-out loss on 64 windows from offset 40000; unigram model: 7.62 nats.
 | C_mean_tick_loss | 7.168 | 7.850 | +0.682 | no |
 | A_C | 7.046 | 8.186 | +1.140 | no |
 | B_C | 6.731 | 8.327 | +1.597 | yes |
+| E_C | 7.115 | 8.188 | +1.073 | no |
+| D_C | 6.392 | 8.229 | +1.838 | yes |
+| B_final | 6.750 | 8.563 | +1.812 | yes |
+| B_certainty | 6.802 | 8.725 | +1.923 | yes |
+| A_B_C | 6.744 | 8.783 | +2.039 | yes |
+| B_C_state | 6.839 | 8.518 | +1.679 | yes |
+| D_final | 6.313 | 8.527 | +2.214 | yes |
 
 **CTM-LM choice by the rule:** B_C.

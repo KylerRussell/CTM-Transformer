@@ -138,6 +138,83 @@
         "most_certain_tick": 6.860554846003652
       },
       "works": true
+    },
+    {
+      "probe": "E_C",
+      "held_out_loss": 7.11527731269598,
+      "random_input_loss": 8.188366927206516,
+      "context_use": 1.0730896145105362,
+      "final_validation": {
+        "final_tick": 7.143491005524993,
+        "most_certain_tick": 7.192262222990394
+      },
+      "works": false
+    },
+    {
+      "probe": "D_C",
+      "held_out_loss": 6.391556687653065,
+      "random_input_loss": 8.22945349663496,
+      "context_use": 1.8378968089818954,
+      "final_validation": {
+        "final_tick": 6.428274519741535,
+        "most_certain_tick": 6.46332479827106
+      },
+      "works": true
+    },
+    {
+      "probe": "B_final",
+      "held_out_loss": 6.750424191355705,
+      "random_input_loss": 8.562502898275852,
+      "context_use": 1.812078706920147,
+      "final_validation": {
+        "final_tick": 6.780367719009519,
+        "most_certain_tick": 6.780367726460099
+      },
+      "works": true
+    },
+    {
+      "probe": "B_certainty",
+      "held_out_loss": 6.801517681218684,
+      "random_input_loss": 8.724987522698939,
+      "context_use": 1.9234698414802551,
+      "final_validation": {
+        "final_tick": 6.8316560965031385,
+        "most_certain_tick": 6.831656103953719
+      },
+      "works": true
+    },
+    {
+      "probe": "A_B_C",
+      "held_out_loss": 6.744270704686642,
+      "random_input_loss": 8.782803073525429,
+      "context_use": 2.038532368838787,
+      "final_validation": {
+        "final_tick": 6.7741724867373705,
+        "most_certain_tick": 6.840375857427716
+      },
+      "works": true
+    },
+    {
+      "probe": "B_C_state",
+      "held_out_loss": 6.838607780635357,
+      "random_input_loss": 8.51770506799221,
+      "context_use": 1.6790972873568535,
+      "final_validation": {
+        "final_tick": 6.868804056197405,
+        "most_certain_tick": 6.888109961524606
+      },
+      "works": true
+    },
+    {
+      "probe": "D_final",
+      "held_out_loss": 6.312699116766453,
+      "random_input_loss": 8.526677697896957,
+      "context_use": 2.2139785811305046,
+      "final_validation": {
+        "final_tick": 6.351167153567076,
+        "most_certain_tick": 10.348466753959656
+      },
+      "works": true
     }
   ],
   "choice": "B_C",
