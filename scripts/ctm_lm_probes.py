@@ -57,6 +57,12 @@ held-out loss is lower by more than the larger of the two seed-to-seed differenc
 a combination replaces D_sparse if it is at least 0.05 nats better and its
 most-certain-trained-tick readout stays within 0.1 nats of its final tick.
 
+Result: D_H_sparse replaced D_sparse (6.355 against 6.415). D_sparse did not beat the
+Transformer: at their best probed rate (1e-3 for both) it trailed by 0.055, against
+a seed spread of 0.019. Both optima were at the grid edge, so D_H_sparse at 1e-3
+and 2e-3, the Transformer at 2e-3, and a second seed of D_H_sparse were added.
+The same beats-the-Transformer rule applies.
+
 Measures, on 64 held-out windows from the sweep's selection range (offset 40,000):
 * the held-out loss of the final tick (CTM-LM) or the output (Transformer);
 * context use: the loss with every input token replaced by a random token
@@ -104,7 +110,12 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         'D_sparse_lr2.5e-4':('ctm_heavy',448,['token_start','sparse_tick_loss'],2.5e-4),'D_sparse_lr1e-3':('ctm_heavy',448,['token_start','sparse_tick_loss'],1e-3),
         'transformer_lr2.5e-4':('transformer',384,None,2.5e-4),'transformer_lr1e-3':('transformer',384,None,1e-3),
         'D_sparse_seed1235':('ctm_heavy',448,['token_start','sparse_tick_loss'],5e-4,{'seed':1235}),
-        'transformer_seed1235':('transformer',384,None,5e-4,{'seed':1235})}
+        'transformer_seed1235':('transformer',384,None,5e-4,{'seed':1235}),
+        # Bracketing (2026-10-03): both models were best at 1e-3, the top of the probed grid; D_H_sparse replaced D_sparse.
+        'D_H_sparse_lr1e-3':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],1e-3),
+        'D_H_sparse_lr2e-3':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],2e-3),
+        'transformer_lr2e-3':('transformer',384,None,2e-3),
+        'D_H_sparse_seed1235':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],5e-4,{'seed':1235})}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 

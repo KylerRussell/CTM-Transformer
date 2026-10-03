@@ -26,5 +26,14 @@ Held-out loss on 64 windows from offset 40000; unigram model: 7.62 nats.
 | B_C_state | 6.839 | 8.518 | +1.679 | yes |
 | D_final | 6.313 | 8.527 | +2.214 | yes |
 | D_sparse | 6.415 | 8.226 | +1.810 | yes |
+| D_B_sparse | 6.422 | 8.100 | +1.678 | yes |
+| D_A_sparse | 6.433 | 8.194 | +1.761 | yes |
+| D_H_sparse | 6.355 | 8.408 | +2.053 | yes |
+| D_sparse_lr2.5e-4 | 6.626 | 8.043 | +1.416 | yes |
+| D_sparse_lr1e-3 | 6.227 | 8.406 | +2.179 | yes |
+| transformer_lr2.5e-4 | 6.572 | 8.080 | +1.508 | yes |
+| transformer_lr1e-3 | 6.172 | 8.516 | +2.344 | yes |
+| D_sparse_seed1235 | 6.434 | 8.164 | +1.730 | yes |
+| transformer_seed1235 | 6.313 | 8.311 | +1.998 | yes |
 
 **CTM-LM choice by the rule:** B_C.
