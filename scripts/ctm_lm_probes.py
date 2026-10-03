@@ -85,7 +85,9 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         'A_B_C':('ctm_heavy',448,['unit_query','observe_token','mean_tick_loss'],5e-4),
         'B_C_state':('ctm_heavy',448,['observe_token','mean_tick_loss','state_readout'],5e-4),
         # Added after D_C (6.43) and B_final (6.78 at 1.9x B_C's throughput) led the exploration.
-        'D_final':('ctm_heavy',448,['token_start','final_tick_loss'],5e-4)}
+        'D_final':('ctm_heavy',448,['token_start','final_tick_loss'],5e-4),
+        # User request: a middle ground keeping periodic per-tick predictions (ticks 4, 8, 12, 16).
+        'D_sparse':('ctm_heavy',448,['token_start','sparse_tick_loss'],5e-4)}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 

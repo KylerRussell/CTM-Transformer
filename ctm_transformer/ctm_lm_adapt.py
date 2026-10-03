@@ -33,6 +33,9 @@ Further candidates (2026-10-02, after B + C passed):
 * ``final_tick_loss`` / ``certainty_loss``: alternatives to C. Train the final
   tick only, or CTM's label-free half alone (the most certain tick, selected
   without gradient).
+* ``sparse_tick_loss``: the mean cross-entropy over every (T/4)-th tick ending at
+  the final tick. It keeps periodic per-tick predictions at a lower cost than
+  the mean over all ticks.
 * ``state_readout``: the output reads the neuron state as well as the output
   synchronization, readout = S_out + W_r z_t. This tests whether the
   synchronization readout is a bottleneck.
@@ -46,8 +49,15 @@ from ctm_transformer.ctm_lm import Synchronization, UNetSynapse
 from ctm_transformer.lm_scale import ScaledCTMLM, _logits, chunked_cross_entropy, ctm_selected_tick_loss
 from ctm_transformer.positions import rope
 
-ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss', 'query_feature', 'token_start', 'final_tick_loss', 'certainty_loss', 'state_readout')
-LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss')  # at most one; none means CTM's loss
+ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss', 'query_feature', 'token_start', 'final_tick_loss', 'certainty_loss', 'state_readout',
+               'sparse_tick_loss')
+LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss', 'sparse_tick_loss')  # at most one; none means CTM's loss
+SPARSE_TICKS = 4  # sparse_tick_loss: mean cross-entropy over every (T / 4)-th tick, ending at the final tick (ticks 4, 8, 12, 16 of 16)
+
+
+def sparse_ticks(T):
+    step = max(1, T // SPARSE_TICKS)
+    return list(range(T - 1, -1, -step))[:SPARSE_TICKS][::-1]
 
 
 def certain_tick_loss(readouts, weight, targets, chunk=4096):
@@ -69,10 +79,12 @@ def certain_tick_loss(readouts, weight, targets, chunk=4096):
 
 class AdaptedCTMLM(ScaledCTMLM):
     def __init__(self, config, unit_query=False, observe_token=False, mean_tick_loss=False, query_feature=False, token_start=False,
-                 final_tick_loss=False, certainty_loss=False, state_readout=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
+                 final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, checkpoint_ticks=False, compile_ticks=False,
+                 **kwargs):
         super().__init__(config, checkpoint_ticks=checkpoint_ticks, compile_ticks=False, **kwargs)
         self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token, 'mean_tick_loss': mean_tick_loss, 'query_feature': query_feature,
-                            'token_start': token_start, 'final_tick_loss': final_tick_loss, 'certainty_loss': certainty_loss, 'state_readout': state_readout}
+                            'token_start': token_start, 'final_tick_loss': final_tick_loss, 'certainty_loss': certainty_loss, 'state_readout': state_readout,
+                            'sparse_tick_loss': sparse_tick_loss}
         if sum(self.adaptations[k] for k in LOSSES) > 1:
             raise ValueError(f'At most one of {LOSSES}')
         d, D = config.d_model, config.d_latent
@@ -141,6 +153,11 @@ class AdaptedCTMLM(ScaledCTMLM):
         if training and self.adaptations['mean_tick_loss']:
             stacked = torch.stack(readouts, dim=2)  # [B, S, T, P]
             loss = chunked_cross_entropy(stacked, self.lm_head.weight, targets[:, :, None].expand(-1, -1, T))
+            return {'logits': None, 'thought_steps': T, 'loss': loss}
+        if training and self.adaptations['sparse_tick_loss']:
+            ticks = sparse_ticks(T)
+            stacked = torch.stack([readouts[t] for t in ticks], dim=2)
+            loss = chunked_cross_entropy(stacked, self.lm_head.weight, targets[:, :, None].expand(-1, -1, len(ticks)))
             return {'logits': None, 'thought_steps': T, 'loss': loss}
         if training and self.adaptations['final_tick_loss']:
             return {'logits': None, 'thought_steps': T, 'loss': chunked_cross_entropy(readouts[-1], self.lm_head.weight, targets)}

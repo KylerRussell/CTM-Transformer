@@ -138,3 +138,17 @@ def test_state_readout_adds_a_trained_projection_of_the_state_and_losses_are_exc
     assert m.state_readout.weight.grad is not None and m.state_readout.weight.grad.abs().sum() > 0
     with pytest.raises(ValueError):
         AdaptedCTMLM(config('ctm_lm'), mean_tick_loss=True, final_tick_loss=True)
+
+
+def test_sparse_tick_loss_is_the_mean_over_every_quarter_tick():
+    from ctm_transformer.ctm_lm_adapt import sparse_ticks
+    assert sparse_ticks(16) == [3, 7, 11, 15] and sparse_ticks(5) == [1, 2, 3, 4] and sparse_ticks(2) == [0, 1]
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), sparse_tick_loss=True)
+    x, y = batch()
+    keep = y.ne(-100)
+    with torch.no_grad():
+        logits = m(x, return_all_logits=True)['all_logits']
+    T = len(logits)
+    expected = torch.stack([torch.nn.functional.cross_entropy(logits[t][keep].float(), y[keep]) for t in sparse_ticks(T)]).mean()
+    assert torch.allclose(m(x, targets=y)['loss'], expected, atol=1e-5)
