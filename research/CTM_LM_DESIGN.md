@@ -133,3 +133,17 @@ B + C was adopted first. The user then asked for adaptations beyond A, B and C. 
 - **The final-tick loss matches or beats the mean-tick loss at about twice the throughput.** But its earlier ticks are untrained: D + final's most-certain-tick readout scores 10.35 nats, worse than uniform. Training on the final tick gives up the CTM's per-tick predictions and its certainty-based adaptive computation, while the mean-tick loss keeps every tick usable.
 
 By the rule, D + C and D + final both replace B + C. The choice between them trades the CTM's per-tick behaviour against cost, so it is the user's decision.
+
+### Sparse-tick loss (2026-10-03)
+
+**D-sparse** is the token-conditioned start state trained on the mean cross-entropy over ticks 4, 8, 12 and 16. It reaches a held-out loss of 6.415 with +1.81 context use, against 6.392 for D + mean-tick and 6.313 for D + final. Its throughput is 6,370 tok/s, against 3,880 and 7,500.
+
+Per-tick held-out loss, on 8 windows:
+
+| Tick | 1 | 2 | 3 | 4 | 8 | 12 | 16 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| D-sparse | 7.29 | 6.65 | 6.42 | 6.36 | 6.34 | 6.36 | 6.37 |
+| D + mean-tick | 6.39 | 6.32 | 6.30 | 6.29 | 6.30 | 6.32 | 6.34 |
+
+- **Unsupervised ticks stay usable.** Every D-sparse tick from 3 on is a good prediction, including those not in the loss. Its all-tick certainty readout (7.36) is spoiled only by untrained tick 1, which is the most certain tick for every token. Restricted to the trained ticks, the certainty readout scores 6.357.
+- **Tick use is small.** Even with every tick trained (D + mean-tick), tick 1 is within 0.10 nats of the best tick, and later ticks are slightly worse. At this scale and budget the adapted CTM gains little from additional ticks. This is a finding to test at 500M.

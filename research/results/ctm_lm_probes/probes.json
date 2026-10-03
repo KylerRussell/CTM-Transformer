@@ -215,6 +215,17 @@
         "most_certain_tick": 10.348466753959656
       },
       "works": true
+    },
+    {
+      "probe": "D_sparse",
+      "held_out_loss": 6.415085949003696,
+      "random_input_loss": 8.225553914904594,
+      "context_use": 1.810467965900898,
+      "final_validation": {
+        "final_tick": 6.451254807412624,
+        "most_certain_tick": 7.363191310316324
+      },
+      "works": true
     }
   ],
   "choice": "B_C",
