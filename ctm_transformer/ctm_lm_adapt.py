@@ -33,6 +33,8 @@ Further candidates (2026-10-02, after B + C passed):
 * ``final_tick_loss`` / ``certainty_loss``: alternatives to C. Train the final
   tick only, or CTM's label-free half alone (the most certain tick, selected
   without gradient).
+* ``token_history`` (H): the initial pre-activation history is token-conditioned too,
+  history_0 = history_init + (W_h f_i) broadcast over the memory slots.
 * ``sparse_tick_loss``: the mean cross-entropy over every (T/4)-th tick ending at
   the final tick. It keeps periodic per-tick predictions at a lower cost than
   the mean over all ticks.
@@ -50,7 +52,7 @@ from ctm_transformer.lm_scale import ScaledCTMLM, _logits, chunked_cross_entropy
 from ctm_transformer.positions import rope
 
 ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss', 'query_feature', 'token_start', 'final_tick_loss', 'certainty_loss', 'state_readout',
-               'sparse_tick_loss')
+               'sparse_tick_loss', 'token_history')
 LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss', 'sparse_tick_loss')  # at most one; none means CTM's loss
 SPARSE_TICKS = 4  # sparse_tick_loss: mean cross-entropy over every (T / 4)-th tick, ending at the final tick (ticks 4, 8, 12, 16 of 16)
 
@@ -79,12 +81,12 @@ def certain_tick_loss(readouts, weight, targets, chunk=4096):
 
 class AdaptedCTMLM(ScaledCTMLM):
     def __init__(self, config, unit_query=False, observe_token=False, mean_tick_loss=False, query_feature=False, token_start=False,
-                 final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, checkpoint_ticks=False, compile_ticks=False,
-                 **kwargs):
+                 final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, token_history=False, checkpoint_ticks=False,
+                 compile_ticks=False, **kwargs):
         super().__init__(config, checkpoint_ticks=checkpoint_ticks, compile_ticks=False, **kwargs)
         self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token, 'mean_tick_loss': mean_tick_loss, 'query_feature': query_feature,
                             'token_start': token_start, 'final_tick_loss': final_tick_loss, 'certainty_loss': certainty_loss, 'state_readout': state_readout,
-                            'sparse_tick_loss': sparse_tick_loss}
+                            'sparse_tick_loss': sparse_tick_loss, 'token_history': token_history}
         if sum(self.adaptations[k] for k in LOSSES) > 1:
             raise ValueError(f'At most one of {LOSSES}')
         d, D = config.d_model, config.d_latent
@@ -92,6 +94,7 @@ class AdaptedCTMLM(ScaledCTMLM):
         self.query_feature = nn.Linear(d, d, bias=False) if query_feature else None
         self.start_projection = nn.Linear(d, D, bias=False) if token_start else None
         self.state_readout = nn.Linear(D, pairs, bias=False) if state_readout else None
+        self.history_projection = nn.Linear(d, D, bias=False) if token_history else None
         if observe_token:
             self.synapse = UNetSynapse(2 * d + D, self.synapse.out.in_features, D)
         if unit_query:
@@ -142,6 +145,8 @@ class AdaptedCTMLM(ScaledCTMLM):
         if self.start_projection is not None:
             z = z + self.start_projection(feats).reshape(N, D).float()
         history = self.history_init.expand(N, D, self.config.history_len)
+        if self.history_projection is not None:
+            history = history + self.history_projection(feats).reshape(N, D, 1).to(history.dtype)
         alpha_a, beta_a = self.sync_action.start(z)
         alpha_o, beta_o = self.sync_out.start(z)
         training = targets is not None and not return_all_logits

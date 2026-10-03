@@ -100,11 +100,12 @@ def test_query_feature_lets_the_tick_attention_learn():
     assert norms[1] > 50 * norms[0]
 
 
-def test_token_start_makes_the_prediction_depend_on_the_current_token():
+@pytest.mark.parametrize('adaptation', ['token_start', 'token_history'])
+def test_token_start_and_history_make_the_prediction_depend_on_the_current_token(adaptation):
     torch.manual_seed(0)
     faithful = AdaptedCTMLM(config('ctm_lm'))
     torch.manual_seed(0)
-    adapted = AdaptedCTMLM(config('ctm_lm'), token_start=True)
+    adapted = AdaptedCTMLM(config('ctm_lm'), **{adaptation: True})
     assert all(torch.equal(p, dict(faithful.named_parameters())[n]) for n, p in adapted.named_parameters() if n in dict(faithful.named_parameters()))
     x, _ = batch(B=1, S=11)
     x2 = x.clone()

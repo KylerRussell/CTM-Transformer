@@ -48,6 +48,15 @@ certain tick for B_certainty, the final tick otherwise.
 D_final (token-conditioned start with the final-tick loss) was added after D_C
 and B_final led the exploration. The same replacement rule applies.
 
+Below the Transformer? (user request, 2026-10-03.) Combinations with D + sparse-tick
+(D_B_sparse, D_A_sparse, D_H_sparse with H = token-conditioned initial history),
+learning-rate checks for D_sparse and the Transformer at 2.5e-4 and 1e-3, and a
+second seed (1235) of D_sparse and of the Transformer. Rule, fixed before the runs:
+a CTM variant beats the Transformer if, each at its best probed learning rate, its
+held-out loss is lower by more than the larger of the two seed-to-seed differences;
+a combination replaces D_sparse if it is at least 0.05 nats better and its
+most-certain-trained-tick readout stays within 0.1 nats of its final tick.
+
 Measures, on 64 held-out windows from the sweep's selection range (offset 40,000):
 * the held-out loss of the final tick (CTM-LM) or the output (Transformer);
 * context use: the loss with every input token replaced by a random token
@@ -87,7 +96,15 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         # Added after D_C (6.43) and B_final (6.78 at 1.9x B_C's throughput) led the exploration.
         'D_final':('ctm_heavy',448,['token_start','final_tick_loss'],5e-4),
         # User request: a middle ground keeping periodic per-tick predictions (ticks 4, 8, 12, 16).
-        'D_sparse':('ctm_heavy',448,['token_start','sparse_tick_loss'],5e-4)}
+        'D_sparse':('ctm_heavy',448,['token_start','sparse_tick_loss'],5e-4),
+        # Can a combination get below the Transformer? (user request, 2026-10-03)
+        'D_B_sparse':('ctm_heavy',448,['token_start','observe_token','sparse_tick_loss'],5e-4),
+        'D_A_sparse':('ctm_heavy',448,['token_start','unit_query','sparse_tick_loss'],5e-4),
+        'D_H_sparse':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],5e-4),
+        'D_sparse_lr2.5e-4':('ctm_heavy',448,['token_start','sparse_tick_loss'],2.5e-4),'D_sparse_lr1e-3':('ctm_heavy',448,['token_start','sparse_tick_loss'],1e-3),
+        'transformer_lr2.5e-4':('transformer',384,None,2.5e-4),'transformer_lr1e-3':('transformer',384,None,1e-3),
+        'D_sparse_seed1235':('ctm_heavy',448,['token_start','sparse_tick_loss'],5e-4,{'seed':1235}),
+        'transformer_seed1235':('transformer',384,None,5e-4,{'seed':1235})}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 
