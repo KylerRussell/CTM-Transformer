@@ -354,7 +354,12 @@ At most one or two candidates go forward as a "CTM-augmented RDT" arm, each need
   - CTM's loss trains ticks that make different confident guesses.
 
   This is a reported result of the paper.
-- **The adaptation (user decision).** The CTM arms use the smallest probed adaptation that works:
+- **Revised 2026-10-03:** after further probes ([results](research/CTM_LM_DESIGN.md)), the CTM arms use **D + sparse-tick** in place of B + C:
+  - D, a token-conditioned start state z₀ = z_init + W·f_i;
+  - the mean cross-entropy over ticks 4, 8, 12 and 16.
+
+  It reaches 6.415 nats at 9.8M tokens, against 6.731 for B + C and 6.311 for the Transformer, at 1.65× B + C's throughput. Every tick from 3 on remains a usable prediction.
+- **The original adaptation (user decision, superseded).** The CTM arms use the smallest probed adaptation that works:
   - **B**, each position's backbone feature enters the synapse;
   - **C**, training uses the mean cross-entropy over ticks.
 

@@ -133,11 +133,18 @@ def evaluate_lm(model,windows,indices,micro_batch,device,family,depths=(None,)):
 
 
 def ctm_readout_losses(model,x,y):
-    """Summed cross-entropy of CTM-LM's final tick and its most certain tick (label-free selection)."""
-    out=model(x,return_all_logits=True);T=len(out['all_logits']);final=0.0;certain=0.0
+    """Summed cross-entropy of CTM-LM's final tick and its most certain tick (label-free selection). A CTM-LM trained
+    on a subset of ticks (sparse_tick_loss) also reports the most certain of its trained ticks."""
+    out=model(x,return_all_logits=True);T=len(out['all_logits']);totals={'final_tick':0.0,'most_certain_tick':0.0}
+    trained=None
+    if getattr(model,'adaptations',{}).get('sparse_tick_loss'):
+        from ctm_transformer.ctm_lm_adapt import sparse_ticks
+        trained=torch.tensor(sparse_ticks(T),device=x.device);totals['most_certain_trained_tick']=0.0
     for b in range(x.shape[0]):
         logits=torch.stack([t[b].float() for t in out['all_logits']],dim=1)  # [S, T, V]
         logp=logits.log_softmax(-1);ce=-logp.gather(-1,y[b][:,None,None].expand(-1,T,1)).squeeze(-1)
-        certainty=1+(logp.exp()*logp).sum(-1)/math.log(logp.shape[-1])
-        final+=float(ce[:,-1].sum());certain+=float(ce.gather(1,certainty.argmax(-1,keepdim=True)).sum())
-    return {'final_tick':final,'most_certain_tick':certain}
+        certainty=1+(logp.exp()*logp).sum(-1)/math.log(logp.shape[-1]);del logits,logp
+        totals['final_tick']+=float(ce[:,-1].sum());totals['most_certain_tick']+=float(ce.gather(1,certainty.argmax(-1,keepdim=True)).sum())
+        if trained is not None:
+            pick=trained[certainty[:,trained].argmax(-1)];totals['most_certain_trained_tick']+=float(ce.gather(1,pick[:,None]).sum())
+    return totals

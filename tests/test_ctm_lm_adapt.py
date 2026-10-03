@@ -152,3 +152,16 @@ def test_sparse_tick_loss_is_the_mean_over_every_quarter_tick():
     T = len(logits)
     expected = torch.stack([torch.nn.functional.cross_entropy(logits[t][keep].float(), y[keep]) for t in sparse_ticks(T)]).mean()
     assert torch.allclose(m(x, targets=y)['loss'], expected, atol=1e-5)
+
+
+def test_readout_evaluation_reports_the_most_certain_trained_tick_for_sparse_tick_models():
+    from ctm_transformer.pretrain import ctm_readout_losses
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True).eval()
+    x, y = batch()
+    y = y.clamp_min(0)
+    with torch.no_grad():
+        losses = ctm_readout_losses(m, x, y)
+    assert set(losses) == {'final_tick', 'most_certain_tick', 'most_certain_trained_tick'} and all(v > 0 for v in losses.values())
+    with torch.no_grad():
+        assert set(ctm_readout_losses(AdaptedCTMLM(config('ctm_lm')).eval(), x, y)) == {'final_tick', 'most_certain_tick'}
