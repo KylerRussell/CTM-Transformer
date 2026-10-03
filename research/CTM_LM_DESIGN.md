@@ -147,3 +147,25 @@ Per-tick held-out loss, on 8 windows:
 
 - **Unsupervised ticks stay usable.** Every D-sparse tick from 3 on is a good prediction, including those not in the loss. Its all-tick certainty readout (7.36) is spoiled only by untrained tick 1, which is the most certain tick for every token. Restricted to the trained ticks, the certainty readout scores 6.357.
 - **Tick use is small.** Even with every tick trained (D + mean-tick), tick 1 is within 0.10 nats of the best tick, and later ticks are slightly worse. At this scale and budget the adapted CTM gains little from additional ticks. This is a finding to test at 500M.
+
+### Can a combination beat the Transformer? (2026-10-03)
+
+Probes at 9.8M tokens (held-out loss on 64 windows). The rule was fixed before the runs: compare each model at its best probed learning rate, with a margin larger than the seed-to-seed spread.
+
+| Model | 2.5e-4 | 5e-4 | 1e-3 | 2e-3 | Second seed at 5e-4 |
+|---|---:|---:|---:|---:|---:|
+| Transformer (d 384) | 6.572 | 6.311 | 6.172 | **6.079** | 6.313 |
+| CTM D + sparse (adopted) | 6.626 | 6.415 | **6.227** | — | 6.434 |
+| CTM D + H + sparse (H: token-conditioned initial history) | — | 6.355 | 6.205 | **6.183** | 6.904 |
+| CTM D + B + sparse | — | 6.422 | — | — | — |
+| CTM D + A + sparse | — | 6.433 | — | — | — |
+
+**No CTM variant reaches the Transformer.**
+- At their best probed rates, the CTM trails by 0.055 (D + sparse at 1e-3) and 0.104 (D + H at 2e-3, against the Transformer at 2e-3).
+- The Transformer's optimum lies at or above 2e-3, the edge of the grid, and the gap widened as the rate rose. A bracketed comparison at the real batch size comes from the [learning-rate sweep](LR_SCALING.md).
+
+**D + H looked better on one seed (6.355) but not on the second (6.904).**
+- The second seed left the unigram plateau about 50 steps later and never caught up.
+- Its two-seed mean (6.63) is worse than D + sparse's (6.42).
+- The replacement rule had compared single seeds, so D + H was **not adopted**, and the recipe stays D + sparse.
+- The delayed, seed-dependent escape from the unigram plateau is itself a CTM-LM trait worth reporting. D + sparse escaped at the same step on both seeds.
