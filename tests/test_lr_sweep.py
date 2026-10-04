@@ -132,6 +132,21 @@ def test_rates_above_a_collapse_are_skipped_and_the_grid_extends_downward(sweep,
     assert ks == [-3, -2, -1, 0] and best == -2 and not blocked  # k = +1 is never run
 
 
+def test_rates_that_failed_at_a_narrower_width_are_skipped_at_wider_widths(sweep, monkeypatch):
+    real = lr_sweep.outcome
+    def outcome(name):  # rdt_heavy: k = +1 collapsed at d 704; at d 1408 the best is k = 0
+        if name.startswith('rdt_heavy_d704_h1_k'):
+            k = int(name.rsplit('_k', 1)[1])
+            return ('collapsed', math.inf) if k >= 1 else ('complete', 5.0 - 0.1 * k)
+        if name.startswith('rdt_heavy_d1408_h1_k'):
+            return ('complete', {-1: 4.6, 0: 4.5}.get(int(name.rsplit('_k', 1)[1]), 9.0))
+        return real(name)
+    monkeypatch.setattr(lr_sweep, 'outcome', outcome)
+    (sweep / 'runs' / run_name('rdt_heavy', 704, 1, 1)).mkdir(parents=True)
+    ks, best, blocked = lr_sweep.grid('rdt_heavy', 1408, 1, (-1, 0, 1))
+    assert ks == [-1, 0] and best == 0 and not blocked
+
+
 def test_a_width_where_every_rate_fails_is_blocked(sweep, monkeypatch):
     monkeypatch.setattr(lr_sweep, 'outcome', lambda name: ('collapsed', math.inf))
     ks, best, blocked = lr_sweep.grid('ctm_heavy', 448, 1, (-1, 0, 1))

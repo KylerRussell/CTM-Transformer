@@ -91,8 +91,14 @@ def grid(arm,d,h,start):
     """(runs this width needs now, best k once resolved else None, blocked).
 
     Rates above the lowest rate that diverged or collapsed are not run: instability only grows with the
-    learning rate, so they count as infinite loss. A width whose every rate fails is blocked (no optimum)."""
-    ks=set(start)
+    learning rate, so they count as infinite loss. A width whose every rate fails is blocked (no optimum).
+    Rates at or above one that failed at a narrower width of the same arm are not run either (2026-10-04): wider
+    models tolerate lower rates, and every such rate so far collapsed again."""
+    narrower=[w for w in LADDER[arm.split('+')[0]] if w<d] if h==1 else []
+    failed=[k for w in narrower for k in range(K_MIN,K_MAX+1)
+            if (RUNS/run_name(arm,w,k,1)).exists() and outcome(run_name(arm,w,k,1))[0] in ('diverged','collapsed')]
+    ceiling=min(failed) if failed else None
+    ks={k for k in start if ceiling is None or k<ceiling}
     while True:
         states={k:outcome(run_name(arm,d,k,h)) for k in ks}
         bad=[k for k,(s,_) in states.items() if s in ('diverged','collapsed')]
@@ -101,7 +107,7 @@ def grid(arm,d,h,start):
         if any(states[k][0] is None for k in ks):return sorted(ks),None,False
         best=min(ks,key=lambda k:(states[k][1],k))
         if best==min(ks) and best>K_MIN:ks.add(best-1)
-        elif best==max(ks) and best<K_MAX and not bad:ks.add(best+1)
+        elif best==max(ks) and best<K_MAX and not bad and (ceiling is None or best+1<ceiling):ks.add(best+1)
         elif states[best][1]==math.inf:return sorted(ks),None,True
         else:return sorted(ks),best,False
 
@@ -179,7 +185,7 @@ def supervise():
         for gpu in (0,1):
             if not pending:break
             if gpu in workers or f'gpu:{gpu}' in held or not gpu_free(gpu):continue
-            r=pending.pop(0);workers[gpu]=(run_name(*r),launch(r,gpu))
+            r=pending.pop(0 if gpu==0 else -1);workers[gpu]=(run_name(*r),launch(r,gpu))  # GPU 0 from the expensive end, GPU 1 from the cheap end
         state={'time_utc':now(),'running':sorted(n for n,_ in workers.values()),'pending':[run_name(*r) for r in pending],
                'complete':sum(outcome(run_name(*r))[0] in ('complete','diverged','collapsed') for r in want),'blocked':blocked,'held':sorted(held)}
         tmp=RESULTS/'state.tmp';tmp.write_text(json.dumps(state,indent=2)+'\n');tmp.replace(RESULTS/'state.json')
