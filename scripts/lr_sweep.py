@@ -46,7 +46,7 @@ AUTOSTART=Path.home()/'.config/autostart/ctm-lr-sweep.desktop'
 LADDER={'transformer':[384,512,768],'rdt_aware':[384,512,768],'ctm_aware':[384,512,768],'rdt_heavy':[704,896,1408],'ctm_heavy':[448,640,896]}
 MICRO={'transformer':[32,32,32],'rdt_aware':[16,16,16],'ctm_aware':[8,8,4],'rdt_heavy':[16,8,4],'ctm_heavy':[8,4,4]}
 HORIZON_ARMS=('transformer','rdt_aware','ctm_aware')
-PRIORITY=('ctm_heavy','rdt_heavy','ctm_aware','rdt_aware','transformer')
+PRIORITY=('ctm_aware','ctm_heavy','rdt_heavy','rdt_aware','transformer')  # 2026-10-05: CTM-aware, the longest remaining chain, first
 TOKENS=100_000_000;K_MIN,K_MAX=-6,4;EVAL_OFFSET=40_000
 # A run whose final held-out loss is at least this has not learned beyond token frequencies (the unigram
 # model scores 7.62 nats on these windows; every arm reaches about 5 nats or lower by 100M tokens when it trains).
