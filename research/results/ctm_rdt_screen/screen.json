@@ -1,0 +1,60 @@
+{
+  "width": 512,
+  "lr": 0.001,
+  "seeds": [
+    1234,
+    1235
+  ],
+  "rdt_loss": {
+    "1234": 4.790910705924034,
+    "1235": 4.805987600237131
+  },
+  "mechanisms": [
+    {
+      "mechanism": "sync_query",
+      "loss": {
+        "1234": 4.801702905446291,
+        "1235": 4.791856445372105
+      },
+      "paired_difference": [
+        0.010792199522256851,
+        -0.014131154865026474
+      ],
+      "mean_difference": -0.0016694776713848114,
+      "relative_throughput": 0.8481869683437222,
+      "qualifies": false,
+      "advances": false
+    },
+    {
+      "mechanism": "sync_readout",
+      "loss": {
+        "1234": 4.803693074733019,
+        "1235": 4.814676916226745
+      },
+      "paired_difference": [
+        0.012782368808984756,
+        0.008689315989613533
+      ],
+      "mean_difference": 0.010735842399299145,
+      "relative_throughput": 0.8743130996351993,
+      "qualifies": false,
+      "advances": false
+    },
+    {
+      "mechanism": "learned_init",
+      "loss": {
+        "1234": 4.813482327386737,
+        "1235": 4.792645180597901
+      },
+      "paired_difference": [
+        0.02257162146270275,
+        -0.013342419639229774
+      ],
+      "mean_difference": 0.004614600911736488,
+      "relative_throughput": 0.9977728887915347,
+      "qualifies": false,
+      "advances": false
+    }
+  ],
+  "rule": "advance if lower on every seed and mean paired difference <= -0.01; at most 2"
+}

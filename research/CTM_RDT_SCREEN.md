@@ -49,3 +49,15 @@ An advancing mechanism (or the pair of them) then gets:
 ## Running
 
 The screen is the last stage of the learning-rate sweep's queue (`scripts/lr_sweep.py`). Its runs start once the d 512 RDT width is resolved. Results are written to [results/ctm_rdt_screen/SCREEN.md](results/ctm_rdt_screen/SCREEN.md) by `scripts/summarize_ctm_rdt_screen.py`.
+
+## Result (2026-10-05)
+
+**No mechanism advances** ([table](results/ctm_rdt_screen/SCREEN.md)). The compute-aware RDT at d 512 and lr 1e-3 scores 4.791 (seed 1234) and 4.806 (seed 1235).
+
+| Mechanism | Paired difference from the RDT, by seed | Mean | Throughput |
+|---|---|---:|---:|
+| Synchronization query | +0.011, −0.014 | −0.002 | 0.85× |
+| Synchronization readout | +0.013, +0.009 | +0.011 | 0.87× |
+| Learned start state | +0.023, −0.013 | +0.005 | 1.00× |
+
+Every difference is within the seed spread of the RDT itself (0.015). The synchronization mechanisms cost 13–15% throughput for no gain. At this scale, CTM mechanisms added to an RDT do not improve language modelling, and no CTM-augmented RDT arm joins pretraining.
