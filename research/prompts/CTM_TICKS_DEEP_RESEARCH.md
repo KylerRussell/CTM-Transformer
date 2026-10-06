@@ -63,14 +63,40 @@ Use the literature and first-principles reasoning. For every claim, cite sources
 3. **High optimal learning rates.** The CTM prefers 2e-3 to 4e-3, against 1e-3 to 2e-3 for the RDT at similar size.
 4. **Training-length trend.** At 400M tokens (~43M parameters), the Transformer scores 3.735, RDT-aware 3.998 and CTM-aware 4.025. The CTM learns fastest late in training.
 5. **Compute.** Per token, CTM-aware costs about 6× the Transformer and CTM-heavy about 10×; the RDTs cost about 2.3–4.7×.
-6. **Dead decays.** In every trained CTM we inspected, 97–99% of the decay parameters r sit slightly below 0 (−0.005 to 0); in the faithful model, 83–87% do. The clamp passes zero gradient below 0, so these decays are frozen at "no decay": S is an undecayed running sum normalized by √(t+1). Only AdamW's weight decay slowly pulls them back toward 0. The cause appears to be initialization exactly on the clamp boundary.
+6. **Dead decays, and fixing them did not help.** In every trained CTM we inspected, 97–99% of the decay parameters r sit slightly below 0 (−0.005 to 0); in the faithful model, 83–87% do. The clamp passes zero gradient below 0, so these decays are frozen at "no decay": S is an undecayed running sum normalized by √(t+1). Only AdamW's weight decay slowly pulls them back toward 0. The cause appears to be initialization exactly on the clamp boundary.
+
+   We tested whether this explains the lack of tick use. Both probes ran with the current recipe at d 448, lr 5e-4 and 9.8M tokens, on one seed; the current recipe's seed-to-seed spread is 0.019.
+
+   | Probe | Held-out loss | Learned decays after training |
+   |---|---:|---|
+   | Current recipe (decays frozen at 0) | 6.415 | all 0 |
+   | **Softplus:** r = softplus(ρ), initialized at r = 0.01 | 6.425 | 0.0100–0.0104: essentially unchanged |
+   | **Spread:** clamp kept, r initialized uniform on [0, 3] | 6.539 | quantiles 0.17 / 0.79 / 1.55 / 2.28 / 2.84: still uniform on [0, 3] |
+
+   Per-tick held-out loss, at ticks 1 / 2 / 3 / 4 / 8 / 12 / 16:
+
+   | Probe | 1 | 2 | 3 | 4 | 8 | 12 | 16 |
+   |---|---:|---:|---:|---:|---:|---:|---:|
+   | Current recipe | 7.29 | 6.65 | 6.42 | 6.36 | 6.34 | 6.36 | 6.37 |
+   | Softplus | 7.35 | 6.67 | 6.43 | 6.37 | 6.35 | 6.35 | 6.37 |
+   | Spread | 8.31 | 6.87 | 6.56 | 6.49 | 6.47 | 6.48 | 6.49 |
+
+   - **The decays get almost no useful gradient.** Wherever they start, they stay there.
+     - Caveat: the softplus parameterization scales r's step by sigmoid(ρ) ≈ 0.01, so on its own it is a weak test.
+     - The spread decays had no such scaling and still did not move.
+   - **Forcing multi-timescale (recency-weighted) synchronization hurt by 0.12 nats.** Its per-tick loss also became erratic (6.47–6.63 from tick 4 on) instead of improving.
+   - **Later ticks add nothing in any variant.** In the current recipe, averaging the predicted probabilities of all 16 ticks gives 6.346, against 6.370 for the final tick. The label-selected best tick per token (an oracle) gives 5.94, so the ticks' predictions differ, but nothing label-free exploits the difference.
+   - **Our reading:** the frozen decays are a real flaw of the reference parameterization when applied to this setting, but not the cause of the poor tick use. Challenge this if the evidence allows another reading, for example that 300 steps is too short for the decays to move, or that the learning rate is wrong for them.
 7. **Mechanisms don't transfer.** CTM mechanisms added to an RDT (synchronization-derived attention queries, synchronization readout, learned start state) gave no gain at 78M parameters and 100M tokens: all within ±0.02 nats, against a seed spread of 0.015.
 8. **Earlier synthetic results.** At tiny scale (0.6M parameters) the CTM trailed the RDT on S₃ state tracking. Under randomized tick counts it collapsed its tick use, and it never learned one-hop associative retrieval.
 
 ## Questions
 
 1. **Ranked hypotheses for the lack of tick use.** Consider at least the following:
-   - **Synchronization inertia from the frozen decays (observation 6):** each new tick changes S by roughly 1/t of the accumulated sum. How large is this effect analytically, and does the CTM paper's own setup avoid it? Check the reference code's initialization and clamping of the decay parameters.
+   - **Synchronization inertia from the frozen decays (observation 6):** each new tick changes S by roughly 1/t of the accumulated sum. Our probes argue against this as the main cause. Assess them:
+     - Are they decisive?
+     - Does the CTM paper's own setup avoid the trap? Check the reference code's initialization and clamping of the decay parameters.
+     - Why might the decays receive so little gradient?
    - **The token-conditioned start state solves most of the problem at tick 0,** leaving nothing to refine.
    - **Next-token prediction at this scale rarely needs iterative computation.** Most tokens are easy, so the benefit should concentrate on hard tokens.
    - **The loss gives no incentive for later ticks to be better than earlier ones.** The sparse-tick and mean losses train every tick to predict independently.
@@ -91,13 +117,16 @@ Use the literature and first-principles reasoning. For every claim, cite sources
    - **Losses that make later iterations better:** progressive or improvement losses, deep supervision with increasing weights, ponder costs, and multiple-choice learning pathologies.
    - **Second-order and bilinear (synchronization-like) representations:** their normalization and trainability.
 4. **Cheap decisive diagnostics.** Design 5–8 experiments that run at d 448, 10–100M tokens, on one RTX 3090 in under an hour each. For each, give the predicted outcome under each hypothesis. Include at least:
-   - fixing the decay parameterization (e.g. softplus, or initialization inside the interval) and re-measuring per-tick loss;
+   - **Decay fixes are done (observation 6):** do not propose them again unless you argue our probes were flawed, and then say what a decisive version would be (e.g. a separate learning rate for the decays, or a longer run);
    - a tick-ablation and test-time tick-extrapolation curve;
    - per-token tick benefit against token difficulty (e.g. unigram surprisal, or loss under a small model);
    - freezing the backbone vs freezing the CTM;
    - scaling D at fixed backbone, and the backbone at fixed D.
 5. **Fixes, ranked by expected effect and by fidelity to the CTM.** For each: the mechanism, the literature support, the cost, and how to test it. Consider:
-   - the decay fix;
+   - **Attentive synchronization (proposed, untested):** replace the fixed exponential decay weights with content-dependent attention weights over all earlier ticks.
+     - Keep the pairwise products z_i·z_j, with a few heads, each covering a group of neuron pairs.
+     - Add a learned recency term per head, slope × (t − s), to the attention score. With the content term at zero, this reproduces the CTM's normalized exponential decay exactly, so the mechanism strictly generalizes the current one.
+     - Given observation 6, is this worth testing? What is the most informative version, and what result would justify it?
    - a loss that rewards improvement across ticks;
    - token-difficulty-aware or randomized tick counts;
    - a residual state update;
