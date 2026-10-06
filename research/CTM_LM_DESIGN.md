@@ -169,3 +169,31 @@ Probes at 9.8M tokens (held-out loss on 64 windows). The rule was fixed before t
 - Its two-seed mean (6.63) is worse than D + sparse's (6.42).
 - The replacement rule had compared single seeds, so D + H was **not adopted**, and the recipe stays D + sparse.
 - The delayed, seed-dependent escape from the unigram plateau is itself a CTM-LM trait worth reporting. D + sparse escaped at the same step on both seeds.
+
+### The dead-decay hypothesis is rejected (2026-10-06)
+
+The synchronization decay r is clamped to [0, 15] and initialized at exactly 0, as in the CTM reference. In every trained CTM-LM, 97–99% of the decays sat just below 0, where the clamp passes no gradient. Synchronization was therefore an undecayed running sum, and each new tick moved it by about 1/t. Two probes tested whether this explained the small benefit of later ticks. Both use D + sparse at lr 5e-4, 9.8M tokens and one seed.
+
+| Probe | Held-out loss | Final tick | Learned decays r |
+|---|---:|---:|---|
+| D + sparse (decays clamped at 0) | 6.415 | 6.370 | all 0 |
+| `decay_softplus`: r = softplus(ρ), starting at r = 0.01 | 6.425 (+0.010) | 6.372 | 0.010–0.0104: unchanged |
+| `decay_spread`: clamp kept, r drawn uniformly from [0, 3] | 6.539 (+0.124) | 6.494 | quantiles 0.17 / 0.79 / 1.55 / 2.28 / 2.84: still uniform on [0, 3] |
+
+D + sparse's seed-to-seed spread is 0.019. Per-tick held-out loss is from tick 1 to tick 16, on 8 windows:
+
+| Tick | 1 | 2 | 3 | 4 | 8 | 12 | 16 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| D + sparse | 7.29 | 6.65 | 6.42 | 6.36 | 6.34 | 6.36 | 6.37 |
+| Softplus decay | 7.35 | 6.67 | 6.43 | 6.37 | 6.35 | 6.35 | 6.37 |
+| Spread decay | 8.31 | 6.87 | 6.56 | 6.49 | 6.47 | 6.48 | 6.49 |
+
+- **The decays receive almost no useful gradient.** Wherever they start, they stay there.
+  - The softplus parameterization scales r's step by sigmoid(ρ) ≈ 0.01, so on its own it is a weak test.
+  - The spread probe has no such scaling, and its decays still did not move.
+- **Weighting recent ticks more heavily hurts.** Forcing multi-timescale decay costs 0.12 nats, and the per-tick loss becomes erratic (6.47–6.63) instead of improving with ticks.
+- **Later ticks still add nothing.** In all three models, the loss is flat from tick 4 on. Averaging the predicted probabilities of all 16 ticks gains only 0.02 over the final tick (6.346 against 6.370 for D + sparse).
+
+**Conclusion.** The frozen decays are a real flaw of the reference parameterization when applied to this setting, but they are not why the CTM-LM ignores its later ticks. The recipe stays D + sparse, and the CTM runs in the learning-rate sweep remain valid.
+
+**Implication for attention over ticks.** We considered replacing the fixed decay weights with content-dependent attention weights over all earlier ticks ("attentive synchronization"). These probes suggest it would not help: how the ticks are combined does not appear to be the limit, because later ticks are no better than early ones. The remaining suspects are the loss, which gives later ticks no incentive to improve on earlier ones, and next-token prediction at this scale rarely needing iteration. Attentive synchronization is left untested.

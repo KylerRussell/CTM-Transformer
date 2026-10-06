@@ -374,6 +374,30 @@
         "most_certain_trained_tick": 6.930401399731636
       },
       "works": true
+    },
+    {
+      "probe": "D_sparse_decay_softplus",
+      "held_out_loss": 6.425203211605549,
+      "random_input_loss": 8.584419280290604,
+      "context_use": 2.159216068685055,
+      "final_validation": {
+        "final_tick": 6.46068561822176,
+        "most_certain_tick": 7.429919762536883,
+        "most_certain_trained_tick": 6.448556538671255
+      },
+      "works": true
+    },
+    {
+      "probe": "D_sparse_decay_spread",
+      "held_out_loss": 6.538601383566856,
+      "random_input_loss": 9.045288503170013,
+      "context_use": 2.506687119603157,
+      "final_validation": {
+        "final_tick": 6.573246316984296,
+        "most_certain_tick": 8.008790947496891,
+        "most_certain_trained_tick": 6.559548482298851
+      },
+      "works": true
     }
   ],
   "choice": "B_C",

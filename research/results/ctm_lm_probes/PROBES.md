@@ -39,5 +39,7 @@ Held-out loss on 64 windows from offset 40000; unigram model: 7.62 nats.
 | D_H_sparse_lr2e-3 | 6.183 | 8.398 | +2.215 | yes |
 | transformer_lr2e-3 | 6.079 | 8.883 | +2.804 | yes |
 | D_H_sparse_seed1235 | 6.904 | 8.762 | +1.857 | yes |
+| D_sparse_decay_softplus | 6.425 | 8.584 | +2.159 | yes |
+| D_sparse_decay_spread | 6.539 | 9.045 | +2.507 | yes |
 
 **CTM-LM choice by the rule:** B_C.
