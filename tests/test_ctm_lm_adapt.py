@@ -186,3 +186,54 @@ def test_decay_fixes_keep_a_gradient_and_start_where_intended():
     reference = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True)
     shared = dict(reference.named_parameters())
     assert all(torch.equal(p, shared[n]) for n, p in spread.named_parameters() if 'decay' not in n)
+
+
+def test_improvement_loss_is_tick_weighted_cross_entropy_plus_a_hinge_on_worsening_ticks():
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), token_start=True, improvement_loss=True)
+    x, y = batch()
+    keep = y.ne(-100)
+    with torch.no_grad():
+        logits = m(x, return_all_logits=True)['all_logits']
+        ce = torch.stack([torch.nn.functional.cross_entropy(l[keep].float(), y[keep], reduction='none') for l in logits], 1)
+        T = ce.shape[1]
+        w = torch.arange(1, T + 1, dtype=ce.dtype)
+        expected = (ce.mean(0) * w).sum() / w.sum() + torch.relu(ce[:, 1:] - ce[:, :-1]).mean(0).sum()
+        assert torch.allclose(m(x, targets=y)['loss'], expected, atol=1e-5)
+    loss = m(x, targets=y, max_thought_steps=3)['loss']  # randomized tick counts reach the loss
+    loss.backward()
+    assert torch.isfinite(loss) and m.query.weight.grad.abs().sum() > 0
+
+
+def test_cross_position_starts_as_d_sparse_and_lets_later_positions_read_earlier_states():
+    x, y = batch()
+    torch.manual_seed(0)
+    ref = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True)
+    torch.manual_seed(0)
+    new = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, cross_position=True)
+    a, b = ref(x, targets=y), new(x, targets=y)
+    assert torch.equal(a['loss'], b['loss'])
+    b['loss'].backward()
+    assert new.tick_key.weight.grad.abs().sum() > 0 and new.tick_value.weight.grad.abs().sum() > 0
+    with torch.no_grad():
+        new.tick_value.weight.normal_(std=0.5)
+        new.tick_key.weight.normal_(std=0.5)
+        x2 = x.clone()
+        x2[:, 0] = (x2[:, 0] + 1) % new.config.vocab_size
+        before, after = new(x, return_all_logits=True)['all_logits'], new(x2, return_all_logits=True)['all_logits']
+        assert not torch.allclose(before[-1][:, -1], after[-1][:, -1])
+        # Causality: changing the last token leaves every earlier position unchanged.
+        x3 = x.clone()
+        x3[:, -1] = (x3[:, -1] + 1) % new.config.vocab_size
+        assert torch.allclose(before[-1][:, :-1], new(x3, return_all_logits=True)['all_logits'][-1][:, :-1], atol=1e-5)
+
+
+def test_feature_head_is_a_linear_readout_of_the_backbone_and_skips_the_ticks():
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), feature_head=True)
+    x, y = batch()
+    keep = y.ne(-100)
+    with torch.no_grad():
+        out = m(x, return_all_logits=True)
+        assert torch.allclose(out['logits'], m.feature_head(m.features(x))) and len(out['all_logits']) == 1
+        assert torch.allclose(m(x, targets=y)['loss'], torch.nn.functional.cross_entropy(out['logits'][keep], y[keep]), atol=1e-5)

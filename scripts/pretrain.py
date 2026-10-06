@@ -83,6 +83,13 @@ def main():
     else:factory=scaled_factory(family,t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))
     model=factory(config)
     if run.get('embedding_init_std'):torch.nn.init.normal_(model.token_embedding.weight,std=run['embedding_init_std'])  # input-embedding scale probe (2026-10-02)
+    if run.get('init_from'):  # parameters copied from a trained checkpoint, by name prefix (tick-use tests, 2026-10-06)
+        source=torch.load(run['init_from']['checkpoint'],map_location='cpu',weights_only=False)['model'];prefixes=tuple(run['init_from']['prefixes'])
+        copied={k:v for k,v in source.items() if k.startswith(prefixes)};missing=[k for k in copied if k not in model.state_dict()]
+        if missing or not copied:raise ValueError(f'init_from: nothing to copy or unknown keys {missing[:5]}')
+        model.load_state_dict(copied,strict=False)
+    for name,p in model.named_parameters():
+        if name.startswith(tuple(run.get('freeze_prefixes',()))):p.requires_grad_(False)
     model=model.to(device)
     train=TokenWindows([root/s for s in data['train']],t['seq_len'],run['seed'])
     valid=TokenWindows([root/s for s in data['validation']],t['seq_len'],0)

@@ -47,6 +47,21 @@ Further candidates (2026-10-02, after B + C passed):
 * ``state_readout``: the output reads the neuron state as well as the output
   synchronization, readout = S_out + W_r z_t. This tests whether the
   synchronization readout is a bottleneck.
+
+Training tests of tick use (research/CTM_TICK_DIAGNOSTICS.md, 2026-10-06):
+
+* ``improvement_loss``: per-tick cross-entropy weighted in proportion to the tick
+  index (weights sum to 1), plus a hinge max(0, CE_t - sg(CE_{t-1})) averaged over
+  tokens and summed over ticks 2..T, so that a tick worse than the one before is
+  penalized. Used with a randomized tick count (the run's depth sampler).
+* ``cross_position``: at each tick the keys and values are the backbone's plus a
+  projection of every causal position's current state z, so refinement at one
+  position reaches later positions (recurrent depth with CTM dynamics). Both
+  projections are zero-initialized: at initialization the model equals D + sparse.
+* ``feature_head``: the logits are a linear map of the backbone feature f_i, and the
+  ticks are not run. With a backbone loaded from a trained CTM-LM and frozen
+  (pretrain run keys ``init_from`` and ``freeze_prefixes``), this measures how much
+  of the CTM's prediction a plain readout recovers.
 """
 import math
 
@@ -60,8 +75,8 @@ from ctm_transformer.lm_scale import ScaledCTMLM, _logits, chunked_cross_entropy
 from ctm_transformer.positions import rope
 
 ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss', 'query_feature', 'token_start', 'final_tick_loss', 'certainty_loss', 'state_readout',
-               'sparse_tick_loss', 'token_history', 'decay_softplus', 'decay_spread')
-LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss', 'sparse_tick_loss')  # at most one; none means CTM's loss
+               'sparse_tick_loss', 'token_history', 'decay_softplus', 'decay_spread', 'improvement_loss', 'cross_position', 'feature_head')
+LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss', 'sparse_tick_loss', 'improvement_loss')  # at most one; none means CTM's loss
 SPARSE_TICKS = 4  # sparse_tick_loss: mean cross-entropy over every (T / 4)-th tick, ending at the final tick (ticks 4, 8, 12, 16 of 16)
 
 
@@ -75,6 +90,26 @@ class SoftplusSynchronization(Synchronization):
 def sparse_ticks(T):
     step = max(1, T // SPARSE_TICKS)
     return list(range(T - 1, -1, -step))[:SPARSE_TICKS][::-1]
+
+
+def _token_cross_entropy(hidden, weight, targets):
+    return F.cross_entropy(_logits(hidden, weight), targets, reduction='none')
+
+
+def improvement_tick_loss(readouts, weight, targets, chunk=4096):
+    """Tick-weighted cross-entropy plus a hinge on any tick worse than the one before. readouts: [B, S, T, P]."""
+    T = readouts.shape[2]
+    keep = targets.reshape(-1).ne(-100)
+    r = readouts.reshape(-1, T, readouts.shape[-1])[keep]
+    gold = targets.reshape(-1)[keep]
+    rows = max(1, chunk // T)
+    ce = torch.cat([checkpoint(_token_cross_entropy, r[i:i + rows].reshape(-1, r.shape[-1]), weight,
+                               gold[i:i + rows, None].expand(-1, T).reshape(-1), use_reentrant=False).view(-1, T)
+                    for i in range(0, len(gold), rows)])  # [n, T]
+    weights = torch.arange(1, T + 1, device=ce.device, dtype=ce.dtype)
+    weighted = (ce.mean(0) * weights).sum() / weights.sum()
+    hinge = F.relu(ce[:, 1:] - ce[:, :-1].detach()).mean(0).sum() if T > 1 else ce.new_zeros(())
+    return weighted + hinge
 
 
 def certain_tick_loss(readouts, weight, targets, chunk=4096):
@@ -97,12 +132,14 @@ def certain_tick_loss(readouts, weight, targets, chunk=4096):
 class AdaptedCTMLM(ScaledCTMLM):
     def __init__(self, config, unit_query=False, observe_token=False, mean_tick_loss=False, query_feature=False, token_start=False,
                  final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, token_history=False, decay_softplus=False,
-                 decay_spread=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
+                 decay_spread=False, improvement_loss=False, cross_position=False, feature_head=False, checkpoint_ticks=False, compile_ticks=False,
+                 **kwargs):
         super().__init__(config, checkpoint_ticks=checkpoint_ticks, compile_ticks=False, **kwargs)
         self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token, 'mean_tick_loss': mean_tick_loss, 'query_feature': query_feature,
                             'token_start': token_start, 'final_tick_loss': final_tick_loss, 'certainty_loss': certainty_loss, 'state_readout': state_readout,
                             'sparse_tick_loss': sparse_tick_loss, 'token_history': token_history, 'decay_softplus': decay_softplus,
-                            'decay_spread': decay_spread}
+                            'decay_spread': decay_spread, 'improvement_loss': improvement_loss, 'cross_position': cross_position,
+                            'feature_head': feature_head}
         if decay_softplus and decay_spread:
             raise ValueError('Choose one decay change')
         if sum(self.adaptations[k] for k in LOSSES) > 1:
@@ -113,6 +150,12 @@ class AdaptedCTMLM(ScaledCTMLM):
         self.start_projection = nn.Linear(d, D, bias=False) if token_start else None
         self.state_readout = nn.Linear(D, pairs, bias=False) if state_readout else None
         self.history_projection = nn.Linear(d, D, bias=False) if token_history else None
+        self.tick_key = nn.Linear(D, d, bias=False) if cross_position else None
+        self.tick_value = nn.Linear(D, d, bias=False) if cross_position else None
+        for layer in (self.tick_key, self.tick_value):
+            if layer is not None:
+                nn.init.zeros_(layer.weight)
+        self.feature_head = nn.Linear(d, config.vocab_size, bias=False) if feature_head else None
         with torch.no_grad():
             for sync in (self.sync_action, self.sync_out):
                 if decay_softplus:
@@ -132,6 +175,10 @@ class AdaptedCTMLM(ScaledCTMLM):
         B, S = keys.shape[0], keys.shape[2]
         d, H = self.config.d_model, self.config.n_heads
         N = B * S
+        if self.tick_key is not None:
+            heads = lambda t: t.view(B, S, H, d // H).transpose(1, 2)
+            keys = keys + rope(heads(self.tick_key(z)), positions).to(keys.dtype)  # RoPE is linear: rope(k) + rope(k') = rope(k + k')
+            values = values + heads(self.tick_value(z)).to(values.dtype)
         q = self.query(Synchronization.read(alpha_a, beta_a))
         if query_extra is not None:
             q = q + query_extra.to(q.dtype)
@@ -160,6 +207,11 @@ class AdaptedCTMLM(ScaledCTMLM):
         d, D, H = self.config.d_model, self.config.d_latent, self.config.n_heads
         N = B * S
         feats = self.features(input_ids)
+        if self.feature_head is not None:
+            if targets is not None and not return_all_logits:
+                return {'logits': None, 'thought_steps': 0, 'loss': chunked_cross_entropy(feats, self.feature_head.weight, targets)}
+            logits = self.feature_head(feats)
+            return {'logits': logits, 'all_logits': [logits], 'thought_steps': 0}
         positions = torch.arange(S, device=input_ids.device)
         heads = lambda x: x.view(B, S, H, d // H).transpose(1, 2)
         keys = rope(heads(self.key(feats)), positions)
@@ -189,6 +241,8 @@ class AdaptedCTMLM(ScaledCTMLM):
             stacked = torch.stack([readouts[t] for t in ticks], dim=2)
             loss = chunked_cross_entropy(stacked, self.lm_head.weight, targets[:, :, None].expand(-1, -1, len(ticks)))
             return {'logits': None, 'thought_steps': T, 'loss': loss}
+        if training and self.adaptations['improvement_loss']:
+            return {'logits': None, 'thought_steps': T, 'loss': improvement_tick_loss(torch.stack(readouts, dim=2), self.lm_head.weight, targets)}
         if training and self.adaptations['final_tick_loss']:
             return {'logits': None, 'thought_steps': T, 'loss': chunked_cross_entropy(readouts[-1], self.lm_head.weight, targets)}
         if training and self.adaptations['certainty_loss']:
