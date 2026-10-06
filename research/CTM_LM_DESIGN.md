@@ -188,12 +188,18 @@ D + sparse's seed-to-seed spread is 0.019. Per-tick held-out loss is from tick 1
 | Softplus decay | 7.35 | 6.67 | 6.43 | 6.37 | 6.35 | 6.35 | 6.37 |
 | Spread decay | 8.31 | 6.87 | 6.56 | 6.49 | 6.47 | 6.48 | 6.49 |
 
-- **The decays receive almost no useful gradient.** Wherever they start, they stay there.
-  - The softplus parameterization scales r's step by sigmoid(ρ) ≈ 0.01, so on its own it is a weak test.
-  - The spread probe has no such scaling, and its decays still did not move.
+- **The decays barely moved, but that is the optimizer's step budget, not a lack of gradient.** (Corrected 2026-10-06 after the [deep-research review](prompts/CTM_TICKS_DEEP_RESEARCH.md).)
+  - Adam moves a parameter by at most about one learning rate per step. Over 300 steps at peak 5e-4 with warmup and cosine, that is a total of about 0.1. The softplus parameterization also scales r's step by sigmoid(ρ) ≈ 0.01, so r could move about 0.001.
+  - The AdamW moments at the end of training show that the gradients are real and lean one way. A signal-to-noise ratio of |m|/√v ≈ 0.15–0.45 is consistent, not noise.
+    - For the softplus output synchronization, 97% of the first moments push r **down**, toward less decay and more weight on older ticks.
+    - In the spread probe, 59–63% push r down.
+    - In D + sparse, the in-graph clamp leaves the decays below 0 with a gradient of exactly 0.
+  - So the model wants synchronization with long memory, dominated by early ticks, not recency. This agrees with the 0.12-nat cost of forcing recency.
 - **Weighting recent ticks more heavily hurts.** Forcing multi-timescale decay costs 0.12 nats, and the per-tick loss becomes erratic (6.47–6.63) instead of improving with ticks.
 - **Later ticks still add nothing.** In all three models, the loss is flat from tick 4 on. Averaging the predicted probabilities of all 16 ticks gains only 0.02 over the final tick (6.346 against 6.370 for D + sparse).
 
-**Conclusion.** The frozen decays are a real flaw of the reference parameterization when applied to this setting, but they are not why the CTM-LM ignores its later ticks. The recipe stays D + sparse, and the CTM runs in the learning-rate sweep remain valid.
+**Conclusion.** The probes cannot show whether a learnable decay would help: a decisive test needs a separate learning rate for the decays and no weight decay on them. They do show that the gradient favours longer memory and that forced recency hurts, so a decay fix is unlikely to make later ticks useful. The recipe stays D + sparse, and the CTM runs in the learning-rate sweep remain valid.
+
+**Fidelity note.** The official CTM code (`models/ctm.py`) clamps the decays on `.data` before each forward pass (`decay_params_action.data = torch.clamp(..., 0, 15)`) and computes exp(−r) on the unclamped parameter, so gradients always reach r. Our `Synchronization` clamps inside the graph, so a decay that falls below 0 gets no gradient again. Because the gradients mostly push r down, both versions keep r at 0 in practice. The faithful-failure results therefore stand, but the paper must state this difference.
 
 **Implication for attention over ticks.** We considered replacing the fixed decay weights with content-dependent attention weights over all earlier ticks ("attentive synchronization"). These probes suggest it would not help: how the ticks are combined does not appear to be the limit, because later ticks are no better than early ones. The remaining suspects are the loss, which gives later ticks no incentive to improve on earlier ones, and next-token prediction at this scale rarely needing iteration. Attentive synchronization is left untested.
