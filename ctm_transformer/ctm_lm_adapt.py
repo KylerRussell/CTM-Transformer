@@ -35,6 +35,12 @@ Further candidates (2026-10-02, after B + C passed):
   without gradient).
 * ``token_history`` (H): the initial pre-activation history is token-conditioned too,
   history_0 = history_init + (W_h f_i) broadcast over the memory slots.
+* ``decay_softplus`` / ``decay_spread`` (2026-10-06): the synchronization decay r is
+  clamped to [0, 15] and initialized at exactly 0, so a decay nudged below 0 receives
+  no gradient and stays at "no decay" forever. In trained models 97-99% of decays
+  were stuck there. ``decay_softplus`` uses r = softplus(rho), with rho initialized
+  so that r is about 0.01. ``decay_spread`` keeps the clamp and initializes r
+  uniformly in [0, 3].
 * ``sparse_tick_loss``: the mean cross-entropy over every (T/4)-th tick ending at
   the final tick. It keeps periodic per-tick predictions at a lower cost than
   the mean over all ticks.
@@ -42,6 +48,8 @@ Further candidates (2026-10-02, after B + C passed):
   synchronization, readout = S_out + W_r z_t. This tests whether the
   synchronization readout is a bottleneck.
 """
+import math
+
 import torch
 from torch import nn
 from torch.utils.checkpoint import checkpoint
@@ -52,9 +60,16 @@ from ctm_transformer.lm_scale import ScaledCTMLM, _logits, chunked_cross_entropy
 from ctm_transformer.positions import rope
 
 ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss', 'query_feature', 'token_start', 'final_tick_loss', 'certainty_loss', 'state_readout',
-               'sparse_tick_loss', 'token_history')
+               'sparse_tick_loss', 'token_history', 'decay_softplus', 'decay_spread')
 LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss', 'sparse_tick_loss')  # at most one; none means CTM's loss
 SPARSE_TICKS = 4  # sparse_tick_loss: mean cross-entropy over every (T / 4)-th tick, ending at the final tick (ticks 4, 8, 12, 16 of 16)
+
+
+class SoftplusSynchronization(Synchronization):
+    """CTM synchronization with decay r = softplus(rho): always >= 0, with a gradient everywhere."""
+    def step(self, alpha, beta, z):
+        keep = torch.exp(-F.softplus(self.decay))
+        return keep * alpha + self.products(z), keep * beta + 1
 
 
 def sparse_ticks(T):
@@ -81,12 +96,15 @@ def certain_tick_loss(readouts, weight, targets, chunk=4096):
 
 class AdaptedCTMLM(ScaledCTMLM):
     def __init__(self, config, unit_query=False, observe_token=False, mean_tick_loss=False, query_feature=False, token_start=False,
-                 final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, token_history=False, checkpoint_ticks=False,
-                 compile_ticks=False, **kwargs):
+                 final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, token_history=False, decay_softplus=False,
+                 decay_spread=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
         super().__init__(config, checkpoint_ticks=checkpoint_ticks, compile_ticks=False, **kwargs)
         self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token, 'mean_tick_loss': mean_tick_loss, 'query_feature': query_feature,
                             'token_start': token_start, 'final_tick_loss': final_tick_loss, 'certainty_loss': certainty_loss, 'state_readout': state_readout,
-                            'sparse_tick_loss': sparse_tick_loss, 'token_history': token_history}
+                            'sparse_tick_loss': sparse_tick_loss, 'token_history': token_history, 'decay_softplus': decay_softplus,
+                            'decay_spread': decay_spread}
+        if decay_softplus and decay_spread:
+            raise ValueError('Choose one decay change')
         if sum(self.adaptations[k] for k in LOSSES) > 1:
             raise ValueError(f'At most one of {LOSSES}')
         d, D = config.d_model, config.d_latent
@@ -95,6 +113,13 @@ class AdaptedCTMLM(ScaledCTMLM):
         self.start_projection = nn.Linear(d, D, bias=False) if token_start else None
         self.state_readout = nn.Linear(D, pairs, bias=False) if state_readout else None
         self.history_projection = nn.Linear(d, D, bias=False) if token_history else None
+        with torch.no_grad():
+            for sync in (self.sync_action, self.sync_out):
+                if decay_softplus:
+                    sync.__class__ = SoftplusSynchronization
+                    sync.decay.fill_(math.log(math.expm1(0.01)))  # r = softplus(rho) = 0.01
+                if decay_spread:
+                    sync.decay.uniform_(0.0, 3.0)
         if observe_token:
             self.synapse = UNetSynapse(2 * d + D, self.synapse.out.in_features, D)
         if unit_query:

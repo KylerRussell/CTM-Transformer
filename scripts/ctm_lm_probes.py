@@ -115,7 +115,10 @@ PROBES={'faithful':('ctm_heavy',448,[],5e-4),'faithful_low_lr':('ctm_heavy',448,
         'D_H_sparse_lr1e-3':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],1e-3),
         'D_H_sparse_lr2e-3':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],2e-3),
         'transformer_lr2e-3':('transformer',384,None,2e-3),
-        'D_H_sparse_seed1235':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],5e-4,{'seed':1235})}
+        'D_H_sparse_seed1235':('ctm_heavy',448,['token_start','token_history','sparse_tick_loss'],5e-4,{'seed':1235}),
+        # Dead-decay test (2026-10-06): 97-99% of the clamped decays were stuck below 0. Compared with D_sparse (same seed, lr 5e-4).
+        'D_sparse_decay_softplus':('ctm_heavy',448,['token_start','sparse_tick_loss','decay_softplus'],5e-4),
+        'D_sparse_decay_spread':('ctm_heavy',448,['token_start','sparse_tick_loss','decay_spread'],5e-4)}
 STEPS,MICRO,ACCUMULATION,WINDOWS,OFFSET=300,8,4,64,40_000
 WORKS_LOSS,WORKS_CONTEXT=7.0,0.5
 

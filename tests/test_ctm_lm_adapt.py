@@ -166,3 +166,23 @@ def test_readout_evaluation_reports_the_most_certain_trained_tick_for_sparse_tic
     assert set(losses) == {'final_tick', 'most_certain_tick', 'most_certain_trained_tick'} and all(v > 0 for v in losses.values())
     with torch.no_grad():
         assert set(ctm_readout_losses(AdaptedCTMLM(config('ctm_lm')).eval(), x, y)) == {'final_tick', 'most_certain_tick'}
+
+
+def test_decay_fixes_keep_a_gradient_and_start_where_intended():
+    import math
+    x, y = batch()
+    torch.manual_seed(0)
+    soft = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, decay_softplus=True)
+    assert torch.allclose(torch.nn.functional.softplus(soft.sync_out.decay), torch.full_like(soft.sync_out.decay, 0.01), atol=1e-6)
+    with torch.no_grad():
+        soft.sync_out.decay.fill_(-3.0)  # where the clamped version would have no gradient
+    soft(x, targets=y)['loss'].backward()
+    assert soft.sync_out.decay.grad.abs().sum() > 0
+    torch.manual_seed(0)
+    spread = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, decay_spread=True)
+    r = spread.sync_out.decay
+    assert 0 <= float(r.min()) and float(r.max()) <= 3 and float(r.std()) > 0.5
+    torch.manual_seed(0)
+    reference = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True)
+    shared = dict(reference.named_parameters())
+    assert all(torch.equal(p, shared[n]) for n, p in spread.named_parameters() if 'decay' not in n)
