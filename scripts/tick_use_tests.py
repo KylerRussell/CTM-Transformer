@@ -11,6 +11,13 @@ ctm_aware_d384_h1_k+2 (lr 4e-3, D + sparse), is the control.
 | E8_cross_position | cross_position: keys and values also read every causal position's current state |
 | E4c_feature_head | backbone, embedding and final norm copied from the 400M-token CTM-aware model and frozen; a linear head on f_i is trained in place of the CTM (lr 2e-3) |
 | E4a_fresh_ctm | the same frozen backbone; a freshly initialized CTM is trained on it (lr 2e-3) |
+| S1_shallow | backbone cut from 24 layers to 2, so the ticks must integrate context through their attention reads (lr 2e-3) |
+| S2_shallow_cross | S1 with cross_position: the ticks become a recurrent-depth core with CTM dynamics (lr 2e-3) |
+
+S1 and S2 (added 2026-10-06, after E8) test whether the ticks contribute once the
+backbone no longer does all the work. Their learning-rate control is the sweep's
+ctm_aware_d384_h1_k+1 (lr 2e-3, held-out 5.591); the compute-aware RDT at the same
+width and rate (rdt_aware_d384_h1_k+1) is the architectural reference.
 
 After the runs, the per-tick held-out loss (ticks 1-32, 32 windows) of each CTM model
 and of the control is measured with scripts/ctm_tick_diagnostics.ctm_ticks.
@@ -30,6 +37,8 @@ TESTS={
     'E8_cross_position':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position']},
     'E4c_feature_head':{'ctm_adaptations':['feature_head'],'lr':2e-3,'init_from':True},
     'E4a_fresh_ctm':{'ctm_adaptations':['token_start','sparse_tick_loss'],'lr':2e-3,'init_from':True},
+    'S1_shallow':{'ctm_adaptations':['token_start','sparse_tick_loss'],'lr':2e-3,'model':{'n_layers':2}},
+    'S2_shallow_cross':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2}},
 }
 
 
@@ -40,6 +49,7 @@ def config(name):
     if 'lr' in spec:t['lr']=spec['lr']
     if 'micro_batch' in spec:t['accumulation']=t['accumulation']*t['micro_batch']//spec['micro_batch'];t['micro_batch']=spec['micro_batch']
     if 'depth_sampler' in spec:run['depth_sampler']=spec['depth_sampler']
+    if 'model' in spec:run['model'].update(spec['model'])
     if spec.get('init_from'):run['init_from']={'checkpoint':BACKBONE[0],'prefixes':BACKBONE[1]};run['freeze_prefixes']=FROZEN
     return run
 

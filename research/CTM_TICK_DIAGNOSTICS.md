@@ -94,3 +94,38 @@ Mean predictive entropy rises steadily with ticks: 3.79 at tick 4 and 4.14 at ti
 - differ from one another by no more than noise.
 
 This supports hypotheses 2 (the start state holds the answer) and 3 (the loss gives no reward for improvement), and is consistent with hypothesis 1 (the reads return no new information). It gives no support to hypothesis 4: no hard-token benefit was found to explain away. E7 tests hypothesis 3, and E8 tests hypothesis 1.
+
+## Results: E4c and E8 (2026-10-06)
+
+- **E4c, plain head on the frozen backbone:** held-out 4.273, against 4.025 for the full CTM on the same backbone. The CTM adds 0.25 nats over a linear readout of f_i. E4a will show whether that comes from the ticks or from a larger nonlinear head.
+- **E8, cross-position tick recurrence:** held-out 5.538, against 5.526 for the control.
+  - The tick key and value projections grew from zero to about the size of the backbone's key projection, so the pathway was used.
+  - The per-tick curve is unchanged: 5.461 at tick 4, 5.421 at tick 8, 5.474 at tick 16 and 5.686 at tick 32.
+  - Fails the rule: it neither improves the final tick nor makes later ticks better.
+
+## Recurrent depth in the RDT baselines (2026-10-06)
+
+The same question for the RDT: held-out loss on the same 32 windows, evaluated at each recurrence depth. All three models were trained with randomized depth (log-normal Poisson, mean 15).
+
+| Model (layout prelude/core/coda) | Depth 1 | 2 | 4 | 8 | 16 | 32 |
+|---|---:|---:|---:|---:|---:|---:|
+| RDT-aware d 384 (11/2/11), 100M tokens | 4.706 | 4.671 | 4.666 | 4.665 | 4.665 | 4.665 |
+| RDT-aware d 384 (11/2/11), 400M tokens | 4.031 | 3.979 | 3.971 | 3.971 | 3.971 | 3.971 |
+| RDT-heavy d 704 (2/4/2), 100M tokens | 4.878 | 4.691 | 4.661 | 4.660 | 4.660 | 4.660 |
+
+**The RDTs also stop gaining after about four iterations.**
+- With a deep non-recurrent stack (11/2/11), recurrence is worth only 0.04–0.06 nats.
+- With a shallow outer stack (2/4/2), it is worth 0.22 nats, all of it by depth 4, which is 20 effective layers.
+- Unlike the CTM, the RDTs do not get worse with more iterations. Training with randomized depth makes them converge to a fixed point.
+
+**Reading.** At this scale (40–80M parameters, 100–400M tokens), next-token prediction does not use more than about 20 effective layers. The CTM-aware model already has 24 backbone layers, so its ticks have no depth left to supply, and its loss (fixed 16 ticks, no randomization) lets the state drift after the answer is reached.
+
+To make the ticks contribute, the ticks must supply depth the model needs. That is the next test:
+- **S1:** the CTM-aware model with a 2-layer backbone.
+- **S2:** S1 with cross-position recurrence, which makes the ticks a recurrent-depth core with CTM dynamics.
+
+Both run at lr 2e-3. Their references are the CTM-aware control at the same rate (5.591), the RDT-aware model (4.724) and the Transformer (5.012 at its best rate).
+
+**Success rule (fixed before the runs):**
+- **Ticks contribute:** the tick 16 loss is at least 0.2 nats below tick 1, and ticks 8–16 are no worse than tick 4.
+- **Worth adopting:** the final tick is also no worse than the 24-layer control at the same rate (5.591).
