@@ -15,6 +15,8 @@ ctm_aware_d384_h1_k+2 (lr 4e-3, D + sparse), is the control.
 | S2_shallow_cross | S1 with cross_position: the ticks become a recurrent-depth core with CTM dynamics (lr 2e-3) |
 | R1_rdt_heavy_depth1 | the RDT-heavy sweep run at d 704 (lr 1e-3) trained at a fixed depth of 1 in place of randomized depth: does recurrence help the RDT here? |
 | S2_T1, S2_T4 | S2 trained and evaluated with 1 or 4 ticks (every tick trained): what the ticks are worth, with parameters fixed |
+| A_S2_400M, A_S2_T1_400M | S2 and S2_T1 trained 4x longer (400M tokens, 1,526 steps): does iteration start to pay with more data? |
+| W_S2_wide, W_S2_wide_T1 | S2 and S2_T1 with the synapse U-Net width doubled (1,280 to 2,560) and the neuron-level models' hidden width doubled (32 to 64) |
 | S3_shallow_cross_random | S2 with the tick count drawn per step as in the RDT (log-normal Poisson, mean 15, sigma 0.5, at most 32), against drift past the answer |
 
 S1 and S2 (added 2026-10-06, after E8) test whether the ticks contribute once the
@@ -46,6 +48,11 @@ TESTS={
                                'depth_sampler':{'kind':'lognormal_poisson','mean':15,'sigma':0.5,'maximum':32}},
     'R1_rdt_heavy_depth1':{'base':'research/runs/lr_sweep/rdt_heavy_d704_h1_k+0','rdt_depth':1},
     'S2_T1':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1}},
+    # 2026-10-07 (user request): longer training, and a CTM with wider internal MLPs (synapse U-Net and neuron-level models x2).
+    'A_S2_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2},'horizon':4},
+    'A_S2_T1_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1},'horizon':4},
+    'W_S2_wide':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64},'unet_width':2560},
+    'W_S2_wide_T1':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64,'max_thought_steps':1},'unet_width':2560},
     'S2_T4':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':4}},
 }
 
@@ -65,6 +72,9 @@ def config(name):
     if 'depth_sampler' in spec:run['depth_sampler']=spec['depth_sampler']
     if 'model' in spec:run['model'].update(spec['model'])
     run['eval_depth']=run['model']['max_thought_steps']  # the trainer passes eval_depth as the tick count of every step
+    if 'unet_width' in spec:run['unet_width']=spec['unet_width']
+    if spec.get('horizon'):  # the sweep's 4x-horizon schedule: 1,526 steps, warmup 100, four evaluations
+        t['total_steps']=1526;t['eval_interval']=381
     if spec.get('init_from'):run['init_from']={'checkpoint':BACKBONE[0],'prefixes':BACKBONE[1]};run['freeze_prefixes']=FROZEN
     return run
 

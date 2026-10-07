@@ -186,3 +186,15 @@ Full table: [results/tick_use/TESTS.md](results/tick_use/TESTS.md). Held-out los
 **Implications:**
 - The paper's comparisons of iterative models must include a single-iteration control trained the same way. Within-model per-iteration curves are not evidence of tick use.
 - Whether ticks help with more data, or on tasks that need iteration, is open.
+
+## Next: settings where iteration could pay (2026-10-07, user decision: A and B, plus wider CTM internals)
+
+Each test pairs a 16-tick model with the same model trained with a single tick. Rules are fixed before the runs. The LM seed-to-seed spread is taken as 0.02 nats.
+
+| Test | Models | Ticks contribute if |
+|---|---|---|
+| **A: longer training** | A_S2_400M and A_S2_T1_400M: S2 and S2_T1 for 400M tokens (1,526 steps, the sweep's 4× schedule) | the 16-tick model's held-out loss is at least 0.04 below the 1-tick model's |
+| **W: wider CTM internals** (user suggestion) | W_S2_wide and W_S2_wide_T1: S2 with the synapse U-Net width doubled (1,280 to 2,560) and the neuron-level models' hidden width doubled (32 to 64), at 16 and 1 ticks, 100M tokens | the same 0.04 margin; W_S2_wide against S2 shows the effect of width itself |
+| **B: a task that needs serial computation** | `scripts/tick_s3.py`: the S₃ word problem on the reliability study's first 10 seeds and data. Tiny adapted CTM-LM, plain, cross-position and wide, each at T = 16 and T = 1. The reliability study's Transformer, RDT and faithful CTM-LM runs are paired references. | mean accuracy over positions 1–16 beats the T = 1 control on at least 8 of 10 seeds, with a median gain of at least 5 points |
+
+The sweep is held on both GPUs while these run. Its two interrupted runs resume from their checkpoints.

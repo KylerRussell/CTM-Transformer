@@ -258,11 +258,13 @@ class AdaptedCTMLM(ScaledCTMLM):
         return self._tick(*state)
 
 
-def adapted_factory(adaptations, checkpointing=False, compile=False):
+def adapted_factory(adaptations, checkpointing=False, compile=False, unet_width=None):
+    """unet_width: hidden width of the synapse U-Net (default 2 x d_latent); the neuron-level models' width is config.nlm_hidden_dim."""
     unknown = set(adaptations) - set(ADAPTATIONS)
     if unknown:
         raise ValueError(f'Unknown adaptations {sorted(unknown)}')
     def factory(config):
-        return AdaptedCTMLM(config, **{a: a in adaptations for a in ADAPTATIONS}, checkpoint_ticks=checkpointing, compile_ticks=compile)
-    factory.__qualname__ = f'adapted_factory[{"+".join(sorted(adaptations)) or "none"}]'
+        return AdaptedCTMLM(config, **{a: a in adaptations for a in ADAPTATIONS}, checkpoint_ticks=checkpointing, compile_ticks=compile,
+                            unet_width=unet_width)
+    factory.__qualname__ = f'adapted_factory[{"+".join(sorted(adaptations)) or "none"}' + (f',unet{unet_width}' if unet_width else '') + ']'
     return factory

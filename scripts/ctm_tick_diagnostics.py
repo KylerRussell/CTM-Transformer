@@ -40,7 +40,7 @@ def load(directory,checkpoint,device):
     from ctm_transformer.ctm_lm_adapt import adapted_factory
     from ctm_transformer.lm_scale import scaled_factory
     run=json.loads((directory/'config.json').read_text());config=build_config(run,32768)
-    model=adapted_factory(set(run['ctm_adaptations']))(config) if run['family']=='ctm_lm' else scaled_factory(run['family'])(config)
+    model=adapted_factory(set(run['ctm_adaptations']),unet_width=run.get('unet_width'))(config) if run['family']=='ctm_lm' else scaled_factory(run['family'])(config)
     model.load_state_dict(torch.load(directory/checkpoint,map_location='cpu',weights_only=False)['model'])
     return model.to(device).eval(),run
 

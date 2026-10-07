@@ -79,7 +79,7 @@ def main():
     if run.get('mechanisms'):  # CTM-augmented RDT (ctm_transformer/ctm_rdt.py)
         assert family=='rdt';factory=ctm_rdt_factory(set(run['mechanisms']),t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False),run.get('sync_pairs'))
     elif run.get('ctm_adaptations') is not None:  # CTM-LM with candidate fixes (ctm_transformer/ctm_lm_adapt.py)
-        assert family=='ctm_lm';factory=adapted_factory(set(run['ctm_adaptations']),t.get('checkpointing',False),t.get('compile',False))
+        assert family=='ctm_lm';factory=adapted_factory(set(run['ctm_adaptations']),t.get('checkpointing',False),t.get('compile',False),run.get('unet_width'))
     else:factory=scaled_factory(family,t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))
     model=factory(config)
     if run.get('embedding_init_std'):torch.nn.init.normal_(model.token_embedding.weight,std=run['embedding_init_std'])  # input-embedding scale probe (2026-10-02)
