@@ -46,3 +46,8 @@ research/results/lr_sweep/state.tmp
 research/runs/ctm_lm_probes/
 research/runs/lr_sweep_superseded/
 research/results/ctm_lm_probes/*.log
+# tick-use studies (research/CTM_TICK_DIAGNOSTICS.md): run directories stay local; results are summarized under research/results/
+research/runs/tick_use/
+research/runs/tick_s3/
+research/results/tick_s3/slot*.log
+research/results/tick_use/runner*.log

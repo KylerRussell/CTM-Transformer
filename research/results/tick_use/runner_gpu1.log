@@ -1,6 +1,0 @@
-test S2_shallow_cross
-test S2_shallow_cross exit 0
-test S1_shallow
-test S1_shallow exit 0
-test R1_rdt_heavy_depth1
-test R1_rdt_heavy_depth1 exit 0
