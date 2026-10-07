@@ -13,6 +13,7 @@ ctm_aware_d384_h1_k+2 (lr 4e-3, D + sparse), is the control.
 | E4a_fresh_ctm | the same frozen backbone; a freshly initialized CTM is trained on it (lr 2e-3) |
 | S1_shallow | backbone cut from 24 layers to 2, so the ticks must integrate context through their attention reads (lr 2e-3) |
 | S2_shallow_cross | S1 with cross_position: the ticks become a recurrent-depth core with CTM dynamics (lr 2e-3) |
+| R1_rdt_heavy_depth1 | the RDT-heavy sweep run at d 704 (lr 1e-3) trained at a fixed depth of 1 in place of randomized depth: does recurrence help the RDT here? |
 | S2_T1, S2_T4 | S2 trained and evaluated with 1 or 4 ticks (every tick trained): what the ticks are worth, with parameters fixed |
 | S3_shallow_cross_random | S2 with the tick count drawn per step as in the RDT (log-normal Poisson, mean 15, sigma 0.5, at most 32), against drift past the answer |
 
@@ -43,13 +44,20 @@ TESTS={
     'S2_shallow_cross':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2}},
     'S3_shallow_cross_random':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2},
                                'depth_sampler':{'kind':'lognormal_poisson','mean':15,'sigma':0.5,'maximum':32}},
+    'R1_rdt_heavy_depth1':{'base':'research/runs/lr_sweep/rdt_heavy_d704_h1_k+0','rdt_depth':1},
     'S2_T1':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1}},
     'S2_T4':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':4}},
 }
 
 
 def config(name):
-    spec=TESTS[name];run=json.loads((CONTROL/'config.json').read_text())
+    spec=TESTS[name]
+    if 'rdt_depth' in spec:  # an RDT sweep run retrained at one fixed depth
+        run=json.loads((Path(spec['base'])/'config.json').read_text());run.pop('depth_sampler')
+        run.update(name=name,run_directory=str(RUNS/name),eval_depth=spec['rdt_depth'],eval_depths=[spec['rdt_depth']])
+        run['train']['delete_checkpoint_on_complete']=False
+        return run
+    run=json.loads((CONTROL/'config.json').read_text())
     run.update(name=name,run_directory=str(RUNS/name),ctm_adaptations=spec['ctm_adaptations'])
     t=run['train'];t['delete_checkpoint_on_complete']=False
     if 'lr' in spec:t['lr']=spec['lr']
@@ -80,18 +88,19 @@ def summarize(device):
     for label,(directory,checkpoint) in models.items():
         if not (directory/checkpoint).exists():continue
         model,run=load(directory,checkpoint,device);entry={'final_validation':final_validation(directory)}
-        if 'feature_head' not in run['ctm_adaptations']:
+        if run['family']=='ctm_lm' and 'feature_head' not in run['ctm_adaptations']:
             with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
                 ce=torch.cat([ctm_ticks(model,x,y,32)[0] for x,y in batches])
             entry['per_tick']=[float(v) for v in ce.mean(0)]
         rows[label]=entry;del model;torch.cuda.empty_cache()
     OUT.mkdir(parents=True,exist_ok=True);(OUT/'tests.json').write_text(json.dumps(rows,indent=1)+'\n')
     show=[1,2,3,4,8,12,16,24,32]
+    metric=lambda e:e['final_validation'].get('final_tick',next(iter(e['final_validation'].values())))
     L=['# CTM-LM tick-use training tests','','Protocol: [CTM_TICK_DIAGNOSTICS.md](../../CTM_TICK_DIAGNOSTICS.md). Held-out loss is the final tick on 1,024 windows; per-tick loss is on 32 windows (ticks beyond 16 extrapolate).','',
        '| Model | Held-out loss | '+' | '.join(f'tick {t}' for t in show)+' |','|---|---:|'+'---:|'*len(show)]
     for label,e in rows.items():
-        L.append(f'| {label} | {e["final_validation"]["final_tick"]:.3f} | '+' | '.join(f'{e["per_tick"][t-1]:.3f}' for t in show) +' |' if 'per_tick' in e else
-                 f'| {label} | {e["final_validation"]["final_tick"]:.3f} | '+' | '.join('' for _ in show)+' |')
+        L.append(f'| {label} | {metric(e):.3f} | '+' | '.join(f'{e["per_tick"][t-1]:.3f}' for t in show) +' |' if 'per_tick' in e else
+                 f'| {label} | {metric(e):.3f} | '+' | '.join('' for _ in show)+' |')
     (OUT/'TESTS.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 

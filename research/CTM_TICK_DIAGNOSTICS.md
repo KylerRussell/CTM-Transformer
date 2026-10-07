@@ -156,3 +156,33 @@ Both run at lr 2e-3. Their references are the CTM-aware control at the same rate
 - **The decisive test is two copies of S2 trained with a fixed 1 or 4 ticks (S2_T1, S2_T4)** at the same parameter count. If S2 with 16 ticks is clearly better than S2_T1, the ticks contribute.
 - **Drift remains.** S2 is best at tick 8, and its loss rises by tick 32 (5.338). S3 adds randomized tick counts against it.
 - **It still trails the baselines.** S2 is 0.17 nats behind the Transformer at the same rate and 0.58 behind the RDT, but with a fifth of their non-embedding parameters. A version with matched parameters (a wider CTM state) is the next step if the tick-count controls confirm that the ticks contribute.
+
+## Results: S1, S3 and the fixed-iteration controls (2026-10-07) — correction to S2
+
+Full table: [results/tick_use/TESTS.md](results/tick_use/TESTS.md). Held-out loss on 1,024 windows; all at 100M tokens.
+
+| Model | Iterations in training | Held-out | Seconds per step |
+|---|---|---:|---:|
+| S2: 2-layer backbone, cross-position ticks | 16 | 5.303 | 20.9 |
+| **S2_T1:** the same model trained with 1 tick | 1 | **5.246** | 7.1 (GPU shared with S3) |
+| S2_T4: trained with 4 ticks | 4 | 5.303 | — |
+| S1: 2-layer backbone, no cross-position | 16 | 5.321 | — |
+| S3: S2 with randomized tick count | 1–32, mean ~16 | 5.744 | 35.8 (GPU shared) |
+| RDT-heavy d 704, randomized depth (sweep) | 1–48, mean ~16 | 4.721 | 22.1 |
+| **R1:** the same RDT trained at depth 1 | 1 | **4.681** | 4.3 |
+
+**Correction.** S2's per-tick curve does not show that its ticks contribute. The same model trained with a single tick is better (5.246 against 5.303) at a third of the cost. As with the earlier models, the drop from tick 1 to tick 8 inside S2 only reflects training: an untrained tick 1 is bad. It does not show that 16 ticks beat 1. S2's gain over the 24-layer CTM comes from the shallower backbone, not from the ticks.
+
+**The same holds for the RDT.**
+- Trained at a fixed depth of 1, RDT-heavy scores 4.681, against 4.721 with randomized depth (mean 15), at a fifth of the cost.
+- Its depth curve (4.878 at depth 1, 4.660 at depth 16) was the same artefact: depth 1 was rarely sampled in training.
+
+**Other results:**
+- **Cross-position recurrence adds nothing:** S1 scores 5.321, S2 5.303.
+- **Randomized tick counts hurt the CTM** (S3: 5.744 against 5.303) and make training slower.
+
+**Conclusion.** In this regime (8–80M non-embedding parameters, 100M FineWeb-Edu tokens), neither the CTM's ticks nor the RDT's recurrence improves next-token prediction over the same model trained with a single iteration. The CTM-LM's failure to use its ticks is therefore not specific to the CTM. In this regime, extra iterative computation has no measured value, and the 1-tick and depth-1 models are both better and cheaper.
+
+**Implications:**
+- The paper's comparisons of iterative models must include a single-iteration control trained the same way. Within-model per-iteration curves are not evidence of tick use.
+- Whether ticks help with more data, or on tasks that need iteration, is open.

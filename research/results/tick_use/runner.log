@@ -1,0 +1,9 @@
+test E4c_feature_head
+test E4c_feature_head exit 0
+test E8_cross_position
+test E8_cross_position exit 0
+test E7_improvement
+test E7_improvement exit -15
+test E4a_fresh_ctm
+test S3_shallow_cross_random
+test S3_shallow_cross_random exit 0
