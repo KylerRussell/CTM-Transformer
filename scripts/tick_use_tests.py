@@ -13,6 +13,8 @@ ctm_aware_d384_h1_k+2 (lr 4e-3, D + sparse), is the control.
 | E4a_fresh_ctm | the same frozen backbone; a freshly initialized CTM is trained on it (lr 2e-3) |
 | S1_shallow | backbone cut from 24 layers to 2, so the ticks must integrate context through their attention reads (lr 2e-3) |
 | S2_shallow_cross | S1 with cross_position: the ticks become a recurrent-depth core with CTM dynamics (lr 2e-3) |
+| S2_T1, S2_T4 | S2 trained and evaluated with 1 or 4 ticks (every tick trained): what the ticks are worth, with parameters fixed |
+| S3_shallow_cross_random | S2 with the tick count drawn per step as in the RDT (log-normal Poisson, mean 15, sigma 0.5, at most 32), against drift past the answer |
 
 S1 and S2 (added 2026-10-06, after E8) test whether the ticks contribute once the
 backbone no longer does all the work. Their learning-rate control is the sweep's
@@ -39,6 +41,10 @@ TESTS={
     'E4a_fresh_ctm':{'ctm_adaptations':['token_start','sparse_tick_loss'],'lr':2e-3,'init_from':True},
     'S1_shallow':{'ctm_adaptations':['token_start','sparse_tick_loss'],'lr':2e-3,'model':{'n_layers':2}},
     'S2_shallow_cross':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2}},
+    'S3_shallow_cross_random':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2},
+                               'depth_sampler':{'kind':'lognormal_poisson','mean':15,'sigma':0.5,'maximum':32}},
+    'S2_T1':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1}},
+    'S2_T4':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':4}},
 }
 
 
@@ -50,6 +56,7 @@ def config(name):
     if 'micro_batch' in spec:t['accumulation']=t['accumulation']*t['micro_batch']//spec['micro_batch'];t['micro_batch']=spec['micro_batch']
     if 'depth_sampler' in spec:run['depth_sampler']=spec['depth_sampler']
     if 'model' in spec:run['model'].update(spec['model'])
+    run['eval_depth']=run['model']['max_thought_steps']  # the trainer passes eval_depth as the tick count of every step
     if spec.get('init_from'):run['init_from']={'checkpoint':BACKBONE[0],'prefixes':BACKBONE[1]};run['freeze_prefixes']=FROZEN
     return run
 

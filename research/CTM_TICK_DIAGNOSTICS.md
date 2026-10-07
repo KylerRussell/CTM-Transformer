@@ -129,3 +129,30 @@ Both run at lr 2e-3. Their references are the CTM-aware control at the same rate
 **Success rule (fixed before the runs):**
 - **Ticks contribute:** the tick 16 loss is at least 0.2 nats below tick 1, and ticks 8–16 are no worse than tick 4.
 - **Worth adopting:** the final tick is also no worse than the 24-layer control at the same rate (5.591).
+
+## Results: E7 and S2 (2026-10-07)
+
+**E7 (improvement loss, randomized ticks, lr 4e-3) failed and was stopped at step 165.**
+- It stalled above the unigram loss: held-out 9.62 at step 95, against 7.16 for the control and 7.62 for a unigram model.
+- Its training loss oscillated between 8.2 and 9.7, with gradient norms up to 50.
+- The hinge is summed over up to 31 tick pairs and dominates the loss. That formulation is not retried. Randomized tick counts are tested on their own in S3.
+- E4a was deprioritized after S2 and has not run.
+
+**S2 (2-layer backbone, cross-position ticks, lr 2e-3) is the first CTM-LM whose ticks do the work.** Held-out loss on 1,024 windows; per-tick loss on 32 windows:
+
+| Model | Non-embedding parameters | Seconds per step | Held-out | Tick 1 | 2 | 4 | 8 | 16 | 32 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| CTM-aware control (24-layer backbone, lr 2e-3) | 40.5M | 26.6 | 5.591 | 6.332 | 5.787 | 5.517 | 5.491 | 5.526 | 5.670 |
+| **S2** | **8.6M** | **20.9** | **5.303** | 5.906 | 5.528 | 5.253 | 5.214 | 5.237 | 5.338 |
+| Transformer d 384 (lr 2e-3 / best 4e-3) | 42.5M | 4.2 | 5.133 / 5.012 | | | | | | |
+| RDT-aware d 384 (lr 2e-3) | 42.8M | 10.0 | 4.724 | | | | | | |
+
+- S2 beats the 24-layer CTM by 0.29 nats with a fifth of the non-embedding parameters, and costs 21% less per step.
+- It passes the rule fixed before the runs:
+  - tick 16 is 0.67 nats below tick 1;
+  - ticks 8–16 are no worse than tick 4 (5.214–5.237 against 5.253);
+  - the final tick beats the control.
+- **The rule's first criterion turned out to be weak.** Under the sparse loss tick 1 is not trained, and the 24-layer control also shows a 0.81-nat drop from tick 1 to tick 16.
+- **The decisive test is two copies of S2 trained with a fixed 1 or 4 ticks (S2_T1, S2_T4)** at the same parameter count. If S2 with 16 ticks is clearly better than S2_T1, the ticks contribute.
+- **Drift remains.** S2 is best at tick 8, and its loss rises by tick 32 (5.338). S3 adds randomized tick counts against it.
+- **It still trails the baselines.** S2 is 0.17 nats behind the Transformer at the same rate and 0.58 behind the RDT, but with a fifth of their non-embedding parameters. A version with matched parameters (a wider CTM state) is the next step if the tick-count controls confirm that the ticks contribute.
