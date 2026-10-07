@@ -198,3 +198,40 @@ Each test pairs a 16-tick model with the same model trained with a single tick. 
 | **B: a task that needs serial computation** | `scripts/tick_s3.py`: the S₃ word problem on the reliability study's first 10 seeds and data. Tiny adapted CTM-LM, plain, cross-position and wide, each at T = 16 and T = 1. The reliability study's Transformer, RDT and faithful CTM-LM runs are paired references. | mean accuracy over positions 1–16 beats the T = 1 control on at least 8 of 10 seeds, with a median gain of at least 5 points |
 
 The sweep is held on both GPUs while these run. Its two interrupted runs resume from their checkpoints.
+
+## Results: B (S₃) and W (wide), with A in progress (2026-10-07)
+
+**B: on the S₃ word problem, the ticks contribute.** Full table: [results/tick_s3/TICK_S3.md](results/tick_s3/TICK_S3.md). Ten seeds; mean held-out accuracy over positions 1–16.
+
+| Cell | T = 16 | T = 1 control | Seeds higher than the control | Median paired gain | Escapes | Verdict under the rule |
+|---|---:|---:|---:|---:|---:|---|
+| Adapted CTM, cross-position ticks | **0.856** | 0.685 | 9/10 | **+18.6 points** | 4/10 | ticks contribute |
+| Adapted CTM, wide internals | 0.716 | 0.662 | 8/10 | +7.0 | 0/10 | ticks contribute |
+| Adapted CTM | 0.726 | 0.679 | 9/10 | +3.2 | 0/10 | below the 5-point margin |
+| *References (reliability study, same seeds and data):* Transformer / RDT / faithful CTM-LM | 0.614 / 0.715 / 0.579 | | | | 0 / 1 / 0 | |
+
+- **With cross-position ticks, the adapted CTM is the strongest model tested on S₃.**
+  - It gains 18.6 points from its ticks, and its accuracy rises with ticks up to 16: 0.463, 0.764, 0.844, 0.856 at T = 1, 4, 8, 16.
+  - It escapes to the serial solution on 4 of 10 seeds, against 1 of 10 for the RDT.
+- **Caveat on the references:** they are not like-for-like. They use learned absolute positions and their own losses; the adapted CTMs use RoPE and the sparse-tick loss. A Transformer and an RDT with the same RoPE setup are needed before an architecture claim.
+- **Cross-position recurrence is what matters here.** It adds nothing on FineWeb at 100M tokens, but on S₃, where each answer must be carried forward position by position, it turns the ticks into serial computation.
+
+**W: wider internals help the LM, but the ticks still do not.** Held-out loss at 100M tokens:
+
+| Model | 16 ticks | 1 tick |
+|---|---:|---:|
+| S2 | 5.303 | 5.246 |
+| S2, wide internals | 5.230 | **5.127** |
+
+- Width is worth 0.07–0.12 nats.
+- The 1-tick model is better at both widths: by 0.10 with the wide internals, which fails the rule.
+
+**A: at 400M tokens the ticks begin to pay (provisional; the 16-tick run is at step 1,275 of 1,526).** Held-out loss at the shared evaluation steps (128 windows; the final is on 1,024):
+
+| Step (tokens) | 381 (100M) | 762 (200M) | 1,143 (300M) | 1,526 (400M) |
+|---|---:|---:|---:|---:|
+| S2, 16 ticks | 5.119 | 4.442 | 4.194 | running |
+| S2, 1 tick | 5.050 | 4.566 | 4.351 | 4.295 (final) |
+| References: Transformer / RDT-aware / 24-layer CTM-aware | 4.862 / 4.744 / 5.415 | 4.062 / 4.238 / 4.479 | 3.803 / 4.037 / 4.117 | 3.735 / 3.998 / 4.025 |
+
+The 1-tick model leads early. The 16-tick model overtakes it by 200M tokens and leads by 0.157 at 300M.
