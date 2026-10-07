@@ -245,3 +245,24 @@ Rules fixed before the runs:
 | **Does recurrence also pay for the RDT at 400M tokens?** | `R_aware_d1_400M`: the RDT-aware 400M sweep run (3.998) retrained at depth 1. `R_heavy_d1_400M` and `R_heavy_rand_400M`: RDT-heavy d 704, 2/4/2, at depth 1 and at randomized depth, 400M tokens, lr 1e-3. | Recurrence pays if the randomized-depth model is at least 0.04 below its depth-1 twin. |
 | **Is the S₃ comparison fair?** | `transformer_rope`, `rdt_rope` and `rdt_rope_t1` (`scripts/tick_s3.py`): the reliability study's Transformer and RDT retrained with RoPE, the position scheme of the adapted CTMs, on the same 10 seeds. | adapt_cross exceeds rdt_rope if it is higher on at least 8 of 10 seeds with a median gain of at least 5 points. The RDT's own tick use is judged by the same rule against rdt_rope_t1. |
 | **Do width, cross-position ticks and longer training combine?** | `C_wide_400M` and `C_wide_T1_400M`: the wide CTM (W_S2_wide) at 16 and 1 ticks for 400M tokens. | Ticks contribute if the 16-tick model is at least 0.04 below the 1-tick model. Compared with A_S2_400M, this gives the effect of width at 400M. |
+
+## Ideas from Continuous Memory Machines (2026-10-07, user approved)
+
+Regan et al. (Sakana AI, arXiv 2610.07907) extend the CTM with:
+- a Transformer block over the recent tick history (short-term memory) and learned long-term memory slots;
+- a zero-value sink token;
+- synchronization normalized by the sum of weights instead of its square root, which they report lets the model generalize to more ticks than it was trained with.
+
+They report no language-model experiments. Three options in `ctm_transformer/ctm_lm_adapt.py`:
+- **`sync_mean`:** reads synchronization as α/β. Its magnitude no longer changes with the tick count, which targets the drift past tick 8 seen in every model here.
+- **`attention_sink`:** adds a zero-value sink key to the tick attention, so a tick can read nothing instead of re-reading the same features.
+- **`tick_memory`:** CMM's joint memory update, gated to the identity at initialization.
+
+**Tests, with rules fixed before the runs:**
+
+| Test | Cells | Rule |
+|---|---|---|
+| S₃ (`scripts/tick_s3.py`), 10 seeds | `cross_norm_sink` and `cross_memory`, each with a T = 1 control | **Improves** on adapt_cross if it is higher on at least 8 of 10 seeds with a median gain of at least 3 points. **Ticks** are judged by the earlier rule against each cell's own T = 1 control. Accuracy at T = 32 against T = 16 is reported. |
+| LM, 100M tokens | `N_S2_norm_sink`: S2 with `sync_mean` and `attention_sink` | **Adopted for the 400M runs** if its held-out loss is no worse than S2's (5.303) by more than 0.02, and its per-tick loss at tick 32 is no more than 0.02 above tick 16 (S2: +0.10). |
+
+The tick memory is tested on S₃ only. At LM scale it would add a Transformer block over 8 tokens of width D inside every tick for every position.

@@ -20,6 +20,7 @@ ctm_aware_d384_h1_k+2 (lr 4e-3, D + sparse), is the control.
 | R_aware_d1_400M | the compute-aware RDT's 400M-token sweep run (d 384, 11/2/11, lr 1e-3) retrained at a fixed depth of 1 |
 | R_heavy_d1_400M, R_heavy_rand_400M | RDT-heavy (d 704, 2/4/2, lr 1e-3) for 400M tokens at a fixed depth of 1 and with the sweep's randomized depth |
 | C_wide_400M, C_wide_T1_400M | W_S2_wide and W_S2_wide_T1 trained for 400M tokens |
+| N_S2_norm_sink | S2 with mean-normalized synchronization (alpha / beta) and a zero-value sink key in the tick attention (Continuous Memory Machines) |
 | S3_shallow_cross_random | S2 with the tick count drawn per step as in the RDT (log-normal Poisson, mean 15, sigma 0.5, at most 32), against drift past the answer |
 
 S1 and S2 (added 2026-10-06, after E8) test whether the ticks contribute once the
@@ -63,6 +64,8 @@ TESTS={
     'R_heavy_rand_400M':{'base':'research/runs/lr_sweep/rdt_heavy_d704_h1_k+0','rdt_depth':None,'horizon':4},
     'C_wide_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64},'unet_width':2560,'horizon':4},
     'C_wide_T1_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64,'max_thought_steps':1},'unet_width':2560,'horizon':4},
+    # 2026-10-07 (user approved), from Continuous Memory Machines: mean-normalized synchronization and a tick-attention sink.
+    'N_S2_norm_sink':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position','sync_mean','attention_sink'],'lr':2e-3,'model':{'n_layers':2}},
     'S2_T4':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':4}},
 }
 

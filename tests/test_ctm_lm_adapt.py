@@ -237,3 +237,51 @@ def test_feature_head_is_a_linear_readout_of_the_backbone_and_skips_the_ticks():
         out = m(x, return_all_logits=True)
         assert torch.allclose(out['logits'], m.feature_head(m.features(x))) and len(out['all_logits']) == 1
         assert torch.allclose(m(x, targets=y)['loss'], torch.nn.functional.cross_entropy(out['logits'][keep], y[keep]), atol=1e-5)
+
+
+def test_sync_mean_reads_a_normalized_moving_average():
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, sync_mean=True)
+    alpha, beta = m.sync_action.start(torch.ones(2, m.config.d_latent))
+    z = torch.ones(2, m.config.d_latent)
+    reads = []
+    for _ in range(5):
+        alpha, beta = m.sync_action.step(alpha, beta, z)
+        reads.append(m._read(alpha, beta))
+    assert all(torch.allclose(r, reads[0]) for r in reads)  # constant products: the read does not drift with t
+    x, y = batch()
+    loss = m(x, targets=y)['loss']
+    loss.backward()
+    assert torch.isfinite(loss)
+
+
+def test_attention_sink_keeps_causality_and_can_absorb_attention():
+    x, y = batch()
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, attention_sink=True).eval()
+    with torch.no_grad():
+        m.sink_key.normal_(std=1.0)
+        before = m(x, return_all_logits=True)['all_logits'][-1]
+        x2 = x.clone()
+        x2[:, -1] = (x2[:, -1] + 1) % m.config.vocab_size
+        after = m(x2, return_all_logits=True)['all_logits'][-1]
+        assert torch.allclose(before[:, :-1], after[:, :-1], atol=1e-5)
+    m.train()
+    m(x, targets=y)['loss'].backward()
+    assert m.sink_key.grad.abs().sum() > 0
+
+
+def test_tick_memory_starts_as_the_identity_and_its_gate_learns():
+    x, y = batch()
+    torch.manual_seed(0)
+    ref = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True)
+    torch.manual_seed(0)
+    new = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, tick_memory=True)
+    shared = dict(new.named_parameters())
+    with torch.no_grad():
+        for n, p in ref.named_parameters():
+            shared[n].copy_(p)
+    a, b = ref(x, targets=y)['loss'], new(x, targets=y)['loss']
+    assert torch.allclose(a, b, atol=1e-6)
+    b.backward()
+    assert new.tick_memory.gate.grad.abs() > 0
