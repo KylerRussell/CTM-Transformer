@@ -266,3 +266,21 @@ They report no language-model experiments. Three options in `ctm_transformer/ctm
 | LM, 100M tokens | `N_S2_norm_sink`: S2 with `sync_mean` and `attention_sink` | **Adopted for the 400M runs** if its held-out loss is no worse than S2's (5.303) by more than 0.02, and its per-tick loss at tick 32 is no more than 0.02 above tick 16 (S2: +0.10). |
 
 The tick memory is tested on S₃ only. At LM scale it would add a Transformer block over 8 tokens of width D inside every tick for every position.
+
+## Result: A (400M tokens) — the ticks contribute (2026-10-07)
+
+| Model | Non-embedding parameters | Held-out loss (1,024 windows) |
+|---|---:|---:|
+| S2, 16 ticks (`A_S2_400M`) | 8.6M | **4.138** |
+| S2, 1 tick (`A_S2_T1_400M`) | 8.6M | 4.295 |
+| *References at 400M tokens:* Transformer d 384 / RDT-aware d 384 / 24-layer CTM-aware | 42.5M / 42.8M / 40.5M | 3.735 / 3.998 / 4.025 |
+
+- **The 16-tick model is 0.157 nats better than its 1-tick twin**, which passes the 0.04 rule. At 100M tokens the 1-tick model was better by 0.057, so the ticks start to contribute once training is longer.
+- **Per-tick loss, 32 windows:**
+
+  | Tick | 1 | 2 | 3 | 4 | 8 | 12 | 16 | 24 | 32 |
+  |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+  | Loss | 5.464 | 5.053 | 4.631 | 4.127 | 4.086 | 4.090 | 4.104 | 4.145 | 4.205 |
+
+  It is still best near tick 8 and drifts by tick 32. `sync_mean` is meant to fix that drift.
+- **It still trails the baselines,** which have about five times its non-embedding parameters. Whether the tick gain survives at matched parameters is the question for the wide model (C) and for any 500M design.
