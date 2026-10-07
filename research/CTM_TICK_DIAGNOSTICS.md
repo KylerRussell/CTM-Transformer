@@ -284,3 +284,16 @@ The tick memory is tested on S₃ only. At LM scale it would add a Transformer b
 
   It is still best near tick 8 and drifts by tick 32. `sync_mean` is meant to fix that drift.
 - **It still trails the baselines,** which have about five times its non-embedding parameters. Whether the tick gain survives at matched parameters is the question for the wide model (C) and for any 500M design.
+
+### Result: N_S2_norm_sink fails (2026-10-07)
+
+- **Held-out loss:** 5.629, against 5.303 for S2: 0.326 worse, against an allowed 0.02.
+- **Per-tick loss (32 windows):**
+
+  | Tick | 1 | 4 | 8 | 16 | 32 |
+  |---|---:|---:|---:|---:|---:|
+  | Loss | 8.470 | 5.554 | 5.516 | 5.566 | 5.725 |
+
+- **The drift is worse, not removed:** tick 32 is 0.16 above tick 16, against 0.10 for S2.
+- **Both criteria fail,** so the 400M wide runs proceed without these changes.
+- Because the two changes were tested together, this does not say which one is responsible. Their S₃ cell is still running.
