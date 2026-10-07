@@ -17,6 +17,9 @@ ctm_aware_d384_h1_k+2 (lr 4e-3, D + sparse), is the control.
 | S2_T1, S2_T4 | S2 trained and evaluated with 1 or 4 ticks (every tick trained): what the ticks are worth, with parameters fixed |
 | A_S2_400M, A_S2_T1_400M | S2 and S2_T1 trained 4x longer (400M tokens, 1,526 steps): does iteration start to pay with more data? |
 | W_S2_wide, W_S2_wide_T1 | S2 and S2_T1 with the synapse U-Net width doubled (1,280 to 2,560) and the neuron-level models' hidden width doubled (32 to 64) |
+| R_aware_d1_400M | the compute-aware RDT's 400M-token sweep run (d 384, 11/2/11, lr 1e-3) retrained at a fixed depth of 1 |
+| R_heavy_d1_400M, R_heavy_rand_400M | RDT-heavy (d 704, 2/4/2, lr 1e-3) for 400M tokens at a fixed depth of 1 and with the sweep's randomized depth |
+| C_wide_400M, C_wide_T1_400M | W_S2_wide and W_S2_wide_T1 trained for 400M tokens |
 | S3_shallow_cross_random | S2 with the tick count drawn per step as in the RDT (log-normal Poisson, mean 15, sigma 0.5, at most 32), against drift past the answer |
 
 S1 and S2 (added 2026-10-06, after E8) test whether the ticks contribute once the
@@ -53,16 +56,24 @@ TESTS={
     'A_S2_T1_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1},'horizon':4},
     'W_S2_wide':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64},'unet_width':2560},
     'W_S2_wide_T1':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64,'max_thought_steps':1},'unet_width':2560},
+    # 2026-10-07 (user approved): is iteration also worth it for the RDT at 400M tokens, and the combination of width, cross-position
+    # ticks and longer training for the CTM.
+    'R_aware_d1_400M':{'base':'research/runs/lr_sweep/rdt_aware_d384_h4_k+0','rdt_depth':1},
+    'R_heavy_d1_400M':{'base':'research/runs/lr_sweep/rdt_heavy_d704_h1_k+0','rdt_depth':1,'horizon':4},
+    'R_heavy_rand_400M':{'base':'research/runs/lr_sweep/rdt_heavy_d704_h1_k+0','rdt_depth':None,'horizon':4},
+    'C_wide_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64},'unet_width':2560,'horizon':4},
+    'C_wide_T1_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'nlm_hidden_dim':64,'max_thought_steps':1},'unet_width':2560,'horizon':4},
     'S2_T4':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':4}},
 }
 
 
 def config(name):
     spec=TESTS[name]
-    if 'rdt_depth' in spec:  # an RDT sweep run retrained at one fixed depth
-        run=json.loads((Path(spec['base'])/'config.json').read_text());run.pop('depth_sampler')
-        run.update(name=name,run_directory=str(RUNS/name),eval_depth=spec['rdt_depth'],eval_depths=[spec['rdt_depth']])
+    if 'rdt_depth' in spec:  # an RDT sweep run retrained at one fixed depth (None keeps its randomized depth)
+        run=json.loads((Path(spec['base'])/'config.json').read_text());run.update(name=name,run_directory=str(RUNS/name))
+        if spec['rdt_depth'] is not None:run.pop('depth_sampler');run.update(eval_depth=spec['rdt_depth'],eval_depths=[spec['rdt_depth']])
         run['train']['delete_checkpoint_on_complete']=False
+        if spec.get('horizon'):run['train'].update(total_steps=1526,eval_interval=381,warmup_steps=100)
         return run
     run=json.loads((CONTROL/'config.json').read_text())
     run.update(name=name,run_directory=str(RUNS/name),ctm_adaptations=spec['ctm_adaptations'])

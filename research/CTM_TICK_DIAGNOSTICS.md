@@ -235,3 +235,13 @@ The sweep is held on both GPUs while these run. Its two interrupted runs resume 
 | References: Transformer / RDT-aware / 24-layer CTM-aware | 4.862 / 4.744 / 5.415 | 4.062 / 4.238 / 4.479 | 3.803 / 4.037 / 4.117 | 3.735 / 3.998 / 4.025 |
 
 The 1-tick model leads early. The 16-tick model overtakes it by 200M tokens and leads by 0.157 at 300M.
+
+## Next round (2026-10-07, user approved): is it general, is it fair, does it combine?
+
+Rules fixed before the runs:
+
+| Question | Runs | Rule |
+|---|---|---|
+| **Does recurrence also pay for the RDT at 400M tokens?** | `R_aware_d1_400M`: the RDT-aware 400M sweep run (3.998) retrained at depth 1. `R_heavy_d1_400M` and `R_heavy_rand_400M`: RDT-heavy d 704, 2/4/2, at depth 1 and at randomized depth, 400M tokens, lr 1e-3. | Recurrence pays if the randomized-depth model is at least 0.04 below its depth-1 twin. |
+| **Is the S₃ comparison fair?** | `transformer_rope`, `rdt_rope` and `rdt_rope_t1` (`scripts/tick_s3.py`): the reliability study's Transformer and RDT retrained with RoPE, the position scheme of the adapted CTMs, on the same 10 seeds. | adapt_cross exceeds rdt_rope if it is higher on at least 8 of 10 seeds with a median gain of at least 5 points. The RDT's own tick use is judged by the same rule against rdt_rope_t1. |
+| **Do width, cross-position ticks and longer training combine?** | `C_wide_400M` and `C_wide_T1_400M`: the wide CTM (W_S2_wide) at 16 and 1 ticks for 400M tokens. | Ticks contribute if the 16-tick model is at least 0.04 below the 1-tick model. Compared with A_S2_400M, this gives the effect of width at 400M. |
