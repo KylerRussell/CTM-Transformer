@@ -297,3 +297,57 @@ The tick memory is tested on S₃ only. At LM scale it would add a Transformer b
 - **The drift is worse, not removed:** tick 32 is 0.16 above tick 16, against 0.10 for S2.
 - **Both criteria fail,** so the 400M wide runs proceed without these changes.
 - Because the two changes were tested together, this does not say which one is responsible. Their S₃ cell is still running.
+
+## Final results of the round (2026-10-08)
+
+### Language modelling at 400M tokens: iteration pays, for both families, when the outer stack is shallow
+
+Held-out loss on 1,024 windows. Each 1-iteration twin has the same parameters, trained the same way. Seconds per step are on a shared GPU and indicative only.
+
+| Model | Non-embedding parameters | Iterated | 1 iteration | Gain from iteration | Seconds per step (iterated / 1) |
+|---|---:|---:|---:|---:|---:|
+| Shallow CTM (S2), 16 ticks | 8.6M | 4.138 | 4.295 | **0.157** | 27 / 4 |
+| Shallow CTM, wide internals, 16 ticks | 16.0M | **4.086** | 4.282 | **0.196** | 34 / 4 |
+| RDT-heavy d 704 (2/4/2), randomized depth | 48.2M | **3.783** | 3.828 | **0.045** | 26 / 6 |
+| RDT-aware d 384 (11/2/11), randomized depth | 42.8M | 3.998 | 3.997 | 0.000 | — |
+| *Transformer d 384 (reference)* | 42.5M | | 3.735 | | |
+
+- **Every shallow-outer model passes the 0.04 rule.** The CTMs gain more from their ticks (0.16–0.20) than RDT-heavy does from its loops (0.045). Part of that is because the shallow CTMs are much weaker with one iteration: 2 backbone layers against RDT-heavy's 8.
+- **Recurrence is worthless for RDT-aware,** whose 22 non-recurrent layers do the work, as for the 24-layer CTM-aware.
+- **Wider internals help the CTM**, by 0.05 at 16 ticks.
+- **Absolute quality: the CTMs still trail.** The wide CTM, at a third of RDT-heavy's non-embedding parameters, is 0.30 behind it and 0.35 behind the Transformer.
+
+**Per-iteration loss (32 windows):**
+
+| Model | 1 | 2 | 4 | 8 | 16 | 32 |
+|---|---:|---:|---:|---:|---:|---:|
+| Wide CTM | 5.746 | 5.495 | 4.069 | 4.042 | 4.055 | 4.146 |
+| RDT-heavy | 3.997 | 3.800 | 3.759 | 3.756 | 3.756 | 3.756 |
+
+- **The CTM's gain is concentrated by tick 4,** and it drifts after tick 8.
+- **The RDT converges to a fixed point by depth 8** and does not drift. That is the benefit of its randomized-depth training. For the CTM, randomized ticks hurt (S3 run, 100M tokens).
+
+### S₃ with like-for-like references: CTM ticks and RDT loops both contribute, and neither family wins
+
+Ten seeds; mean held-out accuracy over positions 1–16. Full table: [results/tick_s3/TICK_S3.md](results/tick_s3/TICK_S3.md).
+
+| Model | Iterated | 1 iteration | Gain from iteration (median) | Escapes |
+|---|---:|---:|---:|---:|
+| CTM, cross-position ticks | 0.856 | 0.685 | +18.6 (9/10 seeds) | 4 |
+| + mean-normalized sync and sink | 0.882 | 0.682 | +20.5 (10/10) | 5 |
+| + CMM tick memory | 0.850 | 0.691 | +15.9 (9/10) | 2 |
+| **RDT, RoPE** | 0.821 | 0.677 | +17.5 (9/10) | 1 |
+| Transformer, RoPE | | 0.614 | | 0 |
+
+- **No CTM-over-RDT claim.** The like-for-like RDT (RoPE) rises from 0.715 to 0.821. adapt_cross against rdt_rope is higher on 5 of 10 seeds with a median of −3.0 points, which does not exceed. The earlier "strongest model on S₃" reading was the position-encoding confound.
+- **The CMM changes do not improve on adapt_cross:**
+  - norm + sink: 6 of 10 seeds, +1.8 points;
+  - tick memory: 4 of 10 seeds, −3.4 points.
+  - Norm + sink has the most escapes (5 of 10), but on the LM it cost 0.33 nats (above).
+- **The CTM degrades slightly beyond its trained tick count** (0.856 at T = 16, 0.848 at T = 32). The RDT holds (0.821 and 0.824).
+
+### What the round establishes
+
+1. **The CTM-LM's ticks can be made to contribute.** It needs a shallow backbone, cross-position ticks and enough data (400M tokens), or a task that needs serial computation (S₃). In the original 24-layer design the backbone did all the work, and at 100M tokens no model in this study benefits from iteration.
+2. **This is a property of iterative depth, not of the CTM.** The RDT behaves the same way: depth-1 equals randomized depth with a deep outer stack, and depth pays with a shallow one. On S₃ its loops contribute as much as the CTM's ticks.
+3. **No CTM mechanism has beaten the RDT on equal terms.** Every comparison gives the CTM higher cost per token, and the RDT is equal or better in quality. The CTM's advantage here is parameter efficiency: per non-embedding parameter it is competitive. The comparison at matched parameters and compute is the next question for any 500M design.

@@ -13,16 +13,22 @@ Protocol: `scripts/tick_s3.py` (docstring). Mean held-out accuracy over position
 | adapt_cross_t1 | 10 | 1 | 0.685 | 6.5 | 0 | 0.685 /  /  /  /  |
 | adapt_wide | 10 | 16 | 0.716 | 7.0 | 0 | 0.430 / 0.698 / 0.712 / 0.716 / 0.713 |
 | adapt_wide_t1 | 10 | 1 | 0.662 | 6.0 | 0 | 0.662 /  /  /  /  |
-| cross_norm_sink | 1 | 16 | 0.992 | 17 | 1 | 0.465 / 0.784 / 0.965 / 0.992 / 0.910 |
+| cross_norm_sink | 10 | 16 | 0.882 | 13.0 | 5 | 0.465 / 0.753 / 0.860 / 0.882 / 0.861 |
+| cross_norm_sink_t1 | 10 | 1 | 0.682 | 7.0 | 0 | 0.682 /  /  /  /  |
+| cross_memory | 10 | 16 | 0.850 | 10.0 | 2 | 0.481 / 0.764 / 0.830 / 0.850 / 0.836 |
+| cross_memory_t1 | 10 | 1 | 0.691 | 7.0 | 0 | 0.691 /  /  /  /  |
 | transformer_rope | 10 | 1 | 0.614 | 5.0 | 0 | 0.614 /  /  /  /  |
-| rdt_rope | 1 | 16 | 0.973 | 15 | 1 | 0.322 / 0.542 / 0.756 / 0.973 / 0.979 |
-| rdt_rope_t1 | 1 | 1 | 0.708 | 7 | 0 | 0.708 /  /  /  /  |
+| rdt_rope | 10 | 16 | 0.821 | 9.0 | 1 | 0.272 / 0.496 / 0.693 / 0.821 / 0.824 |
+| rdt_rope_t1 | 10 | 1 | 0.677 | 7.0 | 0 | 0.677 /  /  /  /  |
 
 **Paired against the T = 1 control (rule: higher on ≥ 8 of 10 seeds and median gain ≥ 5 points):**
 
-- **adapt_cross vs rdt_rope (same position encoding):** higher on 0/1 seeds, median gain -14.3 points: incomplete.
-- **cross_norm_sink vs adapt_cross:** higher on 1/1 seeds, median gain +16.3 points: incomplete.
+- **adapt_cross vs rdt_rope (same position encoding):** higher on 5/10 seeds, median gain -3.0 points: does not exceed.
+- **cross_norm_sink vs adapt_cross:** higher on 6/10 seeds, median gain +1.8 points: does not improve.
+- **cross_memory vs adapt_cross:** higher on 4/10 seeds, median gain -3.4 points: does not improve.
 - **adapt vs adapt_t1:** higher on 9/10 seeds, median gain +3.2 points: ticks do not meet the rule.
 - **adapt_cross vs adapt_cross_t1:** higher on 9/10 seeds, median gain +18.6 points: ticks contribute.
 - **adapt_wide vs adapt_wide_t1:** higher on 8/10 seeds, median gain +7.0 points: ticks contribute.
-- **rdt_rope vs rdt_rope_t1:** higher on 1/1 seeds, median gain +26.5 points: incomplete.
+- **rdt_rope vs rdt_rope_t1:** higher on 9/10 seeds, median gain +17.5 points: ticks contribute.
+- **cross_norm_sink vs cross_norm_sink_t1:** higher on 10/10 seeds, median gain +20.5 points: ticks contribute.
+- **cross_memory vs cross_memory_t1:** higher on 9/10 seeds, median gain +15.9 points: ticks contribute.
