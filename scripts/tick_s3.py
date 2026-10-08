@@ -38,6 +38,12 @@ on at least 8 of 10 seeds with a median gain of at least 3 points; the ticks rul
 to each against its own T = 1 control. Accuracy at T = 32 against T = 16 is reported, since the
 normalization is claimed to help beyond the trained tick count.
 
+Drift fixes (deep-research review, added 2026-10-08): `cross_anchor` is adapt_cross with the
+backbone feature re-injected every tick (observe_token) and a gated state update
+(gated_state); `cross_clamp` is adapt_cross with the official code's in-place decay clamp
+(decay_data_clamp). Same improvement rule as above against adapt_cross; the drift test is
+accuracy at T = 32 against T = 16.
+
 Evaluation: the final checkpoint (step 10,000) on each seed's 1,024 held-out words of length
 32, final-tick readout, at T = 1, 4, 8, 16, 32 (T = 1 cells at T = 1 only).
 
@@ -67,6 +73,9 @@ CELLS={'adapt':{'adaptations':LOSS,'T':16},'adapt_t1':{'adaptations':LOSS,'T':1}
        'cross_norm_sink_t1':{'adaptations':LOSS+['cross_position','sync_mean','attention_sink'],'T':1},
        'cross_memory':{'adaptations':LOSS+['cross_position','tick_memory'],'T':16},
        'cross_memory_t1':{'adaptations':LOSS+['cross_position','tick_memory'],'T':1},
+       'cross_anchor':{'adaptations':LOSS+['cross_position','observe_token','gated_state'],'T':16},
+       'cross_anchor_t1':{'adaptations':LOSS+['cross_position','observe_token','gated_state'],'T':1},
+       'cross_clamp':{'adaptations':LOSS+['cross_position','decay_data_clamp'],'T':16},
        'transformer_rope':{'reference':'transformer','T':1,'readout':'final'},
        'rdt_rope':{'reference':'rdt','T':16,'readout':'confidence'},
        'rdt_rope_t1':{'reference':'rdt','T':1,'readout':'confidence'}}
@@ -157,13 +166,13 @@ def summarize():
         diffs=[first16(rows['adapt_cross'][s]['results']['16']['by_position'])-first16(rows['rdt_rope'][s]['results']['16']['by_position']) for s in seeds]
         verdict='exceeds' if len(seeds)==10 and sum(d>0 for d in diffs)>=8 and statistics.median(diffs)>=0.05 else ('incomplete' if len(seeds)<10 else 'does not exceed')
         lines.append(f'- **adapt_cross vs rdt_rope (same position encoding):** higher on {sum(d>0 for d in diffs)}/{len(seeds)} seeds, median gain {100*statistics.median(diffs):+.1f} points: {verdict}.')
-    for cell in ('cross_norm_sink','cross_memory'):
+    for cell in ('cross_norm_sink','cross_memory','cross_anchor','cross_clamp'):
         if cell not in rows or 'adapt_cross' not in rows:continue
         seeds=sorted(set(rows[cell])&set(rows['adapt_cross']))
         diffs=[first16(rows[cell][s]['results']['16']['by_position'])-first16(rows['adapt_cross'][s]['results']['16']['by_position']) for s in seeds]
         verdict='improves' if len(seeds)==10 and sum(d>0 for d in diffs)>=8 and statistics.median(diffs)>=0.03 else ('incomplete' if len(seeds)<10 else 'does not improve')
         lines.append(f'- **{cell} vs adapt_cross:** higher on {sum(d>0 for d in diffs)}/{len(seeds)} seeds, median gain {100*statistics.median(diffs):+.1f} points: {verdict}.')
-    for cell in ('adapt','adapt_cross','adapt_wide','rdt_rope','cross_norm_sink','cross_memory'):
+    for cell in ('adapt','adapt_cross','adapt_wide','rdt_rope','cross_norm_sink','cross_memory','cross_anchor'):
         control=cell+'_t1'
         if cell not in rows or control not in rows:continue
         seeds=sorted(set(rows[cell])&set(rows[control]))

@@ -51,3 +51,5 @@ research/runs/tick_use/
 research/runs/tick_s3/
 research/results/tick_s3/slot*.log
 research/results/tick_use/runner*.log
+research/runs/rdt_recipe/
+research/results/rdt_recipe/gpu*.log

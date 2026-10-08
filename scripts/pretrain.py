@@ -27,6 +27,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from ctm_transformer.ctm_lm import lm_config
 from ctm_transformer.ctm_rdt import ctm_rdt_factory
 from ctm_transformer.ctm_lm_adapt import adapted_factory
+from ctm_transformer.rdt_recipe import recipe_factory
 from ctm_transformer.depth_sampling import lognormal_poisson
 from ctm_transformer.experiment import file_hash
 from ctm_transformer.lm_scale import scaled_factory
@@ -37,7 +38,7 @@ RECIPES={'transformer':'research/configs/presentation_control_v1/transformer_shu
          'rdt':'research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json',
          'ctm_lm':'research/configs/presentation_control_v1/ctm_shuffled_seed23.json'}
 SOURCES=['scripts/pretrain.py','ctm_transformer/pretrain.py','ctm_transformer/lm_scale.py','ctm_transformer/positions.py','ctm_transformer/ctm_lm.py',
-         'ctm_transformer/baselines.py','ctm_transformer/ctm_variants.py','ctm_transformer/depth_sampling.py','ctm_transformer/ctm_rdt.py','ctm_transformer/ctm_lm_adapt.py']
+         'ctm_transformer/baselines.py','ctm_transformer/ctm_variants.py','ctm_transformer/depth_sampling.py','ctm_transformer/ctm_rdt.py','ctm_transformer/ctm_lm_adapt.py','ctm_transformer/rdt_recipe.py']
 
 
 def build_config(run,vocab):
@@ -78,6 +79,8 @@ def main():
     torch.manual_seed(run['seed'])
     if run.get('mechanisms'):  # CTM-augmented RDT (ctm_transformer/ctm_rdt.py)
         assert family=='rdt';factory=ctm_rdt_factory(set(run['mechanisms']),t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False),run.get('sync_pairs'))
+    elif run.get('rdt_recipe'):  # RDT recipe variants (ctm_transformer/rdt_recipe.py, 2026-10-08)
+        assert family=='rdt';factory=recipe_factory(run['rdt_recipe'],t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))
     elif run.get('ctm_adaptations') is not None:  # CTM-LM with candidate fixes (ctm_transformer/ctm_lm_adapt.py)
         assert family=='ctm_lm';factory=adapted_factory(set(run['ctm_adaptations']),t.get('checkpointing',False),t.get('compile',False),run.get('unet_width'))
     else:factory=scaled_factory(family,t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))
@@ -96,8 +99,13 @@ def main():
     offset=t.get('eval_offset',0);windows=lambda n:list(range(offset,min(offset+n,len(valid))))
     eval_indices,final_indices=windows(t['eval_windows']),windows(t.get('final_eval_windows',t['eval_windows']))
     params=[p for p in model.parameters() if p.requires_grad]
+    if t.get('no_decay_norms_embeddings'):  # weight decay only on matrices other than the input embedding (2026-10-08)
+        decayed=[p for n,p in model.named_parameters() if p.requires_grad and p.ndim>=2 and not n.startswith('token_embedding')]
+        groups=[{'params':decayed},{'params':[p for p in params if all(p is not q for q in decayed)],'weight_decay':0.0}]
+    else:groups=params
+    if t.get('offload_optimizer') and t.get('no_decay_norms_embeddings'):raise ValueError('OffloadedAdamW has a single weight-decay group')
     if t.get('offload_optimizer'):optimizer=OffloadedAdamW(params,t['lr'],betas=tuple(t['betas']),weight_decay=t['weight_decay'],threads=t.get('cpu_threads',16))
-    else:optimizer=torch.optim.AdamW(params,lr=t['lr'],betas=tuple(t['betas']),weight_decay=t['weight_decay'],fused=True)
+    else:optimizer=torch.optim.AdamW(groups,lr=t['lr'],betas=tuple(t['betas']),weight_decay=t['weight_decay'],fused=True)
     start=0;latest=out/'latest.pt'
     if latest.exists():
         state=torch.load(latest,map_location='cpu',weights_only=False)

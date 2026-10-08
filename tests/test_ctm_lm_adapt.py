@@ -285,3 +285,22 @@ def test_tick_memory_starts_as_the_identity_and_its_gate_learns():
     assert torch.allclose(a, b, atol=1e-6)
     b.backward()
     assert new.tick_memory.gate.grad.abs() > 0
+
+
+def test_gated_state_mixes_old_and_new_state_and_learns_its_gate():
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, cross_position=True, observe_token=True, gated_state=True)
+    assert torch.allclose(torch.sigmoid(m.state_gate), torch.full_like(m.state_gate, 0.5))
+    x, y = batch()
+    m(x, targets=y)['loss'].backward()
+    assert m.state_gate.grad.abs().sum() > 0
+
+
+def test_decay_data_clamp_keeps_a_gradient_at_zero_like_the_official_code():
+    torch.manual_seed(0)
+    m = AdaptedCTMLM(config('ctm_lm'), token_start=True, sparse_tick_loss=True, decay_data_clamp=True)
+    with torch.no_grad():
+        m.sync_out.decay.fill_(-1.0)
+    x, y = batch()
+    m(x, targets=y)['loss'].backward()
+    assert float(m.sync_out.decay.min()) == 0.0 and m.sync_out.decay.grad.abs().sum() > 0

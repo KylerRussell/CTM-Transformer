@@ -76,6 +76,15 @@ From Continuous Memory Machines (Regan et al., Sakana AI, arXiv 2610.07907), 202
   value. The neuron-level models read its updated history, and the long-term slots
   carry its output to the next tick. A residual gate initialized to zero makes the
   block the identity at initialization.
+
+Against drift past the best tick (deep-research review, 2026-10-08):
+
+* ``gated_state``: z_{t+1} = z_t + g * (NLM output - z_t), with a learned per-neuron
+  gate g = sigmoid(c) initialized at 0.5. Re-injection of f_i every tick is the
+  existing ``observe_token``.
+* ``decay_data_clamp``: the official CTM code's decay handling. The decays are clamped
+  to [0, 15] in place before each forward pass, and exp(-r) is computed on the parameter,
+  so the gradient reaches r even at 0.
 """
 import math
 
@@ -90,10 +99,17 @@ from ctm_transformer.positions import rope
 
 ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss', 'query_feature', 'token_start', 'final_tick_loss', 'certainty_loss', 'state_readout',
                'sparse_tick_loss', 'token_history', 'decay_softplus', 'decay_spread', 'improvement_loss', 'cross_position', 'feature_head',
-               'sync_mean', 'attention_sink', 'tick_memory')
+               'sync_mean', 'attention_sink', 'tick_memory', 'gated_state', 'decay_data_clamp')
 MEMORY_SLOTS = 8  # tick_memory: long-term memory slots per position
 LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss', 'sparse_tick_loss', 'improvement_loss')  # at most one; none means CTM's loss
 SPARSE_TICKS = 4  # sparse_tick_loss: mean cross-entropy over every (T / 4)-th tick, ending at the final tick (ticks 4, 8, 12, 16 of 16)
+
+
+class DataClampSynchronization(Synchronization):
+    """Decay applied unclamped; the model clamps the parameter data before each forward pass (official CTM code)."""
+    def step(self, alpha, beta, z):
+        keep = torch.exp(-self.decay)
+        return keep * alpha + self.products(z), keep * beta + 1
 
 
 class SoftplusSynchronization(Synchronization):
@@ -179,13 +195,16 @@ class AdaptedCTMLM(ScaledCTMLM):
     def __init__(self, config, unit_query=False, observe_token=False, mean_tick_loss=False, query_feature=False, token_start=False,
                  final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, token_history=False, decay_softplus=False,
                  decay_spread=False, improvement_loss=False, cross_position=False, feature_head=False, sync_mean=False, attention_sink=False,
-                 tick_memory=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
+                 tick_memory=False, gated_state=False, decay_data_clamp=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
         super().__init__(config, checkpoint_ticks=checkpoint_ticks, compile_ticks=False, **kwargs)
         self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token, 'mean_tick_loss': mean_tick_loss, 'query_feature': query_feature,
                             'token_start': token_start, 'final_tick_loss': final_tick_loss, 'certainty_loss': certainty_loss, 'state_readout': state_readout,
                             'sparse_tick_loss': sparse_tick_loss, 'token_history': token_history, 'decay_softplus': decay_softplus,
                             'decay_spread': decay_spread, 'improvement_loss': improvement_loss, 'cross_position': cross_position,
-                            'feature_head': feature_head, 'sync_mean': sync_mean, 'attention_sink': attention_sink, 'tick_memory': tick_memory}
+                            'feature_head': feature_head, 'sync_mean': sync_mean, 'attention_sink': attention_sink, 'tick_memory': tick_memory,
+                            'gated_state': gated_state, 'decay_data_clamp': decay_data_clamp}
+        if decay_data_clamp and (decay_softplus or decay_spread):
+            raise ValueError('Choose one decay change')
         if decay_softplus and decay_spread:
             raise ValueError('Choose one decay change')
         if sum(self.adaptations[k] for k in LOSSES) > 1:
@@ -205,6 +224,10 @@ class AdaptedCTMLM(ScaledCTMLM):
         self.sink_key = nn.Parameter(torch.zeros(config.n_heads, d // config.n_heads)) if attention_sink else None
         self.tick_memory = TickMemory(D, config.history_len, MEMORY_SLOTS, config.n_heads) if tick_memory else None
         self.ltm_init = nn.Parameter(torch.randn(MEMORY_SLOTS, D) * 0.1) if tick_memory else None
+        self.state_gate = nn.Parameter(torch.zeros(D)) if gated_state else None
+        if decay_data_clamp:
+            for sync in (self.sync_action, self.sync_out):
+                sync.__class__ = DataClampSynchronization
         with torch.no_grad():
             for sync in (self.sync_action, self.sync_out):
                 if decay_softplus:
@@ -251,7 +274,8 @@ class AdaptedCTMLM(ScaledCTMLM):
             ltm, short = self.tick_memory(ltm, history.transpose(1, 2))
             z = self.nlm(short.transpose(1, 2).to(history.dtype)).float()
         else:
-            z = self.nlm(history).float()
+            z_new = self.nlm(history).float()
+            z = z_new if self.state_gate is None else z + torch.sigmoid(self.state_gate).float() * (z_new - z)
         alpha_a, beta_a = self.sync_action.step(alpha_a, beta_a, z)
         alpha_o, beta_o = self.sync_out.step(alpha_o, beta_o, z)
         readout = self._read(alpha_o, beta_o)
@@ -272,6 +296,10 @@ class AdaptedCTMLM(ScaledCTMLM):
         B, S = input_ids.shape
         d, D, H = self.config.d_model, self.config.d_latent, self.config.n_heads
         N = B * S
+        if self.adaptations['decay_data_clamp']:
+            with torch.no_grad():
+                for sync in (self.sync_action, self.sync_out):
+                    sync.decay.clamp_(0, 15)
         feats = self.features(input_ids)
         if self.feature_head is not None:
             if targets is not None and not return_all_logits:
