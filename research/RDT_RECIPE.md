@@ -99,3 +99,12 @@ Summaries: `research/results/rdt_recipe/RDT_RECIPE.md`, `research/results/tick_s
 - cross_anchor has the study's highest accuracy and most escapes (7 of 10 seeds with positions 9–16 at least 0.9). Its ticks contribute strongly: +28.4 points median over its T = 1 twin, on 9 of 10 seeds.
 - Exploratory, not pre-registered: against rdt_rope, cross_anchor is higher on 7 of 10 seeds, median +6.8 points.
 - Drift from T = 16 to T = 32 is about one point for every CTM cell. The anchor does not remove it.
+
+**Round 1b result: D at depth 1 scores 4.123** (lr 2e-3), against 3.618 for the 8-layer Transformer. The two configurations are identical apart from D's two RDT components: the concatenation adapter, through which the whole residual stream passes, and the output norm reused before the coda. The Transformer is ahead from step 100 onwards and leads by 0.85 at step 381 (4.422 against 5.277). The RDT variants are also strongly rate-sensitive (C at depth 1: 4.464 at 1e-3, 5.783 at 2e-3), so 2e-3 may be the wrong rate for D.
+
+**Round 1c (2026-10-09): 100M-token probes** (the first 381 steps of the same schedule, evaluated at step 381):
+- **Da:** additive injection (state + input, no adapter), at lr 2e-3 and 1e-3;
+- **Dn:** no norm before the coda, at lr 2e-3;
+- **D** at lr 1e-3.
+
+At depth 1, additive injection without the coda norm is exactly the Transformer (tested in `tests/test_rdt_recipe.py`), so Da and Dn each isolate one component. D's randomized-depth run and B's half-rate fallback were stopped. B's failure is explained, and D's rate and injection are in question.

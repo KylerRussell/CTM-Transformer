@@ -49,3 +49,20 @@ def test_random_state_is_drawn_every_pass_and_training_runs():
 def test_factory_rejects_unknown_keys():
     with pytest.raises(ValueError):
         recipe_factory({'norm': 'prenorm', 'warmup': 3})
+
+
+def test_additive_injection_without_coda_norm_is_the_transformer_at_depth_1():
+    from dataclasses import replace
+    torch.manual_seed(0)
+    rdt = RecipeRDT(replace(config('rdt'), max_thought_steps=1), norm='prenorm', injection='add', coda_norm='none')
+    transformer = ScaledBaseline(replace(rdt.config, model_family='transformer', n_layers=len(rdt.prelude) + len(rdt.core) + len(rdt.coda),
+                                         prelude_layers=0, core_layers=0, coda_layers=0, max_thought_steps=1, train_depth_min=1, train_depth_max=1))
+    blocks = (*rdt.prelude, *rdt.core, *rdt.coda)
+    state = {k: v for k, v in rdt.state_dict().items() if not k.startswith(('prelude', 'core', 'coda'))}
+    state.update({f'layers.{i}.{k}': v for i, b in enumerate(blocks) for k, v in b.state_dict().items()})
+    transformer.load_state_dict(state)
+    x, y = batch()
+    with torch.no_grad():
+        assert torch.allclose(rdt(x, max_thought_steps=1)['logits'], transformer(x)['logits'], atol=1e-5)
+        assert torch.allclose(rdt(x, targets=y, max_thought_steps=1)['loss'], transformer(x, targets=y)['loss'], atol=1e-5)
+    assert not any(n.startswith('injection') for n, _ in rdt.named_parameters())

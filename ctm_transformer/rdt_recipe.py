@@ -17,6 +17,12 @@ same unique layers by 0.26 nats at 400M tokens and diverges at its learning rate
   2610.06833 normalizes the core exit).
 * ``state_init``: ``zeros``, or ``random`` (Huginn: truncated normal, variance 2/5,
   drawn on every forward pass).
+* ``injection`` (2026-10-09): ``concat`` (Huginn's adapter, a linear map of [state; input]
+  through which the whole residual stream passes) or ``add`` (state + input, no
+  parameters).
+* ``coda_norm`` (2026-10-09): ``shared`` (the output norm is also applied before the
+  coda, as in the reference design) or ``none``. At depth 1, pre-norm with a zero state,
+  ``add`` and ``none`` is exactly the plain Transformer with the same layers.
 """
 import torch
 from dataclasses import replace
@@ -27,16 +33,30 @@ from ctm_transformer.lm_scale import ScaledBaseline, chunked_cross_entropy
 
 NORMS = ('sandwich', 'core_sandwich', 'prenorm')
 STATE_INITS = ('zeros', 'random')
+INJECTIONS = ('concat', 'add')
+CODA_NORMS = ('shared', 'none')
+RECIPE_KEYS = {'norm', 'normalize', 'state_init', 'injection', 'coda_norm'}
+
+
+class AdditiveInjection(nn.Module):
+    """[state; input] -> state + input."""
+    def forward(self, x):
+        state, injected = x.chunk(2, dim=-1)
+        return state + injected
 
 
 class RecipeRDT(ScaledBaseline):
-    def __init__(self, config, norm='sandwich', normalize=False, state_init='zeros', backprop_steps=None, compile_blocks=False):
+    def __init__(self, config, norm='sandwich', normalize=False, state_init='zeros', injection='concat', coda_norm='shared',
+                 backprop_steps=None, compile_blocks=False):
         if config.model_family != 'recurrent_depth':
             raise ValueError('RecipeRDT is for the recurrent-depth family')
-        if norm not in NORMS or state_init not in STATE_INITS:
-            raise ValueError(f'Unknown recipe {norm}/{state_init}')
+        if norm not in NORMS or state_init not in STATE_INITS or injection not in INJECTIONS or coda_norm not in CODA_NORMS:
+            raise ValueError(f'Unknown recipe {norm}/{state_init}/{injection}/{coda_norm}')
         super().__init__(config, backprop_steps=backprop_steps, compile_blocks=False)
-        self.recipe = {'norm': norm, 'normalize': normalize, 'state_init': state_init}
+        self.recipe = {'norm': norm, 'normalize': normalize, 'state_init': state_init, 'injection': injection, 'coda_norm': coda_norm}
+        if injection == 'add':
+            self.injection = AdditiveInjection()
+
         unsandwiched = {'sandwich': (), 'core_sandwich': (self.prelude, self.coda), 'prenorm': (self.prelude, self.core, self.coda)}[norm]
         for blocks in unsandwiched:
             for block in blocks:
@@ -52,6 +72,9 @@ class RecipeRDT(ScaledBaseline):
             return torch.zeros_like(embedded)
         return nn.init.trunc_normal_(torch.empty_like(embedded), std=0.4 ** 0.5, a=-2 * 0.4 ** 0.5, b=2 * 0.4 ** 0.5)
 
+    def _coda_in(self, x):
+        return self.final_norm(x) if self.recipe['coda_norm'] == 'shared' else x
+
     def _recur(self, x, depth, readouts=None):
         embedded = self._blocks(self.prelude, x)
         injected = self.inject_norm(embedded)
@@ -60,8 +83,8 @@ class RecipeRDT(ScaledBaseline):
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):
                 x = self.exit_norm(self._blocks(self.core, self.injection(torch.cat((x, injected), dim=-1))))
             if readouts is not None:
-                readouts.append(self.lm_head(self.final_norm(self._blocks(self.coda, self.final_norm(x)))))
-        return self._blocks(self.coda, self.final_norm(x))
+                readouts.append(self.lm_head(self.final_norm(self._blocks(self.coda, self._coda_in(x)))))
+        return self._blocks(self.coda, self._coda_in(x))
 
     def forward(self, input_ids, targets=None, max_thought_steps=None, return_all_logits=False):
         if input_ids.ndim != 2 or not 0 < input_ids.shape[1] <= self.config.max_seq_len:
@@ -87,8 +110,8 @@ class RecipeRDT(ScaledBaseline):
 
 
 def recipe_factory(recipe, checkpointing=False, backprop_steps=None, compile=False):
-    """recipe: {'norm': ..., 'normalize': bool, 'state_init': ...}."""
-    unknown = set(recipe) - {'norm', 'normalize', 'state_init'}
+    """recipe: {'norm': ..., 'normalize': bool, 'state_init': ..., optionally 'injection' and 'coda_norm'}."""
+    unknown = set(recipe) - RECIPE_KEYS
     if unknown:
         raise ValueError(f'Unknown recipe keys {sorted(unknown)}')
     def factory(config):
