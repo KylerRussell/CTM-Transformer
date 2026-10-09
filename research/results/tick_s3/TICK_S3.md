@@ -17,6 +17,9 @@ Protocol: `scripts/tick_s3.py` (docstring). Mean held-out accuracy over position
 | cross_norm_sink_t1 | 10 | 1 | 0.682 | 7.0 | 0 | 0.682 /  /  /  /  |
 | cross_memory | 10 | 16 | 0.850 | 10.0 | 2 | 0.481 / 0.764 / 0.830 / 0.850 / 0.836 |
 | cross_memory_t1 | 10 | 1 | 0.691 | 7.0 | 0 | 0.691 /  /  /  /  |
+| cross_anchor | 10 | 16 | 0.923 | 15.5 | 7 | 0.508 / 0.799 / 0.905 / 0.923 / 0.910 |
+| cross_anchor_t1 | 10 | 1 | 0.706 | 7.0 | 0 | 0.706 /  /  /  /  |
+| cross_clamp | 10 | 16 | 0.808 | 8.5 | 3 | 0.469 / 0.720 / 0.787 / 0.808 / 0.782 |
 | transformer_rope | 10 | 1 | 0.614 | 5.0 | 0 | 0.614 /  /  /  /  |
 | rdt_rope | 10 | 16 | 0.821 | 9.0 | 1 | 0.272 / 0.496 / 0.693 / 0.821 / 0.824 |
 | rdt_rope_t1 | 10 | 1 | 0.677 | 7.0 | 0 | 0.677 /  /  /  /  |
@@ -26,9 +29,12 @@ Protocol: `scripts/tick_s3.py` (docstring). Mean held-out accuracy over position
 - **adapt_cross vs rdt_rope (same position encoding):** higher on 5/10 seeds, median gain -3.0 points: does not exceed.
 - **cross_norm_sink vs adapt_cross:** higher on 6/10 seeds, median gain +1.8 points: does not improve.
 - **cross_memory vs adapt_cross:** higher on 4/10 seeds, median gain -3.4 points: does not improve.
+- **cross_anchor vs adapt_cross:** higher on 7/10 seeds, median gain +5.1 points: does not improve.
+- **cross_clamp vs adapt_cross:** higher on 4/10 seeds, median gain -3.8 points: does not improve.
 - **adapt vs adapt_t1:** higher on 9/10 seeds, median gain +3.2 points: ticks do not meet the rule.
 - **adapt_cross vs adapt_cross_t1:** higher on 9/10 seeds, median gain +18.6 points: ticks contribute.
 - **adapt_wide vs adapt_wide_t1:** higher on 8/10 seeds, median gain +7.0 points: ticks contribute.
 - **rdt_rope vs rdt_rope_t1:** higher on 9/10 seeds, median gain +17.5 points: ticks contribute.
 - **cross_norm_sink vs cross_norm_sink_t1:** higher on 10/10 seeds, median gain +20.5 points: ticks contribute.
 - **cross_memory vs cross_memory_t1:** higher on 9/10 seeds, median gain +15.9 points: ticks contribute.
+- **cross_anchor vs cross_anchor_t1:** higher on 9/10 seeds, median gain +28.4 points: ticks contribute.

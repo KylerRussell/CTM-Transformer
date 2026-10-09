@@ -62,3 +62,33 @@ The user wants the final runs larger, so that performance at higher parameter co
 - the top rung limited to the Transformer, the best RDT and the best hybrid.
 
 The ladder's sizes, ratio and arms are decided after round 1 fixes the recipe.
+
+## Round 1 results (interim, 2026-10-09)
+
+Summaries: `research/results/rdt_recipe/RDT_RECIPE.md`, `research/results/tick_s3/TICK_S3.md`.
+
+**Phase 1, held-out loss at 400M tokens:**
+
+| Run | lr 1e-3 | lr 2e-3 | lr 4e-3 |
+|---|---:|---:|---:|
+| B at depth 1 | collapsed (7.62) | collapsed (7.62) | collapsed |
+| C at depth 1 | 4.464 | 5.783 | diverged or collapsed |
+| 8-layer Transformer, d 704 | — | **3.618** | 3.674 |
+
+- **The 8-layer Transformer beats every model in the study.** It scores 3.618, against 3.735 for the 24-layer d 384 Transformer and 3.783 for RDT-heavy with randomized depth. It has the same unique layers as RDT-heavy, so the current RDT recipe costs 0.21 nats at depth 1 (3.828), and 16 recurrences recover only 0.045 of that.
+- **B's collapse was a design error, not a result.** B kept sandwich norm in the core and dropped the unit-scale embeddings. Those embeddings were added (commit 60b5efd) because the sandwich-normed RDT collapsed to the unigram with the small embedding std. B reproduced that collapse at every rate: the loss stayed at 7.61–7.62 from step 25 onwards. Measured at initialization, the token signal entering B's core has RMS 0.26, against 0.63 in the current recipe, while each sandwich block renormalizes the stream.
+- **C learns, but slowly.** It sat at the unigram until step 50–100 (the Transformer left it by step 50) and ends 0.85 nats behind the Transformer at depth 1. Its recurrence pays heavily: with randomized depth it was 4.476 at step 762, against 4.953 for its depth-1 twin. Suspects for the depth-1 deficit are the random initial state, which is pure noise at depth 1, and the normalization.
+
+**Phase 2:** C with randomized depth at 1e-3 is running. Its trajectory (4.476 at step 762) puts it well above 3.783, so C is not expected to be adopted. B with randomized depth at 1e-3 is also at the unigram (7.61 at step 610).
+
+**S₃ drift cells** (pre-registered rule: higher than adapt_cross on at least 8 of 10 seeds, median gain at least 3 points):
+
+| Cell | Accuracy 1–16 | Accuracy at T = 1 / 4 / 8 / 16 / 32 | vs adapt_cross | Verdict |
+|---|---:|---|---|---|
+| adapt_cross | 0.856 | 0.463 / 0.764 / 0.844 / 0.856 / 0.848 | — | — |
+| cross_anchor | **0.923** | 0.508 / 0.799 / 0.905 / 0.923 / 0.910 | 7/10, median +5.1 | does not improve (one seed short) |
+| cross_clamp | 0.808 | 0.469 / 0.720 / 0.787 / 0.808 / 0.782 | 4/10, median −3.8 | does not improve |
+
+- cross_anchor has the study's highest accuracy and most escapes (7 of 10 seeds with positions 9–16 at least 0.9). Its ticks contribute strongly: +28.4 points median over its T = 1 twin, on 9 of 10 seeds.
+- Exploratory, not pre-registered: against rdt_rope, cross_anchor is higher on 7 of 10 seeds, median +6.8 points.
+- Drift from T = 16 to T = 32 is about one point for every CTM cell. The anchor does not remove it.
