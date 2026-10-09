@@ -23,6 +23,10 @@ same unique layers by 0.26 nats at 400M tokens and diverges at its learning rate
 * ``coda_norm`` (2026-10-09): ``shared`` (the output norm is also applied before the
   coda, as in the reference design) or ``none``. At depth 1, pre-norm with a zero state,
   ``add`` and ``none`` is exactly the plain Transformer with the same layers.
+* ``state_norm`` (2026-10-09): an RMSNorm on the recurrent state before it is combined
+  with the input. With additive injection and no norms the state grows linearly with
+  depth and later iterations barely change it; this bounds it. RMSNorm maps the zero
+  initial state to zero, so depth 1 is unchanged.
 """
 import torch
 from dataclasses import replace
@@ -35,7 +39,7 @@ NORMS = ('sandwich', 'core_sandwich', 'prenorm')
 STATE_INITS = ('zeros', 'random')
 INJECTIONS = ('concat', 'add')
 CODA_NORMS = ('shared', 'none')
-RECIPE_KEYS = {'norm', 'normalize', 'state_init', 'injection', 'coda_norm'}
+RECIPE_KEYS = {'norm', 'normalize', 'state_init', 'injection', 'coda_norm', 'state_norm'}
 
 
 class AdditiveInjection(nn.Module):
@@ -47,13 +51,15 @@ class AdditiveInjection(nn.Module):
 
 class RecipeRDT(ScaledBaseline):
     def __init__(self, config, norm='sandwich', normalize=False, state_init='zeros', injection='concat', coda_norm='shared',
-                 backprop_steps=None, compile_blocks=False):
+                 state_norm=False, backprop_steps=None, compile_blocks=False):
         if config.model_family != 'recurrent_depth':
             raise ValueError('RecipeRDT is for the recurrent-depth family')
         if norm not in NORMS or state_init not in STATE_INITS or injection not in INJECTIONS or coda_norm not in CODA_NORMS:
             raise ValueError(f'Unknown recipe {norm}/{state_init}/{injection}/{coda_norm}')
         super().__init__(config, backprop_steps=backprop_steps, compile_blocks=False)
-        self.recipe = {'norm': norm, 'normalize': normalize, 'state_init': state_init, 'injection': injection, 'coda_norm': coda_norm}
+        self.recipe = {'norm': norm, 'normalize': normalize, 'state_init': state_init, 'injection': injection, 'coda_norm': coda_norm,
+                       'state_norm': state_norm}
+        self.state_norm = nn.RMSNorm(config.d_model, eps=config.norm_eps) if state_norm else nn.Identity()
         if injection == 'add':
             self.injection = AdditiveInjection()
 
@@ -81,7 +87,7 @@ class RecipeRDT(ScaledBaseline):
         x = self._state(embedded)
         for i in range(depth):
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):
-                x = self.exit_norm(self._blocks(self.core, self.injection(torch.cat((x, injected), dim=-1))))
+                x = self.exit_norm(self._blocks(self.core, self.injection(torch.cat((self.state_norm(x), injected), dim=-1))))
             if readouts is not None:
                 readouts.append(self.lm_head(self.final_norm(self._blocks(self.coda, self._coda_in(x)))))
         return self._blocks(self.coda, self._coda_in(x))

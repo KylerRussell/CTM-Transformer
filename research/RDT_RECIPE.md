@@ -108,3 +108,19 @@ Summaries: `research/results/rdt_recipe/RDT_RECIPE.md`, `research/results/tick_s
 - **D** at lr 1e-3.
 
 At depth 1, additive injection without the coda norm is exactly the Transformer (tested in `tests/test_rdt_recipe.py`), so Da and Dn each isolate one component. D's randomized-depth run and B's half-rate fallback were stopped. B's failure is explained, and D's rate and injection are in question.
+
+**Round 1b/1c results.** E (C with a zero state) at depth 1: 5.353, against 5.783 for C at the same rate. Probes at step 381 (100M tokens) of the same schedule:
+
+| Depth 1 | lr 2e-3 | lr 1e-3 |
+|---|---:|---:|
+| D: adapter + shared coda norm | 5.277 | 4.994 |
+| adapter, no coda norm (Dn) | 4.712 | |
+| additive injection + shared coda norm (Da) | 5.035 | 4.773 |
+| additive, no coda norm (= the Transformer) | **4.422** | |
+
+- **The shared coda norm costs about 0.59 nats and the adapter about 0.27, roughly additively.** Lowering the rate recovers about 0.26 but does not close the gap.
+- The common pattern: every norm on the main path between the embeddings and the output hurts here. That is sandwich norm in every block (which needed unit-scale embeddings to train at all), C and E's injection and exit norms, and the shared coda norm. A likely mechanism is that the residual stream is small early on (embedding std 0.024), so a norm in the middle amplifies the gradient to everything before it. This is not tested.
+
+**Round 1d (2026-10-09):** Dan (additive injection, no coda norm) and Dans (Dan plus an RMSNorm on the recurrent state only) with randomized depth at lr 2e-3, 400M tokens.
+- Both are exactly the 8-layer Transformer at depth 1 (tested), so their depth-1 twin is T8_lr0.002 (3.618). They are adopted if they score at least 0.04 below it.
+- **Expected risk for Dan:** at initialization its state grows linearly with depth (RMS 0.9 after one iteration, 29 after 32), and by iteration 32 each iteration changes it by 3%. That is Huginn's "ignore the state" failure in the making. Dans bounds the state, and RMSNorm maps the zero initial state to zero, so depth 1 is unchanged.

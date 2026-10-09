@@ -20,6 +20,12 @@ full runs) of D at lr 1e-3, Da (additive injection instead of the adapter) at 2e
 (no norm before the coda) at 2e-3. At depth 1, additive injection without that norm is exactly the
 Transformer (tests/test_rdt_recipe.py). References at step 381: Transformer 4.422, D 5.277.
 
+Round 1d (2026-10-09), after the probes put the shared coda norm at about 0.59 nats and the adapter
+at about 0.27: Dan (additive injection, no coda norm) and Dans (Dan plus an RMSNorm on the
+recurrent state, which bounds its growth) with randomized depth at lr 2e-3, 400M tokens. Both are
+exactly the 8-layer Transformer at depth 1, so their depth-1 twin is T8_lr0.002 (3.618); the
+round-1 rule becomes a randomized-depth loss at least 0.04 below 3.618.
+
 All variants drop the unit-scale input embeddings (embedding_init_std 1.0), which were a fix for
 sandwich norm in the prelude.
 
@@ -50,7 +56,10 @@ VARIANTS={'B':{'norm':'core_sandwich','normalize':False,'state_init':'zeros'},
           'E':{'norm':'prenorm','normalize':True,'state_init':'zeros'},
           # Round 1c probes (2026-10-09): D's two differences from the Transformer, the adapter and the norm before the coda.
           'Da':{'norm':'prenorm','normalize':False,'state_init':'zeros','injection':'add'},
-          'Dn':{'norm':'prenorm','normalize':False,'state_init':'zeros','coda_norm':'none'}}
+          'Dn':{'norm':'prenorm','normalize':False,'state_init':'zeros','coda_norm':'none'},
+          # Round 1d (2026-10-09): both removed. At depth 1 these are exactly the 8-layer Transformer, so T8_lr0.002 is their depth-1 twin.
+          'Dan':{'norm':'prenorm','normalize':False,'state_init':'zeros','injection':'add','coda_norm':'none'},
+          'Dans':{'norm':'prenorm','normalize':False,'state_init':'zeros','injection':'add','coda_norm':'none','state_norm':True}}
 PROBE_STEPS=381
 LRS=(1e-3,2e-3,4e-3)
 TRANSFORMER_LRS=(2e-3,4e-3)
