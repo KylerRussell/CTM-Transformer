@@ -10,7 +10,11 @@ parameters), trained for 400M tokens (1,526 steps of 262,144 tokens, warmup 100,
 | B | pre-norm prelude and coda, sandwich norm only in the core; zero initial state; standard embedding init |
 | C | pre-norm everywhere; RMSNorm on the injected prelude output and at the core exit; random initial state (Huginn) |
 
-Both drop the unit-scale input embeddings (embedding_init_std 1.0), which were a fix for
+Round 1b (2026-10-09), after B collapsed and C trailed: D (pre-norm everywhere, zero state, no
+extra norms) and E (C with a zero initial state), at depth 1 with lr 2e-3 (the Transformer's best),
+then D with randomized depth.
+
+All variants drop the unit-scale input embeddings (embedding_init_std 1.0), which were a fix for
 sandwich norm in the prelude.
 
 Phase 1, learning rate on the cheap depth-1 twins: each variant at depth 1 with lr 1e-3, 2e-3
@@ -34,7 +38,10 @@ from pathlib import Path
 RUNS=Path('research/runs/rdt_recipe');OUT=Path('research/results/rdt_recipe')
 BASE=Path('research/runs/lr_sweep/rdt_heavy_d704_h1_k+0')
 VARIANTS={'B':{'norm':'core_sandwich','normalize':False,'state_init':'zeros'},
-          'C':{'norm':'prenorm','normalize':True,'state_init':'random'}}
+          'C':{'norm':'prenorm','normalize':True,'state_init':'random'},
+          # Round 1b (2026-10-09): D is the 8-layer Transformer plus the injection adapter; E is C with a zero state.
+          'D':{'norm':'prenorm','normalize':False,'state_init':'zeros'},
+          'E':{'norm':'prenorm','normalize':True,'state_init':'zeros'}}
 LRS=(1e-3,2e-3,4e-3)
 TRANSFORMER_LRS=(2e-3,4e-3)
 COLLAPSED=7.0

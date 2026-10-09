@@ -79,7 +79,14 @@ Summaries: `research/results/rdt_recipe/RDT_RECIPE.md`, `research/results/tick_s
 - **B's collapse was a design error, not a result.** B kept sandwich norm in the core and dropped the unit-scale embeddings. Those embeddings were added (commit 60b5efd) because the sandwich-normed RDT collapsed to the unigram with the small embedding std. B reproduced that collapse at every rate: the loss stayed at 7.61–7.62 from step 25 onwards. Measured at initialization, the token signal entering B's core has RMS 0.26, against 0.63 in the current recipe, while each sandwich block renormalizes the stream.
 - **C learns, but slowly.** It sat at the unigram until step 50–100 (the Transformer left it by step 50) and ends 0.85 nats behind the Transformer at depth 1. Its recurrence pays heavily: with randomized depth it was 4.476 at step 762, against 4.953 for its depth-1 twin. Suspects for the depth-1 deficit are the random initial state, which is pure noise at depth 1, and the normalization.
 
-**Phase 2:** C with randomized depth at 1e-3 is running. Its trajectory (4.476 at step 762) puts it well above 3.783, so C is not expected to be adopted. B with randomized depth at 1e-3 is also at the unigram (7.61 at step 610).
+**Phase 2:**
+- **C with randomized depth at 1e-3: 4.078.** That is 0.386 below its depth-1 twin (4.464), so the recurrence pays, but it is far above 3.783. **C is not adopted.**
+- B with randomized depth at 1e-3 is at the unigram (7.61 at step 610). It is a casualty of the design error, so its result carries no information.
+
+**Round 1b (added 2026-10-09, after the results above), on GPU 1** (`scripts/rdt_recipe.py`):
+- **D** at depth 1, lr 2e-3: pre-norm everywhere, zero state, no extra norms. At depth 1 this is the 8-layer Transformer plus the injection adapter and a norm between core and coda. If it matches 3.618, the recipe (sandwich norm and unit embeddings) explains the whole depth-1 gap.
+- **E** at depth 1, lr 2e-3: C with a zero initial state. It tests whether the random state's noise causes C's slow start.
+- **D with randomized depth**, lr 2e-3. It tests whether a plain pre-norm recurrence still pays, or ignores its state as Huginn's pre-norm run did.
 
 **S₃ drift cells** (pre-registered rule: higher than adapt_cross on at least 8 of 10 seeds, median gain at least 3 points):
 
