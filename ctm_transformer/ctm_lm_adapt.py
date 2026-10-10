@@ -85,6 +85,17 @@ Against drift past the best tick (deep-research review, 2026-10-08):
 * ``decay_data_clamp``: the official CTM code's decay handling. The decays are clamped
   to [0, 15] in place before each forward pass, and exp(-r) is computed on the parameter,
   so the gradient reaches r even at 0.
+
+From the RDT recipe study (research/RDT_RECIPE.md, 2026-10-10), where norms and full-width
+mixing layers on the path from embeddings to logits cost the RDT about 0.85 nats:
+
+* ``residual_readout``: the CTM's path from the backbone to the logits has no residual
+  connection (key/value projections, the synapse U-Net with three LayerNorms, the
+  neuron-level models, multiplicative synchronization). Here each tick's readout is
+  added to the backbone's residual stream through a zero-initialized projection, and
+  the logits are read from that stream: logits_t = W_head · RMSNorm(x + W_r · readout_t),
+  with x the backbone output before its norm. At initialization the model is exactly
+  its backbone as a Transformer (the ``feature_head`` model trained from scratch).
 """
 import math
 
@@ -99,7 +110,7 @@ from ctm_transformer.positions import rope
 
 ADAPTATIONS = ('unit_query', 'observe_token', 'mean_tick_loss', 'query_feature', 'token_start', 'final_tick_loss', 'certainty_loss', 'state_readout',
                'sparse_tick_loss', 'token_history', 'decay_softplus', 'decay_spread', 'improvement_loss', 'cross_position', 'feature_head',
-               'sync_mean', 'attention_sink', 'tick_memory', 'gated_state', 'decay_data_clamp')
+               'sync_mean', 'attention_sink', 'tick_memory', 'gated_state', 'decay_data_clamp', 'residual_readout')
 MEMORY_SLOTS = 8  # tick_memory: long-term memory slots per position
 LOSSES = ('mean_tick_loss', 'final_tick_loss', 'certainty_loss', 'sparse_tick_loss', 'improvement_loss')  # at most one; none means CTM's loss
 SPARSE_TICKS = 4  # sparse_tick_loss: mean cross-entropy over every (T / 4)-th tick, ending at the final tick (ticks 4, 8, 12, 16 of 16)
@@ -195,14 +206,14 @@ class AdaptedCTMLM(ScaledCTMLM):
     def __init__(self, config, unit_query=False, observe_token=False, mean_tick_loss=False, query_feature=False, token_start=False,
                  final_tick_loss=False, certainty_loss=False, state_readout=False, sparse_tick_loss=False, token_history=False, decay_softplus=False,
                  decay_spread=False, improvement_loss=False, cross_position=False, feature_head=False, sync_mean=False, attention_sink=False,
-                 tick_memory=False, gated_state=False, decay_data_clamp=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
+                 tick_memory=False, gated_state=False, decay_data_clamp=False, residual_readout=False, checkpoint_ticks=False, compile_ticks=False, **kwargs):
         super().__init__(config, checkpoint_ticks=checkpoint_ticks, compile_ticks=False, **kwargs)
         self.adaptations = {'unit_query': unit_query, 'observe_token': observe_token, 'mean_tick_loss': mean_tick_loss, 'query_feature': query_feature,
                             'token_start': token_start, 'final_tick_loss': final_tick_loss, 'certainty_loss': certainty_loss, 'state_readout': state_readout,
                             'sparse_tick_loss': sparse_tick_loss, 'token_history': token_history, 'decay_softplus': decay_softplus,
                             'decay_spread': decay_spread, 'improvement_loss': improvement_loss, 'cross_position': cross_position,
                             'feature_head': feature_head, 'sync_mean': sync_mean, 'attention_sink': attention_sink, 'tick_memory': tick_memory,
-                            'gated_state': gated_state, 'decay_data_clamp': decay_data_clamp}
+                            'gated_state': gated_state, 'decay_data_clamp': decay_data_clamp, 'residual_readout': residual_readout}
         if decay_data_clamp and (decay_softplus or decay_spread):
             raise ValueError('Choose one decay change')
         if decay_softplus and decay_spread:
@@ -237,6 +248,15 @@ class AdaptedCTMLM(ScaledCTMLM):
                     sync.decay.uniform_(0.0, 3.0)
         if observe_token:
             self.synapse = UNetSynapse(2 * d + D, self.synapse.out.in_features, D)
+        if residual_readout:
+            if feature_head:
+                raise ValueError('residual_readout and feature_head are exclusive')
+            self.residual_out = nn.Linear(pairs, d, bias=False)
+            nn.init.zeros_(self.residual_out.weight)
+            self.final_norm = nn.RMSNorm(d)
+            self.lm_head = nn.Linear(d, config.vocab_size, bias=False)
+        else:
+            self.residual_out = None
         if unit_query:
             with torch.no_grad():
                 z = self.z_init[None].float()
@@ -300,7 +320,15 @@ class AdaptedCTMLM(ScaledCTMLM):
             with torch.no_grad():
                 for sync in (self.sync_action, self.sync_out):
                     sync.decay.clamp_(0, 15)
-        feats = self.features(input_ids)
+        if self.residual_out is not None:  # the backbone's residual stream, before its norm
+            stream = self.token_embedding(input_ids)
+            if self.pos_embedding is not None:
+                stream = stream + self.pos_embedding(torch.arange(S, device=input_ids.device))
+            for block in self.backbone:
+                stream = block(stream)
+            feats = self.backbone_norm(stream)
+        else:
+            feats = self.features(input_ids)
         if self.feature_head is not None:
             if targets is not None and not return_all_logits:
                 return {'logits': None, 'thought_steps': 0, 'loss': chunked_cross_entropy(feats, self.feature_head.weight, targets)}
@@ -329,6 +357,8 @@ class AdaptedCTMLM(ScaledCTMLM):
             z, history, alpha_a, beta_a, alpha_o, beta_o, readout = out[:7]
             if self.tick_memory is not None:
                 ltm = out[7]
+            if self.residual_out is not None:
+                readout = self.final_norm(stream + self.residual_out(readout.view(B, S, -1).to(stream.dtype)))
             readouts.append(readout.view(B, S, -1))
         if training and self.adaptations['mean_tick_loss']:
             stacked = torch.stack(readouts, dim=2)  # [B, S, T, P]

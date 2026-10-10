@@ -168,3 +168,19 @@ Dans meets both rules: below 3.783, and at least 0.04 below its depth-1 twin. It
 - **The Dans advantage replicates.** Both seeds clear the 0.04 margin, and the gap is about three times the seed-to-seed spread of either model (0.010–0.020).
 - **At equal compute, the Transformer is ahead by about 0.02.** The 20-layer Transformer (3.562, one seed) has 2.5 times the unique parameters and matches the compute of Dans at 4 iterations (3.585 mean). That is about one seed spread, and its rate is tuned only on {1e-3, 2e-3}, with the better rate at the edge. Dans at 8 iterations (1.8 times the 20-layer model's compute) is level with it.
 - **Reading:** recurrence now buys loss per unique parameter, as the literature predicts. At equal compute it is close to, but not ahead of, a deeper Transformer at this scale. That matches the expectation that looping pays most when tokens per parameter are high, and the scaling ladder tests it directly.
+
+## Round 3 (2026-10-10): the equal-compute check and the CTM audit
+
+- **T20 at lr 4e-3:** the 20-layer Transformer's best rate (2e-3) was at the edge of the tried rates.
+- **CTM audit.** The shallow CTM's path from the backbone to the logits has no residual connection. Each tick goes through:
+  - the key/value and output projections;
+  - the synapse U-Net, with a LayerNorm after each of its three hidden layers;
+  - the per-neuron MLPs;
+  - multiplicative synchronization, then the readout.
+
+  This is a stronger form of what cost the RDT about 0.85 nats. The `residual_readout` adaptation (`ctm_transformer/ctm_lm_adapt.py`) adds each tick's readout to the backbone's residual stream through a zero-initialized projection, so the model starts as its own 2-layer backbone Transformer (tested).
+- **Probes** (100M tokens, d 384, 2-layer backbone, lr 2e-3; `scripts/tick_use_tests.py`):
+  - F2, the backbone alone as a Transformer;
+  - RS_T1 and RS_residual, S2 with the residual readout at 1 and 16 ticks.
+
+  The existing references are S2 (16 ticks, 5.303) and S2_T1 (5.246).

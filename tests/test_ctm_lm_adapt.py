@@ -304,3 +304,23 @@ def test_decay_data_clamp_keeps_a_gradient_at_zero_like_the_official_code():
     x, y = batch()
     m(x, targets=y)['loss'].backward()
     assert float(m.sync_out.decay.min()) == 0.0 and m.sync_out.decay.grad.abs().sum() > 0
+
+
+@pytest.mark.parametrize('ticks', [1, 4])
+def test_residual_readout_is_the_backbone_transformer_at_initialization_and_trains_the_ctm(ticks):
+    torch.manual_seed(0)
+    adaptations = {'token_start', 'sparse_tick_loss', 'cross_position'}
+    model = adapted_factory(adaptations | {'residual_readout'})(config('ctm_lm'))
+    baseline = adapted_factory({'feature_head'})(config('ctm_lm'))
+    shared = {k: v for k, v in model.state_dict().items() if k.startswith(('token_embedding', 'backbone.'))}
+    baseline.load_state_dict({**shared, 'backbone_norm.weight': model.final_norm.weight, 'feature_head.weight': model.lm_head.weight}, strict=False)
+    x, y = batch()
+    with torch.no_grad():
+        out = model(x, max_thought_steps=ticks, return_all_logits=True)
+        expected = baseline(x)['logits']
+        assert len(out['all_logits']) == ticks and all(torch.allclose(l, expected, atol=1e-5) for l in out['all_logits'])
+    loss = model(x, targets=y, max_thought_steps=ticks)['loss']
+    loss.backward()
+    assert torch.isfinite(loss) and model.residual_out.weight.grad.abs().sum() > 0
+    with pytest.raises(ValueError):
+        adapted_factory({'residual_readout', 'feature_head'})(config('ctm_lm'))
