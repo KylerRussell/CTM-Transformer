@@ -20,8 +20,12 @@ Probes (`p381_`) stop after 381 steps of the same schedule and report the step-3
 | D_d1_lr0.002 | 4.123 |
 | Dan_rand_lr0.002 | 3.617 |
 | Dans_rand_lr0.002 | 3.569 |
+| Dans_rand_lr0.002_s2 | 3.579 |
 | E_d1_lr0.002 | 5.353 |
+| T20_lr0.001 | 3.649 |
+| T20_lr0.002 | 3.562 |
 | T8_lr0.002 | 3.618 |
+| T8_lr0.002_s2 | 3.638 |
 | T8_lr0.004 | 3.674 |
 | p381_D_d1_lr0.001 | 4.994 |
 | p381_Da_d1_lr0.001 | 4.773 |

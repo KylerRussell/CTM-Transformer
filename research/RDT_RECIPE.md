@@ -148,8 +148,23 @@ Dans meets both rules: below 3.783, and at least 0.04 below its depth-1 twin. It
 - **Dan uses its recurrence** (4.445 at one pass, 3.617 at 16) but gains nothing over the Transformer, and it drifts past 16 as its unnormalized state grows.
 - **Compute:** Dans at 8 iterations applies 36 layers per token, against 8 for the Transformer (4.5 times the FLOPs); at 4 iterations, 20 layers (2.5 times). The comparison so far is at matched unique parameters, not matched FLOPs.
 
-## Round 2 (2026-10-10, running)
+## Round 2 (2026-10-10)
 
 - **Replicate seed (2):** Dans with randomized depth and the 8-layer Transformer, both at lr 2e-3. The seed changes initialization, data order and the depth sequence.
 - **Matched-compute Transformer:** 20 layers at d 704, lr 2e-3 and 1e-3. This is the per-token compute of Dans at 4 iterations (3.580), with 2.5 times the unique parameters.
 - **Reading:** the Dans advantage is confirmed if the seed-2 pair also favours Dans by at least 0.04. If the 20-layer Transformer beats 3.580, looping buys loss per parameter at a compute cost. If it does not, looping also wins at equal compute.
+
+**Round 2 results** (held-out loss at 400M tokens; Dans evaluated at 16 iterations unless stated):
+
+| | Seed 1234 | Seed 2 | Mean |
+|---|---:|---:|---:|
+| 8-layer Transformer (47M non-embedding) | 3.618 | 3.638 | 3.628 |
+| **Dans** (same unique layers) | **3.569** | **3.579** | **3.574** |
+| Dans advantage | −0.049 | −0.059 | −0.054 |
+| Dans at 4 iterations (20 layer applications) | 3.580 | 3.590 | 3.585 |
+| 20-layer Transformer, lr 2e-3 (118M) | 3.562 | | |
+| 20-layer Transformer, lr 1e-3 | 3.649 | | |
+
+- **The Dans advantage replicates.** Both seeds clear the 0.04 margin, and the gap is about three times the seed-to-seed spread of either model (0.010–0.020).
+- **At equal compute, the Transformer is ahead by about 0.02.** The 20-layer Transformer (3.562, one seed) has 2.5 times the unique parameters and matches the compute of Dans at 4 iterations (3.585 mean). That is about one seed spread, and its rate is tuned only on {1e-3, 2e-3}, with the better rate at the edge. Dans at 8 iterations (1.8 times the 20-layer model's compute) is level with it.
+- **Reading:** recurrence now buys loss per unique parameter, as the literature predicts. At equal compute it is close to, but not ahead of, a deeper Transformer at this scale. That matches the expectation that looping pays most when tokens per parameter are high, and the scaling ladder tests it directly.
