@@ -18,8 +18,8 @@ Probes (`p381_`) stop after 381 steps of the same schedule and report the step-3
 | C_d1_lr0.004 | diverged or collapsed |
 | C_rand_lr0.001 | 4.078 |
 | D_d1_lr0.002 | 4.123 |
-| Dan_rand_lr0.002 | running |
-| Dans_rand_lr0.002 | running |
+| Dan_rand_lr0.002 | 3.617 |
+| Dans_rand_lr0.002 | 3.569 |
 | E_d1_lr0.002 | 5.353 |
 | T8_lr0.002 | 3.618 |
 | T8_lr0.004 | 3.674 |

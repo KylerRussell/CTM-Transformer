@@ -124,3 +124,26 @@ At depth 1, additive injection without the coda norm is exactly the Transformer 
 **Round 1d (2026-10-09):** Dan (additive injection, no coda norm) and Dans (Dan plus an RMSNorm on the recurrent state only) with randomized depth at lr 2e-3, 400M tokens.
 - Both are exactly the 8-layer Transformer at depth 1 (tested), so their depth-1 twin is T8_lr0.002 (3.618). They are adopted if they score at least 0.04 below it.
 - **Expected risk for Dan:** at initialization its state grows linearly with depth (RMS 0.9 after one iteration, 29 after 32), and by iteration 32 each iteration changes it by 3%. That is Huginn's "ignore the state" failure in the making. Dans bounds the state, and RMSNorm maps the zero initial state to zero, so depth 1 is unchanged.
+
+**Round 1d result: Dans is adopted.** Held-out loss at 400M tokens, randomized depth evaluated at 16:
+
+| Run | Loss | vs depth-1 twin (T8_lr0.002, 3.618) |
+|---|---:|---:|
+| Dan (additive, no norms) | 3.617 | −0.001 |
+| **Dans** (Dan + state norm) | **3.569** | **−0.049** |
+| previous RDT-heavy recipe | 3.783 | |
+| C (pre-norm, normalized injection, random state) | 4.078 | |
+
+Dans meets both rules: below 3.783, and at least 0.04 below its depth-1 twin. It is one seed and passes the 0.04 margin by 0.009.
+
+**Loss against test-time depth** (`scripts/rdt_depth_curve.py`; final evaluation windows; results in `research/results/rdt_recipe/depth_curve_*.json`):
+
+| Run | 1 | 2 | 4 | 8 | 16 | 32 | 48 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Dans | 3.840 | 3.643 | 3.580 | **3.569** | 3.569 | 3.569 | 3.569 |
+| Dan | 4.445 | 3.848 | 3.677 | 3.624 | 3.617 | 3.634 | 3.650 |
+| C | 4.469 | 4.134 | 4.081 | 4.078 | 4.078 | 4.078 | 4.078 |
+
+- **Dans converges by 8 iterations and does not drift out to 48**, three times the mean training depth. Every CTM variant drifts past its trained tick count. At 4 iterations it already beats the Transformer (3.580).
+- **Dan uses its recurrence** (4.445 at one pass, 3.617 at 16) but gains nothing over the Transformer, and it drifts past 16 as its unnormalized state grows.
+- **Compute:** Dans at 8 iterations applies 36 layers per token, against 8 for the Transformer (4.5 times the FLOPs); at 4 iterations, 20 layers (2.5 times). The comparison so far is at matched unique parameters, not matched FLOPs.
