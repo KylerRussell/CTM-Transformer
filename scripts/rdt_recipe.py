@@ -26,6 +26,10 @@ recurrent state, which bounds its growth) with randomized depth at lr 2e-3, 400M
 exactly the 8-layer Transformer at depth 1, so their depth-1 twin is T8_lr0.002 (3.618); the
 round-1 rule becomes a randomized-depth loss at least 0.04 below 3.618.
 
+Round 2 (2026-10-10): a second seed (`_s<seed>`, data order and initialization) of Dans and of the
+8-layer Transformer, and a 20-layer Transformer at d 704 (T20, lr 2e-3 and 1e-3), which matches the
+per-token compute of Dans at 4 iterations (2 + 4 x 4 + 2 = 20 layer applications).
+
 All variants drop the unit-scale input embeddings (embedding_init_std 1.0), which were a fix for
 sandwich norm in the prelude.
 
@@ -79,10 +83,13 @@ def base_run(run_name,lr):
 def config(run_name):
     if run_name.startswith('p'):  # probe: p<steps>_<run name>
         run=config(run_name.split('_',1)[1]);run.update(name=run_name,run_directory=str(RUNS/run_name));return run
-    if run_name.startswith('T8_'):
-        lr=float(run_name.split('lr')[1]);run=base_run(run_name,lr)
+    head,_,last=run_name.rpartition('_')
+    if last.startswith('s') and last[1:].isdigit():  # replicate seed: <run name>_s<seed> (round 2, 2026-10-10)
+        run=config(head);run.update(name=run_name,run_directory=str(RUNS/run_name),seed=int(last[1:]));return run
+    if run_name.startswith('T') and run_name.split('_')[0][1:].isdigit():  # T<layers>_lr<lr>: Transformer at d 704
+        layers=int(run_name.split('_')[0][1:]);lr=float(run_name.split('lr')[1]);run=base_run(run_name,lr)
         for k in ('depth_sampler','eval_depth','eval_depths','embedding_init_std'):run.pop(k,None)
-        run['family']='transformer';run['model']={'d_model':704,'n_layers':8,'ffn_hidden_dim':1856,'init_std':run['model']['init_std']}
+        run['family']='transformer';run['model']={'d_model':704,'n_layers':layers,'ffn_hidden_dim':1856,'init_std':run['model']['init_std']}
         return run
     variant,kind,lr=run_name.split('_');lr=float(lr[2:]);run=base_run(run_name,lr)
     run.pop('embedding_init_std',None);run['rdt_recipe']=VARIANTS[variant]

@@ -147,3 +147,9 @@ Dans meets both rules: below 3.783, and at least 0.04 below its depth-1 twin. It
 - **Dans converges by 8 iterations and does not drift out to 48**, three times the mean training depth. Every CTM variant drifts past its trained tick count. At 4 iterations it already beats the Transformer (3.580).
 - **Dan uses its recurrence** (4.445 at one pass, 3.617 at 16) but gains nothing over the Transformer, and it drifts past 16 as its unnormalized state grows.
 - **Compute:** Dans at 8 iterations applies 36 layers per token, against 8 for the Transformer (4.5 times the FLOPs); at 4 iterations, 20 layers (2.5 times). The comparison so far is at matched unique parameters, not matched FLOPs.
+
+## Round 2 (2026-10-10, running)
+
+- **Replicate seed (2):** Dans with randomized depth and the 8-layer Transformer, both at lr 2e-3. The seed changes initialization, data order and the depth sequence.
+- **Matched-compute Transformer:** 20 layers at d 704, lr 2e-3 and 1e-3. This is the per-token compute of Dans at 4 iterations (3.580), with 2.5 times the unique parameters.
+- **Reading:** the Dans advantage is confirmed if the seed-2 pair also favours Dans by at least 0.04. If the 20-layer Transformer beats 3.580, looping buys loss per parameter at a compute cost. If it does not, looping also wins at equal compute.
