@@ -184,3 +184,21 @@ Dans meets both rules: below 3.783, and at least 0.04 below its depth-1 twin. It
   - RS_T1 and RS_residual, S2 with the residual readout at 1 and 16 ticks.
 
   The existing references are S2 (16 ticks, 5.303) and S2_T1 (5.246).
+
+**Round 3 results.**
+
+The 20-layer Transformer at lr 4e-3 scores 3.718, against 3.562 at 2e-3 and 3.649 at 1e-3. 2e-3 is its optimum, so the equal-compute comparison stands: 3.562 for the 20-layer Transformer, 3.585 for Dans at 4 iterations.
+
+CTM probes (100M tokens, final tick):
+
+| Model | Held-out loss |
+|---|---:|
+| F2: the 2-layer backbone alone as a Transformer | 4.824 |
+| S2 (no residual readout), 1 tick | 5.246 |
+| S2 (no residual readout), 16 ticks | 5.303 |
+| **RS_T1: S2 + residual readout, 1 tick** | **4.797** |
+| **RS_residual: S2 + residual readout, 16 ticks** | **4.793** |
+
+- **The CTM's non-residual path costs it about 0.45 nats.** The CTM scores 0.42–0.48 worse than a linear readout of its own 2-layer backbone. With the residual readout it is 0.03 better than that backbone, at 1 and 16 ticks alike, so the whole deficit is recovered.
+- **The ticks still add nothing at 100M tokens** (−0.004 between 16 and 1 tick). That matches every model at this budget: iteration paid only at 400M tokens.
+- These are single seeds and the effects past the deficit are small. The comparison that matters is at 400M tokens. There, S2 was 4.138 at 16 ticks against 4.295 at 1 tick, with no backbone-only reference.
