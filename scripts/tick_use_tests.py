@@ -23,6 +23,7 @@ ctm_aware_d384_h1_k+2 (lr 4e-3, D + sparse), is the control.
 | N_S2_norm_sink | S2 with mean-normalized synchronization (alpha / beta) and a zero-value sink key in the tick attention (Continuous Memory Machines) |
 | F2_backbone_transformer | S2's 2-layer backbone trained alone as a Transformer (feature_head, from scratch): the CTM's matched Transformer |
 | RS_T1, RS_residual | S2 at 1 and 16 ticks with residual_readout: each tick's readout is added to the backbone's residual stream through a zero-initialized projection, so the model starts as F2 (RDT recipe lesson, 2026-10-10) |
+| F2_400M, RS_T1_400M, RS_400M | F2, RS_T1 and RS_residual trained for 400M tokens (1,526 steps), where S2's ticks paid (2026-10-11) |
 | S3_shallow_cross_random | S2 with the tick count drawn per step as in the RDT (log-normal Poisson, mean 15, sigma 0.5, at most 32), against drift past the answer |
 
 S1 and S2 (added 2026-10-06, after E8) test whether the ticks contribute once the
@@ -57,6 +58,9 @@ TESTS={
     'F2_backbone_transformer':{'ctm_adaptations':['feature_head'],'lr':2e-3,'model':{'n_layers':2}},
     'RS_T1':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position','residual_readout'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1}},
     'RS_residual':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position','residual_readout'],'lr':2e-3,'model':{'n_layers':2}},
+    'F2_400M':{'ctm_adaptations':['feature_head'],'lr':2e-3,'model':{'n_layers':2},'horizon':4},
+    'RS_T1_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position','residual_readout'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1},'horizon':4},
+    'RS_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position','residual_readout'],'lr':2e-3,'model':{'n_layers':2},'horizon':4},
     'S2_T1':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2,'max_thought_steps':1}},
     # 2026-10-07 (user request): longer training, and a CTM with wider internal MLPs (synapse U-Net and neuron-level models x2).
     'A_S2_400M':{'ctm_adaptations':['token_start','sparse_tick_loss','cross_position'],'lr':2e-3,'model':{'n_layers':2},'horizon':4},

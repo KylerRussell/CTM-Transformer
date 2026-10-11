@@ -44,6 +44,16 @@ backbone feature re-injected every tick (observe_token) and a gated state update
 (decay_data_clamp). Same improvement rule as above against adapt_cross; the drift test is
 accuracy at T = 32 against T = 16.
 
+RDT + CTM hybrids (added 2026-10-11, after the RDT recipe study, research/RDT_RECIPE.md):
+`dans` is the reliability RDT (1/2/1, d 96, T = 16, confidence readout) with the adopted recipe
+(pre-norm, additive injection, no coda norm, a norm on the recurrent state); `dans_t1` is its
+T = 1 control. `dans_sync`, `dans_nlm` and `dans_carry` add one CTM mechanism each
+(ctm_transformer/hybrid_rdt.py: synchronization readout, neuron-level models, state carry),
+zero-initialized so that each starts as dans; `dans_all` adds all three. Rules, fixed before
+these runs (same thresholds as above): dans improves on rdt_rope, and a hybrid improves on
+dans, if higher on at least 8 of 10 seeds with a median gain of at least 3 points; dans's ticks
+contribute under the ticks rule against dans_t1. Comparisons with cross_anchor are exploratory.
+
 Evaluation: the final checkpoint (step 10,000) on each seed's 1,024 held-out words of length
 32, final-tick readout, at T = 1, 4, 8, 16, 32 (T = 1 cells at T = 1 only).
 
@@ -78,12 +88,19 @@ CELLS={'adapt':{'adaptations':LOSS,'T':16},'adapt_t1':{'adaptations':LOSS,'T':1}
        'cross_clamp':{'adaptations':LOSS+['cross_position','decay_data_clamp'],'T':16},
        'transformer_rope':{'reference':'transformer','T':1,'readout':'final'},
        'rdt_rope':{'reference':'rdt','T':16,'readout':'confidence'},
-       'rdt_rope_t1':{'reference':'rdt','T':1,'readout':'confidence'}}
+       'rdt_rope_t1':{'reference':'rdt','T':1,'readout':'confidence'},
+       'dans':{'hybrid':[],'T':16,'readout':'confidence'},'dans_t1':{'hybrid':[],'T':1,'readout':'confidence'},
+       'dans_sync':{'hybrid':['sync_readout'],'T':16,'readout':'confidence'},'dans_nlm':{'hybrid':['neuron_models'],'T':16,'readout':'confidence'},
+       'dans_carry':{'hybrid':['state_carry'],'T':16,'readout':'confidence'},
+       'dans_all':{'hybrid':['sync_readout','neuron_models','state_carry'],'T':16,'readout':'confidence'}}
 EVAL_TICKS=(1,4,8,16,32)
 
 
 def factory(cell):
     spec=CELLS[cell]
+    if 'hybrid' in spec:
+        from ctm_transformer.hybrid_rdt import hybrid_factory
+        return hybrid_factory(set(spec['hybrid']))
     if 'reference' in spec:
         from ctm_transformer.positions import position_factory
         return position_factory(spec['reference'],'rope')
@@ -93,11 +110,12 @@ def factory(cell):
 
 def cell_config(cell,seed,device):
     from ctm_transformer.research import load_research_config
-    spec=CELLS[cell];base=BASE if 'reference' not in spec else f'research/configs/reliability_s3_v1/{spec["reference"]}_seed{{seed}}.json'
+    spec=CELLS[cell];ref=spec.get('reference','rdt' if 'hybrid' in spec else None)
+    base=BASE if ref is None else f'research/configs/reliability_s3_v1/{ref}_seed{{seed}}.json'
     c,identity=load_research_config(base.format(seed=seed))
     c=replace(c,use_positional_encoding=False,max_thought_steps=spec['T'],device=device,checkpoint_dir=str((RUNS/cell/f'seed{seed}').resolve()))
-    if 'reference' in spec:
-        if spec['reference']=='rdt':c=replace(c,train_depth_min=spec['T'],train_depth_max=spec['T'])
+    if ref is not None:
+        if ref=='rdt':c=replace(c,train_depth_min=spec['T'],train_depth_max=spec['T'])
     else:c=replace(c,nlm_hidden_dim=spec.get('nlm_hidden_dim',c.nlm_hidden_dim))
     return c,identity
 
@@ -172,7 +190,18 @@ def summarize():
         diffs=[first16(rows[cell][s]['results']['16']['by_position'])-first16(rows['adapt_cross'][s]['results']['16']['by_position']) for s in seeds]
         verdict='improves' if len(seeds)==10 and sum(d>0 for d in diffs)>=8 and statistics.median(diffs)>=0.03 else ('incomplete' if len(seeds)<10 else 'does not improve')
         lines.append(f'- **{cell} vs adapt_cross:** higher on {sum(d>0 for d in diffs)}/{len(seeds)} seeds, median gain {100*statistics.median(diffs):+.1f} points: {verdict}.')
-    for cell in ('adapt','adapt_cross','adapt_wide','rdt_rope','cross_norm_sink','cross_memory','cross_anchor'):
+    def paired(a,b,ta='16',tb='16'):
+        seeds=sorted(set(rows.get(a,{}))&set(rows.get(b,{})))
+        return seeds,[first16(rows[a][s]['results'][ta]['by_position'])-first16(rows[b][s]['results'][tb]['by_position']) for s in seeds]
+    for a,b in (('dans','rdt_rope'),('dans_sync','dans'),('dans_nlm','dans'),('dans_carry','dans'),('dans_all','dans')):
+        seeds,diffs=paired(a,b)
+        if not diffs:continue
+        verdict='improves' if len(seeds)==10 and sum(d>0 for d in diffs)>=8 and statistics.median(diffs)>=0.03 else ('incomplete' if len(seeds)<10 else 'does not improve')
+        lines.append(f'- **{a} vs {b}:** higher on {sum(d>0 for d in diffs)}/{len(seeds)} seeds, median gain {100*statistics.median(diffs):+.1f} points: {verdict}.')
+    for a in ('dans','dans_sync','dans_nlm','dans_carry','dans_all'):
+        seeds,diffs=paired(a,'cross_anchor')
+        if diffs:lines.append(f'- *Exploratory:* **{a} vs cross_anchor:** higher on {sum(d>0 for d in diffs)}/{len(seeds)} seeds, median gain {100*statistics.median(diffs):+.1f} points.')
+    for cell in ('adapt','adapt_cross','adapt_wide','rdt_rope','cross_norm_sink','cross_memory','cross_anchor','dans'):
         control=cell+'_t1'
         if cell not in rows or control not in rows:continue
         seeds=sorted(set(rows[cell])&set(rows[control]))

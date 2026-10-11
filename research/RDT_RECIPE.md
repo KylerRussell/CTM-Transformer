@@ -202,3 +202,13 @@ CTM probes (100M tokens, final tick):
 - **The CTM's non-residual path costs it about 0.45 nats.** The CTM scores 0.42–0.48 worse than a linear readout of its own 2-layer backbone. With the residual readout it is 0.03 better than that backbone, at 1 and 16 ticks alike, so the whole deficit is recovered.
 - **The ticks still add nothing at 100M tokens** (−0.004 between 16 and 1 tick). That matches every model at this budget: iteration paid only at 400M tokens.
 - These are single seeds and the effects past the deficit are small. The comparison that matters is at 400M tokens. There, S2 was 4.138 at 16 ticks against 4.295 at 1 tick, with no backbone-only reference.
+
+## Round 4 (2026-10-11): the residual CTM at 400M tokens, and RDT + CTM hybrids on S₃
+
+- **Residual CTM at 400M tokens** (`scripts/tick_use_tests.py`): F2_400M (the backbone alone as a Transformer), and RS_T1_400M and RS_400M (S2 + residual readout at 1 and 16 ticks). The existing references are A_S2_400M (4.138) and A_S2_T1_400M (4.295).
+- **Hybrids** (`ctm_transformer/hybrid_rdt.py`, S₃ cells in `scripts/tick_s3.py`, rules in its docstring): Dans plus one CTM mechanism each, every one zero-initialized so that the model starts as Dans (tested):
+  - **sync_readout:** decayed pairwise products of the normalized state across iterations, added before the coda;
+  - **neuron_models:** per-neuron MLPs over each neuron's last 4 normalized core outputs, added to the core output;
+  - **state_carry:** a learned per-neuron carry of the previous state, the residual analogue of the gated state update that helped the CTM on S₃.
+
+  dans_all combines the three. Dans with T = 1 is the ticks control, and rdt_rope (the old recipe) is the recipe reference.
