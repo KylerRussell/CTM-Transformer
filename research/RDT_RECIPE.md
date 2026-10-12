@@ -212,3 +212,34 @@ CTM probes (100M tokens, final tick):
   - **state_carry:** a learned per-neuron carry of the previous state, the residual analogue of the gated state update that helped the CTM on S₃.
 
   dans_all combines the three. Dans with T = 1 is the ticks control, and rdt_rope (the old recipe) is the recipe reference.
+
+**Round 4 results.**
+
+Residual CTM at 400M tokens (held-out loss, final tick; one seed):
+
+| Model | Loss |
+|---|---:|
+| F2_400M: the 2-layer backbone alone as a Transformer | 4.172 |
+| A_S2_T1_400M: original shallow CTM, 1 tick | 4.295 |
+| A_S2_400M: original shallow CTM, 16 ticks | 4.138 |
+| RS_T1_400M: residual CTM, 1 tick | 4.089 |
+| **RS_400M: residual CTM, 16 ticks** | **4.077** |
+
+- The residual readout makes the CTM better than its own backbone (−0.083 at one tick) and better than the original CTM at 16 ticks (−0.049 at one tick).
+- **With a residual path, the ticks are worth only 0.012**, against 0.157 for the original CTM. Most of what the original CTM's ticks bought at 400M tokens was recovering from its own non-residual readout, not extra computation.
+
+S₃ hybrids (10 seeds; the pre-registered verdicts are in `research/results/tick_s3/TICK_S3.md`):
+
+| Cell | Accuracy 1–16 at T = 16 | Escapes | T = 32 | Verdict |
+|---|---:|---:|---:|---|
+| rdt_rope (old recipe) | 0.821 | 1 | 0.824 | |
+| cross_anchor (best CTM) | 0.923 | 7 | 0.910 | |
+| **dans** | **0.962** | **9** | 0.951 | improves on rdt_rope (9/10 seeds, median +12.7 points); ticks contribute (9/10, median +23.0 over dans_t1, 0.769) |
+| dans_sync | 0.946 | 7 | 0.934 | does not improve (3/10, median −0.1) |
+| dans_nlm | 0.965 | 9 | 0.945 | does not improve (5/10, median 0.0) |
+| dans_carry | 0.968 | 9 | 0.950 | does not improve (6/10, median 0.0) |
+| dans_all | 0.961 | 8 | 0.959 | does not improve (2/10, median −0.1) |
+
+- **The recipe fix holds on S₃.** Dans is the best model in the study, and plain Dans matches or beats the best CTM (exploratory: higher on 8 of 10 seeds, median +0.3 points).
+- **No CTM mechanism improves Dans on S₃.** The task is near its ceiling for Dans (median correct prefix 17 of 16 trained positions), so it cannot separate small gains.
+- *Exploratory, post hoc:* on positions 17–32 (longer than any training word), dans_carry (0.373) and dans_nlm (0.344) have higher means than dans (0.293) at T = 32. Paired by seed, each is higher on only 5 of 10, with a median difference of 0.2 points: a few seeds drive the means.
