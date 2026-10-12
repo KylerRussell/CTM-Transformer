@@ -23,6 +23,7 @@ part of the RDT, which adds the prelude output at every iteration.
 import torch
 from dataclasses import replace
 from torch import nn
+from torch.utils.checkpoint import checkpoint
 
 from ctm_transformer.ctm_lm import NeuronLevelModels, Synchronization
 from ctm_transformer.rdt_recipe import RECIPE_KEYS, RecipeRDT
@@ -51,12 +52,22 @@ class HybridRDT(RecipeRDT):
         if state_carry:
             self.carry = nn.Parameter(torch.zeros(d))
 
+    def _neuron_models(self, *history):
+        B, S, d = history[0].shape
+        return self.nlm(torch.stack(history, dim=-1).reshape(B * S, d, HISTORY)).view(B, S, d)
+
     def _iterate(self, x, injected, history):
         new = self._blocks(self.core, self.injection(torch.cat((self.state_norm(x), injected), dim=-1)))
         if self.mechanisms['neuron_models']:
-            B, S, d = new.shape
-            history = torch.cat((history[..., 1:], self.state_norm(new).unsqueeze(-1).to(history.dtype)), dim=-1)
-            new = new + self.nlm_scale.to(new.dtype) * self.nlm(history.reshape(B * S, d, HISTORY)).view(B, S, d).to(new.dtype)
+            # The history is a tuple of the last normalized core outputs, so each iteration stores one new tensor;
+            # the per-neuron MLPs are recomputed in the backward pass when checkpointing.
+            normed = self.state_norm(new)
+            history = (torch.zeros_like(normed),) * (HISTORY - 1) + (normed,) if history is None else history[1:] + (normed,)
+            if self.config.gradient_checkpointing and self.training and torch.is_grad_enabled():
+                out = checkpoint(self._neuron_models, *history, use_reentrant=False)
+            else:
+                out = self._neuron_models(*history)
+            new = new + self.nlm_scale.to(new.dtype) * out.to(new.dtype)
         if self.mechanisms['state_carry']:
             new = new + self.carry.to(new.dtype) * x
         return new, history
@@ -70,7 +81,7 @@ class HybridRDT(RecipeRDT):
         embedded = self._blocks(self.prelude, x)
         injected = self.inject_norm(embedded)
         x = self._state(embedded)
-        history = embedded.new_zeros(*embedded.shape, HISTORY).float() if self.mechanisms['neuron_models'] else None
+        history = None
         sync = None
         for i in range(depth):
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):

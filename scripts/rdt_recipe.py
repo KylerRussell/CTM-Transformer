@@ -30,6 +30,11 @@ Round 2 (2026-10-10): a second seed (`_s<seed>`, data order and initialization) 
 8-layer Transformer, and a 20-layer Transformer at d 704 (T20, lr 2e-3 and 1e-3), which matches the
 per-token compute of Dans at 4 iterations (2 + 4 x 4 + 2 = 20 layer applications).
 
+Round 5 (2026-10-12): DansC (Dans + state carry) and DansN (Dans + neuron-level models) with
+randomized depth at lr 2e-3, 400M tokens, against Dans (3.569 and 3.579 on two seeds). Rule, fixed
+before the runs: a hybrid joins the scaling ladder if it scores at least 0.02 below Dans's seed-1234
+run (3.569), about one seed spread.
+
 All variants drop the unit-scale input embeddings (embedding_init_std 1.0), which were a fix for
 sandwich norm in the prelude.
 
@@ -65,6 +70,8 @@ VARIANTS={'B':{'norm':'core_sandwich','normalize':False,'state_init':'zeros'},
           'Dan':{'norm':'prenorm','normalize':False,'state_init':'zeros','injection':'add','coda_norm':'none'},
           'Dans':{'norm':'prenorm','normalize':False,'state_init':'zeros','injection':'add','coda_norm':'none','state_norm':True}}
 PROBE_STEPS=381
+# Round 5 (2026-10-12): Dans plus one CTM mechanism (ctm_transformer/hybrid_rdt.py), after S3 could not separate them.
+HYBRIDS={'DansC':['state_carry'],'DansN':['neuron_models']}
 LRS=(1e-3,2e-3,4e-3)
 TRANSFORMER_LRS=(2e-3,4e-3)
 COLLAPSED=7.0
@@ -92,7 +99,9 @@ def config(run_name):
         run['family']='transformer';run['model']={'d_model':704,'n_layers':layers,'ffn_hidden_dim':1856,'init_std':run['model']['init_std']}
         return run
     variant,kind,lr=run_name.split('_');lr=float(lr[2:]);run=base_run(run_name,lr)
-    run.pop('embedding_init_std',None);run['rdt_recipe']=VARIANTS[variant]
+    run.pop('embedding_init_std',None);run['rdt_recipe']=VARIANTS['Dans' if variant in HYBRIDS else variant]
+    if variant in HYBRIDS:run['hybrid_mechanisms']=HYBRIDS[variant]
+    if variant=='DansN':run['train'].update(micro_batch=8,accumulation=32)  # same tokens per step; the per-neuron MLPs do not fit at depth 48 with 16
     if kind=='d1':run.pop('depth_sampler');run.update(eval_depth=1,eval_depths=[1])
     return run
 

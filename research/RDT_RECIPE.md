@@ -243,3 +243,9 @@ S₃ hybrids (10 seeds; the pre-registered verdicts are in `research/results/tic
 - **The recipe fix holds on S₃.** Dans is the best model in the study, and plain Dans matches or beats the best CTM (exploratory: higher on 8 of 10 seeds, median +0.3 points).
 - **No CTM mechanism improves Dans on S₃.** The task is near its ceiling for Dans (median correct prefix 17 of 16 trained positions), so it cannot separate small gains.
 - *Exploratory, post hoc:* on positions 17–32 (longer than any training word), dans_carry (0.373) and dans_nlm (0.344) have higher means than dans (0.293) at T = 32. Paired by seed, each is higher on only 5 of 10, with a median difference of 0.2 points: a few seeds drive the means.
+
+## Round 5 (2026-10-12): hybrids on language modelling
+
+- **Runs:** DansC (Dans + state carry) and DansN (Dans + neuron-level models), randomized depth, lr 2e-3, 400M tokens, seed 1234. They were chosen because they had the highest S₃ means, although not significantly.
+- **Rule, fixed before the runs:** a hybrid joins the scaling ladder if it scores at least 0.02 below Dans's seed-1234 run (3.569), about one seed spread.
+- **Memory:** DansN uses micro-batch 8 with 32 accumulation steps (same tokens per step). At micro-batch 16 its per-neuron MLPs ran out of memory at depth 48. The neuron-model history is kept as a tuple of the last normalized core outputs, and the MLPs are recomputed in the backward pass.
