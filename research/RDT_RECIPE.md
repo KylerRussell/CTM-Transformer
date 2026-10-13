@@ -272,3 +272,5 @@ Protocol and rules: `scripts/ctm_matched.py` (docstring).
 - **Rules:**
   - Ticks contribute if the 16-tick run is at least 0.04 below its 1-tick twin on both seeds.
   - The CTM-against-RDT comparison uses two-seed means. A difference under 0.02 is a tie.
+
+**Matched CTM, phase 1** (1 tick, 400M tokens): lr 1e-3 3.828, 2e-3 3.738, **4e-3 3.732**. The 16-tick run and the second seed use 4e-3. It is the edge of the tried rates, but only 0.006 better than 2e-3, so the optimum lies near or between them. At 1 tick the matched CTM is 0.114 behind the 8-layer Transformer (3.618).
