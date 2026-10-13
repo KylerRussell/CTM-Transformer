@@ -249,3 +249,14 @@ S₃ hybrids (10 seeds; the pre-registered verdicts are in `research/results/tic
 - **Runs:** DansC (Dans + state carry) and DansN (Dans + neuron-level models), randomized depth, lr 2e-3, 400M tokens, seed 1234. They were chosen because they had the highest S₃ means, although not significantly.
 - **Rule, fixed before the runs:** a hybrid joins the scaling ladder if it scores at least 0.02 below Dans's seed-1234 run (3.569), about one seed spread.
 - **Memory:** DansN uses micro-batch 8 with 32 accumulation steps (same tokens per step). At micro-batch 16 its per-neuron MLPs ran out of memory at depth 48. The neuron-model history is kept as a tuple of the last normalized core outputs, and the MLPs are recomputed in the backward pass.
+
+**Round 5 results** (seed 1234, randomized depth evaluated at 16):
+
+| Run | Loss | vs Dans (3.569) | Verdict |
+|---|---:|---:|---|
+| DansC (+ state carry) | 3.567 | −0.002 | does not join the ladder |
+| DansN (+ neuron-level models) | 3.574 | +0.005 | does not join the ladder |
+
+Neither CTM mechanism improves Dans on language modelling at this scale. Both are within a seed spread of it at every evaluation.
+
+**Next (user direction, 2026-10-13):** the paper compares the CTM's best with the RDT's best, with the Transformer as baseline. The CTM arm must be brought to Dans's standard before the ladder: matched size (d 704, 4-layer backbone, 1,408 neurons and pairs, 45.1M non-embedding against 47.2M), residual readout, learning rate chosen on 1-tick runs, a 1-tick twin, and a second seed.
