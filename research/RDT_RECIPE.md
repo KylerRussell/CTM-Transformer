@@ -260,3 +260,15 @@ S₃ hybrids (10 seeds; the pre-registered verdicts are in `research/results/tic
 Neither CTM mechanism improves Dans on language modelling at this scale. Both are within a seed spread of it at every evaluation.
 
 **Next (user direction, 2026-10-13):** the paper compares the CTM's best with the RDT's best, with the Transformer as baseline. The CTM arm must be brought to Dans's standard before the ladder: matched size (d 704, 4-layer backbone, 1,408 neurons and pairs, 45.1M non-embedding against 47.2M), residual readout, learning rate chosen on 1-tick runs, a 1-tick twin, and a second seed.
+
+## The matched CTM arm (2026-10-13, running)
+
+Protocol and rules: `scripts/ctm_matched.py` (docstring).
+- **Model:** the best language-modelling CTM (residual readout, cross-position ticks, token-conditioned start, sparse tick loss) at d 704, with a 4-layer backbone and 1,408 neurons and pairs: 45.1M non-embedding parameters, against 47.2M for Dans. Same data, seed, schedule and evaluation as Dans.
+- **Runs:**
+  - 1 tick at lr 1e-3, 2e-3 and 4e-3;
+  - 16 ticks at the best of those rates;
+  - a second seed of both the 1-tick and 16-tick runs at that rate.
+- **Rules:**
+  - Ticks contribute if the 16-tick run is at least 0.04 below its 1-tick twin on both seeds.
+  - The CTM-against-RDT comparison uses two-seed means. A difference under 0.02 is a tie.
