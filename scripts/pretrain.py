@@ -29,6 +29,7 @@ from ctm_transformer.ctm_rdt import ctm_rdt_factory
 from ctm_transformer.ctm_lm_adapt import adapted_factory
 from ctm_transformer.rdt_recipe import recipe_factory
 from ctm_transformer.hybrid_rdt import hybrid_factory
+from ctm_transformer.ctm_transformer import ctm_transformer_factory
 from ctm_transformer.depth_sampling import lognormal_poisson
 from ctm_transformer.experiment import file_hash
 from ctm_transformer.lm_scale import scaled_factory
@@ -39,7 +40,7 @@ RECIPES={'transformer':'research/configs/presentation_control_v1/transformer_shu
          'rdt':'research/configs/presentation_control_v1/recurrent_depth_shuffled_seed23.json',
          'ctm_lm':'research/configs/presentation_control_v1/ctm_shuffled_seed23.json'}
 SOURCES=['scripts/pretrain.py','ctm_transformer/pretrain.py','ctm_transformer/lm_scale.py','ctm_transformer/positions.py','ctm_transformer/ctm_lm.py',
-         'ctm_transformer/baselines.py','ctm_transformer/ctm_variants.py','ctm_transformer/depth_sampling.py','ctm_transformer/ctm_rdt.py','ctm_transformer/ctm_lm_adapt.py','ctm_transformer/rdt_recipe.py','ctm_transformer/hybrid_rdt.py']
+         'ctm_transformer/baselines.py','ctm_transformer/ctm_variants.py','ctm_transformer/depth_sampling.py','ctm_transformer/ctm_rdt.py','ctm_transformer/ctm_lm_adapt.py','ctm_transformer/rdt_recipe.py','ctm_transformer/hybrid_rdt.py','ctm_transformer/ctm_transformer.py']
 
 
 def build_config(run,vocab):
@@ -80,6 +81,8 @@ def main():
     torch.manual_seed(run['seed'])
     if run.get('mechanisms'):  # CTM-augmented RDT (ctm_transformer/ctm_rdt.py)
         assert family=='rdt';factory=ctm_rdt_factory(set(run['mechanisms']),t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False),run.get('sync_pairs'))
+    elif run.get('ctm_transformer') is not None:  # the CTM Transformer (ctm_transformer/ctm_transformer.py, 2026-10-14)
+        assert family=='rdt';factory=ctm_transformer_factory(set(run['ctm_transformer']),run['rdt_recipe'],t.get('checkpointing',False),t.get('backprop_steps'))
     elif run.get('hybrid_mechanisms') is not None:  # RDT + CTM hybrids on a recipe (ctm_transformer/hybrid_rdt.py, 2026-10-12)
         assert family=='rdt';factory=hybrid_factory(set(run['hybrid_mechanisms']),run['rdt_recipe'],t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))
     elif run.get('rdt_recipe'):  # RDT recipe variants (ctm_transformer/rdt_recipe.py, 2026-10-08)
