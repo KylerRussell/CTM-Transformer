@@ -274,3 +274,32 @@ Protocol and rules: `scripts/ctm_matched.py` (docstring).
   - The CTM-against-RDT comparison uses two-seed means. A difference under 0.02 is a tie.
 
 **Matched CTM, phase 1** (1 tick, 400M tokens): lr 1e-3 3.828, 2e-3 3.738, **4e-3 3.732**. The 16-tick run and the second seed use 4e-3. It is the edge of the tried rates, but only 0.006 better than 2e-3, so the optimum lies near or between them. At 1 tick the matched CTM is 0.114 behind the 8-layer Transformer (3.618).
+
+## Why the matched CTM loses to the Transformer: its ticks are dead (2026-10-14)
+
+User hypothesis: a CTM Transformer is a Transformer with extra components, so it should not be worse; the implementation is likely wrong. The diagnostics confirm the implementation is the problem. Scripts: `scripts/ctm_matched_diagnostics.py` and `scripts/ctm_sync_split.py`; results in `research/results/ctm_matched/diagnostics_*.json`.
+
+**1-tick model (final, 8 windows).**
+- Removing the CTM's write to the residual stream costs 0.25 (3.612 → 3.858), so the readout is used.
+- The neuron state after the tick has RMS 0.006.
+- Every action-synchronization decay sits at exactly 0, and 96% of the output decays do.
+
+**16-tick model (step 750, 4 windows):**
+
+| Synchronization readout used | Loss |
+|---|---:|
+| full | 4.027 |
+| **start-state term only** | **4.027** |
+| tick terms only | 4.088 |
+| none (backbone alone) | 4.088 |
+
+- **The ticks contribute nothing.** The whole CTM gain comes from the pairwise products of the token-conditioned start state z₀ = z_init + W·f (our `token_start` adaptation), a quadratic feature map of the backbone output.
+- The start state has RMS 1.65. The states the ticks compute have RMS 0.04–0.08. Their summed products have RMS 0.2, against 2.9 for the start term.
+- The decays are stuck at 0, so the readout is a running sum divided by √(t+1). Each tick only dilutes the start term, which is why the readout shrinks as about 1/√t. The per-tick loss curve (4.070 at tick 1, flat at 4.022 from tick 7) is the model finding the best dilution, not computation.
+
+**Diagnosis.** At language-model scale the multiplicative synchronization readout is a trap:
+- The gradient to a tick state through z_i·z_j is proportional to z_j. When the tick states are small, they get almost no gradient.
+- The token-conditioned start state offers a large shortcut around the ticks.
+- The decays, initialized at 0 and clamped there, cannot learn to forget the start term.
+
+The matched CTM is therefore effectively a 4-layer Transformer plus a quadratic head on its backbone output. That explains why it trails the 8-layer Transformer. The faithful CTM-LM failed earlier at this scale (2026-10-02) for a related reason, and the adaptations added then (`token_start`, `observe_token`) went around the ticks instead of fixing them. On S₃ the ticks do contribute, so the trap is specific to the language-model setting.

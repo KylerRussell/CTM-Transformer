@@ -1,0 +1,36 @@
+{
+ "run": "M_T1_lr0.004",
+ "step": 1526,
+ "windows": 8,
+ "loss_by_tick": {
+  "1": [
+   3.611857295036316
+  ]
+ },
+ "loss_backbone_only": 3.857945531606674,
+ "rms": {
+  "backbone_stream": 8.908406496047974,
+  "ctm_write_by_tick": [
+   3.383610874414444
+  ],
+  "z_by_tick": [
+   0.005753584497142583
+  ],
+  "sync_readout_by_tick": [
+   1.1235692650079727
+  ]
+ },
+ "decay": {
+  "action": {
+   "fraction_at_zero": 1.0,
+   "mean": 0.0,
+   "max": 0.0
+  },
+  "out": {
+   "fraction_at_zero": 0.9602272510528564,
+   "mean": 0.002975636627525091,
+   "max": 0.19689512252807617
+  }
+ },
+ "residual_out_weight_rms": 0.06046630069613457
+}
