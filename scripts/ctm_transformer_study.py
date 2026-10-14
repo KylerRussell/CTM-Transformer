@@ -26,7 +26,7 @@ from pathlib import Path
 
 RUNS=Path('research/runs/ctm_transformer');OUT=Path('research/results/ctm_transformer')
 VARIANTS={'CTfull':['neuron_models','sync_query','sync_output'],'CTnlm':['neuron_models'],'CTsq':['sync_query'],'CTso':['sync_output']}
-MICRO={'CTfull':8,'CTnlm':8,'CTsq':8,'CTso':8}  # per-tick neuron history and synchronization state; depth-48 steps do not fit at micro-batch 8 (CTfull) or 16
+MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than 28 ticks (memory)
 COLLAPSED=7.0
 
 
@@ -37,8 +37,8 @@ def config(run_name):
     run.update(name=run_name,run_directory=str(RUNS/run_name),ctm_transformer=VARIANTS[variant])
     if len(parts)>2:run['seed']=int(parts[2][1:])
     run['train']['lr']=lr
-    if variant in MICRO:
-        t=run['train'];t['accumulation']=t['accumulation']*t['micro_batch']//MICRO[variant];t['micro_batch']=MICRO[variant]
+    if variant in MICRO:run['train']['micro_batch_by_depth']=MICRO[variant]
+    run['train']['snapshot_interval']=381  # step_0000381.pt etc. for the liveness diagnostics
     return run
 
 

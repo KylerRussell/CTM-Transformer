@@ -134,6 +134,9 @@ def main():
         tick=time.perf_counter();lr=lr_at(step,t['lr'],t['warmup_steps'],t['total_steps'],t.get('lr_floor',0.1));set_lr(optimizer,lr)
         depth=step_depth(sampler,run['seed'],step) or (run.get('eval_depth') if family!='transformer' else None)
         total=torch.zeros((),device=device)
+        acc,micro=t['accumulation'],t['micro_batch']
+        for limit,small in t.get('micro_batch_by_depth',[]):  # [[depth, micro_batch], ...] (2026-10-14): smaller micro-batches for deep steps;
+            if depth is not None and depth>limit:acc,micro=acc*micro//small,small  # a step's windows and averaged gradient are unchanged
         for m in range(acc):
             x,y=train.batch(micro_indices(step,m,rank,world,micro,acc));x,y=x.to(device,non_blocking=True),y.to(device,non_blocking=True)
             sync=net.no_sync() if distributed and m<acc-1 else contextlib.nullcontext()
