@@ -64,3 +64,20 @@ The first build keeps Dans's training (final-tick loss, randomized depth), so th
    - the CMM sink and the CTM loss options;
    - a learning-rate check;
    - the scaling ladder with the Transformer, the RDT's best and the CTM Transformer's best.
+
+## Progress (2026-10-14)
+
+Two seeds of CTfull (all three mechanisms) are training at 400M tokens. The step-381 snapshots were not written: snapshots are saved only on checkpoint steps (every 50), so the snapshot interval is now 400. The liveness check therefore used the rolling checkpoint at step 500, on CPU, with 4 held-out windows (`research/results/ctm_transformer/diagnose_*`).
+
+| | Seed 1234 | Seed 2 |
+|---|---:|---:|
+| Held-out loss at step 381 (Dans / 8-layer Transformer) | 4.470 (4.443 / 4.422) | 4.463 (4.465 / 4.455) |
+| Loss at 1 / 4 / 8 / 16 / 32 ticks, step 500 | 4.293 / 4.196 / 4.193 / 4.193 / 4.193 | 4.297 / 4.173 / 4.169 / 4.169 / 4.169 |
+| Loss increase when sync_query is removed | **0.050** | **0.058** |
+| Loss increase when sync_output is removed | 0.009 | 0.004 |
+| Loss increase when neuron_models are removed | −0.000 (unused) | 0.001 (unused) |
+
+- **Synchronization drives the attention.** The model relies on the synchronization-derived queries, the CTM's central mechanism.
+- **The output synchronization is used weakly.**
+- **The neuron-level models are unused** although their scales grew. The thinking group converges by 4–8 ticks and stays flat to 32, so each neuron's pre-activation history is nearly constant at the fixed point. A per-neuron model of a constant history adds nothing that the activation function does not already provide.
+- **Using a mechanism is not the same as gaining from it.** Against Dans on the same tokens, training loss over the last 80 steps is +0.023 (seed 1234) and +0.004 (seed 2).

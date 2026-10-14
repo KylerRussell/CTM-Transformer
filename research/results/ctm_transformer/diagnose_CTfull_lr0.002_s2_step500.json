@@ -1,0 +1,26 @@
+{
+ "run": "CTfull_lr0.002_s2",
+ "step": 500,
+ "windows": 4,
+ "loss_by_depth": {
+  "1": 4.296888113021851,
+  "4": 4.172753751277924,
+  "8": 4.169371664524078,
+  "16": 4.1688037514686584,
+  "32": 4.1685910820961
+ },
+ "loss_increase_when_removed_at_16": {
+  "neuron_models": 0.0010581612586975098,
+  "sync_query": 0.05808931589126587,
+  "sync_output": 0.0034977197647094727
+ },
+ "unused": [
+  "neuron_models",
+  "sync_output"
+ ],
+ "parameter_norm": {
+  "neuron_models": 4.36300147379663,
+  "sync_query": 45.990504404293375,
+  "sync_output": 20.660672128532855
+ }
+}

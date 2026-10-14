@@ -38,7 +38,7 @@ def config(run_name):
     if len(parts)>2:run['seed']=int(parts[2][1:])
     run['train']['lr']=lr
     if variant in MICRO:run['train']['micro_batch_by_depth']=MICRO[variant]
-    run['train']['snapshot_interval']=381  # step_0000381.pt etc. for the liveness diagnostics
+    run['train']['snapshot_interval']=400  # a multiple of checkpoint_interval (50): snapshots are written only on checkpoint steps
     return run
 
 
@@ -62,7 +62,7 @@ def train(run_name,gpu):
     print('run',run_name,'exit',code,final(run_name),flush=True)
 
 
-def diagnose(run_name,checkpoint=None,windows=8,depths=(1,4,8,16,32)):
+def diagnose(run_name,checkpoint=None,windows=8,depths=(1,4,8,16,32),device='cuda'):
     """Loss by tick count, and the loss increase when each mechanism is removed at evaluation."""
     import torch
     from scripts.pretrain import build_config
@@ -72,8 +72,9 @@ def diagnose(run_name,checkpoint=None,windows=8,depths=(1,4,8,16,32)):
     data=json.loads(Path(run['data']).read_text());root=Path(run['data']).parent
     model=ctm_transformer_factory(set(run['ctm_transformer']),run['rdt_recipe'])(build_config(run,data['vocab_size']))
     name=checkpoint or (f'step_{t["total_steps"]:07d}.pt' if (RUNS/run_name/f'step_{t["total_steps"]:07d}.pt').exists() else 'latest.pt')
-    payload=torch.load(RUNS/run_name/name,map_location='cpu',weights_only=False);model.load_state_dict(payload['model'])
-    device=torch.device('cuda');model.to(device)
+    path=Path(name) if Path(name).is_absolute() else RUNS/run_name/name
+    payload=torch.load(path,map_location='cpu',weights_only=False);model.load_state_dict(payload['model'])
+    device=torch.device(device);model.to(device)
     valid=TokenWindows([root/s for s in data['validation']],t['seq_len'],0);offset=t.get('eval_offset',0)
     indices=list(range(offset,offset+windows))
     with torch.no_grad():
@@ -103,9 +104,10 @@ def summarize():
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--gpu',type=int);p.add_argument('--runs',nargs='*')
-    p.add_argument('--diagnose');p.add_argument('--checkpoint');p.add_argument('--summarize',action='store_true');a=p.parse_args()
+    p.add_argument('--diagnose');p.add_argument('--checkpoint');p.add_argument('--device',default='cuda');p.add_argument('--windows',type=int,default=8)
+    p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:summarize();return
-    if a.diagnose:diagnose(a.diagnose,a.checkpoint);return
+    if a.diagnose:diagnose(a.diagnose,a.checkpoint,a.windows,device=a.device);return
     for run_name in a.runs or []:train(run_name,a.gpu)
 
 
