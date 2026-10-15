@@ -105,3 +105,10 @@ Two seeds of CTfull (all three mechanisms) are training at 400M tokens. The step
 The neuron-level models, unused at step 500, came into use late. The model relies on the mechanisms but does not end up better than Dans, which suggests they replace capacity Dans gets elsewhere rather than adding to it. The per-mechanism ablations (CTsq, CTso, CTnlm) test this directly.
 
 On these 32 windows, loss converges by 8 ticks and is flat to 32 (seed 1234: 3.835 at 1 tick, 3.580 at 4, 3.569 at 8, 3.568 at 16 and 32), with no drift.
+
+## Ablations (2026-10-15, running)
+
+- **Runs:** CTsq (synchronization in the queries only), CTso (synchronization at the output only) and CTnlm (neuron-level models only), each on seeds 1234 and 2, at 400M tokens. They run in that order on each GPU.
+- **Rules, fixed before the runs** (in `scripts/ctm_transformer_study.py`):
+  - a variant beats Dans if its two-seed mean is at least 0.02 below 3.574;
+  - against CTfull (3.588), a difference under 0.02 is a tie.

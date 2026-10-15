@@ -19,6 +19,12 @@ Rule, fixed before the runs: the CTM mechanisms add value if CTfull's two-seed m
 mechanism at evaluation (its zero-initialized parameter set back to zero) and reports the loss
 increase; a mechanism whose removal costs less than 0.005 is reported as unused.
 
+Ablations (added 2026-10-15, after CTfull scored 3.586 / 3.590, mean 3.588): CTsq, CTso and CTnlm,
+each on seeds 1234 and 2. Rules, fixed before these runs, on two-seed means:
+- a variant beats Dans if it is at least 0.02 below 3.574;
+- against CTfull (3.588), a difference under 0.02 is a tie. A single-mechanism variant that ties or beats
+  CTfull carries the full model's effect at lower cost.
+
 Usage: python -m scripts.ctm_transformer_study --gpu N --runs NAMES... | --diagnose RUN [--checkpoint F] | --summarize
 """
 import argparse,json,math,os,subprocess,sys
