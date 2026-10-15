@@ -1,0 +1,10 @@
+# CTM Transformer on language modelling
+
+Protocol: `scripts/ctm_transformer_study.py` (docstring). Held-out loss at 400M tokens on 1,024 windows, 16 ticks.
+
+References: Dans 3.569 / 3.579 (mean 3.574); 8-layer Transformer 3.618 / 3.638; 20-layer Transformer 3.562.
+
+| Run | Held-out loss |
+|---|---:|
+| CTfull_lr0.002 | 3.586 |
+| CTfull_lr0.002_s2 | 3.590 |

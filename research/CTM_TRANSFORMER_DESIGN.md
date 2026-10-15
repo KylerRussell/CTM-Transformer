@@ -81,3 +81,27 @@ Two seeds of CTfull (all three mechanisms) are training at 400M tokens. The step
 - **The output synchronization is used weakly.**
 - **The neuron-level models are unused** although their scales grew. The thinking group converges by 4–8 ticks and stays flat to 32, so each neuron's pre-activation history is nearly constant at the fixed point. A per-neuron model of a constant history adds nothing that the activation function does not already provide.
 - **Using a mechanism is not the same as gaining from it.** Against Dans on the same tokens, training loss over the last 80 steps is +0.023 (seed 1234) and +0.004 (seed 2).
+
+## Result at 400M tokens (2026-10-15)
+
+| | Seed 1234 | Seed 2 | Mean |
+|---|---:|---:|---:|
+| **CTM Transformer (CTfull)** | **3.586** | **3.590** | **3.588** |
+| Dans (RDT's best) | 3.569 | 3.579 | 3.574 |
+| 8-layer Transformer (baseline) | 3.618 | 3.638 | 3.628 |
+
+- **Against the baseline:** the CTM Transformer beats the 8-layer Transformer on both seeds (−0.032, −0.048; mean −0.040).
+- **Against Dans:** +0.014. Under the pre-registered rule (at least 0.02 below Dans) this is a **tie, on the worse side**. The CTM mechanisms do not add value beyond the RDT's best at this scale.
+- **Compute:** the CTM Transformer costs about 2.9 times Dans per tick.
+
+**Liveness at the final checkpoint** (32 held-out windows, loss increase when removed at 16 ticks): all three mechanisms are used.
+
+| Mechanism | Seed 1234 | Seed 2 |
+|---|---:|---:|
+| sync_query | 0.063 | 0.070 |
+| sync_output | 0.011 | 0.011 |
+| neuron_models | 0.010 | 0.005 |
+
+The neuron-level models, unused at step 500, came into use late. The model relies on the mechanisms but does not end up better than Dans, which suggests they replace capacity Dans gets elsewhere rather than adding to it. The per-mechanism ablations (CTsq, CTso, CTnlm) test this directly.
+
+On these 32 windows, loss converges by 8 ticks and is flat to 32 (seed 1234: 3.835 at 1 tick, 3.580 at 4, 3.569 at 8, 3.568 at 16 and 32), with no drift.
