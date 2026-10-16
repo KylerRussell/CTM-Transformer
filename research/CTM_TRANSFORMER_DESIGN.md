@@ -112,3 +112,10 @@ On these 32 windows, loss converges by 8 ticks and is flat to 32 (seed 1234: 3.8
 - **Rules, fixed before the runs** (in `scripts/ctm_transformer_study.py`):
   - a variant beats Dans if its two-seed mean is at least 0.02 below 3.574;
   - against CTfull (3.588), a difference under 0.02 is a tie.
+
+**CTsq result** (synchronization in the attention queries only, 400M tokens): **3.584 (seed 1234), 3.579 (seed 2), mean 3.582.**
+- Against Dans (3.574): +0.008, a tie.
+- Against CTfull (3.588): −0.006, a tie.
+- Against the 8-layer Transformer (3.628): −0.046.
+
+The synchronization-driven query carries the full model's effect at about half its cost per tick (about 1.5 times Dans, against 2.9). The neuron-level models and output synchronization add cost without measurable gain.
