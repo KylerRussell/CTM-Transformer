@@ -119,3 +119,10 @@ On these 32 windows, loss converges by 8 ticks and is flat to 32 (seed 1234: 3.8
 - Against the 8-layer Transformer (3.628): −0.046.
 
 The synchronization-driven query carries the full model's effect at about half its cost per tick (about 1.5 times Dans, against 2.9). The neuron-level models and output synchronization add cost without measurable gain.
+
+**CTso result** (synchronization at the output only): **3.571 (seed 1234), 3.580 (seed 2), mean 3.576.**
+- Against Dans (3.574): +0.002, a tie.
+- Against CTfull (3.588): −0.012, a tie.
+- Against the 8-layer Transformer (3.628): −0.052.
+
+Seed 2 had the only gradient spikes in any CTM Transformer or Dans run: six steps between 1128 and 1141 with gradient norm above 5, peaking at 10,774 at step 1135. Clipping bounded the update. The training loss rose about 0.04 above Dans for about 40 steps and then fully recovered; the step-1143 evaluation (3.692) fell inside that window. A likely source is the output synchronization itself (products of normalized neurons), which no other variant uses without the query path.
