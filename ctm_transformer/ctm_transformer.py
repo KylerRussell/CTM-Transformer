@@ -14,6 +14,15 @@ zero-initialized so that the untrained model equals Dans at any tick count:
 * ``sync_output``: the output synchronization is added to the state before the coda through a
   zero-initialized projection, so it reaches the logits through the residual stream.
 
+Added 2026-10-18 (item 3 of the CTM Transformer plan):
+
+* ``attention_sink`` (CMM): each thinking layer's attention also sees a learned per-head sink key
+  with a zero value, so a tick can attend to nothing. The sink output is mixed in with a per-head
+  gate initialized to zero, so the untrained model is unchanged.
+* ``ctm_loss`` (CTM, a training objective, not zero-initialized): the loss is the CTM's, per token
+  the mean of the cross-entropy at the minimum-loss tick and at the most certain tick, over every
+  tick's readout (``lm_scale.ctm_selected_tick_loss``), in place of the final tick's cross-entropy.
+
 Synchronization (``TickSynchronization``): random pairs of the normalized state's neurons, each
 a decayed running average of the products of its two neurons over ticks, read as alpha / beta
 (CMM's normalization, independent of the tick count). The decay is r = softplus(rho), so it has
@@ -28,11 +37,13 @@ from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
 
 from ctm_transformer.ctm_lm import NeuronLevelModels
+from ctm_transformer.lm_scale import ctm_selected_tick_loss
 from ctm_transformer.positions import rope
 from ctm_transformer.rdt_recipe import RecipeRDT
 
 DANS = {'norm': 'prenorm', 'normalize': False, 'state_init': 'zeros', 'injection': 'add', 'coda_norm': 'none', 'state_norm': True}
-MECHANISMS = ('neuron_models', 'sync_query', 'sync_output')
+MECHANISMS = ('neuron_models', 'sync_query', 'sync_output', 'attention_sink')
+OBJECTIVES = ('ctm_loss',)
 NLM_HISTORY = 4  # ticks of pre-activation history per feed-forward neuron
 NLM_HIDDEN = 4   # hidden width of each neuron's private MLP (4, not 8: per-token neuron MLPs are memory-bound, 2026-10-14)
 DECAY_INIT = 0.01
@@ -88,13 +99,16 @@ class TickSynchronization(nn.Module):
 
 
 class CTMTransformer(RecipeRDT):
-    def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, pairs=None, seed=0, **recipe):
+    def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, ctm_loss=False,
+                 pairs=None, seed=0, **recipe):
         super().__init__(config, **recipe)
         if self.recipe['norm'] != 'prenorm' or not self.recipe['state_norm']:
             raise ValueError('The CTM Transformer builds on a pre-norm recipe with a state norm (Dans)')
         d, layers = config.d_model, len(self.core)
         pairs = pairs or d
-        self.mechanisms = {'neuron_models': neuron_models, 'sync_query': sync_query, 'sync_output': sync_output}
+        self.mechanisms = {'neuron_models': neuron_models, 'sync_query': sync_query, 'sync_output': sync_output, 'attention_sink': attention_sink}
+        self.ctm_loss = ctm_loss
+        self._hidden_readouts = False
         generator = torch.Generator().manual_seed(seed)
         if neuron_models:
             hidden = self.core[0].gate.out_features
@@ -105,6 +119,10 @@ class CTMTransformer(RecipeRDT):
             self.sync_queries = nn.ModuleList(nn.Linear(pairs, d, bias=False) for _ in range(layers))
             for layer in self.sync_queries:
                 nn.init.zeros_(layer.weight)
+        if attention_sink:
+            heads = self.core[0].attn.heads
+            self.sink_keys = nn.Parameter(torch.zeros(layers, heads, d // heads))
+            self.sink_gate = nn.Parameter(torch.zeros(layers, heads))
         if sync_output:
             self.sync_out = TickSynchronization(d, pairs, generator)
             self.sync_projection = nn.Linear(pairs, d, bias=False)
@@ -127,7 +145,15 @@ class CTMTransformer(RecipeRDT):
             q = q + q_extra.to(q.dtype)
         split = lambda t: t.view(B, S, H, W // H).transpose(1, 2)
         positions = attn.positions if getattr(attn, 'positions', None) is not None else torch.arange(S, device=x.device)
-        y = F.scaled_dot_product_attention(rope(split(q), positions), rope(split(attn.k(h)), positions), split(attn.v(h)), is_causal=True)
+        q, k, v = rope(split(q), positions), rope(split(attn.k(h)), positions), split(attn.v(h))
+        y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+        if self.mechanisms['attention_sink']:
+            # The sink is prepended as key 0 (zero value) with a dummy query 0, so that under the causal mask every real
+            # query sees the sink and its own causal prefix.
+            zero = torch.zeros_like(q[:, :, :1])
+            sink = self.sink_keys[index][None, :, None, :].to(k.dtype).expand(B, -1, 1, -1)
+            y_sink = F.scaled_dot_product_attention(torch.cat((zero, q), 2), torch.cat((sink, k), 2), torch.cat((zero, v), 2), is_causal=True)[:, :, 1:]
+            y = y + self.sink_gate[index][None, :, None, None].to(y.dtype) * (y_sink - y)
         x = block.attn_post(x + attn.out(y.transpose(1, 2).contiguous().view(B, S, W)))
         u = block.ffn_norm(x)
         pre = block.gate(u)
@@ -191,16 +217,33 @@ class CTMTransformer(RecipeRDT):
                         else:
                             sync_out = (next(sums), beta)
             if readouts is not None:
-                readouts.append(self.lm_head(self.final_norm(self._blocks(self.coda, self._coda_in(self._output(x, sync_out))))))
+                hidden = self.final_norm(self._blocks(self.coda, self._coda_in(self._output(x, sync_out))))
+                readouts.append(hidden if self._hidden_readouts else self.lm_head(hidden))
         return self._blocks(self.coda, self._coda_in(self._output(x, sync_out)))
+
+    def forward(self, input_ids, targets=None, max_thought_steps=None, return_all_logits=False):
+        if not (self.ctm_loss and targets is not None and not return_all_logits):
+            return super().forward(input_ids, targets, max_thought_steps, return_all_logits)
+        if targets.shape != input_ids.shape:
+            raise ValueError('Targets must be shifted and have the same shape as input_ids')
+        depth = self.config.max_thought_steps if max_thought_steps is None else max_thought_steps
+        hidden = []
+        self._hidden_readouts = True
+        try:
+            self._recur(self.token_embedding(input_ids), depth, hidden)
+        finally:
+            self._hidden_readouts = False
+        out = ctm_selected_tick_loss(torch.stack(hidden, dim=2), self.lm_head.weight, targets)
+        return {'logits': None, 'loss': out['loss'], 'thought_steps': depth,
+                'block_applications': len(self.prelude) + depth * (len(self.core) + len(self.coda))}
 
 
 def ctm_transformer_factory(mechanisms, recipe=DANS, checkpointing=False, backprop_steps=None):
-    unknown = set(mechanisms) - set(MECHANISMS)
+    unknown = set(mechanisms) - set(MECHANISMS) - set(OBJECTIVES)
     if unknown:
         raise ValueError(f'Unknown mechanisms {sorted(unknown)}')
     def factory(config):
         return CTMTransformer(replace(config, gradient_checkpointing=checkpointing), backprop_steps=backprop_steps,
-                              **{m: m in mechanisms for m in MECHANISMS}, **recipe)
+                              **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES}, **recipe)
     factory.__qualname__ = 'ctm_transformer_factory[' + ('+'.join(sorted(mechanisms)) or 'dans') + ']'
     return factory

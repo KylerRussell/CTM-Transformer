@@ -176,3 +176,17 @@ Seed 2 gives the same pattern (`research/results/adaptive_compute/*_s2.json`).
 Correction: Dans was trained only at lr 2e-3, taken from its depth-1 twin (the 8-layer Transformer's best). Only the 8-layer Transformer had its rate tuned at 400M tokens. The check therefore covers both:
 - Dans and CTsq at lr 1e-3 and 4e-3, seed 1234.
 - CTsq stands in for the CTM Transformer: it is the cheapest stable variant (1.5 times Dans per tick, no gradient spikes), and all variants tie.
+
+## Item 3: the CMM attention sink and the CTM loss (2026-10-18, queued after the learning-rate check)
+
+- **CTsqS:** CTsq plus the CMM attention sink. Each thinking layer's attention also sees a learned per-head key with a zero value, so a tick can attend to nothing. It is mixed in through a per-head gate initialized to zero.
+- **CTsqL:** CTsq trained with the CTM loss: per token, the mean of the cross-entropy at the minimum-loss tick and at the most certain tick, over every tick's readout.
+
+Two seeds each, at 400M tokens. Rules (in `scripts/ctm_transformer_study.py`):
+- a variant improves on CTsq if its two-seed mean is at least 0.02 below 3.582, and beats Dans if at least 0.02 below 3.574;
+- for CTsqL, certainty counts as a usable stopping signal if threshold exit at a mean of 4 ticks is within 0.02 of its fixed 4-tick loss.
+
+Unit tests:
+- the sink equals attention over the sink and the causal prefix when its gate is open;
+- the loss equals the CTM loss computed from all ticks' logits;
+- with the gate closed, the untrained model is still Dans.

@@ -8,7 +8,7 @@ from ctm_transformer.rdt_recipe import recipe_factory
 from tests.test_lm_scale import batch, config, grads
 
 CASES = [(), *[(m,) for m in MECHANISMS], MECHANISMS]
-ZERO_INIT = {'neuron_models': 'nlm_scale', 'sync_query': 'sync_queries.0.weight', 'sync_output': 'sync_projection.weight'}
+ZERO_INIT = {'neuron_models': 'nlm_scale', 'sync_query': 'sync_queries.0.weight', 'sync_output': 'sync_projection.weight', 'attention_sink': 'sink_gate'}
 
 
 def pair(mechanisms, depth=4, checkpointing=False):
@@ -49,6 +49,9 @@ def test_each_mechanism_changes_the_output_once_its_zero_initialized_parameter_i
         if mechanism == 'sync_query':
             for layer in model.sync_queries:
                 layer.weight.normal_(std=0.1)
+        if mechanism == 'attention_sink':
+            model.sink_keys.normal_(std=1.0)
+            model.sink_gate.fill_(1.0)
         assert not torch.allclose(before, model(x)['logits'], atol=1e-4)
 
 
@@ -102,3 +105,38 @@ def test_the_fused_neuron_model_kernel_and_the_matmul_pair_products_match_their_
     z = torch.randn(3, model.config.d_model)
     s = model.sync_out
     assert torch.allclose(s.products(z), z[:, s.left] * z[:, s.right], atol=1e-6)
+
+
+def test_attention_sink_with_an_open_gate_is_attention_over_the_sink_and_the_causal_prefix():
+    from torch.nn import functional as F
+    model, _ = pair(('attention_sink',), depth=1)
+    with torch.no_grad():
+        model.sink_keys.normal_(std=1.0)
+        model.sink_gate.fill_(1.0)
+    B, H, S, dh = 2, model.core[0].attn.heads, 5, model.config.d_model // model.core[0].attn.heads
+    q, k, v = torch.randn(B, H, S, dh), torch.randn(B, H, S, dh), torch.randn(B, H, S, dh)
+    sink = model.sink_keys[0][None, :, None, :].expand(B, -1, 1, -1)
+    zero = torch.zeros_like(q[:, :, :1])
+    got = F.scaled_dot_product_attention(torch.cat((zero, q), 2), torch.cat((sink, k), 2), torch.cat((zero, v), 2), is_causal=True)[:, :, 1:]
+    logits = torch.cat(((q * sink).sum(-1, keepdim=True), q @ k.transpose(-1, -2)), -1) / dh ** 0.5
+    mask = torch.cat((torch.ones(S, 1, dtype=torch.bool), torch.ones(S, S, dtype=torch.bool).tril()), -1)
+    weights = logits.masked_fill(~mask, float('-inf')).softmax(-1)
+    assert torch.allclose(got, weights[..., 1:] @ v, atol=1e-5)
+
+
+def test_ctm_loss_is_the_mean_of_the_min_loss_and_most_certain_tick_cross_entropy():
+    from ctm_transformer.ctm_lm import ctm_loss
+    c = replace(config('rdt'), max_thought_steps=4)
+    torch.manual_seed(0)
+    model = ctm_transformer_factory({'sync_query', 'ctm_loss'})(c)
+    with torch.no_grad():
+        for layer in model.sync_queries:
+            layer.weight.normal_(std=0.1)
+    x, y = batch()
+    got = model(x, targets=y)['loss']
+    with torch.no_grad():
+        logits = torch.stack(model(x, return_all_logits=True)['all_logits'], dim=2)
+        expected = ctm_loss(logits, y)['loss']
+    assert torch.allclose(got, expected, atol=1e-4)
+    got.backward()
+    assert model.sync_queries[0].weight.grad.abs().sum() > 0

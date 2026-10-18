@@ -25,14 +25,23 @@ each on seeds 1234 and 2. Rules, fixed before these runs, on two-seed means:
 - against CTfull (3.588), a difference under 0.02 is a tie. A single-mechanism variant that ties or beats
   CTfull carries the full model's effect at lower cost.
 
+Item 3 (added 2026-10-18): CTsqS (CTsq + the CMM attention sink) and CTsqL (CTsq trained with the CTM
+loss: per token, the mean of the cross-entropy at the minimum-loss tick and at the most certain tick).
+Two seeds each. Rules, fixed before these runs, on two-seed means:
+- a variant improves on CTsq if it is at least 0.02 below 3.582; it beats Dans if it is at least 0.02 below 3.574.
+- For CTsqL, certainty becomes a usable stopping signal (scripts/adaptive_compute.py) if threshold exit at
+  a mean of 4 ticks is within 0.02 of its fixed 4-tick loss.
+
 Usage: python -m scripts.ctm_transformer_study --gpu N --runs NAMES... | --diagnose RUN [--checkpoint F] | --summarize
 """
 import argparse,json,math,os,subprocess,sys
 from pathlib import Path
 
 RUNS=Path('research/runs/ctm_transformer');OUT=Path('research/results/ctm_transformer')
-VARIANTS={'CTfull':['neuron_models','sync_query','sync_output'],'CTnlm':['neuron_models'],'CTsq':['sync_query'],'CTso':['sync_output']}
-MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than 28 ticks (memory)
+VARIANTS={'CTfull':['neuron_models','sync_query','sync_output'],'CTnlm':['neuron_models'],'CTsq':['sync_query'],'CTso':['sync_output'],
+          # item 3 (2026-10-18): the CMM attention sink and the CTM loss, on CTsq
+          'CTsqS':['sync_query','attention_sink'],'CTsqL':['sync_query','ctm_loss']}
+MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[28,8]],'CTsqL':[[20,8],[36,4]]}  # micro-batch 16, and 8 for steps deeper than 28 ticks (memory)
 COLLAPSED=7.0
 
 
