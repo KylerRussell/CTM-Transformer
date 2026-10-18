@@ -126,3 +126,29 @@ The synchronization-driven query carries the full model's effect at about half i
 - Against the 8-layer Transformer (3.628): −0.052.
 
 Seed 2 had the only gradient spikes in any CTM Transformer or Dans run: six steps between 1128 and 1141 with gradient norm above 5, peaking at 10,774 at step 1135. Clipping bounded the update. The training loss rose about 0.04 above Dans for about 40 steps and then fully recovered; the step-1143 evaluation (3.692) fell inside that window. A likely source is the output synchronization itself (products of normalized neurons), which no other variant uses without the query path.
+
+**CTnlm result** (neuron-level models only): **3.570 (seed 1234), 3.574 (seed 2), mean 3.572.**
+- Against Dans (3.574): −0.002, a tie.
+- Against CTfull (3.588): −0.016, a tie.
+- No gradient spikes.
+- About 2.7–3 times Dans per tick: the per-neuron MLPs are where the full model's cost comes from.
+
+## Ablation summary (400M tokens, two seeds each)
+
+| Model | Seed 1234 | Seed 2 | Mean | vs Dans | Cost per tick vs Dans |
+|---|---:|---:|---:|---:|---:|
+| 8-layer Transformer (baseline) | 3.618 | 3.638 | 3.628 | +0.054 | (one pass) |
+| Dans (RDT's best) | 3.569 | 3.579 | 3.574 | — | 1× |
+| CTfull (all three mechanisms) | 3.586 | 3.590 | 3.588 | +0.014 | about 2.9× |
+| CTsq (synchronization queries) | 3.584 | 3.579 | 3.582 | +0.008 | about 1.5× |
+| CTso (synchronization output) | 3.571 | 3.580 | 3.576 | +0.002 | about 1.45× |
+| CTnlm (neuron-level models) | 3.570 | 3.574 | 3.572 | −0.002 | about 2.8× |
+
+- **Every CTM Transformer variant beats the baseline Transformer**, by 0.040–0.056.
+- **Every one ties Dans** under the pre-registered rule; none is 0.02 below it. The CTM mechanisms, alone or combined, do not improve on the RDT's best at this scale.
+- **Combining them is slightly worse than any one alone.** CTfull is last among the CTM variants, though all are within 0.016 of each other, about one seed spread.
+- **Untested so far:**
+  - the CTM's loss across ticks with a most-certain-tick readout (its adaptive-compute mechanism);
+  - the CMM attention sink and memory;
+  - a learning-rate check for the CTM Transformer, which reused Dans's 2e-3;
+  - scale.
