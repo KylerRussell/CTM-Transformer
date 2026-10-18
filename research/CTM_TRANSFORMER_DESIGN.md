@@ -152,3 +152,27 @@ Seed 2 had the only gradient spikes in any CTM Transformer or Dans run: six step
   - the CMM attention sink and memory;
   - a learning-rate check for the CTM Transformer, which reused Dans's 2e-3;
   - scale.
+
+## Adaptive compute from certainty (2026-10-18; `scripts/adaptive_compute.py`, `research/results/adaptive_compute/`)
+
+Trained checkpoints only, 64 held-out windows (65,536 tokens). Each token's readout is computed at every tick from 1 to 32. CE at fixed tick counts, and CE under certainty-threshold exit interpolated to a mean of 2, 3 and 4 ticks:
+
+| Model (seed 1234) | T = 1 | T = 2 | T = 4 | T = 16 | Exit at a mean of 2 / 3 / 4 ticks | Most certain of 1–16 (mean tick, CE) |
+|---|---:|---:|---:|---:|---|---|
+| Dans | 3.796 | 3.596 | 3.530 | 3.519 | 3.780 / 3.765 / 3.750 | (5.2, 3.605) |
+| CTfull | 3.813 | 3.617 | 3.547 | 3.535 | 3.797 / 3.782 / 3.767 | (5.3, 3.618) |
+| CTsq | 3.826 | 3.616 | 3.544 | 3.533 | 3.809 / 3.793 / 3.776 | (5.6, 3.615) |
+| CTso | 3.796 | 3.598 | 3.532 | 3.519 | 3.780 / 3.765 / 3.750 | (5.7, 3.600) |
+| CTnlm | 3.798 | 3.597 | 3.528 | 3.516 | 3.781 / 3.766 / 3.751 | (5.1, 3.603) |
+
+Seed 2 gives the same pattern (`research/results/adaptive_compute/*_s2.json`).
+
+- **Certainty is a poor stopping signal for every model.** At the same mean tick count, certainty-threshold exit is about 0.22 worse than running every token for that many ticks (3.75 against 3.53 at 4 ticks). The CTM's label-free most-certain readout is 0.08 worse than the final tick. Early-tick readouts are confidently wrong on many tokens.
+- **The CTM Transformer uses its ticks no more efficiently than Dans.** The fixed-tick curves have the same shape. Every model is within about 0.012 of its 16-tick loss at 4 ticks.
+- **Caveat:** these models were trained with Dans's final-tick loss. The CTM's own loss across ticks (with certainty selection) is the mechanism meant to make certainty meaningful, and it is the next test (item 3).
+
+## Learning-rate check (2026-10-18)
+
+Correction: Dans was trained only at lr 2e-3, taken from its depth-1 twin (the 8-layer Transformer's best). Only the 8-layer Transformer had its rate tuned at 400M tokens. The check therefore covers both:
+- Dans and CTsq at lr 1e-3 and 4e-3, seed 1234.
+- CTsq stands in for the CTM Transformer: it is the cheapest stable variant (1.5 times Dans per tick, no gradient spikes), and all variants tie.
