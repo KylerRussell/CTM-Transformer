@@ -41,7 +41,7 @@ RUNS=Path('research/runs/ctm_transformer');OUT=Path('research/results/ctm_transf
 VARIANTS={'CTfull':['neuron_models','sync_query','sync_output'],'CTnlm':['neuron_models'],'CTsq':['sync_query'],'CTso':['sync_output'],
           # item 3 (2026-10-18): the CMM attention sink and the CTM loss, on CTsq
           'CTsqS':['sync_query','attention_sink'],'CTsqL':['sync_query','ctm_loss']}
-MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[28,8]],'CTsqL':[[20,8],[36,4]]}  # micro-batch 16, and 8 for steps deeper than 28 ticks (memory)
+MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[36,8]],'CTsqL':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than the limit (memory; item 3 limits from the 2026-10-19 memory test)
 COLLAPSED=7.0
 
 

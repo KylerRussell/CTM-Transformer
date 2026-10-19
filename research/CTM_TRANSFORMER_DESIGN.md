@@ -190,3 +190,13 @@ Unit tests:
 - the sink equals attention over the sink and the causal prefix when its gate is open;
 - the loss equals the CTM loss computed from all ticks' logits;
 - with the gate closed, the untrained model is still Dans.
+
+**Learning-rate check result** (seed 1234, 400M tokens):
+
+| lr | CTsq | Dans |
+|---|---:|---:|
+| 1e-3 | 3.666 | 3.659 |
+| **2e-3** | **3.584** | **3.569** |
+| 4e-3 | 3.714 | 3.657 |
+
+2e-3 is the best of the three for both, by 0.08–0.13. The main comparison was made at each family's best tried rate, and the tie stands.
