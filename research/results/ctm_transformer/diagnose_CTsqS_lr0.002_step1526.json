@@ -1,0 +1,23 @@
+{
+ "run": "CTsqS_lr0.002",
+ "step": 1526,
+ "windows": 8,
+ "loss_by_depth": {
+  "1": 3.731327384710312,
+  "4": 3.4670830368995667,
+  "8": 3.4558671712875366,
+  "16": 3.454480528831482,
+  "32": 3.4542865455150604
+ },
+ "loss_increase_when_removed_at_16": {
+  "sync_query": 0.05740600824356079,
+  "attention_sink": 0.00424233078956604
+ },
+ "unused": [
+  "attention_sink"
+ ],
+ "parameter_norm": {
+  "sync_query": 52.20071525229863,
+  "attention_sink": 4.558633916918155
+ }
+}

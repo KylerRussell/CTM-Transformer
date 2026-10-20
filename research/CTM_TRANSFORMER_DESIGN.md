@@ -206,3 +206,20 @@ Unit tests:
 - Synchronization queries remain the mechanism the model relies on: removing them costs 0.057 / 0.058.
 - Seed 2 had one clipped gradient spike (norm 195 at step 803) with no effect on the loss. It was already 0.02 behind CTsq seed 2 at step 762.
 - Loss by tick count (8 windows): 1 tick 3.731 / 3.806, 4 ticks 3.467 / 3.487, 16 ticks 3.454 / 3.476. Nearly all the gain from thinking arrives by 4 ticks, as for the other variants.
+
+**CTsqL result** (2026-10-20): failed on both seeds and stopped at steps 1,108 / 1,142 at the user's instruction.
+- Training loss tracked CTsq until about step 40, then stalled at 7.0–7.6; CTsq reached 5.07 by step 256. Validation at 16 ticks: 8.77 → 8.14 (seed 1234) and 7.57 → 10.31 (seed 2).
+- From step about 90, gradient norms ran at 1e2–1e9 on most steps, against about 0.3 for CTsq. Clipping kept the norms finite, so the trainer's divergence check (non-finite norm) never fired.
+
+Diagnosis (`scripts/ctm_loss_diagnosis.py`; 2 held-out windows at 16 ticks; results in `research/results/ctm_transformer/ctm_loss_diagnosis_*.json`):
+- **The loss and its gradient are correct.** At depth 1, the CTM loss reproduces the final-tick gradient to 1e-6. On trained CTsq and at initialization, its gradient norm is close to the final-tick loss's (1.38 vs 1.44, and 8.2 vs 9.0). On a healthy model the selected ticks spread over all 16 ticks.
+- **The model collapsed.** At step 400, every layer's internal activations are 10–300 times larger than in trained CTsq, while weight norms are not larger (37 vs 47), so the weights have aligned into a few dominant directions:
+  - FFN down-projection inputs: RMS 10–108, against about 0.4.
+  - The recurrent state's RMS: about 2,000 after the first tick, against 4.7.
+  - Predictions are close to the unigram distribution: CE 7.9 at tick 1 and 8.0 at every tick from 3 on, with the same value at each.
+  - The most certain tick is tick 1 for 95% of tokens.
+- **The gradient through ticks 2 and later is pathological.** It is 30–200 times larger than in a healthy model: 60–67 at step 400 and up to 332 at step 1,100, against 1.4. It goes mostly into the token embedding and the first prelude layer, and dominates the clipped update.
+- **Measurement note:** a first version of the diagnosis ran its no-grad pass and gradient passes inside one bf16 autocast block. Autocast reused weight casts from the no-grad pass and cut the gradient to core, prelude and coda weights. Each pass now has its own autocast block. Training is unaffected: every micro-step enters autocast fresh.
+- **Not yet known:** what starts the collapse around steps 40–90. Two candidates:
+  - the selection trains mostly tick 1 early on, so deeper ticks drift untrained, and their occasional selection sends large gradients through an untrained recurrence;
+  - an optimization instability that the per-token selection amplifies.
