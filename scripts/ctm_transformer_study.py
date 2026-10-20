@@ -96,7 +96,7 @@ def diagnose(run_name,checkpoint=None,windows=8,depths=(1,4,8,16,32),device='cud
         by_depth=evaluate_lm(model,valid,indices,1,device,'rdt',depths=tuple(depths))
         full=by_depth['depth_16'] if 'depth_16' in by_depth else evaluate_lm(model,valid,indices,1,device,'rdt',depths=(16,))['depth_16']
         removed={}
-        params={'neuron_models':['nlm_scale'],'sync_query':[f'sync_queries.{i}.weight' for i in range(len(model.core))],'sync_output':['sync_projection.weight']}
+        params={'neuron_models':['nlm_scale'],'sync_query':[f'sync_queries.{i}.weight' for i in range(len(model.core))],'sync_output':['sync_projection.weight'],'attention_sink':['sink_gate']}
         state={k:v.clone() for k,v in model.state_dict().items()}
         for mechanism in run['ctm_transformer']:
             for p in params[mechanism]:dict(model.named_parameters())[p].zero_()

@@ -200,3 +200,9 @@ Unit tests:
 | 4e-3 | 3.714 | 3.657 |
 
 2e-3 is the best of the three for both, by 0.08–0.13. The main comparison was made at each family's best tried rate, and the tie stands.
+
+**CTsqS result** (2026-10-19, 400M tokens): 3.579 / 3.593, mean 3.586. It ties CTsq (3.582) and Dans (3.574), and the rule's improvement threshold is not met.
+- The gates opened: 0.4–0.8 per layer on average, with sink keys of norm 2–3. However, removing the sink at evaluation (gate set to zero) costs only 0.004 / 0.006 at 16 ticks on 8 windows, at the 0.005 liveness threshold. Attention puts little weight on the sink, so the gated mix stays close to plain attention.
+- Synchronization queries remain the mechanism the model relies on: removing them costs 0.057 / 0.058.
+- Seed 2 had one clipped gradient spike (norm 195 at step 803) with no effect on the loss. It was already 0.02 behind CTsq seed 2 at step 762.
+- Loss by tick count (8 windows): 1 tick 3.731 / 3.806, 4 ticks 3.467 / 3.487, 16 ticks 3.454 / 3.476. Nearly all the gain from thinking arrives by 4 ticks, as for the other variants.
