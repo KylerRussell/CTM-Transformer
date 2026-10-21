@@ -23,6 +23,14 @@ Added 2026-10-18 (item 3 of the CTM Transformer plan):
   the mean of the cross-entropy at the minimum-loss tick and at the most certain tick, over every
   tick's readout (``lm_scale.ctm_selected_tick_loss``), in place of the final tick's cross-entropy.
 
+Added 2026-10-21, after CTsqL (``ctm_loss``) collapsed on both seeds:
+
+* ``final_tick_loss`` (with ``ctm_loss`` only): the loss is the mean of the CTM loss and the final tick's
+  cross-entropy, so that every sampled tick count keeps being trained as in Dans.
+* ``record_stats`` (attribute, off by default): each forward stores detached diagnostics in ``self.stats``:
+  the state's RMS after every tick and, under the CTM loss, the per-tick cross-entropy and the share of
+  tokens selecting each tick.
+
 Synchronization (``TickSynchronization``): random pairs of the normalized state's neurons, each
 a decayed running average of the products of its two neurons over ticks, read as alpha / beta
 (CMM's normalization, independent of the tick count). The decay is r = softplus(rho), so it has
@@ -37,13 +45,13 @@ from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
 
 from ctm_transformer.ctm_lm import NeuronLevelModels
-from ctm_transformer.lm_scale import ctm_selected_tick_loss
+from ctm_transformer.lm_scale import chunked_cross_entropy, ctm_selected_tick_loss
 from ctm_transformer.positions import rope
 from ctm_transformer.rdt_recipe import RecipeRDT
 
 DANS = {'norm': 'prenorm', 'normalize': False, 'state_init': 'zeros', 'injection': 'add', 'coda_norm': 'none', 'state_norm': True}
 MECHANISMS = ('neuron_models', 'sync_query', 'sync_output', 'attention_sink')
-OBJECTIVES = ('ctm_loss',)
+OBJECTIVES = ('ctm_loss', 'final_tick_loss')
 NLM_HISTORY = 4  # ticks of pre-activation history per feed-forward neuron
 NLM_HIDDEN = 4   # hidden width of each neuron's private MLP (4, not 8: per-token neuron MLPs are memory-bound, 2026-10-14)
 DECAY_INIT = 0.01
@@ -100,15 +108,20 @@ class TickSynchronization(nn.Module):
 
 class CTMTransformer(RecipeRDT):
     def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, ctm_loss=False,
-                 pairs=None, seed=0, **recipe):
+                 final_tick_loss=False, pairs=None, seed=0, **recipe):
         super().__init__(config, **recipe)
         if self.recipe['norm'] != 'prenorm' or not self.recipe['state_norm']:
             raise ValueError('The CTM Transformer builds on a pre-norm recipe with a state norm (Dans)')
         d, layers = config.d_model, len(self.core)
         pairs = pairs or d
         self.mechanisms = {'neuron_models': neuron_models, 'sync_query': sync_query, 'sync_output': sync_output, 'attention_sink': attention_sink}
+        if final_tick_loss and not ctm_loss:
+            raise ValueError('final_tick_loss is added to the CTM loss; alone it is the default objective')
         self.ctm_loss = ctm_loss
+        self.final_tick_loss = final_tick_loss
         self._hidden_readouts = False
+        self.record_stats = False
+        self.stats = {}
         generator = torch.Generator().manual_seed(seed)
         if neuron_models:
             hidden = self.core[0].gate.out_features
@@ -195,6 +208,7 @@ class CTMTransformer(RecipeRDT):
         x = self._state(embedded)
         history = [() for _ in self.core]
         sync_action = sync_out = None  # (alpha, beta) pairs
+        state_rms = []
         for i in range(depth):
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):
                 h = self.injection(torch.cat((self.state_norm(x), injected), dim=-1))
@@ -205,6 +219,8 @@ class CTMTransformer(RecipeRDT):
                         past = history[index] if history[index] else (torch.zeros_like(pre),) * (NLM_HISTORY - 1)
                         history[index] = (*past[1:], pre)
                 x = h
+                if self.record_stats:
+                    state_rms.append(x.detach().float().pow(2).mean().sqrt())
                 enabled = [(name, sync) for name, sync in (('sync_query', sync_action), ('sync_output', sync_out)) if self.mechanisms[name]]
                 if enabled:
                     previous = tuple(state[0] for _, state in enabled) if i > 0 else ()
@@ -219,6 +235,8 @@ class CTMTransformer(RecipeRDT):
             if readouts is not None:
                 hidden = self.final_norm(self._blocks(self.coda, self._coda_in(self._output(x, sync_out))))
                 readouts.append(hidden if self._hidden_readouts else self.lm_head(hidden))
+        if self.record_stats:
+            self.stats = {'state_rms': torch.stack(state_rms)}
         return self._blocks(self.coda, self._coda_in(self._output(x, sync_out)))
 
     def forward(self, input_ids, targets=None, max_thought_steps=None, return_all_logits=False):
@@ -234,7 +252,13 @@ class CTMTransformer(RecipeRDT):
         finally:
             self._hidden_readouts = False
         out = ctm_selected_tick_loss(torch.stack(hidden, dim=2), self.lm_head.weight, targets)
-        return {'logits': None, 'loss': out['loss'], 'thought_steps': depth,
+        loss = out['loss']
+        if self.final_tick_loss:
+            loss = (loss + chunked_cross_entropy(hidden[-1], self.lm_head.weight, targets)) / 2
+        if self.record_stats:
+            counts = [torch.bincount(out['selected_ticks'][:, j], minlength=depth).float() / len(out['selected_ticks']) for j in (0, 1)]
+            self.stats.update(per_tick_ce=out['per_tick_loss'].detach(), min_loss_tick_share=counts[0], most_certain_tick_share=counts[1])
+        return {'logits': None, 'loss': loss, 'thought_steps': depth,
                 'block_applications': len(self.prelude) + depth * (len(self.core) + len(self.coda))}
 
 

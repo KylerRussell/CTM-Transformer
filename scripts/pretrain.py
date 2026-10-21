@@ -130,6 +130,7 @@ def main():
     stop=min(t['total_steps'],a.max_steps) if a.max_steps else t['total_steps']
     log=open(out/'metrics.jsonl','a') if rank==0 else None
     if rank==0:print(json.dumps({'event':'start','step':start,'stop':stop,'tokens_per_step':tokens_per_step,'world':world}),flush=True)
+    if t.get('diagnostics'):model.record_stats=True  # per-step diagnostics (2026-10-21): model.stats and per-module gradient norms
     for step in range(start,stop):
         tick=time.perf_counter();lr=lr_at(step,t['lr'],t['warmup_steps'],t['total_steps'],t.get('lr_floor',0.1));set_lr(optimizer,lr)
         depth=step_depth(sampler,run['seed'],step) or (run.get('eval_depth') if family!='transformer' else None)
@@ -144,6 +145,14 @@ def main():
                 with torch.autocast('cuda',dtype=torch.bfloat16):loss=net(x,targets=y,max_thought_steps=depth)['loss']
                 (loss/acc).backward()
             total+=loss.detach()/acc
+        if t.get('diagnostics'):
+            groups_sq={}
+            for n,p in model.named_parameters():
+                if p.grad is not None:
+                    parts=n.split('.');g='.'.join(parts[:2]) if parts[0] in ('prelude','core','coda','sync_queries') else parts[0]
+                    groups_sq[g]=groups_sq.get(g,0.0)+p.grad.detach().float().pow(2).sum()
+            diagnostics={'grad_norm_by_module':{g:round(float(v)**0.5,4) for g,v in sorted(groups_sq.items())},
+                         **{k:[round(float(e),4) for e in v] for k,v in getattr(model,'stats',{}).items()}}
         norm=torch.nn.utils.clip_grad_norm_(params,t['grad_clip'])
         if not torch.isfinite(norm):  # identical on every rank: the gradients are all-reduced
             if rank==0:(out/'diverged.json').write_text(json.dumps({'diverged':True,'step':step,'loss':float(total),'lr':lr})+'\n')
@@ -153,6 +162,7 @@ def main():
         done=step+1;row={'step':done,'tokens':done*tokens_per_step,'loss':float(total),'lr':lr,'grad_norm':float(norm),'depth':depth,
              'seconds':time.perf_counter()-tick,'peak_gib':torch.cuda.max_memory_allocated(device)/2**30}
         row['tokens_per_second']=tokens_per_step/row['seconds']
+        if t.get('diagnostics'):row['diagnostics']=diagnostics  # the last micro-batch's model statistics
         if done%t['eval_interval']==0 or done==t['total_steps']:
             if rank==0:row['validation']=evaluate_lm(model,valid,final_indices if done==t['total_steps'] else eval_indices,t['eval_micro_batch'],device,family,
                 depths=tuple(run.get('eval_depths',[run.get('eval_depth')])) if family=='rdt' else (None,))

@@ -140,3 +140,32 @@ def test_ctm_loss_is_the_mean_of_the_min_loss_and_most_certain_tick_cross_entrop
     assert torch.allclose(got, expected, atol=1e-4)
     got.backward()
     assert model.sync_queries[0].weight.grad.abs().sum() > 0
+
+
+def test_ctm_plus_final_tick_loss_is_the_mean_of_the_two_and_needs_the_ctm_loss():
+    from ctm_transformer.ctm_lm import ctm_loss
+    c = replace(config('rdt'), max_thought_steps=4)
+    torch.manual_seed(0)
+    model = ctm_transformer_factory({'sync_query', 'ctm_loss', 'final_tick_loss'})(c)
+    x, y = batch()
+    got = model(x, targets=y)['loss']
+    with torch.no_grad():
+        logits = torch.stack(model(x, return_all_logits=True)['all_logits'], dim=2)
+        final = torch.nn.functional.cross_entropy(logits[:, :, -1].reshape(-1, logits.shape[-1]), y.reshape(-1))
+        expected = (ctm_loss(logits, y)['loss'] + final) / 2
+    assert torch.allclose(got, expected, atol=1e-4)
+    with pytest.raises(ValueError):
+        ctm_transformer_factory({'final_tick_loss'})(c)
+
+
+def test_recorded_statistics_cover_every_tick_and_the_selection_shares_sum_to_one():
+    c = replace(config('rdt'), max_thought_steps=4)
+    torch.manual_seed(0)
+    model = ctm_transformer_factory({'sync_query', 'ctm_loss'})(c)
+    model.record_stats = True
+    x, y = batch()
+    model(x, targets=y)['loss'].backward()
+    s = model.stats
+    assert s['state_rms'].shape == (4,) and s['per_tick_ce'].shape == (4,)
+    for k in ('min_loss_tick_share', 'most_certain_tick_share'):
+        assert torch.allclose(s[k].sum(), torch.tensor(1.0))

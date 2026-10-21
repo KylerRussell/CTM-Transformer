@@ -32,7 +32,17 @@ Two seeds each. Rules, fixed before these runs, on two-seed means:
 - For CTsqL, certainty becomes a usable stopping signal (scripts/adaptive_compute.py) if threshold exit at
   a mean of 4 ticks is within 0.02 of its fixed 4-tick loss.
 
-Usage: python -m scripts.ctm_transformer_study --gpu N --runs NAMES... | --diagnose RUN [--checkpoint F] | --summarize
+CTsqL failed (2026-10-20): both seeds collapsed from about step 40 (research/CTM_TRANSFORMER_DESIGN.md).
+Pilots (added 2026-10-21): run names ending in `_pilot` train with per-step diagnostics (state RMS per tick,
+selected-tick shares, gradient norm per module) and stop at step 200 on the full 1,526-step schedule. They are:
+- CTsqL_lr0.002_pilot: reproduces the collapse with diagnostics, to find what starts it;
+- CTsqLF_lr0.002_pilot (fix a): CTsq trained with the mean of the CTM loss and the final-tick loss;
+- CTsqL_lr0.001_pilot (fix b): the CTM loss at half the learning rate.
+Rule, fixed before the pilots: a fix passes if its mean training loss over steps 191-200 is within 0.1 of
+CTsq's over the same steps (same seed, so the same tick counts), and no gradient norm after step 100 exceeds 10.
+A passing fix then runs on two seeds at 400M tokens under the item-3 rules.
+
+Usage: python -m scripts.ctm_transformer_study --gpu N --runs NAMES... | --diagnose RUN [--checkpoint F] | --summarize | --pilots
 """
 import argparse,json,math,os,subprocess,sys
 from pathlib import Path
@@ -40,24 +50,34 @@ from pathlib import Path
 RUNS=Path('research/runs/ctm_transformer');OUT=Path('research/results/ctm_transformer')
 VARIANTS={'CTfull':['neuron_models','sync_query','sync_output'],'CTnlm':['neuron_models'],'CTsq':['sync_query'],'CTso':['sync_output'],
           # item 3 (2026-10-18): the CMM attention sink and the CTM loss, on CTsq
-          'CTsqS':['sync_query','attention_sink'],'CTsqL':['sync_query','ctm_loss']}
-MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[36,8]],'CTsqL':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than the limit (memory; item 3 limits from the 2026-10-19 memory test)
+          'CTsqS':['sync_query','attention_sink'],'CTsqL':['sync_query','ctm_loss'],
+          # fix (a) for CTsqL's collapse (2026-10-21): the mean of the CTM loss and the final-tick loss
+          'CTsqLF':['sync_query','ctm_loss','final_tick_loss']}
+MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[36,8]],'CTsqL':[[28,8]],'CTsqLF':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than the limit (memory; item 3 limits from the 2026-10-19 memory test)
 COLLAPSED=7.0
+PILOT_STEPS=200
 
 
 def config(run_name):
     from scripts.rdt_recipe import config as recipe_config
-    parts=run_name.split('_');variant=parts[0];lr=float(parts[1][2:])
+    pilot=run_name.endswith('_pilot');parts=run_name.removesuffix('_pilot').split('_');variant=parts[0];lr=float(parts[1][2:])
     run=recipe_config('Dans_rand_lr0.002')
     run.update(name=run_name,run_directory=str(RUNS/run_name),ctm_transformer=VARIANTS[variant])
     if len(parts)>2:run['seed']=int(parts[2][1:])
     run['train']['lr']=lr
     if variant in MICRO:run['train']['micro_batch_by_depth']=MICRO[variant]
     run['train']['snapshot_interval']=400  # a multiple of checkpoint_interval (50): snapshots are written only on checkpoint steps
+    if pilot:run['train']['diagnostics']=True
     return run
 
 
+def pilot_done(run_name):
+    d=RUNS/run_name/'metrics.jsonl'
+    return d.exists() and any(json.loads(r)['step']>=PILOT_STEPS for r in d.read_text().splitlines() if r.strip())
+
+
 def final(run_name):
+    if run_name.endswith('_pilot'):return 'done' if pilot_done(run_name) else None
     d=RUNS/run_name
     if (d/'diverged.json').exists():return math.inf
     if not (d/'complete.json').exists():return None
@@ -73,7 +93,8 @@ def train(run_name,gpu):
     env={**os.environ,'CUDA_VISIBLE_DEVICES':str(gpu),'PYTORCH_CUDA_ALLOC_CONF':'expandable_segments:True','OMP_NUM_THREADS':'8'}
     print('run',run_name,flush=True)
     with open(out/'train.log','a') as f:
-        code=subprocess.run([sys.executable,'-u','-m','scripts.pretrain','--config',str(out/'config.json')],stdout=f,stderr=subprocess.STDOUT,env=env).returncode
+        extra=['--max-steps',str(PILOT_STEPS)] if run_name.endswith('_pilot') else []
+        code=subprocess.run([sys.executable,'-u','-m','scripts.pretrain','--config',str(out/'config.json'),*extra],stdout=f,stderr=subprocess.STDOUT,env=env).returncode
     print('run',run_name,'exit',code,final(run_name),flush=True)
 
 
@@ -109,8 +130,23 @@ def diagnose(run_name,checkpoint=None,windows=8,depths=(1,4,8,16,32),device='cud
     print(json.dumps(result,indent=1))
 
 
+def pilots():
+    """The pilot rule: mean training loss over steps 191-200 against CTsq's (the same seed and tick counts), and the
+    largest gradient norm after step 100."""
+    rows=lambda n:[json.loads(r) for r in (RUNS/n/'metrics.jsonl').read_text().splitlines() if r.strip()]
+    window=lambda rs:sum(r['loss'] for r in rs if PILOT_STEPS-9<=r['step']<=PILOT_STEPS)/10
+    reference=window(rows('CTsq_lr0.002'))
+    L=['| Pilot | Train loss, steps 191-200 | vs CTsq | Max gradient norm after step 100 | Passes |','|---|---:|---:|---:|---|']
+    for d in sorted(RUNS.glob('*_pilot')):
+        if not pilot_done(d.name):L.append(f'| {d.name} | running | | | |');continue
+        rs=rows(d.name);loss=window(rs);peak=max(r['grad_norm'] for r in rs if 100<r['step']<=PILOT_STEPS)
+        L.append(f'| {d.name} | {loss:.3f} | {loss-reference:+.3f} | {peak:.3g} | {"yes" if loss-reference<=0.1 and peak<=10 else "no"} |')
+    L.insert(0,f'CTsq (CTsq_lr0.002) train loss, steps 191-200: {reference:.3f}\n')
+    OUT.mkdir(parents=True,exist_ok=True);(OUT/'PILOTS.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
 def summarize():
-    rows=[(d.name,final(d.name)) for d in sorted(RUNS.iterdir()) if (d/'config.json').exists()] if RUNS.exists() else []
+    rows=[(d.name,final(d.name)) for d in sorted(RUNS.iterdir()) if (d/'config.json').exists() and not d.name.endswith('_pilot')] if RUNS.exists() else []
     L=['# CTM Transformer on language modelling','','Protocol: `scripts/ctm_transformer_study.py` (docstring). Held-out loss at 400M tokens on 1,024 windows, 16 ticks.','',
        'References: Dans 3.569 / 3.579 (mean 3.574); 8-layer Transformer 3.618 / 3.638; 20-layer Transformer 3.562.','','| Run | Held-out loss |','|---|---:|']
     L+=[f'| {n} | {"running" if v is None else ("diverged or collapsed" if v==math.inf else f"{v:.3f}")} |' for n,v in rows]
@@ -120,8 +156,9 @@ def summarize():
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--gpu',type=int);p.add_argument('--runs',nargs='*')
     p.add_argument('--diagnose');p.add_argument('--checkpoint');p.add_argument('--device',default='cuda');p.add_argument('--windows',type=int,default=8)
-    p.add_argument('--summarize',action='store_true');a=p.parse_args()
+    p.add_argument('--summarize',action='store_true');p.add_argument('--pilots',action='store_true');a=p.parse_args()
     if a.summarize:summarize();return
+    if a.pilots:pilots();return
     if a.diagnose:diagnose(a.diagnose,a.checkpoint,a.windows,device=a.device);return
     for run_name in a.runs or []:train(run_name,a.gpu)
 
