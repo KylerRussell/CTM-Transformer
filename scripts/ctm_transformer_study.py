@@ -46,6 +46,10 @@ All three failed (2026-10-21; research/CTM_TRANSFORMER_DESIGN.md): with the CTM 
 - CTsqLD_lr0.002_pilot (fix c): the mean of the CTM loss on detached readouts (it trains only the coda and the
   output head) and the full-gradient final-tick loss (it trains the recurrence as in Dans);
 - CTsqLN_lr0.002_pilot (fix d): the CTM loss alone with the shared norm on the coda input (coda_norm 'shared').
+(c) passed (stable; about +0.1 on the final-tick loss at step 200) and (d) failed. CTsqLD runs on two seeds at
+400M tokens (2026-10-21) with per-step diagnostics, under the item-3 rules: on two-seed means of the held-out
+final-tick loss at 16 ticks, it improves on CTsq if at least 0.02 below 3.582 and beats Dans if at least 0.02
+below 3.574; certainty is usable if threshold exit at a mean of 4 ticks is within 0.02 of its fixed 4-tick loss.
 
 Usage: python -m scripts.ctm_transformer_study --gpu N --runs NAMES... | --diagnose RUN [--checkpoint F] | --summarize | --pilots
 """
@@ -76,7 +80,7 @@ def config(run_name):
     if variant in MICRO:run['train']['micro_batch_by_depth']=MICRO[variant]
     if variant in RECIPE_OVERRIDES:run['rdt_recipe']={**run['rdt_recipe'],**RECIPE_OVERRIDES[variant]}
     run['train']['snapshot_interval']=400  # a multiple of checkpoint_interval (50): snapshots are written only on checkpoint steps
-    if pilot:run['train']['diagnostics']=True
+    if pilot or variant=='CTsqLD':run['train']['diagnostics']=True
     return run
 
 
