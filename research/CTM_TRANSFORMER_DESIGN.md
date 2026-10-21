@@ -223,3 +223,21 @@ Diagnosis (`scripts/ctm_loss_diagnosis.py`; 2 held-out windows at 16 ticks; resu
 - **Not yet known:** what starts the collapse around steps 40–90. Two candidates:
   - the selection trains mostly tick 1 early on, so deeper ticks drift untrained, and their occasional selection sends large gradients through an untrained recurrence;
   - an optimization instability that the per-token selection amplifies.
+
+**CTsqL pilots** (2026-10-21; 200 steps on the full schedule, seed 1234, per-step diagnostics; rule in `scripts/ctm_transformer_study.py`; table in `research/results/ctm_transformer/PILOTS.md`). CTsq's training loss over steps 191–200 is 5.394.
+
+| Pilot | Loss, steps 191–200 | vs CTsq | Max gradient norm after step 100 | Passes |
+|---|---:|---:|---:|---|
+| CTsqL reproduction (lr 2e-3) | 6.542 | +1.147 | 6.2e7 | no |
+| Fix (a): CTM loss + final-tick loss | 5.934 | +0.540 | 1.5e3 | no |
+
+- **The reproduction is not bit-exact.** It matches CTsqL to four decimals for the first steps, then drifts (GPU nondeterminism). It tracks CTsq until about step 125, later than CTsqL's step 40, then falls behind and spikes (gradient norm 64 at step 200). The failure is robust; its onset is not.
+- **Signature, in both pilots: the state grows.** The state's RMS (the residual stream leaving the thinking layers) climbs steadily:
+  - reproduction: 0.9 at step 1, 28 at step 100, 60–76 at step 200;
+  - fix (a): 43 at step 200;
+  - healthy CTsqS at step 400: 6–7, falling to 4–5 by the end.
+
+  The gradient spikes go into the token embedding and the first prelude layer, as in the failed runs.
+- **The selected ticks are unstable.** In the reproduction, the share of tokens whose most certain tick is tick 1 swings between 0 and 1 within 5–10 steps (step 5: 0.91, step 10: 0.02, steps 15–20: 1.00, step 30: 0.01). From step 70 on it is about 0, and tick 1's cross-entropy rises to 11, above its value at initialization (10.6): tick 1 is abandoned.
+- **Fix (a) only delays the failure.** With the final-tick term the selection is steadier and the loss matches or beats CTsq until step 100 (6.20 vs 6.25). The state still grows (12 at step 50, 43 at step 200), and the run falls behind from step 125.
+- Fix (b), the CTM loss alone at lr 1e-3, is running.
