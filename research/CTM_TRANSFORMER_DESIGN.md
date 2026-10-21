@@ -240,4 +240,9 @@ Diagnosis (`scripts/ctm_loss_diagnosis.py`; 2 held-out windows at 16 ticks; resu
   The gradient spikes go into the token embedding and the first prelude layer, as in the failed runs.
 - **The selected ticks are unstable.** In the reproduction, the share of tokens whose most certain tick is tick 1 swings between 0 and 1 within 5–10 steps (step 5: 0.91, step 10: 0.02, steps 15–20: 1.00, step 30: 0.01). From step 70 on it is about 0, and tick 1's cross-entropy rises to 11, above its value at initialization (10.6): tick 1 is abandoned.
 - **Fix (a) only delays the failure.** With the final-tick term the selection is steadier and the loss matches or beats CTsq until step 100 (6.20 vs 6.25). The state still grows (12 at step 50, 43 at step 200), and the run falls behind from step 125.
-- Fix (b), the CTM loss alone at lr 1e-3, is running.
+- **Fix (b) fails too:** the CTM loss alone at lr 1e-3 scored 6.563 (+1.169) over steps 191–200, with a maximum gradient norm of 8.5e11. It tracked CTsq until about step 80, then the state grew from 6 at step 60 to 42–62 at step 200. A lower learning rate postpones the failure; it does not prevent it.
+- **Conclusion:** the state grows whenever the CTM loss is used, whatever the learning rate and with or without the final-tick term. The working explanation is that the CTM loss's per-tick gradient into the recurrence, which asks every tick's state to be directly readable, drives the growth, and Dans has nothing that bounds the state the coda reads.
+
+**Second CTsqL pilots** (2026-10-21, the same rule):
+- **Fix (c), CTsqLD:** the mean of two terms. The first is the CTM loss on readouts of the detached state, which trains only the coda and the output head. The second is the full-gradient final-tick cross-entropy, which trains the recurrence as in Dans. A test checks that the recurrence's gradient is exactly half the final-tick loss's.
+- **Fix (d), CTsqLN:** the CTM loss alone, with the shared norm on the coda input (`coda_norm: shared`). In round 1 this norm cost about 0.59 nats.

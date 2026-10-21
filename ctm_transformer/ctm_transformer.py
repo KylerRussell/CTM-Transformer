@@ -27,6 +27,10 @@ Added 2026-10-21, after CTsqL (``ctm_loss``) collapsed on both seeds:
 
 * ``final_tick_loss`` (with ``ctm_loss`` only): the loss is the mean of the CTM loss and the final tick's
   cross-entropy, so that every sampled tick count keeps being trained as in Dans.
+* ``detached_readouts`` (with ``ctm_loss`` and ``final_tick_loss``): the CTM loss reads every tick from the
+  detached state, so it trains only the coda and the output head; the final tick's cross-entropy keeps the
+  full gradient, so the recurrence is trained as in Dans. Tests whether the CTM loss's per-tick gradient into
+  the recurrence causes the state growth seen in the CTsqL pilots.
 * ``record_stats`` (attribute, off by default): each forward stores detached diagnostics in ``self.stats``:
   the state's RMS after every tick and, under the CTM loss, the per-tick cross-entropy and the share of
   tokens selecting each tick.
@@ -51,7 +55,7 @@ from ctm_transformer.rdt_recipe import RecipeRDT
 
 DANS = {'norm': 'prenorm', 'normalize': False, 'state_init': 'zeros', 'injection': 'add', 'coda_norm': 'none', 'state_norm': True}
 MECHANISMS = ('neuron_models', 'sync_query', 'sync_output', 'attention_sink')
-OBJECTIVES = ('ctm_loss', 'final_tick_loss')
+OBJECTIVES = ('ctm_loss', 'final_tick_loss', 'detached_readouts')
 NLM_HISTORY = 4  # ticks of pre-activation history per feed-forward neuron
 NLM_HIDDEN = 4   # hidden width of each neuron's private MLP (4, not 8: per-token neuron MLPs are memory-bound, 2026-10-14)
 DECAY_INIT = 0.01
@@ -108,7 +112,7 @@ class TickSynchronization(nn.Module):
 
 class CTMTransformer(RecipeRDT):
     def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, ctm_loss=False,
-                 final_tick_loss=False, pairs=None, seed=0, **recipe):
+                 final_tick_loss=False, detached_readouts=False, pairs=None, seed=0, **recipe):
         super().__init__(config, **recipe)
         if self.recipe['norm'] != 'prenorm' or not self.recipe['state_norm']:
             raise ValueError('The CTM Transformer builds on a pre-norm recipe with a state norm (Dans)')
@@ -118,7 +122,10 @@ class CTMTransformer(RecipeRDT):
         if final_tick_loss and not ctm_loss:
             raise ValueError('final_tick_loss is added to the CTM loss; alone it is the default objective')
         self.ctm_loss = ctm_loss
+        if detached_readouts and not (ctm_loss and final_tick_loss):
+            raise ValueError('detached_readouts needs ctm_loss and final_tick_loss (the final tick trains the recurrence)')
         self.final_tick_loss = final_tick_loss
+        self.detached_readouts = detached_readouts
         self._hidden_readouts = False
         self.record_stats = False
         self.stats = {}
@@ -233,7 +240,8 @@ class CTMTransformer(RecipeRDT):
                         else:
                             sync_out = (next(sums), beta)
             if readouts is not None:
-                hidden = self.final_norm(self._blocks(self.coda, self._coda_in(self._output(x, sync_out))))
+                read = (x.detach(), None if sync_out is None else tuple(t.detach() for t in sync_out)) if self.detached_readouts else (x, sync_out)
+                hidden = self.final_norm(self._blocks(self.coda, self._coda_in(self._output(*read))))
                 readouts.append(hidden if self._hidden_readouts else self.lm_head(hidden))
         if self.record_stats:
             self.stats = {'state_rms': torch.stack(state_rms)}
@@ -248,13 +256,14 @@ class CTMTransformer(RecipeRDT):
         hidden = []
         self._hidden_readouts = True
         try:
-            self._recur(self.token_embedding(input_ids), depth, hidden)
+            last = self._recur(self.token_embedding(input_ids), depth, hidden)
         finally:
             self._hidden_readouts = False
         out = ctm_selected_tick_loss(torch.stack(hidden, dim=2), self.lm_head.weight, targets)
         loss = out['loss']
         if self.final_tick_loss:
-            loss = (loss + chunked_cross_entropy(hidden[-1], self.lm_head.weight, targets)) / 2
+            final = self.final_norm(last) if self.detached_readouts else hidden[-1]  # the full-gradient final tick
+            loss = (loss + chunked_cross_entropy(final, self.lm_head.weight, targets)) / 2
         if self.record_stats:
             counts = [torch.bincount(out['selected_ticks'][:, j], minlength=depth).float() / len(out['selected_ticks']) for j in (0, 1)]
             self.stats.update(per_tick_ce=out['per_tick_loss'].detach(), min_loss_tick_share=counts[0], most_certain_tick_share=counts[1])

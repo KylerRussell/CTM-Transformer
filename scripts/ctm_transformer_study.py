@@ -41,6 +41,11 @@ selected-tick shares, gradient norm per module) and stop at step 200 on the full
 Rule, fixed before the pilots: a fix passes if its mean training loss over steps 191-200 is within 0.1 of
 CTsq's over the same steps (same seed, so the same tick counts), and no gradient norm after step 100 exceeds 10.
 A passing fix then runs on two seeds at 400M tokens under the item-3 rules.
+All three failed (2026-10-21; research/CTM_TRANSFORMER_DESIGN.md): with the CTM loss the state's RMS grows to
+40-76 by step 200 (healthy: 6-7). Second pilots, same rule:
+- CTsqLD_lr0.002_pilot (fix c): the mean of the CTM loss on detached readouts (it trains only the coda and the
+  output head) and the full-gradient final-tick loss (it trains the recurrence as in Dans);
+- CTsqLN_lr0.002_pilot (fix d): the CTM loss alone with the shared norm on the coda input (coda_norm 'shared').
 
 Usage: python -m scripts.ctm_transformer_study --gpu N --runs NAMES... | --diagnose RUN [--checkpoint F] | --summarize | --pilots
 """
@@ -52,8 +57,11 @@ VARIANTS={'CTfull':['neuron_models','sync_query','sync_output'],'CTnlm':['neuron
           # item 3 (2026-10-18): the CMM attention sink and the CTM loss, on CTsq
           'CTsqS':['sync_query','attention_sink'],'CTsqL':['sync_query','ctm_loss'],
           # fix (a) for CTsqL's collapse (2026-10-21): the mean of the CTM loss and the final-tick loss
-          'CTsqLF':['sync_query','ctm_loss','final_tick_loss']}
-MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[36,8]],'CTsqL':[[28,8]],'CTsqLF':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than the limit (memory; item 3 limits from the 2026-10-19 memory test)
+          'CTsqLF':['sync_query','ctm_loss','final_tick_loss'],
+          # fixes (c) and (d) (2026-10-21): CTM loss on detached readouts; the CTM loss with a norm on the coda input
+          'CTsqLD':['sync_query','ctm_loss','final_tick_loss','detached_readouts'],'CTsqLN':['sync_query','ctm_loss']}
+RECIPE_OVERRIDES={'CTsqLN':{'coda_norm':'shared'}}
+MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[36,8]],'CTsqL':[[28,8]],'CTsqLF':[[28,8]],'CTsqLD':[[28,8]],'CTsqLN':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than the limit (memory; item 3 limits from the 2026-10-19 memory test)
 COLLAPSED=7.0
 PILOT_STEPS=200
 
@@ -66,6 +74,7 @@ def config(run_name):
     if len(parts)>2:run['seed']=int(parts[2][1:])
     run['train']['lr']=lr
     if variant in MICRO:run['train']['micro_batch_by_depth']=MICRO[variant]
+    if variant in RECIPE_OVERRIDES:run['rdt_recipe']={**run['rdt_recipe'],**RECIPE_OVERRIDES[variant]}
     run['train']['snapshot_interval']=400  # a multiple of checkpoint_interval (50): snapshots are written only on checkpoint steps
     if pilot:run['train']['diagnostics']=True
     return run

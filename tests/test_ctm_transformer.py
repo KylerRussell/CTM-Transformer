@@ -169,3 +169,30 @@ def test_recorded_statistics_cover_every_tick_and_the_selection_shares_sum_to_on
     assert s['state_rms'].shape == (4,) and s['per_tick_ce'].shape == (4,)
     for k in ('min_loss_tick_share', 'most_certain_tick_share'):
         assert torch.allclose(s[k].sum(), torch.tensor(1.0))
+
+
+def test_detached_readouts_train_the_recurrence_only_through_the_final_tick():
+    c = replace(config('rdt'), max_thought_steps=4)
+    x, y = batch()
+    models = {}
+    for name, objectives in (('detached', {'ctm_loss', 'final_tick_loss', 'detached_readouts'}), ('attached', {'ctm_loss', 'final_tick_loss'}), ('final', set())):
+        torch.manual_seed(0)
+        models[name] = ctm_transformer_factory({'sync_query'} | objectives)(c)
+    for m in models.values():
+        m.load_state_dict(models['final'].state_dict())
+        with torch.no_grad():
+            for layer in m.sync_queries:
+                torch.manual_seed(1)
+                layer.weight.normal_(std=0.1)
+    losses = {k: m(x, targets=y)['loss'] for k, m in models.items()}
+    assert torch.allclose(losses['detached'], losses['attached'], atol=1e-5)
+    for loss in losses.values():
+        loss.backward()
+    gd, gf = grads(models['detached']), grads(models['final'])
+    for k in gd:
+        if k.startswith(('token_embedding', 'prelude', 'core', 'sync_queries', 'state_norm')):
+            assert torch.allclose(gd[k], gf[k] / 2, atol=1e-6), k
+    coda = [k for k in gd if k.startswith('coda')]
+    assert any(not torch.allclose(gd[k], gf[k] / 2, atol=1e-6) for k in coda)
+    with pytest.raises(ValueError):
+        ctm_transformer_factory({'ctm_loss', 'detached_readouts'})(c)
