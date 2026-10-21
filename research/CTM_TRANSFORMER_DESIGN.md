@@ -246,3 +246,18 @@ Diagnosis (`scripts/ctm_loss_diagnosis.py`; 2 held-out windows at 16 ticks; resu
 **Second CTsqL pilots** (2026-10-21, the same rule):
 - **Fix (c), CTsqLD:** the mean of two terms. The first is the CTM loss on readouts of the detached state, which trains only the coda and the output head. The second is the full-gradient final-tick cross-entropy, which trains the recurrence as in Dans. A test checks that the recurrence's gradient is exactly half the final-tick loss's.
 - **Fix (d), CTsqLN:** the CTM loss alone, with the shared norm on the coda input (`coda_norm: shared`). In round 1 this norm cost about 0.59 nats.
+
+**Second pilot results** (2026-10-21):
+
+| Pilot | Logged loss, steps 191–200 | vs CTsq | Max gradient norm after step 100 | State RMS, step 200 | Rule as written |
+|---|---:|---:|---:|---:|---|
+| (c) CTsqLD, detached readouts | 5.468 | +0.074 | 0.75 | 12.6 (peak 20 at step 75, falling) | passes |
+| (d) CTsqLN, coda-input norm | 8.02 | +2.63 | 2.4e9 | 1,147 | fails |
+
+- **(c) is stable, which confirms the explanation.** Stopping the CTM loss's gradient at every tick's state ends the state growth and the gradient spikes. The per-tick gradient into the recurrence was the cause.
+- **(d) makes the failure worse.** Normalizing the coda input does not bound the recurrence, and the state grows to over 1,000.
+- **The rule compared mixed losses, and I missed this when setting it.** The logged loss of a CTM-loss variant includes the CTM terms; CTsq's is the final-tick loss alone. Like for like, (c)'s final-tick cross-entropy (last micro-batch of each step) is:
+  - 5.517 over steps 191–200, against CTsq's 5.394 (+0.12);
+  - 5.635 over steps 151–200, against 5.55 (+0.085).
+
+  On the fair measure, (c) sits at the 0.1 threshold. Its tick choices are healthy: at step 200 the best tick is the final tick, and tick 1 is the most certain for 45% of tokens.
