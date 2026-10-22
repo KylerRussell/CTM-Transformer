@@ -261,3 +261,25 @@ Diagnosis (`scripts/ctm_loss_diagnosis.py`; 2 held-out windows at 16 ticks; resu
   - 5.635 over steps 151–200, against 5.55 (+0.085).
 
   On the fair measure, (c) sits at the 0.1 threshold. Its tick choices are healthy: at step 200 the best tick is the final tick, and tick 1 is the most certain for 45% of tokens.
+
+**CTsqLD result** (fix (c) at 400M tokens, 2026-10-22): 3.832 / 3.848, mean 3.840.
+- It fails all three item-3 rules. It is 0.26 worse than CTsq (3.582) and 0.27 worse than Dans (3.574).
+- It was stable throughout: no gradient spikes, and only 3 steps above norm 2 after step 100.
+- The gap to CTsq widened over training. On validation it was +0.21 / +0.27 at step 381 and +0.25 / +0.24 at step 1,143; on the final-tick training loss, +0.1 at step 400 and +0.22 / +0.26 at the end.
+- The state shrank to about 10 by step 300, then grew again to 34–36 by step 1,350 (CTsqS: 4–5). Detaching the readouts slows the growth but does not stop it. The likely route is the coda and output head, which the CTM loss now adapts to every tick's state; this is not tested.
+
+Adaptive compute (`scripts/adaptive_compute.py`, 64 windows). The gap is the loss with threshold exit at a mean of 4 ticks (interpolated) minus the fixed 4-tick loss:
+
+| Model | Fixed 4 ticks | Threshold exit at mean 4 | Gap | Most certain tick (1–16) vs fixed 16 |
+|---|---:|---:|---:|---:|
+| Dans | 3.530 / 3.542 | 3.750 / 3.780 | +0.22 / +0.24 | +0.086 / +0.066 |
+| CTsq | 3.544 / 3.540 | 3.776 / 3.831 | +0.23 / +0.29 | +0.082 / +0.059 |
+| CTsqLD | 3.784 / 3.798 | 4.614 / 4.454 | **+0.83 / +0.66** | +0.056 / +0.034 |
+
+- The certainty rule (within 0.02) fails. Threshold exit is much worse for CTsqLD than for any other model, because its 1-tick readout is poor (5.00 / 4.92) and certainty sends many tokens out at tick 1.
+- Reading each token at its most certain tick costs CTsqLD less (+0.03 to +0.06) than the other models (+0.06 to +0.09). The CTM loss does calibrate the choice among ticks somewhat, but at a cost of about 0.26 in loss.
+
+**Item 3 conclusion.**
+- **The CMM attention sink:** ties CTsq and is barely used (removing it costs 0.004–0.006).
+- **The CTM loss:** in four forms it either collapses the model (alone at lr 2e-3 or 1e-3, with the final-tick term, with a coda-input norm) or trains stably but much worse (detached readouts, +0.26). It does not make certainty a usable stopping signal.
+- **Neither mechanism improves the CTM Transformer.** Its best remains the single-mechanism variants (CTnlm 3.572, CTso 3.576, CTsq 3.582), all tied with Dans.
