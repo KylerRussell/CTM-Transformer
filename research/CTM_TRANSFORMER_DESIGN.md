@@ -330,3 +330,39 @@ The signal is weak: the CTM mechanisms may recover some of the copying that Dans
 - At this scale the CTM Transformer's tie with Dans is uniform across token types; it does not hide a capability difference on natural text.
 - The CMM's strengths are memory tasks, and these 400M-token models are near the floor on synthetic recall and copy, so the paper's tasks would need models trained on them (option C) to discriminate.
 - Thinking saturates by about 8 ticks in every recurrent model.
+
+## The CMM paper's tasks, trained from scratch (option C, 2026-10-25)
+
+`scripts/cmm_tasks.py`, with rules in its docstring fixed before the runs. Table: `research/results/cmm_tasks/CMM_TASKS.md`.
+- **Tasks:** copy, associative recall, priority sort and parity, each with an in-distribution (ID) and a longer out-of-distribution (OOD) split.
+- **Models:** T8, T20, Dans and five CTM Transformer variants, at width 128.
+- **Training:** 5,000 updates of batch 128, 3 seeds each, 96 runs.
+- **Crashes:** 13 runs ran out of GPU memory, with 12 workers per GPU, and were rerun one process each.
+
+**Results** (sequence accuracy %, 3-seed means):
+
+| Task-split | T8 | T20 | Dans | CT variants (range) |
+|---|---:|---:|---:|---:|
+| copy ID / OOD (L 33–64) | 100 / 4.5 | 100 / 0.8 | 100 / 10.4 | 100 / 9.0–11.8 |
+| recall ID / OOD | 2.3 / 0.1 | 2.2 / 0.2 | 2.5 / 0.1 | 2.1–2.5 / 0.0–0.1 |
+| sort ID / OOD (N 17–50) | 99.3 / 2.2 | 97.6 / 4.1 | 99.5 / 8.7 | 99.3–99.8 / 7.9–9.5 |
+| parity ID / OOD (n 41–80) | 85.0 / 51.1 | 99.7 / 60.3 | 74.5 / 49.9 | 65.4–89.1 / 46.7–52.5 |
+
+Rule outcomes:
+- **Dans beats T8:** on copy OOD (10.4 vs 4.5) and sort OOD (8.7 vs 2.2). The recurrence, not the CTM mechanisms, carries the length generalization; T20 is no better than T8.
+- **No CTM Transformer variant beats Dans on any OOD split.**
+- **Parity ID** is the only split where variants differ:
+  - CTsq (79.7) and CTsqS (89.1) beat Dans (74.5), but so does T8 (85.0), and T20 almost solves it (99.7);
+  - Dans beats CTfull (68.6);
+  - accuracies vary widely by seed (Dans 65 / 69 / 89; CTsqS 69 / 99 / 100).
+- **Recall is not learned by any model.** Every model, Transformers included, plateaus at about 32% of answers right (loss 1.57). That is the shortcut of predicting one of the values present, without binding keys to values. It is a floor, not a comparison; the CMM paper trains much longer.
+
+**More ticks.** Of all 72 recurrent runs, exactly one gains accuracy with more ticks:
+- CTsqS parity, seed 1, on OOD lengths 41–80: 54.7% at 16 ticks, 89.6% at 32, 98.4% at 64.
+- That model has found a solution whose reach grows with thinking time: it extrapolates to inputs twice the trained length when given more ticks. This is the CTM's central claim.
+- It is one seed of three. The other two seeds (46.7, 48.2) and every other model are flat.
+- The runs did not save checkpoints, so it cannot be analysed further without retraining.
+
+**Conclusion.**
+- On the CMM paper's memory tasks at this scale, the CTM Transformer does not inherit a strength beyond what Dans's recurrence already gives. Dans and every variant extrapolate copy and sort better than the Transformers, by about the same margin.
+- The single CTsqS parity seed is the only sign of the CTM behaviour of turning more ticks into harder problems solved. It is not established.

@@ -1,0 +1,89 @@
+{
+ "cell": "CTso",
+ "task": "recall",
+ "seed": 2,
+ "steps": 5000,
+ "seconds": 7013.70424079895,
+ "peak_gib": 1.0542936325073242,
+ "parameters": 1601920,
+ "curve": [
+  {
+   "step": 500,
+   "loss": 1.8259156942367554,
+   "grad_norm": 1.6901919841766357
+  },
+  {
+   "step": 1000,
+   "loss": 1.6091952323913574,
+   "grad_norm": 0.9670823216438293
+  },
+  {
+   "step": 1500,
+   "loss": 1.649452805519104,
+   "grad_norm": 1.0523768663406372
+  },
+  {
+   "step": 2000,
+   "loss": 1.6772600412368774,
+   "grad_norm": 0.9604523777961731
+  },
+  {
+   "step": 2500,
+   "loss": 1.5578930377960205,
+   "grad_norm": 0.7609227895736694
+  },
+  {
+   "step": 3000,
+   "loss": 1.5937079191207886,
+   "grad_norm": 0.6723973751068115
+  },
+  {
+   "step": 3500,
+   "loss": 1.5704700946807861,
+   "grad_norm": 0.8284527659416199
+  },
+  {
+   "step": 4000,
+   "loss": 1.6189967393875122,
+   "grad_norm": 0.7260316610336304
+  },
+  {
+   "step": 4500,
+   "loss": 1.5768218040466309,
+   "grad_norm": 0.7122495770454407
+  },
+  {
+   "step": 5000,
+   "loss": 1.512840986251831,
+   "grad_norm": 0.7449504137039185
+  }
+ ],
+ "id": {
+  "sequence_accuracy": 2.734375,
+  "token_accuracy": 30.46875
+ },
+ "ood": {
+  "16": {
+   "sequence_accuracy": 0.0,
+   "token_accuracy": 18.359375
+  },
+  "32": {
+   "sequence_accuracy": 0.0,
+   "token_accuracy": 18.1640625
+  },
+  "64": {
+   "sequence_accuracy": 0.0,
+   "token_accuracy": 18.06640625
+  }
+ },
+ "id_by_ticks": {
+  "1": {
+   "sequence_accuracy": 2.34375,
+   "token_accuracy": 29.931640625
+  },
+  "4": {
+   "sequence_accuracy": 2.5390625,
+   "token_accuracy": 30.126953125
+  }
+ }
+}
