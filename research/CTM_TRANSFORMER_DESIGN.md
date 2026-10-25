@@ -283,3 +283,50 @@ Adaptive compute (`scripts/adaptive_compute.py`, 64 windows). The gap is the los
 - **The CMM attention sink:** ties CTsq and is barely used (removing it costs 0.004–0.006).
 - **The CTM loss:** in four forms it either collapses the model (alone at lr 2e-3 or 1e-3, with the final-tick term, with a coda-input norm) or trains stably but much worse (detached readouts, +0.26). It does not make certainty a usable stopping signal.
 - **Neither mechanism improves the CTM Transformer.** Its best remains the single-mechanism variants (CTnlm 3.572, CTso 3.576, CTsq 3.582), all tied with Dans.
+
+## Capability breakdown of held-out loss (option B, 2026-10-25)
+
+`scripts/capability_eval.py`, with rules in its docstring fixed before the evaluation. Full table: `research/results/capability_eval/CAPABILITY_EVAL.md`. 17 checkpoints, all at 16 ticks:
+- T8 ×2, T20 ×1, Dans ×2;
+- CTfull, CTnlm, CTsq, CTso, CTsqS and CTsqLD, two seeds each.
+
+The overall loss on the 256 windows reproduces the final evaluations (T8 3.619, Dans 3.569).
+
+**Natural text (recall, retention over distance, position): the CTM Transformer behaves like Dans everywhere.**
+- No CTM Transformer variant has a capability-specific advantage or disadvantage, measured as the category's difference minus the overall difference.
+- The categories tested:
+  - repeat (copy / induction) tokens;
+  - novel tokens;
+  - retention distances up to 1,023 tokens;
+  - positions in the window.
+- The only rule outcome is CTfull, worse at retention beyond 512 tokens (+0.026), in line with its overall gap (+0.015).
+
+**Dans against the baseline Transformer.** Dans is better on every category, but its gain is smaller on repeat tokens:
+- overall, +0.054 for T8 against Dans;
+- repeat tokens, +0.027, so T8 has a specific advantage there (excess about −0.03 on both seeds).
+
+Recurrence helps novel and other tokens about twice as much as copyable ones.
+
+**Synthetic in-context tasks: a floor, with a weak signal on copying.**
+
+| Task | Result |
+|---|---|
+| Key-value recall (M5) | Near chance for every model: 4–9% at 8 pairs, under 3% at 32 or more. |
+| Copy (M6) | 25–30% at 16 words, 13–21% at 64, under 8% at 256. |
+
+The synthetic measures vary a lot between seeds (e.g. copy-16 accuracy: Dans 29.5 / 22.1, CTsq 27.4 / 35.5). On copy-64:
+- T8, CTfull and CTnlm beat Dans by the rule: accuracy +5.2, +5.0 and +8.1 points; loss −0.49 for T8, −0.50 for CTfull.
+- CTnlm's second seed clears Dans by only 1 point (15.5 vs 14.5).
+- CTso is worse on recall-96 loss (+0.17) and copy-256 loss (+0.41).
+
+The signal is weak: the CTM mechanisms may recover some of the copying that Dans gives up against the Transformer, but only on one length.
+
+**Ticks beyond training (M4): no drift to fix.**
+- Every recurrent model's loss is flat from 8 ticks to 96: the change against 16 ticks is under 0.001. The state reaches a fixed point by about 8 ticks.
+- Loss by tick count for Dans: 3.796 at 1 tick, 3.531 at 4, 3.520 at 8, 3.519 at 16.
+- The CMM's α/β claim is "not supported" by the rule, but the test cannot discriminate: Dans, which has no α/β, does not drift either. The drift that motivated α/β was in the earlier separate-head CTM-LM.
+
+**Conclusion.**
+- At this scale the CTM Transformer's tie with Dans is uniform across token types; it does not hide a capability difference on natural text.
+- The CMM's strengths are memory tasks, and these 400M-token models are near the floor on synthetic recall and copy, so the paper's tasks would need models trained on them (option C) to discriminate.
+- Thinking saturates by about 8 ticks in every recurrent model.
