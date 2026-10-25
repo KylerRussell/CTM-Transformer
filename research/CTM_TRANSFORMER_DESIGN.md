@@ -366,3 +366,33 @@ Rule outcomes:
 **Conclusion.**
 - On the CMM paper's memory tasks at this scale, the CTM Transformer does not inherit a strength beyond what Dans's recurrence already gives. Dans and every variant extrapolate copy and sort better than the Transformers, by about the same margin.
 - The single CTsqS parity seed is the only sign of the CTM behaviour of turning more ticks into harder problems solved. It is not established.
+
+## Parity follow-up: tick-scaling length extrapolation (2026-10-25)
+
+`scripts/parity_ticks.py`; rules in its docstring, fixed before the runs. Table: `research/results/parity_ticks/PARITY_TICKS.md`.
+- **Runs:** CTsqS, CTsq and Dans, 10 seeds each, with the CMM grid's training.
+- **Evaluation:** accuracy by length band (1–250 bits) and tick count (1–128), with checkpoints saved.
+
+**Result: the effect is real, specific to CTsqS, and rare.**
+
+| Model | Seeds that extrapolate with ticks (rule: ≥ 80% on 41–80 at 64 ticks, ≥ 20 points above 16 ticks) |
+|---|---:|
+| CTsqS (sync queries + CMM sink) | 1 / 10 |
+| CTsq (sync queries) | 0 / 10 |
+| Dans | 0 / 10 |
+
+- **No model has the property reliably** (the rule needs 3 of 10 seeds), and no model has it more than another (the rule needs a difference of 3).
+- **CTsqS seed 1 reproduces the grid's run.** The grid had 54.7 / 89.6 / 98.4% at 16 / 32 / 64 ticks on 41–80; here, 55 → 99% on 41–80 from 16 to 64 ticks. Its accuracy (%) by length and tick count:
+
+| Length | 1 tick | 4 | 16 | 64 | 128 | Ticks to reach 90% |
+|---|---:|---:|---:|---:|---:|---:|
+| 1–40 (trained) | 56 | 74 | 99 | 100 | 100 | 16 |
+| 41–60 | 47 | 51 | 62 | 99 | 99 | 32 |
+| 61–80 | 49 | 50 | 47 | 98 | 97 | 64 |
+| 81–120 | 55 | 52 | 53 | 90 | 89 | 64 |
+| 121–160 | 50 | 46 | 52 | 58 | 71 | – |
+| 161–250 | 49 | 50 | 46 | 50 | 52 | – |
+
+  The ticks it needs grow with the input length, and it handles inputs up to three times the trained length when given more ticks. It behaves like a serial algorithm that runs longer on longer inputs, the CTM's central claim.
+- **Only CTsqS gains anything with ticks beyond 16.** Its seed 3 also gains on 61–80 (61 → 79%, under the rule's 20 points). No CTsq or Dans seed gains more than 1 point. Several seeds of every model (seed 3 of each; CTsqS seed 5) extrapolate partly to 41–60 at a fixed 16 ticks, without tick scaling.
+- **Parity training is unreliable for every model:** many seeds stop at 62–89% in-distribution. That limits how often any seed can find the serial solution.
