@@ -57,3 +57,4 @@ research/runs/ctm_matched/
 research/results/ctm_matched/gpu*.log
 research/runs/ctm_transformer/
 research/results/ctm_transformer/gpu*.log
+research/runs/parity_ticks/
