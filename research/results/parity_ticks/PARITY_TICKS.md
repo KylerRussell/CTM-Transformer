@@ -7,8 +7,11 @@ Protocol and rules: `scripts/parity_ticks.py` (docstring).
 | CTsqS | 10 | 1 | 52/52, 55/99*, 53/53, 77/87, 50/50, 92/92, 50/50, 51/51, 48/48, 52/52 |
 | CTsq | 10 | 0 | 49/49, 52/52, 51/51, 79/76, 48/48, 48/48, 48/48, 50/51, 53/53, 50/50 |
 | Dans | 10 | 0 | 49/49, 51/50, 52/52, 76/76, 48/48, 48/48, 48/48, 50/50, 48/49, 48/48 |
+| CTsq_m32 | 10 | 0 | 48/48, 59/61, 51/51, 49/49, 52/52, 48/48, 53/53, 49/49, 52/52, 52/52 |
+| Dans_m32 | 10 | 0 | 53/53, 52/52, 52/52, 48/48, 51/51, 48/48, 49/49, 50/50, 52/52, 53/53 |
 
-Reliable (at least 3 of 10): CTsqS no, CTsq no, Dans no
+Reliable (at least 3 of 10): CTsqS no, CTsq no, Dans no, CTsq_m32 no, Dans_m32 no
+Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0
 
 ## Extrapolating runs: smallest tick count reaching 90% per length band
 

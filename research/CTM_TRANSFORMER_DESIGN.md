@@ -417,3 +417,14 @@ Rule outcomes:
   - At about 0.55 ticks per bit, a serial solution needs about 22 ticks for the trained maximum of 40 bits.
   - The tick sampler (mean 15) gives fewer than 22 ticks on most updates. On those updates a serial solution cannot finish the longer training inputs, and the gradient favours non-serial solutions.
   - This may explain why only 1 of 30 runs found the serial solution. It is not tested.
+
+**Option 2: more training ticks** (2026-10-26). CTsq and Dans trained with ticks of mean 32 (at most 96), 10 seeds each, against the mean-15 runs:
+
+| Model | Mean 15 | Mean 32 | Secondary, 128 ticks (mean 15 / mean 32) |
+|---|---:|---:|---:|
+| CTsq | 0 / 10 | 0 / 10 | 0 / 0 |
+| Dans | 0 / 10 | 0 / 10 | 0 / 0 |
+
+- **The hypothesis is rejected.** More training ticks do not make the serial solution more common: no mean-32 seed extrapolates, at 64 or at 128 ticks.
+- **The partial extrapolation also disappears.** Several mean-15 seeds had reached 90%+ on 41–60 bits at a fixed tick count (seed 3 of each model, CTsqS seed 5); no mean-32 seed exceeds 71% (CTsq_m32 seed 1). Dans_m32 fits the trained lengths better (6 of 10 seeds at 94–99%) but does not extrapolate.
+- **Across all runs, the serial solution appeared once:** 1 of 30 runs with synchronization queries (CTsqS seed 1) and 0 of 20 without (Dans). It exists in the CTM Transformer, is carried by the synchronization queries, and is not reliably found by this training.

@@ -95,7 +95,7 @@ def extrapolates(r,ticks='64'):
 
 
 def summarize():
-    res={(r['cell'],r['seed']):r for r in (json.loads(f.read_text()) for f in OUT.glob('*_seed*.json'))}
+    res={(r['cell'],r['seed']):r for r in (json.loads(f.read_text()) for f in OUT.glob('*_seed*.json') if not f.name.startswith('analysis_'))}
     L=['# Parity follow-up: tick-scaling length extrapolation','','Protocol and rules: `scripts/parity_ticks.py` (docstring).','',
        '| Model | Seeds | Extrapolating seeds | Accuracy on 41-80 at 16 / 64 ticks, per seed |','|---|---:|---:|---|']
     counts={}
