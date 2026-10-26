@@ -20,6 +20,15 @@ Rules, fixed before the runs:
   reaching 90% in each band, which shows whether the ticks needed grow with the length (a serial
   algorithm) or not.
 
+More training ticks (option 2, added 2026-10-26, after scripts/parity_analysis.py): the extrapolating run
+needs about 0.55 ticks per bit, so about 22 for the trained maximum of 40 bits, while the tick sampler
+(mean 15) gives fewer on most updates. CTsq_m32 and Dans_m32 train with log-normal Poisson ticks of mean 32,
+at most 96 (everything else unchanged), on seeds 0-9. The mean-15 arm is the runs above (CTsq, Dans).
+Rules, fixed before these runs: the rules above, per cell; the sampler helps a model if its m32 count
+exceeds its mean-15 count by at least 3; the synchronization queries matter under m32 if CTsq_m32's count
+exceeds Dans_m32's by at least 3. Secondary (reported, since a model trained with more ticks may use more
+ticks per bit): the same extrapolation rule with 128 ticks in place of 64.
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
 import argparse,json,os,random,time
@@ -28,7 +37,12 @@ from pathlib import Path
 from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
-CELLS=('CTsqS','CTsq','Dans');SEEDS=range(10)
+CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32');SEEDS=range(10)
+SAMPLERS={'':(15,48),'_m32':(32,96)}  # tick sampler (mean, maximum) by cell suffix
+
+
+def split(cell):
+    base,_,suffix=cell.partition('_');return base,('_'+suffix if suffix else '')
 BANDS=((1,40),(41,60),(61,80),(81,120),(121,160),(161,250));TICKS=(1,4,8,16,32,64,128);EXAMPLES=512
 
 
@@ -59,8 +73,9 @@ def train(cell,seed,device):
     from scripts.cmm_tasks import batch
     out=OUT/f'{cell}_seed{seed}.json'
     if out.exists():return
-    torch.manual_seed(seed);model,recurrent=build(cell);model=model.to(device);assert recurrent
-    sampler=lognormal_poisson(15,0.5,48)
+    base,suffix=split(cell);mean,maximum=SAMPLERS[suffix]
+    torch.manual_seed(seed);model,recurrent=build(base);model=model.to(device);assert recurrent
+    sampler=lognormal_poisson(mean,0.5,maximum)
     opt=torch.optim.AdamW(model.parameters(),lr=1e-3,betas=(0.9,0.95),weight_decay=0.1,fused=True)
     rng=random.Random(f'train-parity-{seed}');start=time.time()
     for step in range(STEPS):
@@ -74,9 +89,9 @@ def train(cell,seed,device):
     print(cell,seed,f"{result['seconds']:.0f}s",'41-60 / 61-80 at 16/64 ticks:',[round(grid[b][t],1) for b in ('41-60','61-80') for t in ('16','64')],flush=True)
 
 
-def extrapolates(r):
+def extrapolates(r,ticks='64'):
     g=r['accuracy'];band=lambda t:(g['41-60'][t]+g['61-80'][t])/2  # lengths 41-80: equal-size halves of the band pair
-    return band('64')>=80 and band('64')-band('16')>=20,band('16'),band('64')
+    return band(ticks)>=80 and band(ticks)-band('16')>=20,band('16'),band(ticks)
 
 
 def summarize():
@@ -88,6 +103,7 @@ def summarize():
         rs=[res[(c,s)] for s in SEEDS if (c,s) in res];ex=[extrapolates(r) for r in rs];counts[c]=sum(e[0] for e in ex)
         L.append(f'| {c} | {len(rs)} | {counts[c]} | '+', '.join(f'{a:.0f}/{b:.0f}{"*" if e else ""}' for e,a,b in ex)+' |')
     L+=['',f'Reliable (at least 3 of 10): '+', '.join(f'{c} {"yes" if counts[c]>=3 else "no"}' for c in CELLS)]
+    L.append('Secondary (128 ticks in place of 64): '+', '.join(f'{c} {sum(extrapolates(res[(c,s)],"128")[0] for s in SEEDS if (c,s) in res)}' for c in CELLS))
     for a in CELLS:
         for b in CELLS:
             if a!=b and counts[a]-counts[b]>=3:L.append(f'- {a} has the property more than {b} ({counts[a]} vs {counts[b]})')
