@@ -428,3 +428,26 @@ Rule outcomes:
 - **The hypothesis is rejected.** More training ticks do not make the serial solution more common: no mean-32 seed extrapolates, at 64 or at 128 ticks.
 - **The partial extrapolation also disappears.** Several mean-15 seeds had reached 90%+ on 41–60 bits at a fixed tick count (seed 3 of each model, CTsqS seed 5); no mean-32 seed exceeds 71% (CTsq_m32 seed 1). Dans_m32 fits the trained lengths better (6 of 10 seeds at 94–99%) but does not extrapolate.
 - **Across all runs, the serial solution appeared once:** 1 of 30 runs with synchronization queries (CTsqS seed 1) and 0 of 20 without (Dans). It exists in the CTM Transformer, is carried by the synchronization queries, and is not reliably found by this training.
+
+**Length curriculum** (2026-10-26). CTsq and Dans, 10 seeds each:
+- the maximum training length grows from 4 to 40 bits over the first 60% of 10,000 updates;
+- training is twice as long as the first arm;
+- ticks have mean 15.
+
+| Model | First arm (5,000 updates, no curriculum) | Curriculum | Secondary, 128 ticks |
+|---|---:|---:|---:|
+| CTsq | 0 / 10 | 0 / 10 | 0 |
+| Dans | 0 / 10 | 0 / 10 | 0 |
+
+- **By the rule, the curriculum does not produce tick-scaling extrapolation in either model.**
+- **It changes everything else:**
+  - Training fits better: 18 of 20 seeds reach 95–100% on 1–40 bits, against about a third of the first arm's seeds.
+  - Extrapolation at a fixed tick count becomes common. Exploratory, not a pre-registered measure: seeds at 80% or more on 41–80 bits at 16 ticks are CTsq_cur 3 of 10 (seeds 2, 7, 8: 92, 93, 84%) and Dans_cur 2 of 10 (seeds 1, 4: 96, 90%; seed 0 74%), against none in the first arm.
+  - These seeds solve 41–80 bits at 16 ticks and gain nothing from more ticks: accuracy at 64 ticks is within 3 points of 16 ticks. The one partial exception is CTsq_cur seed 7 on 81–120 bits (61% → 77%).
+  - Their solution has a fixed reach, not a serial one, and Dans finds it as often as CTsq.
+
+**Option 2 conclusion.**
+- **Tick-scaling length extrapolation, the CTM's central claim,** appeared in 1 of 40 runs with synchronization queries and in 0 of 30 without. In that run it is carried entirely by the synchronization queries.
+- **Neither more training ticks nor a length curriculum makes it reliable.**
+- **The curriculum makes length extrapolation common, by a fixed-reach solution that the RDT (Dans) finds as often.**
+- **For the paper,** this is an existence result with a mechanism (serial, about 0.55 ticks per bit, removed by ablating the synchronization queries), not a reliable advantage of the CTM Transformer.
