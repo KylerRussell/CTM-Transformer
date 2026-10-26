@@ -396,3 +396,24 @@ Rule outcomes:
   The ticks it needs grow with the input length, and it handles inputs up to three times the trained length when given more ticks. It behaves like a serial algorithm that runs longer on longer inputs, the CTM's central claim.
 - **Only CTsqS gains anything with ticks beyond 16.** Its seed 3 also gains on 61–80 (61 → 79%, under the rule's 20 points). No CTsq or Dans seed gains more than 1 point. Several seeds of every model (seed 3 of each; CTsqS seed 5) extrapolate partly to 41–60 at a fixed 16 ticks, without tick scaling.
 - **Parity training is unreliable for every model:** many seeds stop at 62–89% in-distribution. That limits how often any seed can find the serial solution.
+
+**Analysis of the extrapolating run** (`scripts/parity_analysis.py`, 2026-10-26; `research/results/parity_ticks/analysis_*.json`):
+- **It is a serial algorithm.** The first tick at which accuracy reaches 90% grows linearly with the input length: 2, 6, 12, 17, 22, 28, 35, 42 and 55 ticks for 10, 20, ..., 80 and 100 bits, about 0.55 ticks per bit.
+  - At a fixed length the answer stays at chance and then appears within a few ticks. For 60 bits: about 50% through tick 22, 76% at tick 25, 90% at tick 28.
+  - Before that, the answer matches the parity of no prefix or suffix of the input (agreement 55–60% for every m). The work happens in the state, and the readout reports only the finished result.
+- **The synchronization queries carry it, and the sink is unused.** Accuracy at 64 ticks on 41–60 / 61–80 / 81–120 bits:
+
+  | Setting | 41–60 | 61–80 | 81–120 |
+  |---|---:|---:|---:|
+  | Full model | 99 | 98 | 90 |
+  | Sink removed | 99 | 98 | 90 |
+  | Synchronization queries removed | 49 | 50 | 56 |
+  | Both removed | 50 | 50 | 55 |
+
+  - The sink's effective use (gate × attention weight on the sink) is at most 0.005 in every layer and tick; its gates are −0.07 to 0.04.
+  - CTsqS's 1 of 10 against CTsq's 0 of 10 is therefore not evidence for the sink. The mechanism is the CTM's action synchronization read into the attention queries.
+- **The controls work differently.** CTsqS seed 3, CTsq seed 3 and Dans seed 3 extrapolate partly at a fixed tick count, and their ticks-to-90% stop by 40–50 bits. CTsqS seed 3 barely depends on its synchronization queries (removing them: 92 / 77 / 61 against 96 / 79 / 56).
+- **Implication for training.**
+  - At about 0.55 ticks per bit, a serial solution needs about 22 ticks for the trained maximum of 40 bits.
+  - The tick sampler (mean 15) gives fewer than 22 ticks on most updates. On those updates a serial solution cannot finish the longer training inputs, and the gradient favours non-serial solutions.
+  - This may explain why only 1 of 30 runs found the serial solution. It is not tested.
