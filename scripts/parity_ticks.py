@@ -29,6 +29,14 @@ exceeds its mean-15 count by at least 3; the synchronization queries matter unde
 exceeds Dans_m32's by at least 3. Secondary (reported, since a model trained with more ticks may use more
 ticks per bit): the same extrapolation rule with 128 ticks in place of 64.
 
+Length curriculum (added 2026-10-26, after the mean-32 sampler did not help): CTsq_cur and Dans_cur train for
+10,000 updates (twice as long; the learning-rate schedule spans them) with the maximum training length
+growing linearly from 4 to 40 bits over the first 60% of updates (each example's length uniform up to the
+current maximum), then 1-40 as before; ticks of mean 15 as in the first arm. Seeds 0-9. This changes two
+things at once (curriculum and length of training) and is judged as one intervention. Rules, fixed before
+these runs: the rules above per cell; the curriculum helps a model if its count exceeds its mean-15 count by
+at least 3; the synchronization queries matter under it if CTsq_cur's count exceeds Dans_cur's by at least 3.
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
 import argparse,json,os,random,time
@@ -37,8 +45,13 @@ from pathlib import Path
 from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
-CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32');SEEDS=range(10)
-SAMPLERS={'':(15,48),'_m32':(32,96)}  # tick sampler (mean, maximum) by cell suffix
+CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur');SEEDS=range(10)
+SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48)}  # tick sampler (mean, maximum) by cell suffix
+CURRICULUM_STEPS=10000
+
+
+def curriculum_max(step,steps):
+    return min(40,4+int(36*step/(0.6*steps)))
 
 
 def split(cell):
@@ -77,9 +90,10 @@ def train(cell,seed,device):
     torch.manual_seed(seed);model,recurrent=build(base);model=model.to(device);assert recurrent
     sampler=lognormal_poisson(mean,0.5,maximum)
     opt=torch.optim.AdamW(model.parameters(),lr=1e-3,betas=(0.9,0.95),weight_decay=0.1,fused=True)
-    rng=random.Random(f'train-parity-{seed}');start=time.time()
-    for step in range(STEPS):
-        set_lr(opt,lr_at(step,1e-3,200,STEPS,0.1));x,y=batch('parity','train',BATCH,rng);x,y=x.to(device),y.to(device)
+    rng=random.Random(f'train-parity-{seed}');start=time.time();steps=CURRICULUM_STEPS if suffix=='_cur' else STEPS
+    for step in range(steps):
+        set_lr(opt,lr_at(step,1e-3,200,steps,0.1))
+        x,y=band_batch(1,curriculum_max(step,steps),BATCH,rng) if suffix=='_cur' else batch('parity','train',BATCH,rng);x,y=x.to(device),y.to(device)
         with torch.autocast('cuda',dtype=torch.bfloat16):loss=model(x,targets=y,max_thought_steps=step_depth(sampler,seed,step))['loss']
         loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.0);opt.step();opt.zero_grad(set_to_none=True)
     CKPT.mkdir(parents=True,exist_ok=True);torch.save({'model':model.state_dict(),'cell':cell,'seed':seed},CKPT/f'{cell}_seed{seed}.pt')
