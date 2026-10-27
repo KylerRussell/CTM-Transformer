@@ -472,3 +472,17 @@ Source: Leon, "Biologically Inspired Mechanisms for Facilitating Grokking in Mul
 - The nearest to tick scaling is CTsqH seed 9 (81% → 95% from 16 to 64 ticks, under the rule's 20 points).
 
 **Stage 2: language model:** CTsqH at 400M tokens, two seeds, launched after stage 1. Its first 25 steps match CTsq's to 0.002 (θ starts at zero and moves 0.01 × (rate − 0.12) per step), and it runs at the same speed (38 s per step).
+
+**Stage 2 result** (2026-10-27): CTsqH 3.584 / 3.584, mean 3.584. It ties CTsq (3.582) and Dans (3.574); the rule's improvement thresholds (3.562 and 3.554) are not met. Its validation tracked CTsq within 0.012 at every checkpoint.
+
+The homeostasis worked as a regulator: on 2 held-out windows at 16 ticks, the gate neurons' activity rate fell from CTsq's 21–25% per layer to 15–19%.
+- It did not reach the 12% target: 8.7% of the thresholds sit at the +2 limit.
+- No neuron is silent, and almost none is active more than half the time (0.1%, against 0.6% for CTsq).
+- Its thresholds end at a mean of about 1.0.
+
+The feed-forward layers became about a quarter sparser at no cost and no gain in loss.
+
+**Leon conclusion.**
+- Applied faithfully to the CTM Transformer's thinking layers, with AdamW, homeostasis and structural plasticity do not improve parity extrapolation or language-model loss.
+- Homeostasis sparsifies the feed-forward activity without harming the loss.
+- The caveat stands: the paper's effects were measured with SGD, and it reports Adam as worse for grokking.
