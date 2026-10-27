@@ -11,9 +11,12 @@ Protocol and rules: `scripts/parity_ticks.py` (docstring).
 | Dans_m32 | 10 | 0 | 53/53, 52/52, 52/52, 48/48, 51/51, 48/48, 49/49, 50/50, 52/52, 53/53 |
 | CTsq_cur | 10 | 0 | 48/49, 48/48, 92/92, 52/52, 52/52, 48/48, 48/47, 93/95, 84/84, 51/51 |
 | Dans_cur | 10 | 0 | 72/74, 96/96, 52/52, 52/52, 90/91, 49/49, 50/50, 47/47, 50/50, 50/50 |
+| CTsqH | 10 | 0 | 53/53, 84/84, 49/49, 82/82, 50/50, 48/48, 52/52, 53/53, 48/48, 81/95 |
+| CTsqHS | 10 | 0 | 53/53, 96/96, 96/98, 54/54, 52/52, 52/52, 71/71, 49/49, 48/48, 46/46 |
+| DansH | 10 | 0 | 50/50, 52/52, 51/52, 80/80, 52/52, 49/49, 50/50, 53/53, 49/49, 49/49 |
 
-Reliable (at least 3 of 10): CTsqS no, CTsq no, Dans no, CTsq_m32 no, Dans_m32 no, CTsq_cur no, Dans_cur no
-Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0
+Reliable (at least 3 of 10): CTsqS no, CTsq no, Dans no, CTsq_m32 no, Dans_m32 no, CTsq_cur no, Dans_cur no, CTsqH no, CTsqHS no, DansH no
+Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0, CTsqH 0, CTsqHS 0, DansH 0
 
 ## Extrapolating runs: smallest tick count reaching 90% per length band
 

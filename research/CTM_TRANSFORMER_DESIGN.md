@@ -451,3 +451,24 @@ Rule outcomes:
 - **Neither more training ticks nor a length curriculum makes it reliable.**
 - **The curriculum makes length extrapolation common, by a fixed-reach solution that the RDT (Dans) finds as often.**
 - **For the paper,** this is an existence result with a mechanism (serial, about 0.55 ticks per bit, removed by ablating the synchronization queries), not a reliable advantage of the CTM Transformer.
+
+## Leon (2026): homeostasis and structural plasticity (2026-10-27)
+
+Source: Leon, "Biologically Inspired Mechanisms for Facilitating Grokking in Multilayer Perceptrons" (arXiv 2608.28184, `reference_papers/`).
+- **What it studies:** a one-hidden-layer MLP of 1,000 neurons on sparse parity and noisy XOR, trained with SGD (it reports Adam as generally worse).
+- **What helps:** homeostasis (a non-gradient per-neuron threshold steering each neuron's activity rate to 12%) is the most consistent mechanism. Structural plasticity (a top-35% magnitude mask, refreshed periodically) is second.
+- **Our version** (`ctm_transformer/ctm_transformer.py`, mechanisms `homeostasis` and `structural_plasticity`): the thinking layers' SwiGLU gate neurons, with the paper's constants. Activity is measured over every (token, tick) instance, and both mechanisms update after each AdamW step.
+
+**Stage 1: parity** (rules in `scripts/parity_ticks.py`). Original setting (5,000 updates, ticks of mean 15), 10 seeds each:
+
+| Model | Seeds that extrapolate with ticks | Baseline |
+|---|---:|---:|
+| CTsqH (CTsq + homeostasis) | 0 / 10 | CTsq 0 / 10 |
+| CTsqHS (+ structural plasticity) | 0 / 10 | CTsq 0 / 10 |
+| DansH (Dans + homeostasis) | 0 / 10 | Dans 0 / 10 |
+
+- **No mechanism helps by the rule**, and none produces tick-scaling extrapolation.
+- **Exploratory,** not pre-registered: seeds at 80% or more on 41–80 bits at 16 ticks number CTsqH 3 (84, 82, 81%), CTsqHS 2 (96, 96%), DansH 1 (80%), against CTsq 0 and Dans 0 (best 79 and 76%). The mechanisms may make fixed-reach extrapolation somewhat more common in CTsq, but the counts are small.
+- The nearest to tick scaling is CTsqH seed 9 (81% → 95% from 16 to 64 ticks, under the rule's 20 points).
+
+**Stage 2: language model:** CTsqH at 400M tokens, two seeds, launched after stage 1. Its first 25 steps match CTsq's to 0.002 (θ starts at zero and moves 0.01 × (rate − 0.12) per step), and it runs at the same speed (38 s per step).
