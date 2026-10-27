@@ -37,6 +37,15 @@ things at once (curriculum and length of training) and is judged as one interven
 these runs: the rules above per cell; the curriculum helps a model if its count exceeds its mean-15 count by
 at least 3; the synchronization queries matter under it if CTsq_cur's count exceeds Dans_cur's by at least 3.
 
+Leon (2026) mechanisms (stage 1, added 2026-10-27; ctm_transformer/ctm_transformer.py): homeostasis and
+structural plasticity on the thinking layers' feed-forward neurons, in the first arm's setting (5,000
+updates, ticks of mean 15, no curriculum). CTsqH = CTsq + homeostasis; CTsqHS = CTsq + homeostasis +
+structural plasticity; DansH = Dans + homeostasis. Seeds 0-9. Rules, fixed before these runs: the rules
+above per cell; a mechanism helps a model if its count exceeds the model's own first-arm count (CTsq 0,
+Dans 0) by at least 3; it needs the synchronization queries if CTsqH's count exceeds DansH's by at least 3;
+structural plasticity adds to homeostasis if CTsqHS's count exceeds CTsqH's by at least 3. Optimizer:
+AdamW, as everywhere here (the paper used SGD and reports Adam as worse).
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
 import argparse,json,os,random,time
@@ -45,7 +54,7 @@ from pathlib import Path
 from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
-CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur');SEEDS=range(10)
+CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH','CTsqHS','DansH');SEEDS=range(10)
 SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48)}  # tick sampler (mean, maximum) by cell suffix
 CURRICULUM_STEPS=10000
 
@@ -96,6 +105,7 @@ def train(cell,seed,device):
         x,y=band_batch(1,curriculum_max(step,steps),BATCH,rng) if suffix=='_cur' else batch('parity','train',BATCH,rng);x,y=x.to(device),y.to(device)
         with torch.autocast('cuda',dtype=torch.bfloat16):loss=model(x,targets=y,max_thought_steps=step_depth(sampler,seed,step))['loss']
         loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.0);opt.step();opt.zero_grad(set_to_none=True)
+        if hasattr(model,'bio_step'):model.bio_step(step,steps)
     CKPT.mkdir(parents=True,exist_ok=True);torch.save({'model':model.state_dict(),'cell':cell,'seed':seed},CKPT/f'{cell}_seed{seed}.pt')
     model.eval();grid={f'{lo}-{hi}':{str(t):accuracy(model,lo,hi,t,device) for t in TICKS} for lo,hi in BANDS}
     result={'cell':cell,'seed':seed,'seconds':time.time()-start,'final_loss':float(loss),'accuracy':grid}

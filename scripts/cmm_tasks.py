@@ -53,7 +53,9 @@ SPLITS={'copy':{'train':(1,32),'id':(1,32),'ood':(33,64)},'recall':{'train':(2,1
         'sort':{'train':(4,16),'id':(4,16),'ood':(17,50)},'parity':{'train':(1,40),'id':(1,40),'ood':(41,80)}}
 STEPS,BATCH,EVAL_EXAMPLES,MAX_LEN=5000,128,512,256
 CELLS={'T8':('transformer',8),'T20':('transformer',20),'Dans':('dans',()),'CTsq':('ct',('sync_query',)),'CTnlm':('ct',('neuron_models',)),
-       'CTso':('ct',('sync_output',)),'CTfull':('ct',('neuron_models','sync_query','sync_output')),'CTsqS':('ct',('sync_query','attention_sink'))}
+       'CTso':('ct',('sync_output',)),'CTfull':('ct',('neuron_models','sync_query','sync_output')),'CTsqS':('ct',('sync_query','attention_sink')),
+       # Leon (2026) homeostasis / structural plasticity (2026-10-27; used by scripts/parity_ticks.py)
+       'CTsqH':('ct',('sync_query','homeostasis')),'CTsqHS':('ct',('sync_query','homeostasis','structural_plasticity')),'DansH':('ct',('homeostasis',))}
 
 
 def example(task,size,rng):
@@ -130,6 +132,7 @@ def train(cell,task,seed,device,steps=STEPS):
         set_lr(opt,lr_at(step,1e-3,200,steps,0.1));x,y=batch(task,'train',BATCH,rng);x,y=x.to(device),y.to(device)
         with torch.autocast('cuda',dtype=torch.bfloat16):loss=model(x,targets=y,max_thought_steps=step_depth(sampler,seed,step) if recurrent else None)['loss']
         loss.backward();norm=torch.nn.utils.clip_grad_norm_(model.parameters(),1.0);opt.step();opt.zero_grad(set_to_none=True)
+        if hasattr(model,'bio_step'):model.bio_step(step,steps)
         if (step+1)%500==0:curve.append({'step':step+1,'loss':float(loss),'grad_norm':float(norm)})
     model.eval();result={'cell':cell,'task':task,'seed':seed,'steps':steps,'seconds':time.time()-start,'peak_gib':torch.cuda.max_memory_allocated(device)/2**30,'parameters':sum(p.numel() for p in model.parameters()),'curve':curve}
     result['id']=evaluate(model,recurrent,task,'id',16,device)

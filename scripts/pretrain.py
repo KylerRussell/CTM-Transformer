@@ -158,6 +158,7 @@ def main():
             if rank==0:(out/'diverged.json').write_text(json.dumps({'diverged':True,'step':step,'loss':float(total),'lr':lr})+'\n')
             break
         optimizer.step();optimizer.zero_grad(set_to_none=True)
+        if hasattr(model,'bio_step'):model.bio_step(step,t['total_steps'])  # Leon (2026) homeostasis / structural plasticity (2026-10-27)
         if distributed:dist.all_reduce(total);total/=world
         done=step+1;row={'step':done,'tokens':done*tokens_per_step,'loss':float(total),'lr':lr,'grad_norm':float(norm),'depth':depth,
              'seconds':time.perf_counter()-tick,'peak_gib':torch.cuda.max_memory_allocated(device)/2**30}

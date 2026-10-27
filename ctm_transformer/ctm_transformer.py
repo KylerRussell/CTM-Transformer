@@ -31,6 +31,16 @@ Added 2026-10-21, after CTsqL (``ctm_loss``) collapsed on both seeds:
   detached state, so it trains only the coda and the output head; the final tick's cross-entropy keeps the
   full gradient, so the recurrence is trained as in Dans. Tests whether the CTM loss's per-tick gradient into
   the recurrence causes the state growth seen in the CTsqL pilots.
+* From Leon (arXiv 2608.28184, 2026-10-27), biologically inspired regulation of the thinking layers'
+  feed-forward neurons, applied after each optimizer step by ``bio_step``:
+  - ``homeostasis``: each SwiGLU gate neuron has a non-gradient threshold theta (a buffer, zero at
+    initialization, so the untrained model is unchanged) subtracted from its gate pre-activation. After each
+    update, theta <- clip(theta + 0.01 * (rate - 0.12), -2, 2), where rate is the fraction of (token, tick)
+    instances in the step with gate pre-activation - theta > 0 (the paper's ReLU-active, here before the silu).
+  - ``structural_plasticity``: the gate, up and down weights are used through a binary mask keeping the 35%
+    largest-magnitude entries of each matrix, chosen at initialization and refreshed 30 times over training.
+    It masks weights from the start, so with it the untrained model is not Dans.
+  The paper trains one-hidden-layer MLPs with SGD and reports Adam as worse; here the optimizer is AdamW.
 * ``record_stats`` (attribute, off by default): each forward stores detached diagnostics in ``self.stats``:
   the state's RMS after every tick and, under the CTM loss, the per-tick cross-entropy and the share of
   tokens selecting each tick.
@@ -56,6 +66,9 @@ from ctm_transformer.rdt_recipe import RecipeRDT
 DANS = {'norm': 'prenorm', 'normalize': False, 'state_init': 'zeros', 'injection': 'add', 'coda_norm': 'none', 'state_norm': True}
 MECHANISMS = ('neuron_models', 'sync_query', 'sync_output', 'attention_sink')
 OBJECTIVES = ('ctm_loss', 'final_tick_loss', 'detached_readouts')
+BIO = ('homeostasis', 'structural_plasticity')
+HOMEOSTASIS_TARGET, HOMEOSTASIS_RATE, HOMEOSTASIS_LIMIT = 0.12, 0.01, 2.0
+SP_DENSITY, SP_REFRESHES = 0.35, 30
 NLM_HISTORY = 4  # ticks of pre-activation history per feed-forward neuron
 NLM_HIDDEN = 4   # hidden width of each neuron's private MLP (4, not 8: per-token neuron MLPs are memory-bound, 2026-10-14)
 DECAY_INIT = 0.01
@@ -112,13 +125,14 @@ class TickSynchronization(nn.Module):
 
 class CTMTransformer(RecipeRDT):
     def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, ctm_loss=False,
-                 final_tick_loss=False, detached_readouts=False, pairs=None, seed=0, **recipe):
+                 final_tick_loss=False, detached_readouts=False, homeostasis=False, structural_plasticity=False, pairs=None, seed=0, **recipe):
         super().__init__(config, **recipe)
         if self.recipe['norm'] != 'prenorm' or not self.recipe['state_norm']:
             raise ValueError('The CTM Transformer builds on a pre-norm recipe with a state norm (Dans)')
         d, layers = config.d_model, len(self.core)
         pairs = pairs or d
-        self.mechanisms = {'neuron_models': neuron_models, 'sync_query': sync_query, 'sync_output': sync_output, 'attention_sink': attention_sink}
+        self.mechanisms = {'neuron_models': neuron_models, 'sync_query': sync_query, 'sync_output': sync_output, 'attention_sink': attention_sink,
+                           'homeostasis': homeostasis, 'structural_plasticity': structural_plasticity}
         if final_tick_loss and not ctm_loss:
             raise ValueError('final_tick_loss is added to the CTM loss; alone it is the default objective')
         self.ctm_loss = ctm_loss
@@ -143,6 +157,13 @@ class CTMTransformer(RecipeRDT):
             heads = self.core[0].attn.heads
             self.sink_keys = nn.Parameter(torch.zeros(layers, heads, d // heads))
             self.sink_gate = nn.Parameter(torch.zeros(layers, heads))
+        if homeostasis:
+            self.register_buffer('homeostatic_threshold', torch.zeros(layers, self.core[0].gate.out_features))
+            self._activity = [None] * layers
+            self._activity_count = [0] * layers
+        if structural_plasticity:
+            for name in ('gate', 'up', 'down'):
+                self.register_buffer(f'sp_mask_{name}', torch.stack([self._top_k(getattr(block, name).weight) for block in self.core]))
         if sync_output:
             self.sync_out = TickSynchronization(d, pairs, generator)
             self.sync_projection = nn.Linear(pairs, d, bias=False)
@@ -176,16 +197,49 @@ class CTMTransformer(RecipeRDT):
             y = y + self.sink_gate[index][None, :, None, None].to(y.dtype) * (y_sink - y)
         x = block.attn_post(x + attn.out(y.transpose(1, 2).contiguous().view(B, S, W)))
         u = block.ffn_norm(x)
-        pre = block.gate(u)
-        act = F.silu(pre)
+        bio = self.mechanisms['homeostasis'] or self.mechanisms['structural_plasticity']
+        pre = F.linear(u, self._ffn_weight(index, 'gate')) if bio else block.gate(u)
+        act = F.silu(pre - self.homeostatic_threshold[index].to(pre.dtype)) if self.mechanisms['homeostasis'] else F.silu(pre)
         if self.mechanisms['neuron_models']:
             past = history if history else (torch.zeros_like(pre),) * (NLM_HISTORY - 1)
             stacked = torch.stack((*past, pre), dim=-1)  # [B, S, F, M]
             F_ = pre.shape[-1]
             neuron = neuron_models(self.nlms[index], stacked.reshape(B * S, F_, NLM_HISTORY)).view(B, S, F_)
             act = act + self.nlm_scale[index].to(act.dtype) * neuron.to(act.dtype)
-        x = block.ffn_post(x + block.down(act * block.up(u)))
+        if bio:
+            x = block.ffn_post(x + F.linear(act * F.linear(u, self._ffn_weight(index, 'up')), self._ffn_weight(index, 'down')))
+        else:
+            x = block.ffn_post(x + block.down(act * block.up(u)))
         return x, pre
+
+    @staticmethod
+    def _top_k(weight):
+        k = max(1, int(SP_DENSITY * weight.numel()))
+        threshold = weight.detach().abs().flatten().kthvalue(weight.numel() - k + 1).values
+        return weight.detach().abs() >= threshold
+
+    def _ffn_weight(self, index, name):
+        weight = getattr(self.core[index], name).weight
+        return weight * getattr(self, f'sp_mask_{name}')[index].to(weight.dtype) if self.mechanisms['structural_plasticity'] else weight
+
+    def _record_activity(self, index, pre):
+        active = ((pre.detach().float() - self.homeostatic_threshold[index]) > 0).float().mean(dim=tuple(range(pre.ndim - 1)))
+        self._activity[index] = active if self._activity[index] is None else self._activity[index] + active
+        self._activity_count[index] += 1
+
+    @torch.no_grad()
+    def bio_step(self, step, total_steps):
+        """After an optimizer step: the homeostatic threshold update and, on schedule, the structural mask refresh."""
+        if self.mechanisms['homeostasis']:
+            for i, total in enumerate(self._activity):
+                if total is not None:
+                    rate = total / self._activity_count[i]
+                    self.homeostatic_threshold[i].add_(HOMEOSTASIS_RATE * (rate - HOMEOSTASIS_TARGET)).clamp_(-HOMEOSTASIS_LIMIT, HOMEOSTASIS_LIMIT)
+            self._activity = [None] * len(self.core)
+            self._activity_count = [0] * len(self.core)
+        if self.mechanisms['structural_plasticity'] and (step + 1) % max(1, total_steps // SP_REFRESHES) == 0:
+            for name in ('gate', 'up', 'down'):
+                getattr(self, f'sp_mask_{name}').copy_(torch.stack([self._top_k(getattr(block, name).weight) for block in self.core]))
 
     def _checkpointed(self, function, *args):
         if self.config.gradient_checkpointing and self.training and torch.is_grad_enabled():
@@ -222,6 +276,8 @@ class CTMTransformer(RecipeRDT):
                 alpha_action, beta_action = sync_action if sync_action is not None else (None, None)
                 for index in range(len(self.core)):
                     h, pre = self._checkpointed(self._thinking_layer, index, h, alpha_action, beta_action, *history[index])
+                    if self.mechanisms['homeostasis'] and self.training and torch.is_grad_enabled():
+                        self._record_activity(index, pre)  # outside the checkpoint, so a backward recompute is not counted
                     if self.mechanisms['neuron_models']:
                         past = history[index] if history[index] else (torch.zeros_like(pre),) * (NLM_HISTORY - 1)
                         history[index] = (*past[1:], pre)
@@ -272,11 +328,11 @@ class CTMTransformer(RecipeRDT):
 
 
 def ctm_transformer_factory(mechanisms, recipe=DANS, checkpointing=False, backprop_steps=None):
-    unknown = set(mechanisms) - set(MECHANISMS) - set(OBJECTIVES)
+    unknown = set(mechanisms) - set(MECHANISMS) - set(OBJECTIVES) - set(BIO)
     if unknown:
         raise ValueError(f'Unknown mechanisms {sorted(unknown)}')
     def factory(config):
         return CTMTransformer(replace(config, gradient_checkpointing=checkpointing), backprop_steps=backprop_steps,
-                              **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES}, **recipe)
+                              **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES + BIO}, **recipe)
     factory.__qualname__ = 'ctm_transformer_factory[' + ('+'.join(sorted(mechanisms)) or 'dans') + ']'
     return factory

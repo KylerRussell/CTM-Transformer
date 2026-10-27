@@ -196,3 +196,55 @@ def test_detached_readouts_train_the_recurrence_only_through_the_final_tick():
     assert any(not torch.allclose(gd[k], gf[k] / 2, atol=1e-6) for k in coda)
     with pytest.raises(ValueError):
         ctm_transformer_factory({'ctm_loss', 'detached_readouts'})(c)
+
+
+def test_homeostasis_starts_as_dans_and_moves_thresholds_toward_the_target_rate():
+    from ctm_transformer.ctm_transformer import HOMEOSTASIS_RATE, HOMEOSTASIS_TARGET
+    model, dans = pair(('sync_query', 'homeostasis'))
+    x, y = batch()
+    with torch.no_grad():
+        assert torch.allclose(model(x)['logits'], dans(x)['logits'], atol=1e-5)
+    model.train()
+    model(x, targets=y)['loss'].backward()
+    rates = [a / c for a, c in zip(model._activity, model._activity_count)]
+    model.bio_step(0, 100)
+    for i, rate in enumerate(rates):
+        assert torch.allclose(model.homeostatic_threshold[i], HOMEOSTASIS_RATE * (rate - HOMEOSTASIS_TARGET), atol=1e-6)
+    assert all(a is None for a in model._activity)
+    assert 'homeostatic_threshold' in model.state_dict()
+    with torch.no_grad():
+        assert not torch.allclose(model(x)['logits'], dans(x)['logits'], atol=1e-5)  # the shifted thresholds act
+
+
+def test_homeostatic_activity_is_counted_once_per_forward_with_checkpointing():
+    counts = []
+    for checkpointing in (False, True):
+        torch.manual_seed(0)
+        model = ctm_transformer_factory({'homeostasis'}, checkpointing=checkpointing)(replace(config('rdt'), max_thought_steps=3))
+        model.train()
+        x, y = batch()
+        model(x, targets=y)['loss'].backward()
+        counts.append((model._activity_count, [a.clone() for a in model._activity]))
+    assert counts[0][0] == counts[1][0] == [3] * len(counts[0][0])
+    assert all(torch.allclose(a, b) for a, b in zip(counts[0][1], counts[1][1]))
+
+
+def test_structural_plasticity_masks_to_the_largest_weights_and_refreshes_on_schedule():
+    from ctm_transformer.ctm_transformer import SP_DENSITY
+    model, dans = pair(('structural_plasticity',))
+    for name in ('gate', 'up', 'down'):
+        mask = getattr(model, f'sp_mask_{name}')
+        assert abs(mask[0].float().mean().item() - SP_DENSITY) < 0.01
+    with torch.no_grad():
+        for i, block in enumerate(dans.core):
+            for name in ('gate', 'up', 'down'):
+                getattr(block, name).weight.mul_(getattr(model, f'sp_mask_{name}')[i])
+    x, _ = batch()
+    with torch.no_grad():
+        assert torch.allclose(model(x)['logits'], dans(x)['logits'], atol=1e-5)
+        model.core[0].gate.weight.mul_(-3).add_(1.0)
+        before = model.sp_mask_gate.clone()
+        model.bio_step(0, 300)  # refreshes every 10 steps of 300: not at step 0
+        assert torch.equal(model.sp_mask_gate, before)
+        model.bio_step(9, 300)
+        assert torch.equal(model.sp_mask_gate[0], model._top_k(model.core[0].gate.weight))
