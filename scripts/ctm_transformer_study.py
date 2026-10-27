@@ -51,6 +51,12 @@ All three failed (2026-10-21; research/CTM_TRANSFORMER_DESIGN.md): with the CTM 
 final-tick loss at 16 ticks, it improves on CTsq if at least 0.02 below 3.582 and beats Dans if at least 0.02
 below 3.574; certainty is usable if threshold exit at a mean of 4 ticks is within 0.02 of its fixed 4-tick loss.
 
+Leon (2026) homeostasis, stage 2 (added 2026-10-27; ctm_transformer/ctm_transformer.py): CTsqH is CTsq with
+homeostatic thresholds on the thinking layers' feed-forward gate neurons (target activity 12%, rate 0.01,
+limit 2, updated after each optimizer step), two seeds at 400M tokens, AdamW as everywhere (the paper used
+SGD). Rules, fixed before these runs, on two-seed means of the held-out loss at 16 ticks: it improves on
+CTsq if at least 0.02 below 3.582, and beats Dans if at least 0.02 below 3.574.
+
 Usage: python -m scripts.ctm_transformer_study --gpu N --runs NAMES... | --diagnose RUN [--checkpoint F] | --summarize | --pilots
 """
 import argparse,json,math,os,subprocess,sys
@@ -63,9 +69,11 @@ VARIANTS={'CTfull':['neuron_models','sync_query','sync_output'],'CTnlm':['neuron
           # fix (a) for CTsqL's collapse (2026-10-21): the mean of the CTM loss and the final-tick loss
           'CTsqLF':['sync_query','ctm_loss','final_tick_loss'],
           # fixes (c) and (d) (2026-10-21): CTM loss on detached readouts; the CTM loss with a norm on the coda input
-          'CTsqLD':['sync_query','ctm_loss','final_tick_loss','detached_readouts'],'CTsqLN':['sync_query','ctm_loss']}
+          'CTsqLD':['sync_query','ctm_loss','final_tick_loss','detached_readouts'],'CTsqLN':['sync_query','ctm_loss'],
+          # Leon (2026) homeostasis, stage 2 (2026-10-27)
+          'CTsqH':['sync_query','homeostasis']}
 RECIPE_OVERRIDES={'CTsqLN':{'coda_norm':'shared'}}
-MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[36,8]],'CTsqL':[[28,8]],'CTsqLF':[[28,8]],'CTsqLD':[[28,8]],'CTsqLN':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than the limit (memory; item 3 limits from the 2026-10-19 memory test)
+MICRO={'CTfull':[[28,8]],'CTnlm':[[28,8]],'CTsq':[[28,8]],'CTso':[[28,8]],'CTsqS':[[36,8]],'CTsqL':[[28,8]],'CTsqLF':[[28,8]],'CTsqLD':[[28,8]],'CTsqLN':[[28,8]],'CTsqH':[[28,8]]}  # micro-batch 16, and 8 for steps deeper than the limit (memory; item 3 limits from the 2026-10-19 memory test)
 COLLAPSED=7.0
 PILOT_STEPS=200
 
