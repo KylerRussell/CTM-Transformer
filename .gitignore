@@ -58,3 +58,9 @@ research/results/ctm_matched/gpu*.log
 research/runs/ctm_transformer/
 research/results/ctm_transformer/gpu*.log
 research/runs/parity_ticks/
+research/data/pretrain/code_math_32k/*.bin
+research/data/pretrain/code_math_32k/tasks.json
+research/runs/code_math/
+research/results/code_math/gpu*.log
+research/results/code_math_tasks/logs/
+research/data/pretrain/code_math_data.log

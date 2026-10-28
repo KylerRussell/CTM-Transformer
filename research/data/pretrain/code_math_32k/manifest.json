@@ -1,0 +1,55 @@
+{
+  "name": "code_math_32k",
+  "sources": {
+    "math": [
+      "HuggingFaceTB/finemath",
+      "finemath-4plus/train-00000-of-00064.parquet",
+      "finemath-4plus/train-00063-of-00064.parquet"
+    ],
+    "code": [
+      "codeparrot/codeparrot-clean",
+      "file-000000000001.json.gz",
+      "file-000000000054.json.gz"
+    ]
+  },
+  "revisions": {
+    "HuggingFaceTB/finemath": "e92b25a616738fe95dc186b64dfb19f9c8525594",
+    "codeparrot/codeparrot-clean": "35a59fb025bc0a102f7d96eac09d145b896d487b",
+    "openai/gsm8k": "740312add88f781978c0658806c59bc2815b9866",
+    "google-research-datasets/mbpp": "4bb6404fdc6cacfda99d4ac4205087b89d32030c",
+    "openai/openai_humaneval": "7dce6050a7d6d172f3cc5c32aa97f52fa1a2e544"
+  },
+  "tokenizer": "../fineweb_edu_32k/tokenizer.json",
+  "tokenizer_sha256": "9e67a83453d571c32ffd089e323d529b9cdfda783c0ce02e6ee71057275bb565",
+  "vocab_size": 32768,
+  "eot_id": 0,
+  "dtype": "uint16",
+  "train": [
+    "math_train.bin",
+    "code_train.bin"
+  ],
+  "validation": [
+    "math_valid.bin",
+    "code_valid.bin"
+  ],
+  "shards": {
+    "math_train.bin": {
+      "tokens": 60000000,
+      "documents": 38000
+    },
+    "math_valid.bin": {
+      "tokens": 2000000,
+      "documents": 2000
+    },
+    "code_train.bin": {
+      "tokens": 60000000,
+      "documents": 14000
+    },
+    "code_valid.bin": {
+      "tokens": 2000000,
+      "documents": 2000
+    }
+  },
+  "tasks": "tasks.json",
+  "tasks_sha256": "c1d5bd4fe39bdfc7a4b588e0e2c4b50e86e0e0ae0740071d2b03454e45e062d9"
+}
