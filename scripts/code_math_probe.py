@@ -209,7 +209,7 @@ def summarize():
         for v in VARIANTS:
             if (v,'CTsq') not in out:continue
             wins=[k for k,(d,n) in out[(v,'CTsq')].items() if k in MEASURES and 'better' in n];losses=[k for k,(d,n) in out[(v,'CTsq')].items() if k in MEASURES and 'worse' in n]
-            if task_votes:wins+=task_votes[v]['wins'];losses+=task_votes[v]['losses']
+            if task_votes and v in task_votes:wins+=task_votes[v]['wins'];losses+=task_votes[v]['losses']  # CTso has no 0C runs
             ok=len(wins)>=2 and not losses;qualified+=[(v,len(wins))] if ok else []
             L.append(f'- **{v}:** wins {wins or "none"}; losses {losses or "none"}; qualifies: {"yes" if ok else "no"}')
         if task_votes is None:L.append('- 0C results not yet in; the selection is provisional.')

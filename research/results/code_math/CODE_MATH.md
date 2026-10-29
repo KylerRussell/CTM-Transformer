@@ -71,5 +71,4 @@ Rule outcomes:
 - **CTnlm:** wins none; losses none; qualifies: no
 - **CTso:** wins none; losses none; qualifies: no
 - **CTsqH:** wins none; losses none; qualifies: no
-- 0C results not yet in; the selection is provisional.
 - **Ladder arm:** CTsq stays

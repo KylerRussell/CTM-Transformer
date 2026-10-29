@@ -144,3 +144,24 @@ Stage 0 and stage 0.5 together add about 2 days.
 1. Stage 0's scope: all of 0A–0C, or 0A first and the rest depending on its result.
 2. The budget option (A, B or C) and whether the 500M minimum still holds.
 3. Whether to add the compute-matched Transformer at R2–R3.
+
+## Stage 0 outcome (2026-10-29)
+
+Results: `research/results/code_math/CODE_MATH.md` (0A, 0B, the selection) and `research/results/code_math_tasks/CODE_MATH_TASKS.md` (0C).
+
+- **0A (zero-shot):**
+  - Dans beats T8 on every measure.
+  - CTsq, CTnlm and CTso trail Dans on HumanEval (by 0.045–0.063).
+  - CTsqH is ahead of CTsq on MBPP and HumanEval, but behind Dans on GSM8K.
+- **0B (after 100M tokens of math and code):**
+  - CTsq, CTnlm and CTso tie Dans on every measure (within 0.01 on math and code); the 0A HumanEval gaps close.
+  - CTsqH is behind Dans on MBPP (+0.027).
+  - No variant differs from CTsq.
+  - Dans beats T8 on every measure. T20 (one seed) is best on every measure.
+  - Forgetting of web text is the same for all models (+0.37 to +0.40).
+  - Loss stops improving by 8 ticks on math and code too.
+- **0C (synthetic tasks):** no model learned these tasks, so 0C cannot separate the models and the tie is a floor, not a result:
+  - OOD accuracy is at chance for every model: 0% on addition; 16–18% on expression and tracking, where chance is 1/7 = 14%.
+  - In distribution, accuracy is the same floor for every model: about 11% on addition (consistent with solving only 1-digit sums) and about 38% on tracking.
+  - No model gains with more ticks.
+- **Selection:** no variant beats CTsq on any 0B measure or 0C task-split, so CTsq stays the ladder's CTM Transformer arm.
