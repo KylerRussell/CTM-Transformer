@@ -486,3 +486,24 @@ The feed-forward layers became about a quarter sparser at no cost and no gain in
 - Applied faithfully to the CTM Transformer's thinking layers, with AdamW, homeostasis and structural plasticity do not improve parity extrapolation or language-model loss.
 - Homeostasis sparsifies the feed-forward activity without harming the loss.
 - The caveat stands: the paper's effects were measured with SGD, and it reports Adam as worse for grokking.
+
+## Adaptive compute and calibration, second test (2026-10-31; `scripts/exit_calibration.py`, `research/results/exit_calibration/EXIT_CALIBRATION.md`)
+
+128 held-out windows (131,072 tokens), every tick 1–32 read out; two seeds per model (T20 one). Rules in the script's docstring, fixed before the runs.
+
+| Model | Loss, 16 ticks | Mean ticks to within 0.01 (convergence exit) | Certainty exit | Fixed ticks | ECE, tick 16 | ECE, ticks 1–16 averaged |
+|---|---:|---:|---:|---:|---:|---:|
+| T8 | 3.589 | – | – | – | 0.0059 | – |
+| Dans | 3.534 | 3.79 | 26.8 | 5 | 0.0064 | 0.0052 |
+| CTsq | 3.541 | 3.92 | 26.7 | 5 | 0.0053 | 0.0064 |
+| CTnlm | 3.530 | 3.79 | 26.6 | 5 | 0.0053 | 0.0069 |
+| CTso | 3.537 | 3.78 | 26.5 | 5 | 0.0044 | 0.0056 |
+| CTsqLD | 3.802 | 2.54 | 26.9 | 3 | 0.0069 | 0.0106 |
+
+- **Adaptive compute.**
+  - The convergence exit stops a token once its prediction changes little between ticks. It reaches the 16-tick loss (within 0.01) at a mean of about 3.8 ticks, against 5 for fixed ticks, the same for Dans and every CTM Transformer variant.
+  - The CTM's certainty threshold needs about 27 ticks for every model: on language modelling, certainty is not a usable stopping signal, for the CTM Transformer or for Dans.
+  - At a mean of 3 or 4 exit ticks, no variant is within 0.02 of beating Dans.
+- **CTsqLD passes the ticks rule only nominally.** It needs fewer ticks to reach *its own* 16-tick loss because that loss is 0.27 worse and is flat from tick 3. In absolute terms it is 0.25–0.26 worse than Dans at a mean of 3 and of 4 exit ticks. The rule measured efficiency relative to each model's own loss, which I did not guard against when setting it; this is not an advantage.
+- **Calibration.** Every model is well calibrated: ECE 0.004–0.007 at 16 ticks, including T8 without ticks. No variant is 0.005 better than Dans on either readout, so the CTM paper's calibration claim is not supported here. Averaging over ticks, the paper's readout, is worse than the single tick-16 readout for most models at 16 ticks, because the early ticks are less well calibrated.
+- **Conclusion (items 1 and 2).** At equal loss, the CTM Transformer has no training-free advantage over Dans in adaptive compute or calibration.
