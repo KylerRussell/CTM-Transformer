@@ -22,8 +22,8 @@ Protocol and rules: `scripts/parity_ticks.py` (docstring).
 | Dans_lent | 10 | 4 | 61/99*, 51/52, 50/99*, 51/99*, 48/48, 48/48, 52/52, 52/52, 48/48, 54/100* |
 | CTsq_w256 | 10 | 0 | 52/52, 48/48, 52/52, 50/50, 52/52, 48/48, 50/50, 49/50, 51/51, 50/49 |
 | Dans_w256 | 10 | 0 | 52/52, 48/48, 51/52, 50/50, 76/80, 49/49, 48/48, 50/49, 52/52, 48/48 |
-| CTsq_w256lr | 0 | 0 |  |
-| Dans_w256lr | 0 | 0 |  |
+| CTsq_w256lr | 10 | 0 | 48/48, 53/53, 48/48, 52/52, 50/50, 52/52, 48/48, 52/52, 51/51, 48/48 |
+| Dans_w256lr | 10 | 0 | 52/52, 52/52, 48/48, 48/48, 49/49, 48/48, 52/52, 49/49, 54/54, 79/82 |
 
 Reliable (at least 3 of 10): CTsqS no, CTsq no, Dans no, CTsq_m32 no, Dans_m32 no, CTsq_cur no, Dans_cur no, CTsqH no, CTsqHS no, DansH no, CTsq_prog no, Dans_prog no, CTsq_mono no, Dans_mono no, CTsq_lent no, Dans_lent yes, CTsq_w256 no, Dans_w256 no, CTsq_w256lr no, Dans_w256lr no
 Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0, CTsqH 0, CTsqHS 0, DansH 0, CTsq_prog 0, Dans_prog 0, CTsq_mono 0, Dans_mono 0, CTsq_lent 2, Dans_lent 4, CTsq_w256 0, Dans_w256 0, CTsq_w256lr 0, Dans_w256lr 0
@@ -46,7 +46,7 @@ Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_
 - Dans_lent has the property more than CTsq_w256lr (4 vs 0)
 - Dans_lent has the property more than Dans_w256lr (4 vs 0)
 Extra ticks pay (41-80 bits, +10 points from 16 to 128 ticks): CTsqS 2, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0, CTsqH 1, CTsqHS 0, DansH 0, CTsq_prog 0, Dans_prog 0, CTsq_mono 0, Dans_mono 0, CTsq_lent 2, Dans_lent 4, CTsq_w256 0, Dans_w256 0, CTsq_w256lr 0, Dans_w256lr 0
-Fitting the trained lengths (1-40 bits at 16 ticks, at least 95%): CTsqS 4, CTsq 5, Dans 3, CTsq_m32 2, Dans_m32 5, CTsq_cur 9, Dans_cur 10, CTsqH 4, CTsqHS 7, DansH 7, CTsq_prog 4, Dans_prog 5, CTsq_mono 2, Dans_mono 4, CTsq_lent 2, Dans_lent 2, CTsq_w256 1, Dans_w256 1, CTsq_w256lr 0, Dans_w256lr 0
+Fitting the trained lengths (1-40 bits at 16 ticks, at least 95%): CTsqS 4, CTsq 5, Dans 3, CTsq_m32 2, Dans_m32 5, CTsq_cur 9, Dans_cur 10, CTsqH 4, CTsqHS 7, DansH 7, CTsq_prog 4, Dans_prog 5, CTsq_mono 2, Dans_mono 4, CTsq_lent 2, Dans_lent 2, CTsq_w256 1, Dans_w256 1, CTsq_w256lr 1, Dans_w256lr 5
 
 ## Extrapolating runs: smallest tick count reaching 90% per length band
 

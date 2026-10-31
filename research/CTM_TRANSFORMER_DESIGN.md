@@ -536,3 +536,9 @@ The feed-forward layers became about a quarter sparser at no cost and no gain in
   - Tick-scaling extrapolation, the CTM's central claim, becomes reliable when training ticks grow with the input's difficulty.
   - It does so without the CTM mechanisms, and so far more often in Dans than in CTsq.
   - The capability is a property of recurrence trained with enough ticks, not of the CTM Transformer.
+
+**Width 256 at lr 5e-4 (`_w256lr`, 2026-10-31; rules as for `_w256`, fixed before the runs).**
+- **0 of 10 seeds extrapolate with ticks, for CTsq and for Dans,** against 0 of 10 at width 128.
+- **The lower rate fits better, mainly for Dans.** Seeds at 95% or more on 1–40 bits: Dans 5 of 10 (1 at lr 1e-3), CTsq 1 of 10 (most at 78–89%).
+- **Dans seed 9** fits fully (100%) and extrapolates at a fixed tick count: 79% on 41–80 bits at 16 ticks, 82% at 128.
+- **Conclusion:** under the usual tick sampler, doubling the width does not make the serial solution more common. The width-256 fitting seeds behave like the width-128 ones: they find fixed-reach solutions or none.
