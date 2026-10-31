@@ -507,3 +507,32 @@ The feed-forward layers became about a quarter sparser at no cost and no gain in
 - **CTsqLD passes the ticks rule only nominally.** It needs fewer ticks to reach *its own* 16-tick loss because that loss is 0.27 worse and is flat from tick 3. In absolute terms it is 0.25–0.26 worse than Dans at a mean of 3 and of 4 exit ticks. The rule measured efficiency relative to each model's own loss, which I did not guard against when setting it; this is not an advantage.
 - **Calibration.** Every model is well calibrated: ECE 0.004–0.007 at 16 ticks, including T8 without ticks. No variant is 0.005 better than Dans on either readout, so the CTM paper's calibration claim is not supported here. Averaging over ticks, the paper's readout, is worse than the single tick-16 readout for most models at 16 ticks, because the early ticks are less well calibrated.
 - **Conclusion (items 1 and 2).** At equal loss, the CTM Transformer has no training-free advantage over Dans in adaptive compute or calibration.
+
+## Items 3 and 4 on parity: four training changes (2026-10-31; `scripts/parity_ticks.py`, `research/results/parity_ticks/PARITY_TICKS.md`)
+
+10 seeds per cell, rules in the script's docstring, fixed before the runs. A run "extrapolates with ticks" if its accuracy on 41–80 bits at 64 ticks is at least 80% and at least 20 points above 16 ticks.
+
+| Change | CTsq | Dans | Seeds fitting 1–40 bits (≥95%), CTsq / Dans |
+|---|---:|---:|---:|
+| none (first arm) | 0 | 0 | 5 / 3 |
+| progressive loss (Bansal et al. 2022) | 0 | 0 | 4 / 5 |
+| monotone tick loss | 0 | 0 | 2 / 4 |
+| width 256 (lr 1e-3) | 0 | 0 | 1 / 1 |
+| **ticks that grow with the input, ceil(0.75 L) + U{0..8}** | **2** | **4** | 2 / 2 |
+
+- **Rule outcomes.**
+  - Length-scaled ticks make the property reliable for Dans: 4 of 10, at least 3 more than the first arm's 0.
+  - For CTsq, 2 of 10 falls short of the 3 required.
+  - The synchronization queries do not matter under it: CTsq's 2 does not exceed Dans's 4.
+  - No other change helps either model.
+- **The extrapolating runs are serial and reach far.** Dans seeds 0, 3 and 9 reach 95–98% on 81–120 bits and 80–85% on 121–160 bits at 128 ticks, three to four times the trained length and beyond any tick count seen in training (at most 38). The ticks needed to reach 90% grow with the length: for seed 0, 16 / 32 / 32 / 64 for 1–40 / 41–60 / 61–80 / 81–120 bits.
+- **Under length-scaled ticks, fitting is the bottleneck, not finding.** Exploratory, not a pre-registered measure: every seed that fits the trained lengths extrapolates.
+  - Dans seeds 0, 2, 3 and 9 fit (90–100% on 1–40 bits), and all four extrapolate.
+  - CTsq seeds 1 and 4 fit (98–99%), and both extrapolate.
+  - Every other seed stays at 56–80% in distribution and at chance beyond it.
+  - Without length-scaled ticks, fitting seeds never extrapolate with ticks (e.g. the curriculum: 19 of 20 seeds fit, none extrapolates).
+- **Width 256 at lr 1e-3 is inconclusive.** Only 1 seed per model fits the trained lengths, so it cannot answer whether larger models find the solution more often. It is being rerun at lr 5e-4 (`_w256lr`).
+- **Conclusion.**
+  - Tick-scaling extrapolation, the CTM's central claim, becomes reliable when training ticks grow with the input's difficulty.
+  - It does so without the CTM mechanisms, and so far more often in Dans than in CTsq.
+  - The capability is a property of recurrence trained with enough ticks, not of the CTM Transformer.
