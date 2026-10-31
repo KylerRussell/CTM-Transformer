@@ -65,6 +65,12 @@ first-arm count (CTsq 0, Dans 0) by at least 3; the synchronization queries matt
 count exceeds the Dans cell's by at least 3. Item 4 (extra ticks pay): reported for every cell, the 3-of-10
 count of runs whose accuracy on 41-80 bits rises by at least 10 points from 16 to 128 ticks.
 
+Width 256 at a lower learning rate (added 2026-10-31, after _w256 fitted the trained lengths poorly: most seeds
+56-72% on 1-40 bits at lr 1e-3): _w256lr is _w256 with peak lr 5e-4 (half; the learning rate scaled inversely
+with width). Seeds 0-9, CTsq and Dans. Rules, fixed before these runs: as for _w256 (against the first-arm
+counts, CTsq 0 and Dans 0, and CTsq against Dans). Also reported: the number of seeds fitting the trained
+lengths (at least 95% on 1-40 bits at 16 ticks), against the width-128 first arm.
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
 import argparse,json,math,os,random,time
@@ -74,8 +80,9 @@ from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
 CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH','CTsqHS','DansH',
-       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256');SEEDS=range(10)
-SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
+       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256','CTsq_w256lr','Dans_w256lr');SEEDS=range(10)
+PEAK_LR={'_w256lr':5e-4}  # by cell suffix; 1e-3 otherwise
+SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48),'_w256lr':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
 CURRICULUM_STEPS=10000
 
 
@@ -117,12 +124,12 @@ def train(cell,seed,device):
     out=OUT/f'{cell}_seed{seed}.json'
     if out.exists():return
     base,suffix=split(cell);mean,maximum=SAMPLERS[suffix]
-    torch.manual_seed(seed);model,recurrent=build(base,256 if suffix=='_w256' else 128);model=model.to(device);assert recurrent
+    torch.manual_seed(seed);model,recurrent=build(base,256 if suffix in ('_w256','_w256lr') else 128);model=model.to(device);assert recurrent
     sampler=lognormal_poisson(mean,0.5,maximum)
-    opt=torch.optim.AdamW(model.parameters(),lr=1e-3,betas=(0.9,0.95),weight_decay=0.1,fused=True)
+    peak=PEAK_LR.get(suffix,1e-3);opt=torch.optim.AdamW(model.parameters(),lr=peak,betas=(0.9,0.95),weight_decay=0.1,fused=True)
     rng=random.Random(f'train-parity-{seed}');start=time.time();steps=CURRICULUM_STEPS if suffix=='_cur' else STEPS
     for step in range(steps):
-        set_lr(opt,lr_at(step,1e-3,200,steps,0.1))
+        set_lr(opt,lr_at(step,peak,200,steps,0.1))
         T=step_depth(sampler,seed,step)
         if suffix=='_lent':L=rng.randint(1,40);x,y=band_batch(L,L,BATCH,rng);T=math.ceil(0.75*L)+rng.randint(0,8)
         elif suffix=='_cur':x,y=band_batch(1,curriculum_max(step,steps),BATCH,rng)
@@ -166,6 +173,7 @@ def summarize():
             if a!=b and counts[a]-counts[b]>=3:L.append(f'- {a} has the property more than {b} ({counts[a]} vs {counts[b]})')
     pays=lambda r:(r['accuracy']['41-60']['128']+r['accuracy']['61-80']['128'])/2-(r['accuracy']['41-60']['16']+r['accuracy']['61-80']['16'])/2>=10
     L.append('Extra ticks pay (41-80 bits, +10 points from 16 to 128 ticks): '+', '.join(f'{c} {sum(pays(res[(c,s)]) for s in SEEDS if (c,s) in res)}' for c in CELLS))
+    L.append('Fitting the trained lengths (1-40 bits at 16 ticks, at least 95%): '+', '.join(f'{c} {sum(res[(c,s)]["accuracy"]["1-40"]["16"]>=95 for s in SEEDS if (c,s) in res)}' for c in CELLS))
     L+=['','## Extrapolating runs: smallest tick count reaching 90% per length band','']
     for (c,s),r in sorted(res.items()):
         if extrapolates(r)[0]:
