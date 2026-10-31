@@ -91,7 +91,8 @@ def batch(task,split,n,rng):
     return x,y
 
 
-def build(cell):
+def build(cell,width=128):
+    """The cell's model at the given width (128 here; heads of 32, SwiGLU 2.625 x width; wider for scripts/parity_ticks.py's _w256)."""
     from dataclasses import replace
     from scripts.pretrain import build_config
     from ctm_transformer.lm_scale import scaled_factory
@@ -99,9 +100,9 @@ def build(cell):
     from ctm_transformer.ctm_transformer import DANS,ctm_transformer_factory
     kind,arg=CELLS[cell];train={'seq_len':MAX_LEN,'micro_batch':BATCH,'lr':1e-3}
     if kind=='transformer':
-        run={'family':'transformer','train':train,'model':{'d_model':128,'n_layers':arg,'ffn_hidden_dim':336,'init_std':0.02,'n_heads':4}};factory=scaled_factory('transformer')
+        run={'family':'transformer','train':train,'model':{'d_model':width,'n_layers':arg,'ffn_hidden_dim':width*21//8,'init_std':0.02,'n_heads':width//32}};factory=scaled_factory('transformer')
     else:
-        run={'family':'rdt','train':train,'eval_depth':16,'model':{'d_model':128,'prelude_layers':2,'core_layers':4,'coda_layers':2,'ffn_hidden_dim':336,'init_std':0.02,'n_heads':4}}
+        run={'family':'rdt','train':train,'eval_depth':16,'model':{'d_model':width,'prelude_layers':2,'core_layers':4,'coda_layers':2,'ffn_hidden_dim':width*21//8,'init_std':0.02,'n_heads':width//32}}
         factory=recipe_factory(DANS,checkpointing=True) if kind=='dans' else ctm_transformer_factory(set(arg),checkpointing=True)
     return factory(build_config(run,VOCAB)),kind!='transformer'
 

@@ -46,16 +46,36 @@ Dans 0) by at least 3; it needs the synchronization queries if CTsqH's count exc
 structural plasticity adds to homeostasis if CTsqHS's count exceeds CTsqH's by at least 3. Optimizer:
 AdamW, as everywhere here (the paper used SGD and reports Adam as worse).
 
+Making the serial solution reliable, and making extra ticks pay (items 3 and 4, added 2026-10-31). Four training
+changes, each on CTsq and on Dans, in the first arm's setting (5,000 updates, ticks of mean 15 at most 48, no
+curriculum, width 128) except for the one change; seeds 0-9:
+- _prog, the progressive loss (Bansal et al. 2022, "End-to-end algorithm synthesis with recurrent networks:
+  logical extrapolation without overthinking"): each update's loss is the mean of the usual loss at the sampled
+  tick count T and a progressive loss: n ~ U{0..T-1} ticks run without gradient, then k ~ U{1..T-n} ticks with
+  gradient, the loss read after n + k ticks. The model is trained to improve from any intermediate state, so it
+  cannot rely on a fixed tick count.
+- _mono, a monotone tick loss: the final tick's loss plus the mean over ticks t = 2..T of
+  max(0, CE_t - CE_{t-1}) on the answer token (every tick read out, with full gradient): extra ticks must
+  never make the answer worse.
+- _lent, ticks that grow with the input: every update uses one length L ~ U{1..40} for its whole batch and
+  ceil(0.75 L) + j ticks, j ~ U{0..8} (the serial run needed about 0.55 ticks per bit).
+- _w256, a larger model: width 256 (8 heads, SwiGLU 672); everything else as in the first arm.
+Rules, fixed before these runs: the rules above per cell; a change helps a model if its count exceeds the model's
+first-arm count (CTsq 0, Dans 0) by at least 3; the synchronization queries matter under it if the CTsq cell's
+count exceeds the Dans cell's by at least 3. Item 4 (extra ticks pay): reported for every cell, the 3-of-10
+count of runs whose accuracy on 41-80 bits rises by at least 10 points from 16 to 128 ticks.
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
-import argparse,json,os,random,time
+import argparse,json,math,os,random,time
 from pathlib import Path
 
 from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
-CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH','CTsqHS','DansH');SEEDS=range(10)
-SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48)}  # tick sampler (mean, maximum) by cell suffix
+CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH','CTsqHS','DansH',
+       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256');SEEDS=range(10)
+SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
 CURRICULUM_STEPS=10000
 
 
@@ -90,20 +110,33 @@ def accuracy(model,lo,hi,ticks,device):
 def train(cell,seed,device):
     """The CMM-task grid's training loop (scripts/cmm_tasks.train), saving the final checkpoint."""
     import torch
+    from torch.nn import functional as F
     from ctm_transformer.depth_sampling import lognormal_poisson
     from ctm_transformer.pretrain import lr_at,set_lr,step_depth
     from scripts.cmm_tasks import batch
     out=OUT/f'{cell}_seed{seed}.json'
     if out.exists():return
     base,suffix=split(cell);mean,maximum=SAMPLERS[suffix]
-    torch.manual_seed(seed);model,recurrent=build(base);model=model.to(device);assert recurrent
+    torch.manual_seed(seed);model,recurrent=build(base,256 if suffix=='_w256' else 128);model=model.to(device);assert recurrent
     sampler=lognormal_poisson(mean,0.5,maximum)
     opt=torch.optim.AdamW(model.parameters(),lr=1e-3,betas=(0.9,0.95),weight_decay=0.1,fused=True)
     rng=random.Random(f'train-parity-{seed}');start=time.time();steps=CURRICULUM_STEPS if suffix=='_cur' else STEPS
     for step in range(steps):
         set_lr(opt,lr_at(step,1e-3,200,steps,0.1))
-        x,y=band_batch(1,curriculum_max(step,steps),BATCH,rng) if suffix=='_cur' else batch('parity','train',BATCH,rng);x,y=x.to(device),y.to(device)
-        with torch.autocast('cuda',dtype=torch.bfloat16):loss=model(x,targets=y,max_thought_steps=step_depth(sampler,seed,step))['loss']
+        T=step_depth(sampler,seed,step)
+        if suffix=='_lent':L=rng.randint(1,40);x,y=band_batch(L,L,BATCH,rng);T=math.ceil(0.75*L)+rng.randint(0,8)
+        elif suffix=='_cur':x,y=band_batch(1,curriculum_max(step,steps),BATCH,rng)
+        else:x,y=batch('parity','train',BATCH,rng)
+        x,y=x.to(device),y.to(device)
+        with torch.autocast('cuda',dtype=torch.bfloat16):
+            if suffix=='_mono':
+                ce=[F.cross_entropy(l.float().reshape(-1,l.shape[-1]),y.reshape(-1),ignore_index=-100) for l in model(x,max_thought_steps=T,return_all_logits=True)['all_logits']]
+                loss=ce[-1]+(torch.stack([F.relu(b-a) for a,b in zip(ce,ce[1:])]).mean() if T>1 else 0)
+            else:loss=model(x,targets=y,max_thought_steps=T)['loss']
+            if suffix=='_prog':
+                n=rng.randint(0,T-1);k=rng.randint(1,T-n);model.backprop_steps=k
+                try:loss=(loss+model(x,targets=y,max_thought_steps=n+k)['loss'])/2
+                finally:model.backprop_steps=None
         loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.0);opt.step();opt.zero_grad(set_to_none=True)
         if hasattr(model,'bio_step'):model.bio_step(step,steps)
     CKPT.mkdir(parents=True,exist_ok=True);torch.save({'model':model.state_dict(),'cell':cell,'seed':seed},CKPT/f'{cell}_seed{seed}.pt')
@@ -131,6 +164,8 @@ def summarize():
     for a in CELLS:
         for b in CELLS:
             if a!=b and counts[a]-counts[b]>=3:L.append(f'- {a} has the property more than {b} ({counts[a]} vs {counts[b]})')
+    pays=lambda r:(r['accuracy']['41-60']['128']+r['accuracy']['61-80']['128'])/2-(r['accuracy']['41-60']['16']+r['accuracy']['61-80']['16'])/2>=10
+    L.append('Extra ticks pay (41-80 bits, +10 points from 16 to 128 ticks): '+', '.join(f'{c} {sum(pays(res[(c,s)]) for s in SEEDS if (c,s) in res)}' for c in CELLS))
     L+=['','## Extrapolating runs: smallest tick count reaching 90% per length band','']
     for (c,s),r in sorted(res.items()):
         if extrapolates(r)[0]:
