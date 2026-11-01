@@ -65,3 +65,5 @@ research/results/code_math/gpu*.log
 research/results/code_math_tasks/logs/
 research/data/pretrain/code_math_data.log
 research/results/exit_calibration/logs/
+research/runs/parity_in_text/
+research/results/parity_in_text/logs/

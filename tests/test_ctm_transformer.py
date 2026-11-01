@@ -248,3 +248,80 @@ def test_structural_plasticity_masks_to_the_largest_weights_and_refreshes_on_sch
         assert torch.equal(model.sp_mask_gate, before)
         model.bio_step(9, 300)
         assert torch.equal(model.sp_mask_gate[0], model._top_k(model.core[0].gate.weight))
+
+
+BUDGET_CASES = [None, (), MECHANISMS]  # None: Dans (RecipeRDT); otherwise the CTM Transformer with these mechanisms
+
+
+def budget_model(mechanisms, checkpointing=False):
+    c = replace(config('rdt'), max_thought_steps=4)
+    torch.manual_seed(0)
+    model = recipe_factory(DANS, checkpointing=checkpointing)(c) if mechanisms is None else ctm_transformer_factory(set(mechanisms), checkpointing=checkpointing)(c)
+    if mechanisms:  # open the zero-initialized mechanisms so that they act
+        with torch.no_grad():
+            for name in ZERO_INIT.values():
+                dict(model.named_parameters())[name].normal_(std=0.1)
+            for layer in model.sync_queries:
+                layer.weight.normal_(std=0.1)
+            model.sink_keys.normal_(std=1.0)
+    return model
+
+
+@pytest.mark.parametrize('mechanisms', BUDGET_CASES)
+def test_equal_tick_budgets_reproduce_a_fixed_tick_count(mechanisms):
+    model = budget_model(mechanisms)
+    x, y = batch()
+    with torch.no_grad():
+        for T in (1, 3):
+            a = model(x, max_thought_steps=T, return_all_logits=True)
+            b = model(x, tick_budgets=torch.full_like(x, T), return_all_logits=True)
+            assert torch.allclose(a['logits'], b['logits'], atol=1e-6)
+            assert all(torch.allclose(p, q, atol=1e-6) for p, q in zip(a['all_logits'], b['all_logits']))
+            assert torch.allclose(model(x, targets=y, max_thought_steps=T)['loss'], model(x, targets=y, tick_budgets=torch.full_like(x, T))['loss'], atol=1e-6)
+
+
+@pytest.mark.parametrize('mechanisms', BUDGET_CASES)
+def test_a_position_is_frozen_after_its_budget(mechanisms):
+    """Causal attention: position 0 sees only itself, so with budget 2 its output equals a 2-tick run whatever the
+    later positions' budgets; positions before the first lower budget equal the full-budget run."""
+    model = budget_model(mechanisms)
+    x, _ = batch()
+    budgets = torch.full_like(x, 4)
+    budgets[:, 0] = 2
+    budgets[:, 6:] = 1
+    with torch.no_grad():
+        mixed = model(x, tick_budgets=budgets)['logits']
+        two = model(x, max_thought_steps=2)['logits']
+        four = model(x, max_thought_steps=4)['logits']
+    assert torch.allclose(mixed[:, 0], two[:, 0], atol=1e-6)
+    assert not torch.allclose(mixed[:, 1:6], four[:, 1:6], atol=1e-4)  # they attend to the frozen position 0
+    budgets[:, 0] = 4
+    with torch.no_grad():
+        assert torch.allclose(model(x, tick_budgets=budgets)['logits'][:, :6], four[:, :6], atol=1e-6)
+
+
+@pytest.mark.parametrize('checkpointing', [False, True])
+def test_gradients_flow_only_through_a_positions_active_ticks(checkpointing):
+    """The loss on position 0 with budget 1 has the gradient of a 1-tick run, whatever the other budgets."""
+    from torch.nn import functional as F
+    x, y = batch()
+    budgets = torch.full_like(x, 3)
+    budgets[:, 0] = 1
+    results = []
+    for kwargs in ({'tick_budgets': budgets}, {'max_thought_steps': 1}):
+        model = budget_model(MECHANISMS, checkpointing)
+        logits = model(x, **kwargs)['logits']
+        F.cross_entropy(logits[:, 0], y[:, 0].clamp(min=0)).backward()
+        results.append({n: p.grad for n, p in model.named_parameters() if p.grad is not None})
+    assert results[0].keys() <= results[1].keys() | {n for n, g in results[0].items() if g.abs().max() == 0}
+    for n, g in results[1].items():
+        assert torch.allclose(results[0][n], g, atol=1e-6), n
+
+
+def test_tick_budgets_are_validated():
+    model = budget_model(None)
+    x, _ = batch()
+    with pytest.raises(ValueError):
+        model(x, tick_budgets=torch.zeros_like(x))
+    with pytest.raises(ValueError):
+        model(x, tick_budgets=torch.ones(1, 2, dtype=torch.long))

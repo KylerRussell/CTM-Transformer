@@ -91,7 +91,7 @@ def batch(task,split,n,rng):
     return x,y
 
 
-def build(cell,width=128):
+def build(cell,width=128,vocab=None):
     """The cell's model at the given width (128 here; heads of 32, SwiGLU 2.625 x width; wider for scripts/parity_ticks.py's _w256)."""
     from dataclasses import replace
     from scripts.pretrain import build_config
@@ -104,7 +104,7 @@ def build(cell,width=128):
     else:
         run={'family':'rdt','train':train,'eval_depth':16,'model':{'d_model':width,'prelude_layers':2,'core_layers':4,'coda_layers':2,'ffn_hidden_dim':width*21//8,'init_std':0.02,'n_heads':width//32}}
         factory=recipe_factory(DANS,checkpointing=True) if kind=='dans' else ctm_transformer_factory(set(arg),checkpointing=True)
-    return factory(build_config(run,VOCAB)),kind!='transformer'
+    return factory(build_config(run,vocab or VOCAB)),kind!='transformer'
 
 
 def evaluate(model,recurrent,task,split,ticks,device):

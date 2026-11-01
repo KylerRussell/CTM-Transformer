@@ -27,6 +27,11 @@ same unique layers by 0.26 nats at 400M tokens and diverges at its learning rate
   with the input. With additive injection and no norms the state grows linearly with
   depth and later iterations barely change it; this bounds it. RMSNorm maps the zero
   initial state to zero, so depth 1 is unchanged.
+
+Per-position tick budgets (2026-11-01, research/PER_TOKEN_TICKS_DESIGN.md): ``forward(..., tick_budgets=B)`` with B a
+[batch, sequence] integer tensor (each at least 1) runs max(B) ticks, and position i's state is frozen after its B_i-th
+tick (copied unchanged into later ticks; later ticks of other positions still attend to it, recomputed from the frozen
+state). Equal budgets T reproduce ``max_thought_steps=T`` exactly.
 """
 import torch
 from dataclasses import replace
@@ -40,6 +45,13 @@ STATE_INITS = ('zeros', 'random')
 INJECTIONS = ('concat', 'add')
 CODA_NORMS = ('shared', 'none')
 RECIPE_KEYS = {'norm', 'normalize', 'state_init', 'injection', 'coda_norm', 'state_norm'}
+
+
+def tick_budget_depth(budgets, input_ids):
+    """The tick count for per-position budgets: their maximum. Budgets are [batch, sequence] integers, each at least 1."""
+    if budgets.shape != input_ids.shape or budgets.dtype.is_floating_point or int(budgets.min()) < 1:
+        raise ValueError('tick_budgets must be integers of the input shape, each at least 1')
+    return int(budgets.max())
 
 
 class AdditiveInjection(nn.Module):
@@ -81,25 +93,26 @@ class RecipeRDT(ScaledBaseline):
     def _coda_in(self, x):
         return self.final_norm(x) if self.recipe['coda_norm'] == 'shared' else x
 
-    def _recur(self, x, depth, readouts=None):
+    def _recur(self, x, depth, readouts=None, budgets=None):
         embedded = self._blocks(self.prelude, x)
         injected = self.inject_norm(embedded)
         x = self._state(embedded)
         for i in range(depth):
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):
-                x = self.exit_norm(self._blocks(self.core, self.injection(torch.cat((self.state_norm(x), injected), dim=-1))))
+                new = self.exit_norm(self._blocks(self.core, self.injection(torch.cat((self.state_norm(x), injected), dim=-1))))
+                x = new if budgets is None else torch.where((budgets > i)[..., None], new, x)
             if readouts is not None:
                 readouts.append(self.lm_head(self.final_norm(self._blocks(self.coda, self._coda_in(x)))))
         return self._blocks(self.coda, self._coda_in(x))
 
-    def forward(self, input_ids, targets=None, max_thought_steps=None, return_all_logits=False):
+    def forward(self, input_ids, targets=None, max_thought_steps=None, return_all_logits=False, tick_budgets=None):
         if input_ids.ndim != 2 or not 0 < input_ids.shape[1] <= self.config.max_seq_len:
             raise ValueError('Expected [batch, sequence] input within max_seq_len')
-        depth = self.config.max_thought_steps if max_thought_steps is None else max_thought_steps
+        depth = tick_budget_depth(tick_budgets, input_ids) if tick_budgets is not None else self.config.max_thought_steps if max_thought_steps is None else max_thought_steps
         if type(depth) is not int or depth < 1:
             raise ValueError('max_thought_steps must be a positive integer')
         readouts = [] if return_all_logits else None
-        x = self._recur(self.token_embedding(input_ids), depth, readouts)
+        x = self._recur(self.token_embedding(input_ids), depth, readouts, tick_budgets)
         applications = len(self.prelude) + depth * len(self.core) + len(self.coda)
         if targets is not None and not return_all_logits:
             if targets.shape != input_ids.shape:

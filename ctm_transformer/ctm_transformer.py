@@ -41,6 +41,8 @@ Added 2026-10-21, after CTsqL (``ctm_loss``) collapsed on both seeds:
     largest-magnitude entries of each matrix, chosen at initialization and refreshed 30 times over training.
     It masks weights from the start, so with it the untrained model is not Dans.
   The paper trains one-hidden-layer MLPs with SGD and reports Adam as worse; here the optimizer is AdamW.
+* Per-position tick budgets (2026-11-01, ``forward(..., tick_budgets=B)``, as in ``rdt_recipe``): after its last tick a
+  position's state, neuron-model history and synchronization sums (with a per-position beta) are frozen.
 * ``record_stats`` (attribute, off by default): each forward stores detached diagnostics in ``self.stats``:
   the state's RMS after every tick and, under the CTM loss, the per-tick cross-entropy and the share of
   tokens selecting each tick.
@@ -263,7 +265,7 @@ class CTMTransformer(RecipeRDT):
             return x
         return x + self.sync_projection(TickSynchronization.read(sync_out).to(x.dtype))
 
-    def _recur(self, x, depth, readouts=None):
+    def _recur(self, x, depth, readouts=None, budgets=None):
         embedded = self._blocks(self.prelude, x)
         injected = self.inject_norm(embedded)
         x = self._state(embedded)
@@ -271,6 +273,8 @@ class CTMTransformer(RecipeRDT):
         sync_action = sync_out = None  # (alpha, beta) pairs
         state_rms = []
         for i in range(depth):
+            active = None if budgets is None else (budgets > i)[..., None]
+            keep = (lambda new, old: new) if active is None else (lambda new, old: torch.where(active, new, old))
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):
                 h = self.injection(torch.cat((self.state_norm(x), injected), dim=-1))
                 alpha_action, beta_action = sync_action if sync_action is not None else (None, None)
@@ -280,8 +284,8 @@ class CTMTransformer(RecipeRDT):
                         self._record_activity(index, pre)  # outside the checkpoint, so a backward recompute is not counted
                     if self.mechanisms['neuron_models']:
                         past = history[index] if history[index] else (torch.zeros_like(pre),) * (NLM_HISTORY - 1)
-                        history[index] = (*past[1:], pre)
-                x = h
+                        history[index] = tuple(keep(new, old) for new, old in zip((*past[1:], pre), past))
+                x = keep(h, x)
                 if self.record_stats:
                     state_rms.append(x.detach().float().pow(2).mean().sqrt())
                 enabled = [(name, sync) for name, sync in (('sync_query', sync_action), ('sync_output', sync_out)) if self.mechanisms[name]]
@@ -290,11 +294,16 @@ class CTMTransformer(RecipeRDT):
                     sums = iter(self._checkpointed(self._sync_sums, x, *previous))
                     for name, state in enabled:
                         module = self.sync_action if name == 'sync_query' else self.sync_out
-                        beta = torch.ones_like(module.rho) if state is None else torch.exp(-F.softplus(module.rho)) * state[1] + 1
+                        alpha = next(sums)
+                        if state is None:
+                            beta = torch.ones_like(module.rho)
+                        else:  # a frozen position keeps its sums; beta becomes per position once budgets differ
+                            beta = keep(torch.exp(-F.softplus(module.rho)) * state[1] + 1, state[1])
+                            alpha = keep(alpha, state[0])
                         if name == 'sync_query':
-                            sync_action = (next(sums), beta)
+                            sync_action = (alpha, beta)
                         else:
-                            sync_out = (next(sums), beta)
+                            sync_out = (alpha, beta)
             if readouts is not None:
                 read = (x.detach(), None if sync_out is None else tuple(t.detach() for t in sync_out)) if self.detached_readouts else (x, sync_out)
                 hidden = self.final_norm(self._blocks(self.coda, self._coda_in(self._output(*read))))
@@ -303,9 +312,11 @@ class CTMTransformer(RecipeRDT):
             self.stats = {'state_rms': torch.stack(state_rms)}
         return self._blocks(self.coda, self._coda_in(self._output(x, sync_out)))
 
-    def forward(self, input_ids, targets=None, max_thought_steps=None, return_all_logits=False):
+    def forward(self, input_ids, targets=None, max_thought_steps=None, return_all_logits=False, tick_budgets=None):
         if not (self.ctm_loss and targets is not None and not return_all_logits):
-            return super().forward(input_ids, targets, max_thought_steps, return_all_logits)
+            return super().forward(input_ids, targets, max_thought_steps, return_all_logits, tick_budgets)
+        if tick_budgets is not None:
+            raise NotImplementedError('per-position tick budgets with the CTM loss')
         if targets.shape != input_ids.shape:
             raise ValueError('Targets must be shifted and have the same shape as input_ids')
         depth = self.config.max_thought_steps if max_thought_steps is None else max_thought_steps
