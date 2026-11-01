@@ -71,6 +71,14 @@ with width). Seeds 0-9, CTsq and Dans. Rules, fixed before these runs: as for _w
 counts, CTsq 0 and Dans 0, and CTsq against Dans). Also reported: the number of seeds fitting the trained
 lengths (at least 95% on 1-40 bits at 16 ticks), against the width-128 first arm.
 
+Length-scaled ticks with the length curriculum (added 2026-11-01, after every _lent seed that fitted the trained
+lengths extrapolated, but only 2 of 10 seeds per model fitted, while the curriculum made 19 of 20 seeds fit):
+_lentcur trains for 10,000 updates (as _cur) with each update's single length L ~ U{1..curriculum_max(step)} and
+ceil(0.75 L) + U{0..8} ticks (as _lent). Seeds 0-9, CTsq and Dans. Rules, fixed before these runs: the rules
+above per cell; the combination helps a model if its count exceeds its _lent count (CTsq 2, Dans 4) by at least
+3; the synchronization queries matter under it if CTsq_lentcur's count exceeds Dans_lentcur's by at least 3, and
+Dans is ahead if the reverse holds. Also reported: seeds fitting the trained lengths.
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
 import argparse,json,math,os,random,time
@@ -80,9 +88,9 @@ from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
 CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH','CTsqHS','DansH',
-       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256','CTsq_w256lr','Dans_w256lr');SEEDS=range(10)
+       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256','CTsq_w256lr','Dans_w256lr','CTsq_lentcur','Dans_lentcur');SEEDS=range(10)
 PEAK_LR={'_w256lr':5e-4}  # by cell suffix; 1e-3 otherwise
-SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48),'_w256lr':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
+SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48),'_w256lr':(15,48),'_lentcur':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
 CURRICULUM_STEPS=10000
 
 
@@ -127,11 +135,12 @@ def train(cell,seed,device):
     torch.manual_seed(seed);model,recurrent=build(base,256 if suffix in ('_w256','_w256lr') else 128);model=model.to(device);assert recurrent
     sampler=lognormal_poisson(mean,0.5,maximum)
     peak=PEAK_LR.get(suffix,1e-3);opt=torch.optim.AdamW(model.parameters(),lr=peak,betas=(0.9,0.95),weight_decay=0.1,fused=True)
-    rng=random.Random(f'train-parity-{seed}');start=time.time();steps=CURRICULUM_STEPS if suffix=='_cur' else STEPS
+    rng=random.Random(f'train-parity-{seed}');start=time.time();steps=CURRICULUM_STEPS if suffix in ('_cur','_lentcur') else STEPS
     for step in range(steps):
         set_lr(opt,lr_at(step,peak,200,steps,0.1))
         T=step_depth(sampler,seed,step)
-        if suffix=='_lent':L=rng.randint(1,40);x,y=band_batch(L,L,BATCH,rng);T=math.ceil(0.75*L)+rng.randint(0,8)
+        if suffix in ('_lent','_lentcur'):
+            L=rng.randint(1,40 if suffix=='_lent' else curriculum_max(step,steps));x,y=band_batch(L,L,BATCH,rng);T=math.ceil(0.75*L)+rng.randint(0,8)
         elif suffix=='_cur':x,y=band_batch(1,curriculum_max(step,steps),BATCH,rng)
         else:x,y=batch('parity','train',BATCH,rng)
         x,y=x.to(device),y.to(device)
