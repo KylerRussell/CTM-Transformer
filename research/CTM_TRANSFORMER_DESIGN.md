@@ -542,3 +542,30 @@ The feed-forward layers became about a quarter sparser at no cost and no gain in
 - **The lower rate fits better, mainly for Dans.** Seeds at 95% or more on 1–40 bits: Dans 5 of 10 (1 at lr 1e-3), CTsq 1 of 10 (most at 78–89%).
 - **Dans seed 9** fits fully (100%) and extrapolates at a fixed tick count: 79% on 41–80 bits at 16 ticks, 82% at 128.
 - **Conclusion:** under the usual tick sampler, doubling the width does not make the serial solution more common. The width-256 fitting seeds behave like the width-128 ones: they find fixed-reach solutions or none.
+
+## Length-scaled ticks with the curriculum, and Stage A: per-token budgets inside text (2026-11-02)
+
+**Length-scaled ticks + curriculum (`_lentcur`, `scripts/parity_ticks.py`).** Seeds solving longer inputs by thinking longer:
+
+| Model | `_lent` | `_lentcur` |
+|---|---:|---:|
+| CTsq | 2 / 10 | 4 / 10 |
+| Dans | 4 / 10 | 2 / 10 |
+
+- By the rules, the combination helps neither model: neither count exceeds its `_lent` count by 3.
+- The synchronization queries do not matter: 4 against 2, under the required 3.
+- The curriculum did not make fitting reliable here: most seeds stay at 67–88% on 1–40 bits. As with `_lent`, the seeds that fit extrapolate, reaching 61–80 or 81–120 bits.
+
+**Stage A (`scripts/parity_in_text.py`, `research/results/parity_in_text/PARITY_IN_TEXT.md`).** Parity problems inside FineWeb-Edu text, at width 128:
+
+| Arm | CTsq | Dans | Text loss, CTsq / Dans |
+|---|---:|---:|---:|
+| uniform ticks (sampler, every position) | 0 / 10 | 0 / 10 | 3.957 / 3.954 |
+| **per-token budgets (problem positions get ceil(0.75 n) + U{0..8})** | **4 / 10** | 2 / 10 | 3.955 / 3.962 |
+| whole sequence length-scaled (reported, 5 seeds) | 2 / 5 | 2 / 5 | 3.948 / 3.948 |
+
+- **Per-token budgets work for CTsq by the rule:** 4 of 10 against 0, with text loss within 0.002 of uniform. For Dans, 2 of 10 is short of the required 3. The synchronization queries do not matter by the rule (4 against 2).
+- **The decision rule allows Stage B.**
+- **The uniform arm extrapolates often at a fixed tick count, not with ticks.** Exploratory: 5 of 20 seeds reach 80–100% on 41–80 bits at 16 ticks.
+- **Across the three length-scaled settings,** CTsq has 10 of 30 runs that extrapolate with ticks and Dans 8 of 30. With training ticks scaled to the problem, tick-scaling extrapolation appears in about a third of runs for both models. It needs no CTM mechanism, and the CTM Transformer's edge over Dans is within seed noise.
+- **Operations note:** runs that ran out of memory when work was co-scheduled were rerun from scratch with the same seeds. Their data and initialization are functions of the seed, so the reruns are the same experiment.
