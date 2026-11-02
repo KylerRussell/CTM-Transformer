@@ -67,20 +67,21 @@ def ece(parts):
     return float(((c-a).abs()).sum()/total)
 
 
-def analyse(name,device):
+def analyse(name,device,run_dir=None,out_dir=None,t_max=None,windows=None):
+    """run_dir / out_dir / t_max / windows default to this study's (scripts/per_token_pilot.py reuses it)."""
     import torch
     from ctm_transformer.pretrain import TokenWindows
     from scripts.code_math_probe import load,source
-    out=OUT/f'{name}.json'
+    out=(out_dir or OUT)/f'{name}.json';T_MAX_=t_max or T_MAX;WINDOWS_=windows or WINDOWS
     if out.exists():return
-    model,recurrent=load(source(name),device)
+    model,recurrent=load(run_dir or source(name),device)
     valid=TokenWindows([Path('research/data/pretrain/fineweb_edu_32k/validation_000.bin')],1024,0)
-    T=T_MAX if recurrent else 1;logV=math.log(32768)
+    T=T_MAX_ if recurrent else 1;logV=math.log(32768)
     ce,cert,kl=[],[],[];fixed_parts=torch.zeros((T,3,BINS),dtype=torch.float64);avg_parts=torch.zeros((T,3,BINS),dtype=torch.float64);avg_ce=torch.zeros(T,dtype=torch.float64)
     with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
-        for i in range(OFFSET,OFFSET+WINDOWS):
+        for i in range(OFFSET,OFFSET+WINDOWS_):
             x,y=valid.batch([i]);x,y=x.to(device),y.to(device).reshape(-1)
-            logits=model(x,max_thought_steps=T_MAX,return_all_logits=True)['all_logits'] if recurrent else [model(x)['logits']]
+            logits=model(x,max_thought_steps=T_MAX_,return_all_logits=True)['all_logits'] if recurrent else [model(x)['logits']]
             w_ce,w_cert,w_kl=[],[],[];prev=None;running=None
             for t,l in enumerate(logits):
                 logp=l.float().reshape(-1,l.shape[-1]).log_softmax(-1);p=logp.exp()
@@ -102,7 +103,7 @@ def analyse(name,device):
             return [float(first.float().mean()+1),float(ce.gather(0,first[None]).mean())]
         r['certainty_exit']={str(tau):curve(cert>=tau) for tau in TAUS}
         r['convergence_exit']={f'{eps:.2e}':curve(kl<eps) for eps in EPSILONS}
-    OUT.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(r,indent=1)+'\n')
+    out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(r,indent=1)+'\n')
     print(name,'ce16',round(r['fixed_ce'][str(min(16,T))],4),'ece16 fixed/avg',round(r['ece_fixed'][str(min(16,T))],4),round(r['ece_averaged'][str(min(16,T))],4),flush=True)
 
 

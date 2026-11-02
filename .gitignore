@@ -67,3 +67,5 @@ research/data/pretrain/code_math_data.log
 research/results/exit_calibration/logs/
 research/runs/parity_in_text/
 research/results/parity_in_text/logs/
+research/runs/per_token_pilot/
+research/results/per_token_pilot/logs/

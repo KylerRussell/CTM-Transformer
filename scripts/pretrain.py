@@ -17,6 +17,12 @@ that hyperparameter selection and the reported evaluation use disjoint windows),
 `final_eval_windows` (a larger evaluation at the last step) and
 `delete_checkpoint_on_complete`. A non-finite gradient norm ends the run with
 `diverged.json` (a result, not a crash).
+
+Per-token ticks (2026-11-02, research/PER_TOKEN_TICKS_DESIGN.md): a run with `per_token_ticks`
+{difficulty_ticks, scale, jitter} gives every position its own tick budget. Each micro-batch first runs a
+no-gradient pass at `difficulty_ticks`; each token's difficulty is its cross-entropy there. The tokens are ranked
+within the micro-batch (quantile q), and position i gets 1 + round(scale * q_i) + j_i ticks, j_i ~ U{0..jitter}
+(drawn from a generator seeded by seed, step, micro-batch and rank). The depth sampler is not used.
 """
 import argparse,contextlib,datetime,hashlib,json,os,time
 from dataclasses import asdict,replace
@@ -57,6 +63,18 @@ def sampler_for(run):
     s=run.get('depth_sampler')
     if not s:return None
     assert s['kind']=='lognormal_poisson';return lognormal_poisson(s['mean'],s['sigma'],s['maximum'])
+
+
+def per_token_budgets(model,x,y,spec,seed,step,micro,rank):
+    """Tick budgets [B, S] from the model's own no-gradient loss at spec['difficulty_ticks'] (see the docstring)."""
+    from torch.nn import functional as F
+    with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
+        logits=model(x,max_thought_steps=spec['difficulty_ticks'])['logits']
+        ce=torch.stack([F.cross_entropy(logits[b].float(),y[b],reduction='none') for b in range(len(x))])
+    order=ce.flatten().argsort();q=torch.empty_like(ce.flatten());q[order]=torch.arange(len(order),device=ce.device,dtype=q.dtype)/max(1,len(order)-1)
+    g=torch.Generator(device='cpu').manual_seed(((seed*1_000_003+step)*1009+micro)*31+rank)
+    jitter=torch.randint(0,spec['jitter']+1,ce.shape,generator=g).to(ce.device)
+    return 1+torch.round(spec['scale']*q.view_as(ce)).long()+jitter
 
 
 def atomic_save(payload,path):
@@ -134,6 +152,8 @@ def main():
     for step in range(start,stop):
         tick=time.perf_counter();lr=lr_at(step,t['lr'],t['warmup_steps'],t['total_steps'],t.get('lr_floor',0.1));set_lr(optimizer,lr)
         depth=step_depth(sampler,run['seed'],step) or (run.get('eval_depth') if family!='transformer' else None)
+        spec=run.get('per_token_ticks')
+        if spec:depth=1+spec['scale']+spec['jitter']  # the largest budget: sets the micro-batch below; the logged depth is the step's maximum
         total=torch.zeros((),device=device)
         acc,micro=t['accumulation'],t['micro_batch']
         for limit,small in t.get('micro_batch_by_depth',[]):  # [[depth, micro_batch], ...] (2026-10-14): smaller micro-batches for deep steps;
@@ -141,8 +161,11 @@ def main():
         for m in range(acc):
             x,y=train.batch(micro_indices(step,m,rank,world,micro,acc));x,y=x.to(device,non_blocking=True),y.to(device,non_blocking=True)
             sync=net.no_sync() if distributed and m<acc-1 else contextlib.nullcontext()
+            budgets=per_token_budgets(model,x,y,spec,run['seed'],step,m,rank) if spec else None
+            if spec:max_budget=max(int(budgets.max()),max_budget if m else 0)
             with sync:
-                with torch.autocast('cuda',dtype=torch.bfloat16):loss=net(x,targets=y,max_thought_steps=depth)['loss']
+                with torch.autocast('cuda',dtype=torch.bfloat16):
+                    loss=net(x,targets=y,tick_budgets=budgets)['loss'] if spec else net(x,targets=y,max_thought_steps=depth)['loss']
                 (loss/acc).backward()
             total+=loss.detach()/acc
         if t.get('diagnostics'):
@@ -160,6 +183,7 @@ def main():
         optimizer.step();optimizer.zero_grad(set_to_none=True)
         if hasattr(model,'bio_step'):model.bio_step(step,t['total_steps'])  # Leon (2026) homeostasis / structural plasticity (2026-10-27)
         if distributed:dist.all_reduce(total);total/=world
+        if spec:depth=max_budget
         done=step+1;row={'step':done,'tokens':done*tokens_per_step,'loss':float(total),'lr':lr,'grad_norm':float(norm),'depth':depth,
              'seconds':time.perf_counter()-tick,'peak_gib':torch.cuda.max_memory_allocated(device)/2**30}
         row['tokens_per_second']=tokens_per_step/row['seconds']
