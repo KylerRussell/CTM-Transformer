@@ -23,6 +23,9 @@ Per-token ticks (2026-11-02, research/PER_TOKEN_TICKS_DESIGN.md): a run with `pe
 no-gradient pass at `difficulty_ticks`; each token's difficulty is its cross-entropy there. The tokens are ranked
 within the micro-batch (quantile q), and position i gets 1 + round(scale * q_i) + j_i ticks, j_i ~ U{0..jitter}
 (drawn from a generator seeded by seed, step, micro-batch and rank). The depth sampler is not used.
+`signal` (2026-11-03): 'cross_entropy' (the default, as above) or 'entropy', the entropy of the 2-tick prediction,
+which does not use the labels. Budgets set from the cross-entropy carry information about the target, and a model
+that can sense its own budget learns to read it (research/CTM_TRANSFORMER_DESIGN.md, Stage B).
 """
 import argparse,contextlib,datetime,hashlib,json,os,time
 from dataclasses import asdict,replace
@@ -70,7 +73,9 @@ def per_token_budgets(model,x,y,spec,seed,step,micro,rank):
     from torch.nn import functional as F
     with torch.no_grad(),torch.autocast('cuda',dtype=torch.bfloat16):
         logits=model(x,max_thought_steps=spec['difficulty_ticks'])['logits']
-        ce=torch.stack([F.cross_entropy(logits[b].float(),y[b],reduction='none') for b in range(len(x))])
+        if spec.get('signal','cross_entropy')=='entropy':
+            ce=torch.stack([-(lambda lp:(lp.exp()*lp).sum(-1))(logits[b].float().log_softmax(-1)) for b in range(len(x))])
+        else:ce=torch.stack([F.cross_entropy(logits[b].float(),y[b],reduction='none') for b in range(len(x))])
     order=ce.flatten().argsort();q=torch.empty_like(ce.flatten());q[order]=torch.arange(len(order),device=ce.device,dtype=q.dtype)/max(1,len(order)-1)
     g=torch.Generator(device='cpu').manual_seed(((seed*1_000_003+step)*1009+micro)*31+rank)
     jitter=torch.randint(0,spec['jitter']+1,ce.shape,generator=g).to(ce.device)

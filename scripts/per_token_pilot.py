@@ -48,16 +48,26 @@ Added rules (two-seed means; both seeds must agree):
 - The CTM matters if CTsq's gain (sampler arm at fixed 16 minus per-token arm at s = 24) exceeds Dans's by at
   least 0.02.
 
-Usage: python -m scripts.per_token_pilot --queue k/2 | --summarize
+Label-free per-token arms (added 2026-11-03, after the above showed that budgets set from each token's
+cross-entropy leak the label: CTsq_pertoken scored 4.090 with cross-entropy-ranked budgets and 8.8 with
+label-free ones): Dans_entropy and CTsq_entropy are the per-token arms with the difficulty measured by the entropy
+of the 2-tick prediction (`per_token_ticks.signal = entropy`), which does not use the labels, so training and
+inference allocate ticks the same way. Seeds 1 and 2; everything else as the per-token arms. Rules, fixed before
+these runs: the added per-token inference rules above, with the entropy arm in place of the per-token arm (no cost,
+ticks pay, better use of compute, works, the CTM matters), against the same sampler arms; the pre-registered
+fixed-tick rules are reported for them too. Leak check (reported): their loss with cross-entropy-ranked budgets
+should be no better than with entropy budgets.
+
+Usage: python -m scripts.per_token_pilot --queue k/2 [--arms ARM...] [--budgets] | --summarize
 """
 import argparse,json,math,os,subprocess,sys
 from pathlib import Path
 
 RUNS=Path('research/runs/per_token_pilot');OUT=Path('research/results/per_token_pilot')
 BASE={'Dans':'research/runs/rdt_recipe/Dans_rand_lr0.002_s2/config.json','CTsq':'research/runs/ctm_transformer/CTsq_lr0.002_s2/config.json'}
-ARMS=('Dans_sampler','CTsq_sampler','Dans_pertoken','CTsq_pertoken');SEEDS=(1,2)
+ARMS=('Dans_sampler','CTsq_sampler','Dans_pertoken','CTsq_pertoken','Dans_entropy','CTsq_entropy');SEEDS=(1,2)
 PER_TOKEN={'difficulty_ticks':2,'scale':24,'jitter':6};T_EVAL=96;FIXED=(1,2,4,8,16,32,64,96)
-HOURS={'Dans_sampler':2.6,'CTsq_sampler':3.9,'Dans_pertoken':5.6,'CTsq_pertoken':8.6}  # estimates, for balancing the queues
+HOURS={'Dans_sampler':2.6,'CTsq_sampler':3.9,'Dans_pertoken':5.6,'CTsq_pertoken':8.6,'Dans_entropy':5.6,'CTsq_entropy':9.6}  # estimates, for balancing the queues
 
 
 def name(arm,seed):return f'{arm}_s{seed}'
@@ -69,6 +79,7 @@ def config(arm,seed):
     t.update(total_steps=381,warmup_steps=50,eval_interval=381,eval_windows=64,final_eval_windows=256,checkpoint_interval=50,
              snapshot_interval=10**12,delete_checkpoint_on_complete=False)
     if kind=='pertoken':run['per_token_ticks']=PER_TOKEN
+    if kind=='entropy':run['per_token_ticks']={**PER_TOKEN,'signal':'entropy'}
     return run
 
 
@@ -116,8 +127,8 @@ def evaluate_budgets(arm,seed,windows=128):
     torch.cuda.empty_cache()
 
 
-def queue(k,n):
-    jobs=sorted(((a,s) for a in ARMS for s in SEEDS),key=lambda j:HOURS[j[0]],reverse=True);loads=[0.0]*n;mine=[]
+def queue(k,n,arms=ARMS):
+    jobs=sorted(((a,s) for a in arms for s in SEEDS),key=lambda j:HOURS[j[0]],reverse=True);loads=[0.0]*n;mine=[]
     for j in jobs:
         q=loads.index(min(loads));loads[q]+=HOURS[j[0]]
         if q==k:mine.append(j)
@@ -150,15 +161,15 @@ def summarize():
     complete=lambda *arms:all((a,s) in res for a in arms for s in SEEDS)
     def pays(a):return all(res[(a,s)][f'fixed{t}']<=res[(a,s)]['fixed16']-0.01 for s in SEEDS for t in (32,64))
     gains={}
-    for m in ('Dans','CTsq'):
-        pt,sm=f'{m}_pertoken',f'{m}_sampler'
-        if not complete(pt,sm):L.append(f'- **{m}:** incomplete');continue
+    for m,kind in (('Dans','pertoken'),('CTsq','pertoken'),('Dans','entropy'),('CTsq','entropy')):
+        pt,sm=f'{m}_{kind}',f'{m}_sampler'
+        if not complete(pt,sm):L.append(f'- **{pt}:** incomplete');continue
         cost=mean([res[(pt,s)]['fixed16'] for s in SEEDS])-mean([res[(sm,s)]['fixed16'] for s in SEEDS])
         better={t:mean([res[(sm,s)][f'exit{t}']-res[(pt,s)][f'exit{t}'] for s in SEEDS]) for t in (4,8)}
         better_ok={t:better[t]>=0.02 and all(res[(sm,s)][f'exit{t}']>res[(pt,s)][f'exit{t}'] for s in SEEDS) for t in (4,8)}
         works=pays(pt) and cost<=0.01
-        gains[m]={'fixed32':[res[(sm,s)]['fixed32']-res[(pt,s)]['fixed32'] for s in SEEDS],'exit8':[res[(sm,s)]['exit8']-res[(pt,s)]['exit8'] for s in SEEDS]}
-        L.append(f'- **{m}:** ticks pay (per-token arm): {"yes" if pays(pt) else "no"} (sampler arm: {"yes" if pays(sm) else "no"}); '
+        if kind=='pertoken':gains[m]={'fixed32':[res[(sm,s)]['fixed32']-res[(pt,s)]['fixed32'] for s in SEEDS],'exit8':[res[(sm,s)]['exit8']-res[(pt,s)]['exit8'] for s in SEEDS]}
+        L.append(f'- **{pt}:** ticks pay (per-token arm): {"yes" if pays(pt) else "no"} (sampler arm: {"yes" if pays(sm) else "no"}); '
                  f'16-tick cost {cost:+.3f} ({"ok" if cost<=0.01 else "fails"}); exit gain at mean 4 / 8 ticks {better[4]:+.3f} / {better[8]:+.3f} '
                  f'(better use of compute: {"yes" if all(better_ok.values()) else "no"}); per-token ticks work: {"yes" if works else "no"}')
     budgets={(a,s):json.loads((OUT/f'budgets_{name(a,s)}.json').read_text()) for a in ARMS for s in SEEDS if (OUT/f'budgets_{name(a,s)}.json').exists()}
@@ -168,19 +179,20 @@ def summarize():
             rs=[budgets[(a,s)] for s in SEEDS if (a,s) in budgets]
             if rs:L.append(f'| {a} | '+' | '.join(f'{mean([r[k]["loss"] for r in rs]):.3f}' for k in ('entropy_24','entropy_48','entropy_96','cross_entropy_24'))+' | '+' / '.join(f'{mean([r[k]["mean_ticks"] for r in rs]):.1f}' for k in ('entropy_24','entropy_48','entropy_96'))+' |')
         g2={}
-        for m in ('Dans','CTsq'):
-            pt,sm=f'{m}_pertoken',f'{m}_sampler'
+        for m,kind in (('Dans','pertoken'),('CTsq','pertoken'),('Dans','entropy'),('CTsq','entropy')):
+            pt,sm=f'{m}_{kind}',f'{m}_sampler'
             if not (all((pt,s) in budgets for s in SEEDS) and complete(sm)):continue
             b=lambda s,k:budgets[(pt,s)][k]['loss']
             cost=mean([b(s,'entropy_24') for s in SEEDS])-mean([res[(sm,s)]['fixed16'] for s in SEEDS])
             pays2=all(b(s,f'entropy_{k}')<=b(s,'entropy_24')-0.01 for s in SEEDS for k in (48,96))
-            gain=[res[(sm,s)]['fixed16']-b(s,'entropy_24') for s in SEEDS];g2[m]=gain
+            gain=[res[(sm,s)]['fixed16']-b(s,'entropy_24') for s in SEEDS];g2[(m,kind)]=gain
             better=mean(gain)>=0.02 and all(x>0 for x in gain)
-            L.append(f'- **{m} (per-token inference):** cost vs sampler at 16 ticks {cost:+.3f} ({"ok" if cost<=0.01 else "fails"}); ticks pay: {"yes" if pays2 else "no"}; '
+            L.append(f'- **{pt} (per-token inference):** cost vs sampler at 16 ticks {cost:+.3f} ({"ok" if cost<=0.01 else "fails"}); ticks pay: {"yes" if pays2 else "no"}; '
                      f'better use of compute: {"yes" if better else "no"}; per-token ticks work: {"yes" if cost<=0.01 and pays2 else "no"}')
-        if len(g2)==2:
-            ok=mean(g2['CTsq'])-mean(g2['Dans'])>=0.02 and all(c>d for c,d in zip(g2['CTsq'],g2['Dans']))
-            L.append(f'- **The CTM matters (per-token inference):** {"yes" if ok else "no"}')
+        for kind in ('pertoken','entropy'):
+            if ('CTsq',kind) in g2 and ('Dans',kind) in g2:
+                c,d=g2[('CTsq',kind)],g2[('Dans',kind)];ok=mean(c)-mean(d)>=0.02 and all(x>y for x,y in zip(c,d))
+                L.append(f'- **The CTM matters ({kind} arms, per-token inference):** {"yes" if ok else "no"}')
     if len(gains)==2:
         ctm=any(mean(gains['CTsq'][k])-mean(gains['Dans'][k])>=0.02 and all(c>d for c,d in zip(gains['CTsq'][k],gains['Dans'][k])) for k in ('fixed32','exit8'))
         L.append(f'- **The CTM matters (CTsq per-token gain exceeds Dans by at least 0.02):** {"yes" if ctm else "no"}')
@@ -189,13 +201,14 @@ def summarize():
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--queue');p.add_argument('--summarize',action='store_true')
-    p.add_argument('--budgets',action='store_true',help='the added per-token inference evaluation, for this queue\'s runs');a=p.parse_args()
+    p.add_argument('--budgets',action='store_true',help='the added per-token inference evaluation, for this queue\'s runs')
+    p.add_argument('--arms',nargs='*',default=list(ARMS));a=p.parse_args()
     if a.summarize:summarize();return
     if a.budgets:
         k,n=map(int,a.queue.split('/'));os.environ['CUDA_VISIBLE_DEVICES']=str(k)
-        for arm,seed in queue(k,n):evaluate_budgets(arm,seed)
+        for arm,seed in queue(k,n,a.arms):evaluate_budgets(arm,seed)
         return
-    k,n=map(int,a.queue.split('/'));jobs=queue(k,n);print('queue',k,[name(*j) for j in jobs],flush=True)
+    k,n=map(int,a.queue.split('/'));jobs=queue(k,n,a.arms);print('queue',k,[name(*j) for j in jobs],flush=True)
     os.environ['CUDA_VISIBLE_DEVICES']=str(k)
     for arm,seed in jobs:train(arm,seed,k);evaluate(arm,seed)
 
