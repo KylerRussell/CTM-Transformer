@@ -1,0 +1,20 @@
+{
+ "run": "CTsq_sampler_s2",
+ "tokens": 131072,
+ "entropy_24": {
+  "loss": 4.786138489842415,
+  "mean_ticks": 16.0
+ },
+ "entropy_48": {
+  "loss": 4.7861583679914474,
+  "mean_ticks": 28.0
+ },
+ "entropy_96": {
+  "loss": 4.786185845732689,
+  "mean_ticks": 52.0
+ },
+ "cross_entropy_24": {
+  "loss": 4.786136165261269,
+  "mean_ticks": 16.0
+ }
+}

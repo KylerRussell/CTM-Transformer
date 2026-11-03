@@ -1,6 +1,6 @@
 # Per-token ticks: making extra thinking pay in a language model (proposal, 2026-10-31)
 
-**Status:** proposal for item 4. Nothing here is implemented or run.
+**Status (2026-11-03):** Stage A passed for CTsq. Stage B failed every rule. Dans gains nothing from per-token budgets. The CTsq arm is invalid: budgets set from each token's cross-entropy leak the label, and CTsq learned to read its own budget (`research/CTM_TRANSFORMER_DESIGN.md`, Stage B). Training difficulty must be label-free, as at inference; the claim below that no difficulty predictor is needed at inference was also wrong for per-token-trained models.
 
 ## Why
 

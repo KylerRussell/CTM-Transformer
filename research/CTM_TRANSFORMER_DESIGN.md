@@ -569,3 +569,28 @@ The feed-forward layers became about a quarter sparser at no cost and no gain in
 - **The uniform arm extrapolates often at a fixed tick count, not with ticks.** Exploratory: 5 of 20 seeds reach 80–100% on 41–80 bits at 16 ticks.
 - **Across the three length-scaled settings,** CTsq has 10 of 30 runs that extrapolate with ticks and Dans 8 of 30. With training ticks scaled to the problem, tick-scaling extrapolation appears in about a third of runs for both models. It needs no CTM mechanism, and the CTM Transformer's edge over Dans is within seed noise.
 - **Operations note:** runs that ran out of memory when work was co-scheduled were rerun from scratch with the same seeds. Their data and initialization are functions of the seed, so the reruns are the same experiment.
+
+## Stage B: per-token ticks in the language model, 100M-token pilot (2026-11-03; `scripts/per_token_pilot.py`, `research/results/per_token_pilot/PER_TOKEN_PILOT.md`)
+
+d704, 100M tokens, two seeds. Sampler arms train with the usual tick sampler. Per-token arms give each token 1 + round(24 q) + U{0..6} ticks, q being the quantile of its cross-entropy in a no-gradient 2-tick pass.
+
+| Arm | Loss, fixed 16 ticks | Fixed 1 / 4 / 64 ticks | Label-free entropy budgets, s = 24 / 48 / 96 | Cross-entropy-ranked budgets, s = 24 (uses labels) |
+|---|---:|---|---|---:|
+| Dans, sampler | 4.761 | 4.794 / 4.761 / 4.761 | 4.761 / 4.761 / 4.761 | 4.761 |
+| Dans, per-token | 4.775 | 4.813 / 4.776 / 4.775 | 4.775 / 4.775 / 4.775 | 4.775 |
+| CTsq, sampler | 4.755 | 4.837 / 4.757 / 4.756 | 4.756 / 4.756 / 4.756 | 4.755 |
+| CTsq, per-token | 6.860 | 10.6 / 11.2 / 9.4 | 8.84 / 9.80 / 9.19 | **4.090** |
+
+- **Every rule fails, in both the pre-registered and the added evaluation.** Per-token ticks do not work for either model, and the 400M-token step does not follow.
+- **Dans: per-token ticks change nothing.**
+  - Its loss is the same under every budget scheme to the third decimal.
+  - It is flat from 4 ticks, as with the sampler.
+  - It is 0.014 behind its sampler arm.
+  - Its state reaches a fixed point within a few ticks, so a token frozen at tick 5 or tick 31 reads out the same. Giving hard tokens more ticks does not make Dans use them.
+- **CTsq: the design leaked the labels.**
+  - In training, a token's budget is a function of its own cross-entropy, so it carries information about the true next token.
+  - With budgets ranked by cross-entropy, CTsq_pertoken scores 4.090, 0.67 below its sampler arm. With label-free budgets it scores 8.8.
+  - A model cannot gain 0.67 nats from compute allocation alone. CTsq learned to read its own budget and use it as a hint about the answer.
+  - The likely channel is the synchronization's per-position beta (and alpha), which counts a position's active ticks. Dans has no such counter, and its fixed point erases the difference, so it could not exploit the leak. This channel is not verified.
+- **This is my design error, not a finding about per-token ticks.** Stage A was clean because its budgets depended on the input (problem length), not on the target. A valid CTsq arm needs label-free difficulty in training too (for example the 2-tick prediction's entropy, as in the added evaluation).
+- **Evaluation note.** The convergence exit never reaches a mean of 8 ticks for any model: every model's prediction settles earlier. The table shows `inf` there; it is not a loss.
