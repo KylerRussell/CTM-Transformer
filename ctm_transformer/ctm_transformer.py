@@ -285,7 +285,7 @@ class CTMTransformer(RecipeRDT):
             active = None if budgets is None else (budgets > i)[..., None]
             keep = (lambda new, old: new) if active is None else (lambda new, old: torch.where(active, new, old))
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):
-                h = self.injection(torch.cat((self.state_norm(x), injected), dim=-1))
+                h = self.injection(torch.cat((self.state_norm(x), self._inject_at(injected, i)), dim=-1))
                 alpha_action, beta_action = sync_action if sync_action is not None else (None, None)
                 for index in range(len(self.core)):
                     h, pre = self._checkpointed(self._thinking_layer, index, h, alpha_action, beta_action, *history[index])

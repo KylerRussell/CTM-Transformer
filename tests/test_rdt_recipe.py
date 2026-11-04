@@ -83,3 +83,28 @@ def test_state_norm_bounds_the_additive_state():
                 rms[i] = s.pow(2).mean().sqrt().item()
             growth[state_norm] = rms[32] / rms[8]
     assert growth[True] < 1.5 < 3 < growth[False], growth
+
+
+def test_tick_film_and_mtp_start_as_the_plain_recipe_and_get_gradients():
+    import torch
+    from dataclasses import replace
+    from ctm_transformer.ctm_transformer import DANS, ctm_transformer_factory
+    from tests.test_lm_scale import batch, config
+    c = replace(config('rdt'), max_thought_steps=4)
+    x, y = batch()
+    for make in (lambda r: recipe_factory(r)(c), lambda r: ctm_transformer_factory({'sync_query'}, r)(c)):
+        torch.manual_seed(0); plain = make(DANS)
+        torch.manual_seed(0); film = make({**DANS, 'tick_film': 3, 'mtp': 2})
+        film.load_state_dict({**film.state_dict(), **plain.state_dict()})
+        with torch.no_grad():
+            assert torch.allclose(plain(x)['logits'], film(x)['logits'], atol=1e-6)
+            mtp_free = chunked = film(x, targets=y)['loss']
+            assert mtp_free > plain(x, targets=y)['loss'] - 1e-6  # the zero-initialized ahead heads add a positive loss
+        film(x, targets=y)['loss'].backward()
+        p = dict(film.named_parameters())
+        assert p['tick_gamma'].grad.abs().sum() > 0 and p['mtp_maps.0.weight'].grad.abs().sum() > 0
+        # the ahead heads start from the final state: their gradient is of the model's scale, not the norm's 1/sqrt(eps)
+        assert p['mtp_maps.0.weight'].grad.norm() < 10 * p['lm_head.weight'].grad.norm()
+        with torch.no_grad():  # tick t > 2 uses the last embedding
+            p['tick_beta'][2].normal_(std=0.1)
+            assert not torch.allclose(plain(x)['logits'], film(x)['logits'], atol=1e-4)

@@ -69,3 +69,6 @@ research/runs/parity_in_text/
 research/results/parity_in_text/logs/
 research/runs/per_token_pilot/
 research/results/per_token_pilot/logs/
+# Reasoning tasks embedded in text (2026-11-05): rebuilt by scripts/reasoning_in_text.py --build
+research/data/pretrain/reasoning_32k/*.bin
+research/runs/reasoning_in_text/

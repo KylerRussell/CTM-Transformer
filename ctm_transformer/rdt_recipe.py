@@ -32,6 +32,17 @@ Per-position tick budgets (2026-11-01, research/PER_TOKEN_TICKS_DESIGN.md): ``fo
 [batch, sequence] integer tensor (each at least 1) runs max(B) ticks, and position i's state is frozen after its B_i-th
 tick (copied unchanged into later ticks; later ticks of other positions still attend to it, recomputed from the frozen
 state). Equal budgets T reproduce ``max_thought_steps=T`` exactly.
+
+Added 2026-11-05 (research/TICK_CONTRIBUTION.md: can ticks beyond 8 contribute?):
+* ``tick_film`` (int n, 0 = off): the injected input of tick t is scaled and shifted per tick,
+  injected * (1 + gamma_t) + beta_t, with gamma and beta [n, d] zero-initialized (the untrained model is unchanged)
+  and t clamped to n - 1. The recurrence becomes tick-dependent, so successive ticks can do different work, as
+  a stack of distinct layers does.
+* ``mtp`` (int k, 0 = off): multi-token prediction. With targets, the loss is the next-token cross-entropy plus 0.5
+  times the mean cross-entropy of predicting tokens 2..k+1 ahead, each from the final state plus a zero-initialized
+  linear map of it (a residual: a zero input to the output norm would give a near-infinite gradient), followed by the
+  output norm and head. A harder objective asks more of the state. The logits (and every
+  evaluation) are the next-token prediction only.
 """
 import torch
 from dataclasses import replace
@@ -44,7 +55,7 @@ NORMS = ('sandwich', 'core_sandwich', 'prenorm')
 STATE_INITS = ('zeros', 'random')
 INJECTIONS = ('concat', 'add')
 CODA_NORMS = ('shared', 'none')
-RECIPE_KEYS = {'norm', 'normalize', 'state_init', 'injection', 'coda_norm', 'state_norm'}
+RECIPE_KEYS = {'norm', 'normalize', 'state_init', 'injection', 'coda_norm', 'state_norm', 'tick_film', 'mtp'}
 
 
 def tick_budget_depth(budgets, input_ids):
@@ -63,7 +74,7 @@ class AdditiveInjection(nn.Module):
 
 class RecipeRDT(ScaledBaseline):
     def __init__(self, config, norm='sandwich', normalize=False, state_init='zeros', injection='concat', coda_norm='shared',
-                 state_norm=False, backprop_steps=None, compile_blocks=False):
+                 state_norm=False, backprop_steps=None, compile_blocks=False, tick_film=0, mtp=0):
         if config.model_family != 'recurrent_depth':
             raise ValueError('RecipeRDT is for the recurrent-depth family')
         if norm not in NORMS or state_init not in STATE_INITS or injection not in INJECTIONS or coda_norm not in CODA_NORMS:
@@ -81,9 +92,23 @@ class RecipeRDT(ScaledBaseline):
                 block.attn_post, block.ffn_post = nn.Identity(), nn.Identity()
         self.inject_norm = nn.RMSNorm(config.d_model, eps=config.norm_eps) if normalize else nn.Identity()
         self.exit_norm = nn.RMSNorm(config.d_model, eps=config.norm_eps) if normalize else nn.Identity()
+        if tick_film:
+            self.tick_gamma = nn.Parameter(torch.zeros(tick_film, config.d_model))
+            self.tick_beta = nn.Parameter(torch.zeros(tick_film, config.d_model))
+        self.mtp = mtp
+        if mtp:
+            self.mtp_maps = nn.ModuleList(nn.Linear(config.d_model, config.d_model, bias=False) for _ in range(mtp))
+            for layer in self.mtp_maps:
+                nn.init.zeros_(layer.weight)
         if compile_blocks:
             for block in (*self.prelude, *self.core, *self.coda):
                 block.forward = torch.compile(block.forward)
+
+    def _inject_at(self, injected, tick):
+        if not hasattr(self, 'tick_gamma'):
+            return injected
+        t = min(tick, self.tick_gamma.shape[0] - 1)
+        return injected * (1 + self.tick_gamma[t].to(injected.dtype)) + self.tick_beta[t].to(injected.dtype)
 
     def _state(self, embedded):
         if self.recipe['state_init'] == 'zeros':
@@ -99,7 +124,7 @@ class RecipeRDT(ScaledBaseline):
         x = self._state(embedded)
         for i in range(depth):
             with torch.set_grad_enabled(torch.is_grad_enabled() and (self.backprop_steps is None or i >= depth - self.backprop_steps)):
-                new = self.exit_norm(self._blocks(self.core, self.injection(torch.cat((self.state_norm(x), injected), dim=-1))))
+                new = self.exit_norm(self._blocks(self.core, self.injection(torch.cat((self.state_norm(x), self._inject_at(injected, i)), dim=-1))))
                 x = new if budgets is None else torch.where((budgets > i)[..., None], new, x)
             if readouts is not None:
                 readouts.append(self.lm_head(self.final_norm(self._blocks(self.coda, self._coda_in(x)))))
@@ -117,8 +142,12 @@ class RecipeRDT(ScaledBaseline):
         if targets is not None and not return_all_logits:
             if targets.shape != input_ids.shape:
                 raise ValueError('Targets must be shifted and have the same shape as input_ids')
-            return {'logits': None, 'loss': chunked_cross_entropy(self.final_norm(x), self.lm_head.weight, targets),
-                    'thought_steps': depth, 'block_applications': applications}
+            loss = chunked_cross_entropy(self.final_norm(x), self.lm_head.weight, targets)
+            if self.mtp:
+                ahead = [chunked_cross_entropy(self.final_norm(x[:, :-(k - 1)] + self.mtp_maps[k - 2](x[:, :-(k - 1)])), self.lm_head.weight, targets[:, k - 1:])
+                         for k in range(2, self.mtp + 2)]
+                loss = loss + 0.5 * sum(ahead) / len(ahead)
+            return {'logits': None, 'loss': loss, 'thought_steps': depth, 'block_applications': applications}
         logits = self.lm_head(self.final_norm(x))
         result = {'logits': logits, 'thought_steps': depth, 'block_applications': applications}
         if return_all_logits:

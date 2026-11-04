@@ -26,6 +26,10 @@ within the micro-batch (quantile q), and position i gets 1 + round(scale * q_i) 
 `signal` (2026-11-03): 'cross_entropy' (the default, as above) or 'entropy', the entropy of the 2-tick prediction,
 which does not use the labels. Budgets set from the cross-entropy carry information about the target, and a model
 that can sense its own budget learns to read it (research/CTM_TRANSFORMER_DESIGN.md, Stage B).
+Span budgets (2026-11-05, scripts/reasoning_in_text.py): a run with `span_budgets` {scale, jitter} reads the data
+manifest's `side` shards (uint16, aligned with the token shards: each problem token holds its problem's question
+length q, other tokens 0). A problem position gets ceil(scale * q) + j ticks, j ~ U{0..jitter}; every other position
+the step's sampler count. The budgets use the input only, never the labels.
 """
 import argparse,contextlib,datetime,hashlib,json,os,time
 from dataclasses import asdict,replace
@@ -82,6 +86,13 @@ def per_token_budgets(model,x,y,spec,seed,step,micro,rank):
     return 1+torch.round(spec['scale']*q.view_as(ce)).long()+jitter
 
 
+def span_budgets(side,depth,spec,seed,step,micro,rank):
+    """Tick budgets [B, S] from the question lengths in `side` (0 outside problems; see the docstring)."""
+    g=torch.Generator(device='cpu').manual_seed(((seed*1_000_003+step)*1009+micro)*31+rank)
+    jitter=torch.randint(0,spec['jitter']+1,side.shape,generator=g)
+    return torch.where(side>0,torch.ceil(spec['scale']*side.float()).long()+jitter,torch.full_like(side,depth))
+
+
 def atomic_save(payload,path):
     tmp=path.with_suffix('.tmp');torch.save(payload,tmp);tmp.replace(path)
 
@@ -125,6 +136,7 @@ def main():
     model=model.to(device)
     train=TokenWindows([root/s for s in data['train']],t['seq_len'],run['seed'])
     valid=TokenWindows([root/s for s in data['validation']],t['seq_len'],0)
+    side=TokenWindows([root/s for s in data['side']],t['seq_len'],run['seed']) if run.get('span_budgets') else None  # same shapes and seed: the same order
     offset=t.get('eval_offset',0);windows=lambda n:list(range(offset,min(offset+n,len(valid))))
     eval_indices,final_indices=windows(t['eval_windows']),windows(t.get('final_eval_windows',t['eval_windows']))
     params=[p for p in model.parameters() if p.requires_grad]
@@ -159,18 +171,19 @@ def main():
         depth=step_depth(sampler,run['seed'],step) or (run.get('eval_depth') if family!='transformer' else None)
         spec=run.get('per_token_ticks')
         if spec:depth=1+spec['scale']+spec['jitter']  # the largest budget: sets the micro-batch below; the logged depth is the step's maximum
+        span=run.get('span_budgets')
         total=torch.zeros((),device=device)
         acc,micro=t['accumulation'],t['micro_batch']
         for limit,small in t.get('micro_batch_by_depth',[]):  # [[depth, micro_batch], ...] (2026-10-14): smaller micro-batches for deep steps;
             if depth is not None and depth>limit:acc,micro=acc*micro//small,small  # a step's windows and averaged gradient are unchanged
         for m in range(acc):
-            x,y=train.batch(micro_indices(step,m,rank,world,micro,acc));x,y=x.to(device,non_blocking=True),y.to(device,non_blocking=True)
+            indices=micro_indices(step,m,rank,world,micro,acc);x,y=train.batch(indices);x,y=x.to(device,non_blocking=True),y.to(device,non_blocking=True)
             sync=net.no_sync() if distributed and m<acc-1 else contextlib.nullcontext()
-            budgets=per_token_budgets(model,x,y,spec,run['seed'],step,m,rank) if spec else None
-            if spec:max_budget=max(int(budgets.max()),max_budget if m else 0)
+            budgets=per_token_budgets(model,x,y,spec,run['seed'],step,m,rank) if spec else span_budgets(side.batch(indices)[0],depth,span,run['seed'],step,m,rank).to(device) if span else None
+            if spec or span:max_budget=max(int(budgets.max()),max_budget if m else 0)
             with sync:
                 with torch.autocast('cuda',dtype=torch.bfloat16):
-                    loss=net(x,targets=y,tick_budgets=budgets)['loss'] if spec else net(x,targets=y,max_thought_steps=depth)['loss']
+                    loss=net(x,targets=y,tick_budgets=budgets)['loss'] if budgets is not None else net(x,targets=y,max_thought_steps=depth)['loss']
                 (loss/acc).backward()
             total+=loss.detach()/acc
         if t.get('diagnostics'):
@@ -188,7 +201,7 @@ def main():
         optimizer.step();optimizer.zero_grad(set_to_none=True)
         if hasattr(model,'bio_step'):model.bio_step(step,t['total_steps'])  # Leon (2026) homeostasis / structural plasticity (2026-10-27)
         if distributed:dist.all_reduce(total);total/=world
-        if spec:depth=max_budget
+        if spec or span:depth=max_budget
         done=step+1;row={'step':done,'tokens':done*tokens_per_step,'loss':float(total),'lr':lr,'grad_norm':float(norm),'depth':depth,
              'seconds':time.perf_counter()-tick,'peak_gib':torch.cuda.max_memory_allocated(device)/2**30}
         row['tokens_per_second']=tokens_per_step/row['seconds']

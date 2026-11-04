@@ -1,0 +1,26 @@
+{
+  "name": "reasoning_32k",
+  "tokenizer": "../fineweb_edu_32k/tokenizer.json",
+  "tokenizer_sha256": "9e67a83453d571c32ffd089e323d529b9cdfda783c0ce02e6ee71057275bb565",
+  "vocab_size": 32768,
+  "eot_id": 0,
+  "dtype": "uint16",
+  "train": [
+    "train_000.bin"
+  ],
+  "side": [
+    "side_000.bin"
+  ],
+  "validation": [
+    "../fineweb_edu_32k/validation_000.bin"
+  ],
+  "text_source": "fineweb_edu_32k/train_001.bin, first 84516452 tokens",
+  "problems": {
+    "add": 164231,
+    "track": 165350,
+    "parity": 164582,
+    "eval": 165401
+  },
+  "problem_token_share": 0.15483548,
+  "gap_mean": 128
+}
