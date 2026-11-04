@@ -105,7 +105,7 @@ def main():
     if run.get('mechanisms'):  # CTM-augmented RDT (ctm_transformer/ctm_rdt.py)
         assert family=='rdt';factory=ctm_rdt_factory(set(run['mechanisms']),t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False),run.get('sync_pairs'))
     elif run.get('ctm_transformer') is not None:  # the CTM Transformer (ctm_transformer/ctm_transformer.py, 2026-10-14)
-        assert family=='rdt';factory=ctm_transformer_factory(set(run['ctm_transformer']),run['rdt_recipe'],t.get('checkpointing',False),t.get('backprop_steps'))
+        assert family=='rdt';factory=ctm_transformer_factory(set(run['ctm_transformer']),run['rdt_recipe'],t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile_ctm',False))
     elif run.get('hybrid_mechanisms') is not None:  # RDT + CTM hybrids on a recipe (ctm_transformer/hybrid_rdt.py, 2026-10-12)
         assert family=='rdt';factory=hybrid_factory(set(run['hybrid_mechanisms']),run['rdt_recipe'],t.get('checkpointing',False),t.get('backprop_steps'),t.get('compile',False))
     elif run.get('rdt_recipe'):  # RDT recipe variants (ctm_transformer/rdt_recipe.py, 2026-10-08)

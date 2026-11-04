@@ -338,12 +338,19 @@ class CTMTransformer(RecipeRDT):
                 'block_applications': len(self.prelude) + depth * (len(self.core) + len(self.coda))}
 
 
-def ctm_transformer_factory(mechanisms, recipe=DANS, checkpointing=False, backprop_steps=None):
+def ctm_transformer_factory(mechanisms, recipe=DANS, checkpointing=False, backprop_steps=None, compile=False):
+    """compile (2026-11-04): torch.compile the prelude and coda blocks (as Dans's recipe_factory does) and the thinking
+    layer. Until then the CTM Transformer trained uncompiled, 1.39x Dans's time per sequence at 15 ticks (1.08x compiled)."""
     unknown = set(mechanisms) - set(MECHANISMS) - set(OBJECTIVES) - set(BIO)
     if unknown:
         raise ValueError(f'Unknown mechanisms {sorted(unknown)}')
     def factory(config):
-        return CTMTransformer(replace(config, gradient_checkpointing=checkpointing), backprop_steps=backprop_steps,
-                              **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES + BIO}, **recipe)
-    factory.__qualname__ = 'ctm_transformer_factory[' + ('+'.join(sorted(mechanisms)) or 'dans') + ']'
+        model = CTMTransformer(replace(config, gradient_checkpointing=checkpointing), backprop_steps=backprop_steps,
+                               **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES + BIO}, **recipe)
+        if compile:
+            for block in (*model.prelude, *model.coda):
+                block.forward = torch.compile(block.forward)
+            model._thinking_layer = torch.compile(model._thinking_layer)
+        return model
+    factory.__qualname__ = 'ctm_transformer_factory[' + ('+'.join(sorted(mechanisms)) or 'dans') + (',compiled' if compile else '') + ']'
     return factory
