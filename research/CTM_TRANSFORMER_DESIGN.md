@@ -611,3 +611,20 @@ d704, 100M tokens, two seeds. Sampler arms train with the usual tick sampler. Pe
   - Dans_entropy costs 0.023 and fails the no-cost rule.
   - Neither passes "ticks pay" or "better use of compute", and the CTM-matters rule fails.
 - **Item 4 conclusion.** Giving harder tokens more ticks, with difficulty measured label-free, does not break the fixed point in either model on web text. Stage A showed that per-token budgets work when a token's difficulty is serial and known (parity inside text). On natural text at this scale, the models do not turn extra ticks into lower loss, however the ticks are allocated.
+
+## Training-rate parity (2026-11-04; `scripts/ctm_speed_check.py`, `research/results/per_token_pilot/CTM_SPEED.md`)
+
+- **Cause.** The CTM Transformer was never compiled: `ctm_transformer_factory` took no compile option, while Dans's blocks are compiled. CTsq also halved its micro-batch above 28 ticks. Compilation (prelude, coda and thinking layer) now exists as `compile_ctm`. It matches the uncompiled model to 1e-6 in loss and gradients for every mechanism.
+- **Check** (100M tokens, two seeds, the pilot's data and evaluation):
+
+  | Arm | Loss at 16 ticks | Seconds per update | vs Dans |
+  |---|---:|---:|---:|
+  | Dans | 4.761 | 24.4 | 1.00x |
+  | CTsq, as trained until now | 4.755 | 36.8 | 1.51x |
+  | **CTsq, compiled, full micro-batch** | **4.753** | **27.2** | **1.12x** |
+
+- **Both rules hold:** the same loss (−0.003) at 1.12x Dans's time per update. Peak memory is 17.8 GB, against Dans's 15.7.
+  - My parity smoke test shared GPU 0 for the first few minutes of seed 1, so the timing is if anything slightly pessimistic.
+- **From now on,** every CTM Transformer run uses `compile_ctm` without `micro_batch_by_depth`.
+  - At 400M tokens, CTsq's 15.6 GPU-hours become about 11.4, against Dans's 10.2.
+  - CTnlm remains about 2.1x Dans compiled: its per-neuron models are memory-bound. That is separate work.
