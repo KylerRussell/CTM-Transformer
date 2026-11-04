@@ -26,9 +26,12 @@ Protocol and rules: `scripts/parity_ticks.py` (docstring).
 | Dans_w256lr | 10 | 0 | 52/52, 52/52, 48/48, 48/48, 49/49, 48/48, 52/52, 49/49, 54/54, 79/82 |
 | CTsq_lentcur | 10 | 4 | 52/100*, 56/99*, 48/48, 52/52, 53/93*, 47/47, 50/50, 47/47, 52/52, 59/100* |
 | Dans_lentcur | 10 | 2 | 51/51, 50/100*, 47/48, 52/53, 48/48, 52/52, 48/48, 50/50, 51/51, 52/94* |
+| CTnlm_lent | 10 | 4 | 52/52, 52/89*, 50/100*, 52/52, 53/100*, 48/48, 47/47, 54/97*, 49/49, 52/52 |
+| CTnlmA_lent | 10 | 3 | 52/100*, 52/52, 52/52, 52/85*, 48/48, 48/48, 54/97*, 49/49, 49/49, 52/52 |
+| CTnlmA | 10 | 0 | 48/48, 51/52, 51/51, 48/48, 52/52, 50/50, 53/53, 51/51, 48/48, 51/51 |
 
-Reliable (at least 3 of 10): CTsqS no, CTsq no, Dans no, CTsq_m32 no, Dans_m32 no, CTsq_cur no, Dans_cur no, CTsqH no, CTsqHS no, DansH no, CTsq_prog no, Dans_prog no, CTsq_mono no, Dans_mono no, CTsq_lent no, Dans_lent yes, CTsq_w256 no, Dans_w256 no, CTsq_w256lr no, Dans_w256lr no, CTsq_lentcur yes, Dans_lentcur no
-Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0, CTsqH 0, CTsqHS 0, DansH 0, CTsq_prog 0, Dans_prog 0, CTsq_mono 0, Dans_mono 0, CTsq_lent 2, Dans_lent 4, CTsq_w256 0, Dans_w256 0, CTsq_w256lr 0, Dans_w256lr 0, CTsq_lentcur 4, Dans_lentcur 2
+Reliable (at least 3 of 10): CTsqS no, CTsq no, Dans no, CTsq_m32 no, Dans_m32 no, CTsq_cur no, Dans_cur no, CTsqH no, CTsqHS no, DansH no, CTsq_prog no, Dans_prog no, CTsq_mono no, Dans_mono no, CTsq_lent no, Dans_lent yes, CTsq_w256 no, Dans_w256 no, CTsq_w256lr no, Dans_w256lr no, CTsq_lentcur yes, Dans_lentcur no, CTnlm_lent yes, CTnlmA_lent yes, CTnlmA no
+Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0, CTsqH 0, CTsqHS 0, DansH 0, CTsq_prog 0, Dans_prog 0, CTsq_mono 0, Dans_mono 0, CTsq_lent 2, Dans_lent 4, CTsq_w256 0, Dans_w256 0, CTsq_w256lr 0, Dans_w256lr 0, CTsq_lentcur 4, Dans_lentcur 2, CTnlm_lent 4, CTnlmA_lent 3, CTnlmA 0
 - Dans_lent has the property more than CTsqS (4 vs 1)
 - Dans_lent has the property more than CTsq (4 vs 0)
 - Dans_lent has the property more than Dans (4 vs 0)
@@ -47,6 +50,7 @@ Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_
 - Dans_lent has the property more than Dans_w256 (4 vs 0)
 - Dans_lent has the property more than CTsq_w256lr (4 vs 0)
 - Dans_lent has the property more than Dans_w256lr (4 vs 0)
+- Dans_lent has the property more than CTnlmA (4 vs 0)
 - CTsq_lentcur has the property more than CTsqS (4 vs 1)
 - CTsq_lentcur has the property more than CTsq (4 vs 0)
 - CTsq_lentcur has the property more than Dans (4 vs 0)
@@ -65,11 +69,56 @@ Secondary (128 ticks in place of 64): CTsqS 1, CTsq 0, Dans 0, CTsq_m32 0, Dans_
 - CTsq_lentcur has the property more than Dans_w256 (4 vs 0)
 - CTsq_lentcur has the property more than CTsq_w256lr (4 vs 0)
 - CTsq_lentcur has the property more than Dans_w256lr (4 vs 0)
-Extra ticks pay (41-80 bits, +10 points from 16 to 128 ticks): CTsqS 2, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0, CTsqH 1, CTsqHS 0, DansH 0, CTsq_prog 0, Dans_prog 0, CTsq_mono 0, Dans_mono 0, CTsq_lent 2, Dans_lent 4, CTsq_w256 0, Dans_w256 0, CTsq_w256lr 0, Dans_w256lr 0, CTsq_lentcur 4, Dans_lentcur 2
-Fitting the trained lengths (1-40 bits at 16 ticks, at least 95%): CTsqS 4, CTsq 5, Dans 3, CTsq_m32 2, Dans_m32 5, CTsq_cur 9, Dans_cur 10, CTsqH 4, CTsqHS 7, DansH 7, CTsq_prog 4, Dans_prog 5, CTsq_mono 2, Dans_mono 4, CTsq_lent 2, Dans_lent 2, CTsq_w256 1, Dans_w256 1, CTsq_w256lr 1, Dans_w256lr 5, CTsq_lentcur 4, Dans_lentcur 2
+- CTsq_lentcur has the property more than CTnlmA (4 vs 0)
+- CTnlm_lent has the property more than CTsqS (4 vs 1)
+- CTnlm_lent has the property more than CTsq (4 vs 0)
+- CTnlm_lent has the property more than Dans (4 vs 0)
+- CTnlm_lent has the property more than CTsq_m32 (4 vs 0)
+- CTnlm_lent has the property more than Dans_m32 (4 vs 0)
+- CTnlm_lent has the property more than CTsq_cur (4 vs 0)
+- CTnlm_lent has the property more than Dans_cur (4 vs 0)
+- CTnlm_lent has the property more than CTsqH (4 vs 0)
+- CTnlm_lent has the property more than CTsqHS (4 vs 0)
+- CTnlm_lent has the property more than DansH (4 vs 0)
+- CTnlm_lent has the property more than CTsq_prog (4 vs 0)
+- CTnlm_lent has the property more than Dans_prog (4 vs 0)
+- CTnlm_lent has the property more than CTsq_mono (4 vs 0)
+- CTnlm_lent has the property more than Dans_mono (4 vs 0)
+- CTnlm_lent has the property more than CTsq_w256 (4 vs 0)
+- CTnlm_lent has the property more than Dans_w256 (4 vs 0)
+- CTnlm_lent has the property more than CTsq_w256lr (4 vs 0)
+- CTnlm_lent has the property more than Dans_w256lr (4 vs 0)
+- CTnlm_lent has the property more than CTnlmA (4 vs 0)
+- CTnlmA_lent has the property more than CTsq (3 vs 0)
+- CTnlmA_lent has the property more than Dans (3 vs 0)
+- CTnlmA_lent has the property more than CTsq_m32 (3 vs 0)
+- CTnlmA_lent has the property more than Dans_m32 (3 vs 0)
+- CTnlmA_lent has the property more than CTsq_cur (3 vs 0)
+- CTnlmA_lent has the property more than Dans_cur (3 vs 0)
+- CTnlmA_lent has the property more than CTsqH (3 vs 0)
+- CTnlmA_lent has the property more than CTsqHS (3 vs 0)
+- CTnlmA_lent has the property more than DansH (3 vs 0)
+- CTnlmA_lent has the property more than CTsq_prog (3 vs 0)
+- CTnlmA_lent has the property more than Dans_prog (3 vs 0)
+- CTnlmA_lent has the property more than CTsq_mono (3 vs 0)
+- CTnlmA_lent has the property more than Dans_mono (3 vs 0)
+- CTnlmA_lent has the property more than CTsq_w256 (3 vs 0)
+- CTnlmA_lent has the property more than Dans_w256 (3 vs 0)
+- CTnlmA_lent has the property more than CTsq_w256lr (3 vs 0)
+- CTnlmA_lent has the property more than Dans_w256lr (3 vs 0)
+- CTnlmA_lent has the property more than CTnlmA (3 vs 0)
+Extra ticks pay (41-80 bits, +10 points from 16 to 128 ticks): CTsqS 2, CTsq 0, Dans 0, CTsq_m32 0, Dans_m32 0, CTsq_cur 0, Dans_cur 0, CTsqH 1, CTsqHS 0, DansH 0, CTsq_prog 0, Dans_prog 0, CTsq_mono 0, Dans_mono 0, CTsq_lent 2, Dans_lent 4, CTsq_w256 0, Dans_w256 0, CTsq_w256lr 0, Dans_w256lr 0, CTsq_lentcur 4, Dans_lentcur 2, CTnlm_lent 4, CTnlmA_lent 3, CTnlmA 0
+Fitting the trained lengths (1-40 bits at 16 ticks, at least 95%): CTsqS 4, CTsq 5, Dans 3, CTsq_m32 2, Dans_m32 5, CTsq_cur 9, Dans_cur 10, CTsqH 4, CTsqHS 7, DansH 7, CTsq_prog 4, Dans_prog 5, CTsq_mono 2, Dans_mono 4, CTsq_lent 2, Dans_lent 2, CTsq_w256 1, Dans_w256 1, CTsq_w256lr 1, Dans_w256lr 5, CTsq_lentcur 4, Dans_lentcur 2, CTnlm_lent 3, CTnlmA_lent 2, CTnlmA 2
 
 ## Extrapolating runs: smallest tick count reaching 90% per length band
 
+- CTnlmA_lent seed 0: 1-40: 16, 41-60: 32, 61-80: 64, 81-120: 128, 121-160: -, 161-250: -
+- CTnlmA_lent seed 3: 1-40: 16, 41-60: 32, 61-80: -, 81-120: -, 121-160: -, 161-250: -
+- CTnlmA_lent seed 6: 1-40: 16, 41-60: 32, 61-80: 64, 81-120: -, 121-160: -, 161-250: -
+- CTnlm_lent seed 1: 1-40: 16, 41-60: 32, 61-80: -, 81-120: -, 121-160: -, 161-250: -
+- CTnlm_lent seed 2: 1-40: 16, 41-60: 32, 61-80: 64, 81-120: 128, 121-160: -, 161-250: -
+- CTnlm_lent seed 4: 1-40: 16, 41-60: 32, 61-80: 64, 81-120: 64, 121-160: -, 161-250: -
+- CTnlm_lent seed 7: 1-40: 16, 41-60: 32, 61-80: 64, 81-120: -, 121-160: -, 161-250: -
 - CTsqS seed 1: 1-40: 16, 41-60: 32, 61-80: 64, 81-120: 64, 121-160: -, 161-250: -
 - CTsq_lent seed 1: 1-40: 16, 41-60: 32, 61-80: -, 81-120: -, 121-160: -, 161-250: -
 - CTsq_lent seed 4: 1-40: 16, 41-60: 32, 61-80: -, 81-120: -, 121-160: -, 161-250: -

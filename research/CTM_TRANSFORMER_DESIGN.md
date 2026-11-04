@@ -644,3 +644,20 @@ d704, 100M tokens, two seeds. Sampler arms train with the usual tick sampler. Pe
 - **It ties Dans:** +0.003 at 16 ticks, within the no-cost rule, and not a win.
 - **Ticks do not pay.** With the CTM's neuron-level models as the activation, the model still reaches a fixed point by about 8 ticks. CTnlmA does not go to 400M tokens.
 - **Cost.** Training was stable (gradient norm at most 0.94 after step 50) but took 52.6 s per update, 2.2x Dans, with a peak of 18.5 GB.
+
+### The neuron-level activation on parity (2026-11-04; `scripts/parity_ticks.py`, `research/results/parity_ticks/PARITY_TICKS.md`)
+
+Width 128, seeds 0–9. The table counts seeds that extrapolate by thinking longer: on 41–80 bits, 64 ticks reach at least 80% and at least 20 points above 16 ticks.
+
+| Cell | Extrapolating seeds | Seeds fitting 1–40 bits |
+|---|---:|---:|
+| Dans_lent (reference) | 4 | 2 |
+| CTsq_lent | 2 | 2 |
+| CTnlm_lent | 4 | 3 |
+| CTnlmA_lent | 3 | 2 |
+| CTnlmA (the usual sampler) | 0 | 2 |
+
+- **No CTM win:** CTnlmA_lent has 3 extrapolating seeds against Dans_lent's 4; a win needs at least 7.
+- **The activation form does not matter:** CTnlmA_lent has 3 against CTnlm_lent's 4.
+- **The neuron dynamics alone do not give the property:** CTnlmA with the usual sampler has 0, the same as Dans.
+- **Overall:** with length-scaled ticks every model extrapolates on 2–4 of 10 seeds, whichever CTM mechanism it has. The property comes from the recurrence and the training ticks, not the CTM.
