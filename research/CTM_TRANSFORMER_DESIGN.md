@@ -628,3 +628,19 @@ d704, 100M tokens, two seeds. Sampler arms train with the usual tick sampler. Pe
 - **From now on,** every CTM Transformer run uses `compile_ctm` without `micro_batch_by_depth`.
   - At 400M tokens, CTsq's 15.6 GPU-hours become about 11.4, against Dans's 10.2.
   - CTnlm remains about 2.1x Dans compiled: its per-neuron models are memory-bound. That is separate work.
+
+## The neuron-level activation in the language model (2026-11-04; `scripts/nlm_activation_pilot.py`, `research/results/per_token_pilot/NLM_ACTIVATION.md`)
+
+**Why.** In trained CTnlm, the neuron-level models stayed small: RMS 0.02–0.03 against the SwiGLU activation's 0.35–0.47, and removing them cost 0.009 nats. CTnlmA makes them the gate activation, as in the CTM.
+
+**Setup.** 100M tokens, two seeds, compiled; the pilot's data and evaluation.
+
+| Arm | 1 tick | 2 | 4 | 8 | 16 | 32 | 64 | 96 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Dans | 4.794 | 4.764 | 4.761 | 4.761 | 4.761 | 4.761 | 4.761 | 4.761 |
+| CTsq | 4.837 | 4.768 | 4.757 | 4.756 | 4.755 | 4.755 | 4.756 | 4.756 |
+| CTnlmA | 4.878 | 4.821 | 4.769 | 4.764 | 4.764 | 4.764 | 4.764 | 4.764 |
+
+- **It ties Dans:** +0.003 at 16 ticks, within the no-cost rule, and not a win.
+- **Ticks do not pay.** With the CTM's neuron-level models as the activation, the model still reaches a fixed point by about 8 ticks. CTnlmA does not go to 400M tokens.
+- **Cost.** Training was stable (gradient norm at most 0.94 after step 50) but took 52.6 s per update, 2.2x Dans, with a peak of 18.5 GB.
