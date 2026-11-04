@@ -79,6 +79,15 @@ above per cell; the combination helps a model if its count exceeds its _lent cou
 3; the synchronization queries matter under it if CTsq_lentcur's count exceeds Dans_lentcur's by at least 3, and
 Dans is ahead if the reverse holds. Also reported: seeds fitting the trained lengths.
 
+The neuron-level activation (added 2026-11-04; ctm_transformer `nlm_activation`): in trained CTnlm the neuron-level
+models, added to the SwiGLU activation through a zero-initialized scale, stayed small (RMS 0.02-0.03 against
+0.35-0.47) and removing them cost 0.009 nats: the CTM's core mechanism was barely used. CTnlmA makes them the
+gate activation, as in the CTM. Cells: CTnlm_lent and CTnlmA_lent (length-scaled ticks, as _lent) and CTnlmA
+(the first arm's setting). Seeds 0-9. Rules, fixed before these runs: the rules above per cell; a CTM win on
+parity if CTnlmA_lent's count exceeds Dans_lent's (4) by at least 3; the activation form matters if CTnlmA_lent's
+count exceeds CTnlm_lent's by at least 3; the neuron dynamics alone give the property if CTnlmA's count exceeds
+the first arm's Dans (0) by at least 3. Also reported: extra ticks pay, and seeds fitting the trained lengths.
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
 import argparse,json,math,os,random,time
@@ -88,7 +97,7 @@ from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
 CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH','CTsqHS','DansH',
-       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256','CTsq_w256lr','Dans_w256lr','CTsq_lentcur','Dans_lentcur');SEEDS=range(10)
+       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256','CTsq_w256lr','Dans_w256lr','CTsq_lentcur','Dans_lentcur','CTnlm_lent','CTnlmA_lent','CTnlmA');SEEDS=range(10)
 PEAK_LR={'_w256lr':5e-4}  # by cell suffix; 1e-3 otherwise
 SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48),'_w256lr':(15,48),'_lentcur':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
 CURRICULUM_STEPS=10000

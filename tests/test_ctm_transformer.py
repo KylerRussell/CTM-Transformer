@@ -325,3 +325,21 @@ def test_tick_budgets_are_validated():
         model(x, tick_budgets=torch.zeros_like(x))
     with pytest.raises(ValueError):
         model(x, tick_budgets=torch.ones(1, 2, dtype=torch.long))
+
+
+def test_nlm_activation_replaces_the_gate_activation_and_needs_neuron_models():
+    c = replace(config('rdt'), max_thought_steps=3)
+    with pytest.raises(ValueError):
+        ctm_transformer_factory({'nlm_activation'})(c)
+    torch.manual_seed(0)
+    model = ctm_transformer_factory({'neuron_models', 'nlm_activation'})(c)
+    x, y = batch()
+    loss = model(x, targets=y)['loss']
+    loss.backward()
+    params = dict(model.named_parameters())
+    assert params['nlms.0.first.weight'].grad.abs().sum() > 0
+    assert params['nlm_scale'].grad is None or params['nlm_scale'].grad.abs().sum() == 0  # unused when the models are the activation
+    with torch.no_grad():  # the SwiGLU gate's silu is gone: changing the neuron models changes the output at nlm_scale 0
+        before = model(x)['logits']
+        params['nlms.0.first.bias'].add_(0.5)
+        assert not torch.allclose(before, model(x)['logits'], atol=1e-4)

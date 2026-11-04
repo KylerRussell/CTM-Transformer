@@ -41,6 +41,11 @@ Added 2026-10-21, after CTsqL (``ctm_loss``) collapsed on both seeds:
     largest-magnitude entries of each matrix, chosen at initialization and refreshed 30 times over training.
     It masks weights from the start, so with it the untrained model is not Dans.
   The paper trains one-hidden-layer MLPs with SGD and reports Adam as worse; here the optimizer is AdamW.
+* ``nlm_activation`` (2026-11-04, with ``neuron_models``): the neuron-level models replace the gate activation
+  instead of adding to it, as in the CTM, where each neuron's post-activation is its private model's output over
+  its pre-activation history. In trained CTnlm the added term stayed small (RMS 0.02-0.03 against the SwiGLU
+  activation's 0.35-0.47; removing it cost 0.009 nats), so the mechanism was barely used. With it, the untrained
+  model is not Dans.
 * Per-position tick budgets (2026-11-01, ``forward(..., tick_budgets=B)``, as in ``rdt_recipe``): after its last tick a
   position's state, neuron-model history and synchronization sums (with a per-position beta) are frozen.
 * ``record_stats`` (attribute, off by default): each forward stores detached diagnostics in ``self.stats``:
@@ -67,6 +72,7 @@ from ctm_transformer.rdt_recipe import RecipeRDT
 
 DANS = {'norm': 'prenorm', 'normalize': False, 'state_init': 'zeros', 'injection': 'add', 'coda_norm': 'none', 'state_norm': True}
 MECHANISMS = ('neuron_models', 'sync_query', 'sync_output', 'attention_sink')
+ACTIVATIONS = ('nlm_activation',)  # not zero-initialized: the untrained model is not Dans
 OBJECTIVES = ('ctm_loss', 'final_tick_loss', 'detached_readouts')
 BIO = ('homeostasis', 'structural_plasticity')
 HOMEOSTASIS_TARGET, HOMEOSTASIS_RATE, HOMEOSTASIS_LIMIT = 0.12, 0.01, 2.0
@@ -126,14 +132,17 @@ class TickSynchronization(nn.Module):
 
 
 class CTMTransformer(RecipeRDT):
-    def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, ctm_loss=False,
+    def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, nlm_activation=False, ctm_loss=False,
                  final_tick_loss=False, detached_readouts=False, homeostasis=False, structural_plasticity=False, pairs=None, seed=0, **recipe):
         super().__init__(config, **recipe)
         if self.recipe['norm'] != 'prenorm' or not self.recipe['state_norm']:
             raise ValueError('The CTM Transformer builds on a pre-norm recipe with a state norm (Dans)')
         d, layers = config.d_model, len(self.core)
         pairs = pairs or d
+        if nlm_activation and not neuron_models:
+            raise ValueError('nlm_activation replaces the gate activation by the neuron-level models; it needs neuron_models')
         self.mechanisms = {'neuron_models': neuron_models, 'sync_query': sync_query, 'sync_output': sync_output, 'attention_sink': attention_sink,
+                           'nlm_activation': nlm_activation,
                            'homeostasis': homeostasis, 'structural_plasticity': structural_plasticity}
         if final_tick_loss and not ctm_loss:
             raise ValueError('final_tick_loss is added to the CTM loss; alone it is the default objective')
@@ -207,7 +216,7 @@ class CTMTransformer(RecipeRDT):
             stacked = torch.stack((*past, pre), dim=-1)  # [B, S, F, M]
             F_ = pre.shape[-1]
             neuron = neuron_models(self.nlms[index], stacked.reshape(B * S, F_, NLM_HISTORY)).view(B, S, F_)
-            act = act + self.nlm_scale[index].to(act.dtype) * neuron.to(act.dtype)
+            act = neuron.to(act.dtype) if self.mechanisms['nlm_activation'] else act + self.nlm_scale[index].to(act.dtype) * neuron.to(act.dtype)
         if bio:
             x = block.ffn_post(x + F.linear(act * F.linear(u, self._ffn_weight(index, 'up')), self._ffn_weight(index, 'down')))
         else:
@@ -341,12 +350,12 @@ class CTMTransformer(RecipeRDT):
 def ctm_transformer_factory(mechanisms, recipe=DANS, checkpointing=False, backprop_steps=None, compile=False):
     """compile (2026-11-04): torch.compile the prelude and coda blocks (as Dans's recipe_factory does) and the thinking
     layer. Until then the CTM Transformer trained uncompiled, 1.39x Dans's time per sequence at 15 ticks (1.08x compiled)."""
-    unknown = set(mechanisms) - set(MECHANISMS) - set(OBJECTIVES) - set(BIO)
+    unknown = set(mechanisms) - set(MECHANISMS) - set(OBJECTIVES) - set(BIO) - set(ACTIVATIONS)
     if unknown:
         raise ValueError(f'Unknown mechanisms {sorted(unknown)}')
     def factory(config):
         model = CTMTransformer(replace(config, gradient_checkpointing=checkpointing), backprop_steps=backprop_steps,
-                               **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES + BIO}, **recipe)
+                               **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES + BIO + ACTIVATIONS}, **recipe)
         if compile:
             for block in (*model.prelude, *model.coda):
                 block.forward = torch.compile(block.forward)

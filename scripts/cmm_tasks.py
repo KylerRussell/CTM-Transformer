@@ -55,7 +55,7 @@ STEPS,BATCH,EVAL_EXAMPLES,MAX_LEN=5000,128,512,256
 CELLS={'T8':('transformer',8),'T20':('transformer',20),'Dans':('dans',()),'CTsq':('ct',('sync_query',)),'CTnlm':('ct',('neuron_models',)),
        'CTso':('ct',('sync_output',)),'CTfull':('ct',('neuron_models','sync_query','sync_output')),'CTsqS':('ct',('sync_query','attention_sink')),
        # Leon (2026) homeostasis / structural plasticity (2026-10-27; used by scripts/parity_ticks.py)
-       'CTsqH':('ct',('sync_query','homeostasis')),'CTsqHS':('ct',('sync_query','homeostasis','structural_plasticity')),'DansH':('ct',('homeostasis',))}
+       'CTsqH':('ct',('sync_query','homeostasis')),'CTnlmA':('ct',('neuron_models','nlm_activation')),'CTsqHS':('ct',('sync_query','homeostasis','structural_plasticity')),'DansH':('ct',('homeostasis',))}
 
 
 def example(task,size,rng):
