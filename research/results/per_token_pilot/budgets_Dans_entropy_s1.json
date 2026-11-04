@@ -1,0 +1,20 @@
+{
+ "run": "Dans_entropy_s1",
+ "tokens": 131072,
+ "entropy_24": {
+  "loss": 4.774782761931419,
+  "mean_ticks": 16.0
+ },
+ "entropy_48": {
+  "loss": 4.7748168259859085,
+  "mean_ticks": 28.0
+ },
+ "entropy_96": {
+  "loss": 4.774782419204712,
+  "mean_ticks": 52.0
+ },
+ "cross_entropy_24": {
+  "loss": 4.7748167514801025,
+  "mean_ticks": 16.0
+ }
+}

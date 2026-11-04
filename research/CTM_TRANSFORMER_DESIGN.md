@@ -594,3 +594,20 @@ d704, 100M tokens, two seeds. Sampler arms train with the usual tick sampler. Pe
   - The likely channel is the synchronization's per-position beta (and alpha), which counts a position's active ticks. Dans has no such counter, and its fixed point erases the difference, so it could not exploit the leak. This channel is not verified.
 - **This is my design error, not a finding about per-token ticks.** Stage A was clean because its budgets depended on the input (problem length), not on the target. A valid CTsq arm needs label-free difficulty in training too (for example the 2-tick prediction's entropy, as in the added evaluation).
 - **Evaluation note.** The convergence exit never reaches a mean of 8 ticks for any model: every model's prediction settles earlier. The table shows `inf` there; it is not a loss.
+
+**Label-free rerun (2026-11-04).** Dans_entropy and CTsq_entropy rank difficulty by the entropy of the 2-tick prediction, which does not use the labels. Two seeds; rules fixed before the runs.
+
+| Arm | Loss, fixed 16 ticks | Entropy budgets, s = 24 / 48 / 96 (mean 16 / 28 / 52 ticks) | Cross-entropy-ranked budgets, s = 24 (leak check) |
+|---|---:|---|---:|
+| Dans, sampler | 4.761 | 4.761 / 4.761 / 4.761 | 4.761 |
+| Dans, entropy | 4.784 | 4.784 / 4.784 / 4.784 | 4.784 |
+| CTsq, sampler | 4.755 | 4.756 / 4.756 / 4.756 | 4.755 |
+| CTsq, entropy | 4.762 | 4.762 / 4.762 / 4.762 | 4.762 |
+
+- **The leak is gone.** Label-ranked budgets give no advantage, and CTsq_entropy behaves normally at any fixed tick count.
+- **Ticks still do not pay.** Doubling or quadrupling every token's budget changes the loss by less than 0.001 for both models, and both are flat from 8 fixed ticks.
+- **Rule outcomes.**
+  - CTsq_entropy costs nothing (+0.007, within 0.01) and gains nothing.
+  - Dans_entropy costs 0.023 and fails the no-cost rule.
+  - Neither passes "ticks pay" or "better use of compute", and the CTM-matters rule fails.
+- **Item 4 conclusion.** Giving harder tokens more ticks, with difficulty measured label-free, does not break the fixed point in either model on web text. Stage A showed that per-token budgets work when a token's difficulty is serial and known (parity inside text). On natural text at this scale, the models do not turn extra ticks into lower loss, however the ticks are allocated.
