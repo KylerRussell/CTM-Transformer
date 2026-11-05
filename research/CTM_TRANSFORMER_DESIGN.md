@@ -661,3 +661,28 @@ Width 128, seeds 0–9. The table counts seeds that extrapolate by thinking long
 - **The activation form does not matter:** CTnlmA_lent has 3 against CTnlm_lent's 4.
 - **The neuron dynamics alone do not give the property:** CTnlmA with the usual sampler has 0, the same as Dans.
 - **Overall:** with length-scaled ticks every model extrapolates on 2–4 of 10 seeds, whichever CTM mechanism it has. The property comes from the recurrence and the training ticks, not the CTM.
+
+## Can ticks beyond 8 contribute? A screen of three training changes (2026-11-05; `scripts/tick_contribution.py`, `research/results/per_token_pilot/TICK_CONTRIBUTION.md`)
+
+**Why.** Every language model so far reaches a fixed point by about 8 ticks. Each change targets a different reason this could happen:
+- **film:** a per-tick scale and shift of the injected input, so the recurrence can do different work on each tick;
+- **mtp:** multi-token prediction, a harder objective that asks more of the state;
+- **m32:** deeper training ticks (mean 32, at most 96).
+
+**Setup.** Dans and CTsq, 100M tokens, seed 1, against Dans_sampler_s1 (4.747) and CTsq_fast_s1 (4.731).
+
+| Arm | 1 tick | 4 | 8 | 16 | 32 | 64 | 96 | vs reference at 16 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Dans_film | 4.777 | 4.745 | 4.744 | 4.744 | 4.744 | 4.744 | 4.744 | -0.003 |
+| CTsq_film | 4.821 | 4.742 | 4.741 | 4.741 | 4.741 | 4.741 | 4.741 | +0.010 |
+| Dans_mtp | 4.842 | 4.817 | 4.817 | 4.817 | 4.817 | 4.817 | 4.817 | +0.070 |
+| CTsq_mtp | 4.871 | 4.811 | 4.811 | 4.811 | 4.811 | 4.811 | 4.811 | +0.079 |
+| Dans_m32 | 4.815 | 4.787 | 4.786 | 4.786 | 4.786 | 4.786 | 4.786 | +0.039 |
+| CTsq_m32 | 4.826 | 4.762 | 4.761 | 4.761 | 4.761 | 4.761 | 4.761 | +0.029 |
+
+- **Every arm fails the screen**, so there is no seed-2 confirmation. In every arm the loss is flat to 0.001 from 4 ticks to 96.
+- **film ties** its reference: Dans -0.003, CTsq +0.010. Per-tick modulation does not stop the state from settling.
+- **mtp costs 0.07–0.08 nats.** At 100M tokens the ahead heads take capacity from next-token prediction, and the deeper state they ask for does not appear.
+- **m32 costs both models** (Dans +0.039, CTsq +0.029) at 2.0x and 2.1x the time. More training ticks give the same fixed point at a worse loss.
+  - CTsq_m32 is 0.025 below Dans_m32. This is not a rule outcome: both are worse than their references, and it is a single seed.
+- **Overall:** on web text the fixed point is robust to tick-dependent dynamics, to a harder objective, and to deeper training. Whether thinking longer pays where the task needs serial steps is the question of the reasoning-in-text experiment (`scripts/reasoning_in_text.py`), now running.
