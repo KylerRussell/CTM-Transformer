@@ -686,3 +686,37 @@ Width 128, seeds 0–9. The table counts seeds that extrapolate by thinking long
 - **m32 costs both models** (Dans +0.039, CTsq +0.029) at 2.0x and 2.1x the time. More training ticks give the same fixed point at a worse loss.
   - CTsq_m32 is 0.025 below Dans_m32. This is not a rule outcome: both are worse than their references, and it is a single seed.
 - **Overall:** on web text the fixed point is robust to tick-dependent dynamics, to a harder objective, and to deeper training. Whether thinking longer pays where the task needs serial steps is the question of the reasoning-in-text experiment (`scripts/reasoning_in_text.py`), now running.
+
+## Reasoning tasks embedded in text, at d704 (2026-11-06; `scripts/reasoning_in_text.py`, `research/results/reasoning_in_text/REASONING_IN_TEXT.md`)
+
+**Setup.** Continued pretraining from the 400M-token Dans and CTsq checkpoints, two replicates, on 100M tokens of FineWeb-Edu. About 660k problems are written into the text, 15.5% of the tokens: reversed addition, variable tracking, parity and nested expressions. Each task is tested on its trained sizes (ID) and on larger sizes (OOD).
+
+Arms:
+- the usual tick sampler;
+- span budgets: a problem's ticks grow with its question length, without using the labels.
+
+**Results.** Exact-match accuracy (%), two-replicate means at 16 ticks (span arms at span scale 1):
+
+| Task-split | Dans sampler | CTsq sampler | Dans span | CTsq span |
+|---|---:|---:|---:|---:|
+| addition ID (1–10 digits) | 58 | 99 | 97 | 99 |
+| addition OOD (11–20) | 0 | 0 | 0 | 1 |
+| tracking ID / OOD (chance 14) | 44 / 17 | 43 / 20 | 44 / 17 | 45 / 18 |
+| parity ID / OOD (chance 50) | 52 / 51 | 50 / 49 | 52 / 49 | 48 / 49 |
+| expressions ID / OOD (chance 14) | 37 / 17 | 38 / 15 | 33 / 16 | 31 / 15 |
+
+Text loss at 16 ticks: 3.512–3.518 in every arm.
+
+**Rule outcomes.**
+- Only addition is learned.
+- Ticks pay nowhere: OOD addition stays at 0–2% at 64 ticks and at span scale 2.
+- No CTM win in either training mode.
+
+**Observations (reported, not judged):**
+- **Addition, 4 / 8 / 16 ticks, ID:**
+  - Span-trained models need their ticks: Dans 57/98/99 and 46/86/95, CTsq 46/98/100 and 45/89/98.
+  - Sampler-trained models already solve it at 4 ticks (95–97%).
+  - So budgets taught the models to spend ticks on the problem, not to extrapolate.
+- **One Dans run failed to learn addition:** Dans_sampler replicate 2 reaches 18% at every tick count, and its gradient norm spiked to 6.3 after warmup. All four CTsq runs learned it (98–100%). On replicate 1 the two models tie exactly (252 of 256 correct).
+  - This is a single failure, not a rule outcome.
+- **Parity, tracking and expressions are not learned** in 100M tokens at a 15% problem share. At width 128 parity was learned only with training dedicated to it. This test cannot say whether thinking longer pays on them.
