@@ -209,14 +209,14 @@ def queue(k,n):
 
 # ---------------------------------------------------------------- summary
 
-def summarize():
+def summarize(title='Reasoning tasks embedded in text (d704, 100M tokens of continued pretraining)',script='reasoning_in_text',report='REASONING_IN_TEXT.md'):
     res={(a,r):json.loads((OUT/f'{a}_r{r}.json').read_text()) for a in ARMS for r in REPLICATES if (OUT/f'{a}_r{r}.json').exists()}
     mean=lambda v:sum(v)/len(v);splits=[f'{t}_{s}' for t in TASKS for s in ('id','ood')]
     read=lambda a,r,ts,key:res[(a,r)]['accuracy'][ts][key]
     def main_read(a,r,ts,pays=False):
         if a.endswith('sampler'):return read(a,r,ts,'fixed16')
         return max(read(a,r,ts,'span1'),read(a,r,ts,'span2')) if pays else read(a,r,ts,'span1')
-    L=['# Reasoning tasks embedded in text (d704, 100M tokens of continued pretraining)','','Protocol and rules: `scripts/reasoning_in_text.py` (docstring). Exact-match accuracy (%), mean of two replicates.','',
+    L=[f'# {title}','',f'Protocol and rules: `scripts/{script}.py` (docstring). Exact-match accuracy (%), mean of two replicates.','',
        '| Task-split | '+' | '.join(f'{a} 16 / 64 / span1 / span2' for a in ARMS)+' |','|---|'+'---|'*len(ARMS)]
     for ts in splits:
         row=[]
@@ -227,7 +227,7 @@ def summarize():
     tl=[f'{a} {mean([res[(a,r)]["text_loss_16"] for r in REPLICATES if (a,r) in res]):.3f}' for a in ARMS if any((a,r) in res for r in REPLICATES)]
     L+=['','Text loss at 16 ticks: '+', '.join(tl),'','## Rule outcomes','']
     complete=all((a,r) in res for a in ARMS for r in REPLICATES)
-    if not complete:L.append('- incomplete');(OUT/'REASONING_IN_TEXT.md').write_text('\n'.join(L)+'\n');print('\n'.join(L));return
+    if not complete:L.append('- incomplete');(OUT/report).write_text('\n'.join(L)+'\n');print('\n'.join(L));return
     learned={t:any(mean([read(a,r,f'{t}_id','span1' if a.endswith('span') else 'fixed16') for r in REPLICATES])>=80 for a in ARMS) for t in TASKS}
     L.append('- **Learned tasks (some arm at least 80% ID):** '+', '.join(f'{t} {"yes" if learned[t] else "no"}' for t in TASKS))
     pays={}
@@ -246,7 +246,7 @@ def summarize():
             if mean(vc)-mean(vd)>=5 and all(x>y for x,y in zip(vc,vd)):wins.append(ts)
             if mean(vd)-mean(vc)>=5 and all(y>x for x,y in zip(vc,vd)):losses.append(ts)
         L.append(f'- **{mode} arms:** CTsq beats Dans on {wins or "none"}; Dans beats CTsq on {losses or "none"}; CTM win: {"yes" if len(wins)>=2 and not losses else "no"}')
-    (OUT/'REASONING_IN_TEXT.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+    (OUT/report).write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
 def main():

@@ -134,9 +134,9 @@ def main():
     for name,p in model.named_parameters():
         if name.startswith(tuple(run.get('freeze_prefixes',()))):p.requires_grad_(False)
     model=model.to(device)
-    train=TokenWindows([root/s for s in data['train']],t['seq_len'],run['seed'])
+    train=TokenWindows([root/s for s in data['train']],t['seq_len'],run['seed'],t.get('stagewise',False))  # stagewise: curricula (2026-11-06)
     valid=TokenWindows([root/s for s in data['validation']],t['seq_len'],0)
-    side=TokenWindows([root/s for s in data['side']],t['seq_len'],run['seed']) if run.get('span_budgets') else None  # same shapes and seed: the same order
+    side=TokenWindows([root/s for s in data['side']],t['seq_len'],run['seed'],t.get('stagewise',False)) if run.get('span_budgets') else None  # same shapes and seed: the same order
     offset=t.get('eval_offset',0);windows=lambda n:list(range(offset,min(offset+n,len(valid))))
     eval_indices,final_indices=windows(t['eval_windows']),windows(t.get('final_eval_windows',t['eval_windows']))
     params=[p for p in model.parameters() if p.requires_grad]

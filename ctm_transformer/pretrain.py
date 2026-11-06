@@ -6,7 +6,9 @@ continues exactly where it stopped:
 * ``TokenWindows``: memory-mapped uint16 token shards cut into non-overlapping
   windows of ``seq_len + 1`` tokens, presented in one seeded permutation.
   Optimizer step t uses windows [t·G, (t+1)·G) of that permutation (G = global
-  batch in sequences), split over ranks and micro-batches.
+  batch in sequences), split over ranks and micro-batches. With ``stagewise``
+  (2026-11-06, curricula) the shards are presented in their listed order, each
+  in its own seeded permutation.
 * ``step_depth``: one recurrence depth per optimizer step, drawn from the
   arm's sampler with a generator seeded by (seed, step), so every rank and
   every micro-batch of the step uses the same depth, including after resume.
@@ -28,11 +30,13 @@ from ctm_transformer.ctm_lm import Synchronization
 
 
 class TokenWindows:
-    def __init__(self,shards,seq_len,seed):
+    def __init__(self,shards,seq_len,seed,stagewise=False):
         self.seq_len=seq_len;self.arrays=[np.memmap(p,dtype=np.uint16,mode='r') for p in shards]
         self.counts=np.array([(len(a)-1)//seq_len for a in self.arrays],dtype=np.int64)
         self.starts=np.concatenate(([0],np.cumsum(self.counts)))
-        self.order=np.random.default_rng(seed).permutation(int(self.counts.sum()))
+        rng=np.random.default_rng(seed)
+        if stagewise:self.order=np.concatenate([int(self.starts[i])+rng.permutation(int(c)) for i,c in enumerate(self.counts)])
+        else:self.order=rng.permutation(int(self.counts.sum()))
 
     def __len__(self):return len(self.order)
 

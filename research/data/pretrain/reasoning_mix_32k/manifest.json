@@ -1,0 +1,38 @@
+{
+  "name": "reasoning_mix_32k",
+  "tokenizer": "../fineweb_edu_32k/tokenizer.json",
+  "tokenizer_sha256": "9e67a83453d571c32ffd089e323d529b9cdfda783c0ce02e6ee71057275bb565",
+  "vocab_size": 32768,
+  "eot_id": 0,
+  "dtype": "uint16",
+  "train": [
+    "train_000.bin",
+    "train_001.bin",
+    "train_002.bin",
+    "train_003.bin"
+  ],
+  "side": [
+    "side_000.bin",
+    "side_001.bin",
+    "side_002.bin",
+    "side_003.bin"
+  ],
+  "validation": [
+    "../fineweb_edu_32k/validation_000.bin"
+  ],
+  "text_source": "fineweb_edu_32k/train_002.bin, first 55915534 tokens",
+  "problems": {
+    "add": 582317,
+    "track": 582977,
+    "parity": 582733,
+    "eval": 583643
+  },
+  "problem_token_share_by_stage": [
+    0.37213644,
+    0.42255592,
+    0.474133,
+    0.49455328
+  ],
+  "gap_mean": 24,
+  "curriculum": "stage s: sizes uniform over [lo, lo + ceil((hi - lo) s / 4)]"
+}

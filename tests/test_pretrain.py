@@ -74,3 +74,11 @@ def test_offloaded_adamw_reproduces_torch_adamw():
     restored = OffloadedAdamW(c.parameters(), lr=1e-2)
     restored.load_state_dict(state)
     assert all(torch.equal(p, q) for p, q in zip(b.parameters(), c.parameters())) and restored.step_count == 5
+
+
+def test_stagewise_windows_keep_shard_order(tmp_path):
+    w = TokenWindows(shards(tmp_path), 64, seed=3, stagewise=True)
+    assert sorted(w.order.tolist()) == list(range(len(w)))
+    first = (1000 - 1) // 64
+    assert sorted(w.order[:first].tolist()) == list(range(first))  # the first shard's windows come first
+    assert np.array_equal(TokenWindows(shards(tmp_path), 64, seed=3).order, np.random.default_rng(3).permutation(len(w)))  # default unchanged
