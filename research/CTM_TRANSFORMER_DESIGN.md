@@ -720,3 +720,26 @@ Text loss at 16 ticks: 3.512–3.518 in every arm.
 - **One Dans run failed to learn addition:** Dans_sampler replicate 2 reaches 18% at every tick count, and its gradient norm spiked to 6.3 after warmup. All four CTsq runs learned it (98–100%). On replicate 1 the two models tie exactly (252 of 256 correct).
   - This is a single failure, not a rule outcome.
 - **Parity, tracking and expressions are not learned** in 100M tokens at a 15% problem share. At width 128 parity was learned only with training dedicated to it. This test cannot say whether thinking longer pays on them.
+
+## Addition reliability: 8 fresh replicates each (2026-11-07; `scripts/addition_reliability.py`, `research/results/reasoning_in_text/ADDITION_RELIABILITY.md`)
+
+**Why.** In reasoning in text, all four CTsq runs learned reversed addition, while one of two Dans runs failed. Both Dans runs had gradient spikes after warmup; neither CTsq run did.
+
+**Setup.** The same sampler arms, replicates 3–10. Odd replicates start from the seed-1 checkpoint (s1), even ones from seed 2 (s2).
+
+**Results, judged on the fresh replicates:**
+
+| | Learned (ID addition at 16 ticks ≥ 90%) | Spiked (gradient norm > 2 after warmup) |
+|---|---:|---:|
+| Dans | 5/8 | 3/8 |
+| CTsq | 7/8 | 1/8 |
+
+- **Neither rule is met.** A difference needs at least 3 of 8, and these are 2 each. For learning, the one-sided Fisher p is 0.29.
+- **The failures depend on the starting checkpoint more than the model** (reported, all 10 replicates):
+  - Dans from s1 learns 5/5; Dans from s2 learns 1/5 (18, 64, 83 and 9% in the failures).
+  - CTsq learns 4/5 from s1 (the failure is replicate 7, at 88%, just under the bar) and 5/5 from s2.
+  - So the Dans seed-2 checkpoint is hard to teach addition, and the CTsq seed-2 checkpoint is not. With two pretraining seeds per model, this is one checkpoint against another, not a property of either model.
+- **Spikes do not explain the failures.** One of Dans's three fresh failures spiked.
+  - The largest spikes came in runs that learned: Dans replicate 8 (271) and CTsq replicate 9 (5,178). Both are clipped single updates.
+- **Pooled (reported):** Dans 6/10, CTsq 9/10. The direction favours CTsq, but the evidence is weak, and this is not a claim the paper can make on these numbers.
+- **What would settle it:** more pretraining seeds, not more continued-training replicates, since the variation sits in the starting checkpoint. At d704 that means 400M-token runs at about 10–11 GPU-hours each.
