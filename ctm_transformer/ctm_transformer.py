@@ -46,6 +46,9 @@ Added 2026-10-21, after CTsqL (``ctm_loss``) collapsed on both seeds:
   its pre-activation history. In trained CTnlm the added term stayed small (RMS 0.02-0.03 against the SwiGLU
   activation's 0.35-0.47; removing it cost 0.009 nats), so the mechanism was barely used. With it, the untrained
   model is not Dans.
+* ``nlm_history`` / ``nlm_hidden`` (2026-11-08, constructor options; defaults ``NLM_HISTORY`` and ``NLM_HIDDEN``):
+  the neuron-level models' history length M and hidden width h. The CTM paper names the neuron-level models "a new
+  avenue for scaling"; ours were sized small (4 and 4) for memory.
 * Per-position tick budgets (2026-11-01, ``forward(..., tick_budgets=B)``, as in ``rdt_recipe``): after its last tick a
   position's state, neuron-model history and synchronization sums (with a per-position beta) are frozen.
 * ``record_stats`` (attribute, off by default): each forward stores detached diagnostics in ``self.stats``:
@@ -133,7 +136,8 @@ class TickSynchronization(nn.Module):
 
 class CTMTransformer(RecipeRDT):
     def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, nlm_activation=False, ctm_loss=False,
-                 final_tick_loss=False, detached_readouts=False, homeostasis=False, structural_plasticity=False, pairs=None, seed=0, **recipe):
+                 final_tick_loss=False, detached_readouts=False, homeostasis=False, structural_plasticity=False, pairs=None, seed=0,
+                 nlm_history=NLM_HISTORY, nlm_hidden=NLM_HIDDEN, **recipe):
         super().__init__(config, **recipe)
         if self.recipe['norm'] != 'prenorm' or not self.recipe['state_norm']:
             raise ValueError('The CTM Transformer builds on a pre-norm recipe with a state norm (Dans)')
@@ -155,9 +159,10 @@ class CTMTransformer(RecipeRDT):
         self.record_stats = False
         self.stats = {}
         generator = torch.Generator().manual_seed(seed)
+        self.nlm_history = nlm_history
         if neuron_models:
             hidden = self.core[0].gate.out_features
-            self.nlms = nn.ModuleList(NeuronLevelModels(hidden, NLM_HISTORY, NLM_HIDDEN) for _ in range(layers))
+            self.nlms = nn.ModuleList(NeuronLevelModels(hidden, nlm_history, nlm_hidden) for _ in range(layers))
             self.nlm_scale = nn.Parameter(torch.zeros(layers, hidden))
         if sync_query:
             self.sync_action = TickSynchronization(d, pairs, generator)
@@ -212,10 +217,10 @@ class CTMTransformer(RecipeRDT):
         pre = F.linear(u, self._ffn_weight(index, 'gate')) if bio else block.gate(u)
         act = F.silu(pre - self.homeostatic_threshold[index].to(pre.dtype)) if self.mechanisms['homeostasis'] else F.silu(pre)
         if self.mechanisms['neuron_models']:
-            past = history if history else (torch.zeros_like(pre),) * (NLM_HISTORY - 1)
+            past = history if history else (torch.zeros_like(pre),) * (self.nlm_history - 1)
             stacked = torch.stack((*past, pre), dim=-1)  # [B, S, F, M]
             F_ = pre.shape[-1]
-            neuron = neuron_models(self.nlms[index], stacked.reshape(B * S, F_, NLM_HISTORY)).view(B, S, F_)
+            neuron = neuron_models(self.nlms[index], stacked.reshape(B * S, F_, self.nlm_history)).view(B, S, F_)
             act = neuron.to(act.dtype) if self.mechanisms['nlm_activation'] else act + self.nlm_scale[index].to(act.dtype) * neuron.to(act.dtype)
         if bio:
             x = block.ffn_post(x + F.linear(act * F.linear(u, self._ffn_weight(index, 'up')), self._ffn_weight(index, 'down')))
@@ -292,7 +297,7 @@ class CTMTransformer(RecipeRDT):
                     if self.mechanisms['homeostasis'] and self.training and torch.is_grad_enabled():
                         self._record_activity(index, pre)  # outside the checkpoint, so a backward recompute is not counted
                     if self.mechanisms['neuron_models']:
-                        past = history[index] if history[index] else (torch.zeros_like(pre),) * (NLM_HISTORY - 1)
+                        past = history[index] if history[index] else (torch.zeros_like(pre),) * (self.nlm_history - 1)
                         history[index] = tuple(keep(new, old) for new, old in zip((*past[1:], pre), past))
                 x = keep(h, x)
                 if self.record_stats:
@@ -347,15 +352,16 @@ class CTMTransformer(RecipeRDT):
                 'block_applications': len(self.prelude) + depth * (len(self.core) + len(self.coda))}
 
 
-def ctm_transformer_factory(mechanisms, recipe=DANS, checkpointing=False, backprop_steps=None, compile=False):
-    """compile (2026-11-04): torch.compile the prelude and coda blocks (as Dans's recipe_factory does) and the thinking
+def ctm_transformer_factory(mechanisms, recipe=DANS, checkpointing=False, backprop_steps=None, compile=False, options=None):
+    """options (2026-11-08): further CTMTransformer keyword arguments (nlm_history, nlm_hidden).
+    compile (2026-11-04): torch.compile the prelude and coda blocks (as Dans's recipe_factory does) and the thinking
     layer. Until then the CTM Transformer trained uncompiled, 1.39x Dans's time per sequence at 15 ticks (1.08x compiled)."""
     unknown = set(mechanisms) - set(MECHANISMS) - set(OBJECTIVES) - set(BIO) - set(ACTIVATIONS)
     if unknown:
         raise ValueError(f'Unknown mechanisms {sorted(unknown)}')
     def factory(config):
         model = CTMTransformer(replace(config, gradient_checkpointing=checkpointing), backprop_steps=backprop_steps,
-                               **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES + BIO + ACTIVATIONS}, **recipe)
+                               **{m: m in mechanisms for m in MECHANISMS + OBJECTIVES + BIO + ACTIVATIONS}, **(options or {}), **recipe)
         if compile:
             for block in (*model.prelude, *model.coda):
                 block.forward = torch.compile(block.forward)

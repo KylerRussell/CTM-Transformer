@@ -107,6 +107,19 @@ def test_the_fused_neuron_model_kernel_and_the_matmul_pair_products_match_their_
     assert torch.allclose(s.products(z), z[:, s.left] * z[:, s.right], atol=1e-6)
 
 
+def test_neuron_model_size_options_set_history_and_hidden_width():
+    from dataclasses import replace
+    from ctm_transformer.ctm_transformer import ctm_transformer_factory
+    from tests.test_lm_scale import batch, config
+    c = replace(config('rdt'), max_thought_steps=6)
+    x, y = batch()
+    default = ctm_transformer_factory({'neuron_models', 'nlm_activation'})(c)
+    large = ctm_transformer_factory({'neuron_models', 'nlm_activation'}, options={'nlm_history': 8, 'nlm_hidden': 6})(c)
+    assert default.nlms[0].first.weight.shape[1:] == (4, 8) and large.nlms[0].first.weight.shape[1:] == (8, 12)
+    large(x, targets=y)['loss'].backward()  # 6 ticks, fewer than the history of 8: zero-padded
+    assert large.nlms[0].first.weight.grad.abs().sum() > 0
+
+
 def test_attention_sink_with_an_open_gate_is_attention_over_the_sink_and_the_causal_prefix():
     from torch.nn import functional as F
     model, _ = pair(('attention_sink',), depth=1)

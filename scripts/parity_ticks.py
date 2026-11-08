@@ -88,6 +88,19 @@ parity if CTnlmA_lent's count exceeds Dans_lent's (4) by at least 3; the activat
 count exceeds CTnlm_lent's by at least 3; the neuron dynamics alone give the property if CTnlmA's count exceeds
 the first arm's Dans (0) by at least 3. Also reported: extra ticks pay, and seeds fitting the trained lengths.
 
+Larger neuron-level models (added 2026-11-08; ctm_transformer `nlm_history`, `nlm_hidden`): the CTM paper calls the
+neuron-level models "a new avenue for scaling" (section 8). Ours keep 4 ticks of pre-activation history with a hidden
+width of 4, sized for memory, and were never varied. Cells, all CTnlmA (the activation form) with length-scaled
+ticks (_lent), seeds 0-9: CTnlmAm16_lent (history 16), CTnlmAm32_lent (history 32), CTnlmAh16_lent (hidden 16) and
+CTnlmAm16h16_lent (both 16). Under _lent a step runs up to 38 ticks, so histories of 16 and 32 are used. Cost per
+update, measured at 40 bits and 38 ticks: 1.09-1.22x CTnlmA's, peak 1.8-2.5 GB. Rules, fixed before these runs:
+- scaling helps if a cell's extrapolating count exceeds CTnlmA_lent's (3) by at least 3;
+- a CTM win on parity if a cell's count exceeds Dans_lent's (4) by at least 3;
+- decision: a cell that passes either rule goes to a 100M-token language-model pilot as
+  scripts/nlm_activation_pilot.py (Dans and CTsq as references), with rules fixed before it; otherwise the
+  neuron-level-model size is closed on parity.
+Also reported: extra ticks pay, and seeds fitting the trained lengths.
+
 Usage: python -m scripts.parity_ticks --gpu N --runs CELL:SEED... | --summarize
 """
 import argparse,json,math,os,random,time
@@ -97,7 +110,8 @@ from scripts.cmm_tasks import BATCH,STEPS,build,example
 
 OUT=Path('research/results/parity_ticks');CKPT=Path('research/runs/parity_ticks')
 CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH','CTsqHS','DansH',
-       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256','CTsq_w256lr','Dans_w256lr','CTsq_lentcur','Dans_lentcur','CTnlm_lent','CTnlmA_lent','CTnlmA');SEEDS=range(10)
+       'CTsq_prog','Dans_prog','CTsq_mono','Dans_mono','CTsq_lent','Dans_lent','CTsq_w256','Dans_w256','CTsq_w256lr','Dans_w256lr','CTsq_lentcur','Dans_lentcur','CTnlm_lent','CTnlmA_lent','CTnlmA',
+       'CTnlmAm16_lent','CTnlmAm32_lent','CTnlmAh16_lent','CTnlmAm16h16_lent');SEEDS=range(10)
 PEAK_LR={'_w256lr':5e-4}  # by cell suffix; 1e-3 otherwise
 SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48),'_w256lr':(15,48),'_lentcur':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
 CURRICULUM_STEPS=10000

@@ -55,7 +55,10 @@ STEPS,BATCH,EVAL_EXAMPLES,MAX_LEN=5000,128,512,256
 CELLS={'T8':('transformer',8),'T20':('transformer',20),'Dans':('dans',()),'CTsq':('ct',('sync_query',)),'CTnlm':('ct',('neuron_models',)),
        'CTso':('ct',('sync_output',)),'CTfull':('ct',('neuron_models','sync_query','sync_output')),'CTsqS':('ct',('sync_query','attention_sink')),
        # Leon (2026) homeostasis / structural plasticity (2026-10-27; used by scripts/parity_ticks.py)
-       'CTsqH':('ct',('sync_query','homeostasis')),'CTnlmA':('ct',('neuron_models','nlm_activation')),'CTsqHS':('ct',('sync_query','homeostasis','structural_plasticity')),'DansH':('ct',('homeostasis',))}
+       'CTsqH':('ct',('sync_query','homeostasis')),'CTnlmA':('ct',('neuron_models','nlm_activation')),'CTsqHS':('ct',('sync_query','homeostasis','structural_plasticity')),'DansH':('ct',('homeostasis',)),
+       # larger neuron-level models (2026-11-08, scripts/parity_ticks.py): history m ticks, hidden width h (default 4, 4)
+       **{f'CTnlmA{n}':('ct',('neuron_models','nlm_activation'),o) for n,o in (('m16',{'nlm_history':16}),('m32',{'nlm_history':32}),
+          ('h16',{'nlm_hidden':16}),('m16h16',{'nlm_history':16,'nlm_hidden':16}))}}
 
 
 def example(task,size,rng):
@@ -98,12 +101,12 @@ def build(cell,width=128,vocab=None):
     from ctm_transformer.lm_scale import scaled_factory
     from ctm_transformer.rdt_recipe import recipe_factory
     from ctm_transformer.ctm_transformer import DANS,ctm_transformer_factory
-    kind,arg=CELLS[cell];train={'seq_len':MAX_LEN,'micro_batch':BATCH,'lr':1e-3}
+    kind,arg,*options=CELLS[cell];train={'seq_len':MAX_LEN,'micro_batch':BATCH,'lr':1e-3}
     if kind=='transformer':
         run={'family':'transformer','train':train,'model':{'d_model':width,'n_layers':arg,'ffn_hidden_dim':width*21//8,'init_std':0.02,'n_heads':width//32}};factory=scaled_factory('transformer')
     else:
         run={'family':'rdt','train':train,'eval_depth':16,'model':{'d_model':width,'prelude_layers':2,'core_layers':4,'coda_layers':2,'ffn_hidden_dim':width*21//8,'init_std':0.02,'n_heads':width//32}}
-        factory=recipe_factory(DANS,checkpointing=True) if kind=='dans' else ctm_transformer_factory(set(arg),checkpointing=True)
+        factory=recipe_factory(DANS,checkpointing=True) if kind=='dans' else ctm_transformer_factory(set(arg),checkpointing=True,options=options[0] if options else None)
     return factory(build_config(run,vocab or VOCAB)),kind!='transformer'
 
 
