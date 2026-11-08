@@ -743,3 +743,34 @@ Text loss at 16 ticks: 3.512–3.518 in every arm.
   - The largest spikes came in runs that learned: Dans replicate 8 (271) and CTsq replicate 9 (5,178). Both are clipped single updates.
 - **Pooled (reported):** Dans 6/10, CTsq 9/10. The direction favours CTsq, but the evidence is weak, and this is not a claim the paper can make on these numbers.
 - **What would settle it:** more pretraining seeds, not more continued-training replicates, since the variation sits in the starting checkpoint. At d704 that means 400M-token runs at about 10–11 GPU-hours each.
+
+## Reasoning in text with a 50% problem share and a size curriculum (2026-11-08; `scripts/reasoning_mix.py`, `research/results/reasoning_mix/REASONING_MIX.md`)
+
+**Setup.** As reasoning in text, but problems make up 37–49% of the tokens (about 580k per task), and a four-stage size curriculum widens each task to its full training range. The runs were stopped from outside at 21:47 UTC on Nov 7, with no error, and resumed from their checkpoints at 04:17 UTC on Nov 8.
+
+**Results, two-replicate means at 16 ticks (span arms at span scale 1), exact match (%), trained sizes:**
+
+| Task (chance) | Dans sampler | CTsq sampler | Dans span | CTsq span |
+|---|---:|---:|---:|---:|
+| addition | 98 | 100 | 59 | 93 |
+| tracking (14) | 46 | 44 | 45 | 45 |
+| parity (50) | 49 | 53 | 52 | 52 |
+| expressions (14) | 46 | 42 | 46 | 42 |
+
+On larger sizes, addition is 0–1% in every arm. Text loss is 3.597–3.606, up from 3.512–3.518 with less text.
+
+**Rule outcomes.**
+- Only addition is learned.
+- Ticks pay nowhere.
+- No CTM win in either training mode.
+
+**Observations (reported):**
+- **The curriculum and the higher share do not make the hard tasks learnable** at d704 in 100M tokens.
+  - Parity stays at chance.
+  - Tracking stays at 44–46%, unchanged.
+  - Expressions rise slightly, from 31–38% to 39–46%.
+  - This test cannot say whether thinking longer pays on serial tasks at this size.
+- **The Dans seed-2 checkpoint fails addition again:** Dans_span replicate 2 is at 19% at every tick count, like Dans_sampler replicate 2 in reasoning in text (18%). Dans_sampler replicate 2 learned it here (97%).
+  - Every CTsq run learned addition, except CTsq_span replicate 1, at 83%.
+  - Across both experiments and the reliability runs, Dans from its seed-2 checkpoint learned addition in 2 of 7 runs, and CTsq in 7 of 7 from its seed-2 checkpoint.
+  - This remains a statement about two checkpoints, not about the models.
