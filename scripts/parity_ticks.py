@@ -115,6 +115,7 @@ CELLS=('CTsqS','CTsq','Dans','CTsq_m32','Dans_m32','CTsq_cur','Dans_cur','CTsqH'
 PEAK_LR={'_w256lr':5e-4}  # by cell suffix; 1e-3 otherwise
 SAMPLERS={'':(15,48),'_m32':(32,96),'_cur':(15,48),'_prog':(15,48),'_mono':(15,48),'_lent':(15,48),'_w256':(15,48),'_w256lr':(15,48),'_lentcur':(15,48)}  # tick sampler (mean, maximum) by cell suffix; _lent sets its own ticks
 CURRICULUM_STEPS=10000
+RESUME_EVERY=250  # updates between resume checkpoints (added 2026-11-09 after a server restart lost 26 runs in progress)
 
 
 def curriculum_max(step,steps):
@@ -159,7 +160,16 @@ def train(cell,seed,device):
     sampler=lognormal_poisson(mean,0.5,maximum)
     peak=PEAK_LR.get(suffix,1e-3);opt=torch.optim.AdamW(model.parameters(),lr=peak,betas=(0.9,0.95),weight_decay=0.1,fused=True)
     rng=random.Random(f'train-parity-{seed}');start=time.time();steps=CURRICULUM_STEPS if suffix in ('_cur','_lentcur') else STEPS
-    for step in range(steps):
+    resume=CKPT/f'{cell}_seed{seed}.resume.pt';first=0
+    if resume.exists():  # resume after an interruption: model, optimizer, step and every random state
+        st=torch.load(resume,map_location=device,weights_only=False);model.load_state_dict(st['model']);opt.load_state_dict(st['opt']);first=st['step']
+        rng.setstate(st['rng']);torch.set_rng_state(st['torch_rng'].cpu());torch.cuda.set_rng_state(st['cuda_rng'].cpu());start-=st['seconds']
+        print(cell,seed,'resumed at step',first,flush=True)
+    for step in range(first,steps):
+        if step and step%RESUME_EVERY==0:
+            CKPT.mkdir(parents=True,exist_ok=True);tmp=resume.with_suffix('.tmp')
+            torch.save({'model':model.state_dict(),'opt':opt.state_dict(),'step':step,'rng':rng.getstate(),'torch_rng':torch.get_rng_state(),
+                        'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);os.replace(tmp,resume)
         set_lr(opt,lr_at(step,peak,200,steps,0.1))
         T=step_depth(sampler,seed,step)
         if suffix in ('_lent','_lentcur'):
@@ -182,6 +192,7 @@ def train(cell,seed,device):
     model.eval();grid={f'{lo}-{hi}':{str(t):accuracy(model,lo,hi,t,device) for t in TICKS} for lo,hi in BANDS}
     result={'cell':cell,'seed':seed,'seconds':time.time()-start,'final_loss':float(loss),'accuracy':grid}
     OUT.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(result,indent=1)+'\n')
+    resume.unlink(missing_ok=True)
     print(cell,seed,f"{result['seconds']:.0f}s",'41-60 / 61-80 at 16/64 ticks:',[round(grid[b][t],1) for b in ('41-60','61-80') for t in ('16','64')],flush=True)
 
 
