@@ -774,3 +774,38 @@ On larger sizes, addition is 0–1% in every arm. Text loss is 3.597–3.606, up
   - Every CTsq run learned addition, except CTsq_span replicate 1, at 83%.
   - Across both experiments and the reliability runs, Dans from its seed-2 checkpoint learned addition in 2 of 7 runs, and CTsq in 7 of 7 from its seed-2 checkpoint.
   - This remains a statement about two checkpoints, not about the models.
+
+## Larger neuron-level models on parity (2026-11-10; `scripts/parity_ticks.py`, `research/results/parity_ticks/PARITY_TICKS.md`)
+
+**Setup.** This is the CTM paper's "new avenue for scaling". CTnlmA_lent (neuron-level models with their activation, length-scaled ticks) is run at width 128 with larger neuron-level models:
+- history 16 (m16);
+- history 32 (m32);
+- hidden width 16 (h16);
+- both 16 (m16h16).
+
+Each cell has 10 seeds. The cost is 1.09–1.22x CTnlmA per update.
+
+The rules were fixed before the runs:
+- scaling helps if a cell extrapolates on at least 6 seeds (CTnlmA_lent's 3 plus 3);
+- it is a CTM win if a cell extrapolates on at least 7 seeds (Dans_lent's 4 plus 3).
+
+A server restart on Nov 9 killed 26 runs in progress. They were rerun from scratch, and the runs since then save resume checkpoints. Resume is exact in eager mode.
+
+**Results (10 seeds each):**
+
+| Cell | Extrapolating (41-80 at 64 ticks) | Fitting 1-40 at 16 ticks | Extra ticks pay |
+|---|---:|---:|---:|
+| CTnlmA_lent (reference) | 3 | 2 | 3 |
+| Dans_lent (reference) | 4 | 2 | 4 |
+| m16 | 0 | 0 | 0 |
+| m32 | 3 | 4 | 3 |
+| h16 | 0 | 0 | 0 |
+| m16h16 | 2 | 1 | 2 |
+
+**Rule outcomes.** No cell reaches 6, so scaling the neuron-level models does not help on parity and there is no CTM win. The question is closed on parity, and no language-model pilot follows.
+
+**Observations (reported):**
+- **History 16 and hidden width 16 hurt.** Neither cell fits the trained lengths on any seed.
+- **History 32 is no worse than the default.** It extrapolates on 3 seeds and fits 4.
+- **The extrapolating m32 and m16h16 seeds behave like the default's:** they reach 90% on 41-60 at 32 ticks and on 61-80 at 64 ticks.
+- **m32 seed 5 overthinks:** 53% at 16 ticks and 32% at 64 ticks on 41-80.
