@@ -39,7 +39,25 @@ activation). Rules, fixed before any run:
 - Ticks pay on OOD for a recurrent model if its mean OOD accuracy at 64 ticks is at least 5 points above 16.
 - Reported: Dans against T8 by the same rules, accuracy by N, curves.
 
-Usage: python -m scripts.recall_memory --phase screen|compare --gpu N --runs CELL:RECIPE:SEED... | --time CELL:RECIPE
+Phase 2 outcome (2026-11-11): CTsq and CTfull beat Dans on OOD accuracy; T8 beats Dans on OOD and speed; no tick
+effect. Every run either bound keys to values (ID ~100%) or did not (~31%): bound on T8 4/5, CTsqS 4/5, CTsq 3/5,
+CTfull 3/5, Dans 2/5, CTnlmA 2/5. Two of the 4 paired seeds behind each win are both-fail pairs differing by
+chance-level noise (e.g. 16.0 vs 15.6).
+
+Phase 3, confirmation on fresh seeds (seeds 5-14, the phase-2 recipe and budget): Dans, CTsq, CTfull (the wins),
+CTsqS and T8 (reported). Rules, fixed before any run:
+- A win is confirmed if, on seeds 5-14, the cell beats Dans on the same measure by the phase-2 rule scaled to 10
+  seeds: mean at least 5 points higher and higher on at least 8 of 10 paired seeds.
+- Binding (a run binds if its ID query accuracy is at least 90%), a hypothesis raised by phase 2 and so tested only
+  on these fresh seeds: a cell binds more reliably than Dans if its binding count over seeds 5-14 is higher with a
+  one-sided Fisher exact p < 0.05; synchronization helps binding if the sync-query cells pooled (CTsq, CTsqS,
+  CTfull: 30 runs) bind more often than Dans (10 runs) with one-sided Fisher p < 0.05.
+- Reported: OOD accuracy of bound runs only, per cell; a one-sided Mann-Whitney U test of each cell's OOD
+  accuracy against Dans's; T8 against every cell.
+- A confirmed win, or synchronization helping binding, is a CTM result on recall; it is not a CTM-over-Transformer
+  result unless the cell also beats T8 by the same rule.
+
+Usage: python -m scripts.recall_memory --phase screen|compare|confirm --gpu N --runs CELL:RECIPE:SEED... | --time CELL:RECIPE
        | --summarize
 """
 import argparse,json,math,os,random,time
@@ -50,6 +68,7 @@ from scripts.cmm_tasks import BATCH,BOS,PAD,PRI,QUERY,SYM,build
 OUT=Path('research/results/recall_memory');CKPT=Path('research/runs/recall_memory')
 RECIPES=('long','cur','dense');SCREEN_CELLS=('T8',);SCREEN_SEEDS=(0,1);MAX_STEPS=40000
 COMPARE_CELLS=('T8','Dans','CTsq','CTsqS','CTfull','CTnlmA');COMPARE_SEEDS=(0,1,2,3,4)
+CONFIRM_CELLS=('T8','Dans','CTsq','CTsqS','CTfull');CONFIRM_SEEDS=tuple(range(5,15));SYNC_QUERY=('CTsq','CTsqS','CTfull')
 SPLITS={'train':(2,16),'id':(2,16),'ood':(17,32)};EVAL=512;CHECK=256;CHECK_EVERY=1000;RESUME_EVERY=500
 
 
@@ -183,12 +202,43 @@ def compare():
     (OUT/'COMPARE.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
+def confirm():
+    from scipy.stats import fisher_exact,mannwhitneyu
+    res=results('confirm');recipe=json.loads((OUT/'CHOICE.json').read_text())['recipe'];S=CONFIRM_SEEDS
+    cells=[c for c in CONFIRM_CELLS if all((c,recipe,s) in res for s in S)];mean=lambda v:sum(v)/len(v)
+    ood=lambda c:[res[(c,recipe,s)]['ood'].get('16',res[(c,recipe,s)]['ood'].get('None')) for s in S]
+    bound=lambda c:[res[(c,recipe,s)]['id']>=90 for s in S]
+    L=['# Recall memory: phase 3 confirmation (seeds 5-14)',f'Recipe {recipe}; protocol and rules: `scripts/recall_memory.py`.','',
+       '| Cell | Bound | ID | OOD at 16 | OOD of bound runs | Mann-Whitney p (OOD > Dans) |','|---|---:|---:|---:|---:|---:|']
+    for c in cells:
+        ob=[o for o,b in zip(ood(c),bound(c)) if b];mw=mannwhitneyu(ood(c),ood('Dans'),alternative='greater').pvalue if c!='Dans' and 'Dans' in cells else None
+        L.append(f"| {c} | {sum(bound(c))}/10 | {mean([res[(c,recipe,s)]['id'] for s in S]):.1f} | {mean(ood(c)):.1f} | {mean(ob) if ob else float('nan'):.1f} | "+(f'{mw:.3f}' if mw is not None else '-')+' |')
+    L+=['','## Rule outcomes','']
+    def beats(a,b):va,vb=ood(a),ood(b);return mean(va)-mean(vb)>=5 and sum(x>y for x,y in zip(va,vb))>=8
+    if 'Dans' in cells:
+        for c in ('CTsq','CTfull'):
+            if c in cells:L.append(f'- **{c} OOD win over Dans:** '+('confirmed' if beats(c,'Dans') else 'not confirmed')+f' (mean {mean(ood(c)):.1f} vs {mean(ood("Dans")):.1f}, higher on {sum(x>y for x,y in zip(ood(c),ood("Dans")))} of 10)')
+        for c in cells:
+            if c!='Dans':
+                p=fisher_exact([[sum(bound(c)),10-sum(bound(c))],[sum(bound('Dans')),10-sum(bound('Dans'))]],alternative='greater')[1]
+                L.append(f'- {c} binds more reliably than Dans: {"yes" if p<0.05 else "no"} ({sum(bound(c))}/10 vs {sum(bound("Dans"))}/10, p = {p:.3f})')
+        sq=[c for c in SYNC_QUERY if c in cells]
+        if len(sq)==3:
+            k=sum(sum(bound(c)) for c in sq);d=sum(bound('Dans'));p=fisher_exact([[k,30-k],[d,10-d]],alternative='greater')[1]
+            L.append(f'- **Synchronization helps binding (sync-query cells pooled vs Dans):** {"yes" if p<0.05 else "no"} ({k}/30 vs {d}/10, p = {p:.3f})')
+    if 'T8' in cells:
+        for c in cells:
+            if c!='T8':L.append(f'- {c} against T8: '+('beats T8' if beats(c,'T8') else 'T8 beats it' if beats('T8',c) else 'neither')+f' (OOD {mean(ood(c)):.1f} vs {mean(ood("T8")):.1f}; bound {sum(bound(c))} vs {sum(bound("T8"))})')
+    (OUT/'CONFIRM.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare'),default='screen');p.add_argument('--gpu',type=int,default=0)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm'),default='screen');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--time');p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:
         choose()
         if (OUT/'CHOICE.json').exists() and any(OUT.glob('compare_*.json')):compare()
+        if any(OUT.glob('confirm_*.json')):confirm()
         return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')
