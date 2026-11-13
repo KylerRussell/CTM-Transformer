@@ -809,3 +809,49 @@ A server restart on Nov 9 killed 26 runs in progress. They were rerun from scrat
 - **History 32 is no worse than the default.** It extrapolates on 3 seeds and fits 4.
 - **The extrapolating m32 and m16h16 seeds behave like the default's:** they reach 90% on 41-60 at 32 ticks and on 61-80 at 64 ticks.
 - **m32 seed 5 overthinks:** 53% at 16 ticks and 32% at 64 ticks on 41-80.
+
+## Synchronization as memory: associative recall trained until learned (2026-11-13; `scripts/recall_memory.py`, `research/results/recall_memory/{SCREEN,COMPARE,CONFIRM}.md`)
+
+**Why.** The CTM paper's future work names synchronization as a memory mechanism. In the CMM-task grid, no model learned recall in 5,000 updates. Every model sat at about 31%, choosing among the values present.
+
+**Phase 1, the screen (T8 only, 2 seeds).** Of the three recipes, only a curriculum over the number of pairs made recall learnable: N from 2, reaching the full 2–16 at update 9,800. T8 reached 90% after 3,000–4,000 updates. Training 40,000 updates on the original task, or querying every key, left it at 31–40%. Phase 2 used the curriculum with a 10,000-update budget.
+
+**Every run is bimodal.** It either binds keys to values (ID about 100%, OOD 73–92% at N 17–32) or does not (about 31% ID, 15–17% OOD).
+
+**Phase 2 (seeds 0–4).** By the rules:
+- CTsq and CTfull beat Dans on OOD.
+- T8 beats Dans on OOD and speed.
+
+Runs that bound: T8 4/5, CTsqS 4/5, CTsq 3/5, CTfull 3/5, Dans 2/5, CTnlmA 2/5.
+
+Two of the four paired "wins" for each cell were both-fail pairs that differed only by noise. The sync-query pattern was noticed here and declared a hypothesis for phase 3.
+
+**Phase 3, confirmation (fresh seeds 5–14; rules fixed before the runs):**
+
+| Cell | Bound | ID | OOD at 16 ticks | OOD of bound runs |
+|---|---:|---:|---:|---:|
+| T8 | 10/10 | 100.0 | 83.0 | 83.0 |
+| Dans | 1/10 | 38.2 | 18.4 | 35.3 |
+| CTsq | 6/10 | 72.5 | 54.3 | 79.3 |
+| CTsqS | 7/10 | 79.6 | 62.9 | 82.9 |
+| CTfull | 5/10 | 65.8 | 48.2 | 80.1 |
+
+**Rule outcomes:**
+- **CTsq's OOD win over Dans is confirmed:** 54.3 vs 18.4, higher on 8 of 10 seeds.
+- **CTfull's is not:** higher on 7 of 10.
+- **Synchronization helps binding (confirmed):** the sync-query cells pooled bound on 18 of 30 runs against Dans's 1 of 10 (one-sided Fisher p = 0.007).
+  - Per cell, CTsq (6/10, p = 0.029) and CTsqS (7/10, p = 0.010) bind more reliably than Dans.
+  - CTfull does not reach significance (5/10, p = 0.070).
+- **Against the Transformer:** T8 beats Dans, CTsq and CTfull. Against CTsqS neither wins by the rule, but T8 is 20 points higher on mean OOD and bound on every seed.
+
+**What it means.**
+- **A confirmed CTM-over-RDT result on a memory task, and the first one here.**
+  - Recurrent depth with Dans's recipe mostly fails to learn key-value binding in this budget (3 of 15 runs across both phases).
+  - Making attention queries come from neuron synchronization recovers most of it (28 of 45 runs across the sync-query cells and both phases).
+  - When a run binds, its length generalisation matches the Transformer's (OOD 79–83% vs 83%), so the gain is in learning the binding, not in what is learned.
+- **The Transformer is still better.** It binds on 14 of 15 seeds and learns in 3,000–4,000 updates. On this task, recurrence costs binding reliability, and synchronization pays most of that cost back.
+- **Ticks do nothing on OOD** in any model: 64 ticks minus 16 is within ±0.04 points.
+
+**Caveats.**
+- **Learning rate:** every arm used lr 1e-3, untuned. Dans's failures could be specific to that learning rate, so a learning-rate check is required before this goes in the paper, as for every final comparison.
+- **Scale and training:** width 128, a single task, and one recipe (the curriculum).
