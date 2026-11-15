@@ -57,7 +57,25 @@ CTsqS and T8 (reported). Rules, fixed before any run:
 - A confirmed win, or synchronization helping binding, is a CTM result on recall; it is not a CTM-over-Transformer
   result unless the cell also beats T8 by the same rule.
 
-Usage: python -m scripts.recall_memory --phase screen|compare|confirm --gpu N --runs CELL:RECIPE:SEED... | --time CELL:RECIPE
+Phase 3 outcome (2026-11-13): synchronization helps binding (sync-query cells 18/30 vs Dans 1/10, p = 0.007); CTsq's
+OOD win confirmed, CTfull's not; T8 binds 10/10 and beats every recurrent cell but CTsqS (neither by the rule).
+
+Phase 4, learning-rate check (2026-11-15). Every arm so far used lr 1e-3, untuned, and the paper's standard is a
+tuned learning rate. Cells T8, Dans, CTsq, CTsqS; the phase-2 recipe and budget; everything else unchanged.
+Rules, fixed before any run:
+- Tuning, on seeds 0-4: lr 3e-4 and 2e-3 are run (1e-3 is phase 2). A cell's best lr is the one with the most bound
+  runs (ID query accuracy at least 90%), ties broken by higher mean OOD accuracy at 16 ticks, then by 1e-3.
+- If every cell's best lr is 1e-3, the phase-3 results stand as the tuned comparison.
+- Otherwise each cell whose best lr is not 1e-3 is rerun on the fresh seeds 5-14 at its best lr (phase `tuned`),
+  and the phase-3 rules are re-applied with every cell at its best lr: CTsq's OOD win over Dans (mean at least 5
+  points higher, higher on at least 8 of 10 seeds); per cell, binds more reliably than Dans (one-sided Fisher exact
+  p < 0.05 on bound counts over seeds 5-14); synchronization helps binding, with the sync-query cells now CTsq and
+  CTsqS pooled (20 runs) against Dans (10), one-sided Fisher p < 0.05.
+- The synchronization result survives tuning if both CTsq's OOD win and synchronization helping binding hold at the
+  tuned learning rates. Reported: binding and OOD by lr for every cell; T8 against every cell at tuned lrs.
+
+Usage: python -m scripts.recall_memory --phase screen|compare|confirm|lr|tuned --gpu N --runs CELL:RECIPE:SEED[:LR]...
+       | --time CELL:RECIPE
        | --summarize
 """
 import argparse,json,math,os,random,time
@@ -111,17 +129,17 @@ def accuracy(model,recurrent,dense,split,ticks,n,device,by_size=False):
     return (acc,{str(k):round(100*h/c,1) for k,(h,c) in sorted(sizes.items())}) if by_size else acc
 
 
-def train(cell,recipe,seed,phase,device,steps=None,timing=False):
+def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
     import torch
     from ctm_transformer.depth_sampling import lognormal_poisson
     from ctm_transformer.pretrain import lr_at,set_lr,step_depth
-    name=f'{phase}_{cell}_{recipe}_seed{seed}';out=OUT/f'{name}.json'
+    name=f'{phase}_{cell}_{recipe}'+(f'_lr{lr:g}' if phase in ('lr','tuned') else '')+f'_seed{seed}';out=OUT/f'{name}.json'
     if out.exists() and not timing:return
     budget=steps or (MAX_STEPS if phase=='screen' else json.loads((OUT/'CHOICE.json').read_text())['budget'])
     dense=recipe=='dense';early=phase=='screen'
     torch.manual_seed(seed);model,recurrent=build(cell);model=model.to(device)
     sampler=lognormal_poisson(15,0.5,48) if recurrent else None
-    opt=torch.optim.AdamW(model.parameters(),lr=1e-3,betas=(0.9,0.95),weight_decay=0.1,fused=True)
+    opt=torch.optim.AdamW(model.parameters(),lr=lr,betas=(0.9,0.95),weight_decay=0.1,fused=True)
     rng=random.Random(f'recall-memory-train-{seed}');start=time.time();curve=[];first=0
     resume=CKPT/f'{name}.resume.pt'
     if resume.exists() and not timing:
@@ -134,7 +152,7 @@ def train(cell,recipe,seed,phase,device,steps=None,timing=False):
             CKPT.mkdir(parents=True,exist_ok=True);tmp=resume.with_suffix('.tmp')
             torch.save({'model':model.state_dict(),'opt':opt.state_dict(),'step':step,'curve':curve,'rng':rng.getstate(),'torch_rng':torch.get_rng_state(),
                         'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);os.replace(tmp,resume)
-        set_lr(opt,lr_at(step,1e-3,200,budget,0.1))
+        set_lr(opt,lr_at(step,lr,200,budget,0.1))
         hi=min(16,2+step//700) if recipe=='cur' else 16
         x,y=batch(2,hi,dense,BATCH,rng);x,y=x.to(device),y.to(device)
         with torch.autocast('cuda',dtype=torch.bfloat16):loss=model(x,targets=y,max_thought_steps=step_depth(sampler,seed,step) if recurrent else None)['loss']
@@ -232,18 +250,63 @@ def confirm():
     (OUT/'CONFIRM.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
+LR_CELLS=('T8','Dans','CTsq','CTsqS');LRS=(3e-4,1e-3,2e-3)
+
+
+def lr_check():
+    from scipy.stats import fisher_exact
+    recipe=json.loads((OUT/'CHOICE.json').read_text())['recipe'];mean=lambda v:sum(v)/len(v)
+    def run(phase,c,lr,s):
+        f=OUT/(f'compare_{c}_{recipe}_seed{s}.json' if phase=='lr' and lr==1e-3 else f'confirm_{c}_{recipe}_seed{s}.json' if lr==1e-3
+               else f'{phase}_{c}_{recipe}_lr{lr:g}_seed{s}.json')
+        return json.loads(f.read_text()) if f.exists() else None
+    o16=lambda r:r['ood'].get('16',r['ood'].get('None'))
+    L=['# Recall memory: phase 4 learning-rate check','Protocol and rules: `scripts/recall_memory.py`.','','## Tuning (seeds 0-4)','',
+       '| Cell | '+' | '.join(f'lr {lr:g}: bound / OOD' for lr in LRS)+' | Best |','|---|'+'---:|'*len(LRS)+'---|']
+    best={}
+    for c in LR_CELLS:
+        cols=[];score={}
+        for lr in LRS:
+            rs=[run('lr',c,lr,s) for s in COMPARE_SEEDS]
+            if all(rs):b=sum(r['id']>=90 for r in rs);o=mean([o16(r) for r in rs]);score[lr]=(b,o,lr==1e-3);cols.append(f'{b}/5 / {o:.1f}')
+            else:cols.append('-')
+        if len(score)==len(LRS):best[c]=max(score,key=lambda k:score[k])
+        L.append(f'| {c} | '+' | '.join(cols)+f" | {best.get(c,'-')} |")
+    if len(best)<len(LR_CELLS):(OUT/'LR_CHECK.md').write_text('\n'.join(L)+'\n');print('\n'.join(L));return
+    json.dump({c:best[c] for c in LR_CELLS},open(OUT/'BEST_LR.json','w'));L+=['',f'Best lr: {best}']
+    if all(v==1e-3 for v in best.values()):L.append('Every best lr is 1e-3: the phase-3 results stand as the tuned comparison.')
+    else:
+        S=CONFIRM_SEEDS;rs={c:[run('tuned',c,best[c],s) for s in S] for c in LR_CELLS}
+        missing=[c for c in LR_CELLS if not all(rs[c])]
+        if missing:L.append(f'Tuned runs pending for: {missing}')
+        else:
+            ood={c:[o16(r) for r in rs[c]] for c in LR_CELLS};bound={c:sum(r['id']>=90 for r in rs[c]) for c in LR_CELLS}
+            L+=['','## At tuned learning rates (seeds 5-14)','','| Cell | lr | Bound | OOD at 16 |','|---|---:|---:|---:|']
+            L+=[f'| {c} | {best[c]:g} | {bound[c]}/10 | {mean(ood[c]):.1f} |' for c in LR_CELLS]
+            win=mean(ood['CTsq'])-mean(ood['Dans'])>=5 and sum(x>y for x,y in zip(ood['CTsq'],ood['Dans']))>=8
+            fp=lambda k,n,d:fisher_exact([[k,n-k],[d,10-d]],alternative='greater')[1]
+            pooled=fp(bound['CTsq']+bound['CTsqS'],20,bound['Dans'])
+            L+=['','## Rule outcomes','',f"- CTsq OOD win over Dans: {'holds' if win else 'does not hold'} (higher on {sum(x>y for x,y in zip(ood['CTsq'],ood['Dans']))} of 10)"]
+            L+=[f"- {c} binds more reliably than Dans: {'yes' if fp(bound[c],10,bound['Dans'])<0.05 else 'no'} (p = {fp(bound[c],10,bound['Dans']):.3f})" for c in ('T8','CTsq','CTsqS')]
+            L+=[f"- Synchronization helps binding (CTsq + CTsqS vs Dans): {'yes' if pooled<0.05 else 'no'} (p = {pooled:.3f})",
+                f"- **The synchronization result {'survives' if win and pooled<0.05 else 'does not survive'} tuning.**"]
+    (OUT/'LR_CHECK.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm'),default='screen');p.add_argument('--gpu',type=int,default=0)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm','lr','tuned'),default='screen');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--time');p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:
         choose()
         if (OUT/'CHOICE.json').exists() and any(OUT.glob('compare_*.json')):compare()
         if any(OUT.glob('confirm_*.json')):confirm()
+        if any(OUT.glob('lr_*.json')):lr_check()
         return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')
     if a.time:c,r=a.time.split(':');train(c,r,0,'screen',device,timing=True);return
-    for x in a.runs:c,r,s=x.split(':');train(c,r,int(s),a.phase,device)
+    for x in a.runs:
+        c,r,s,*l=x.split(':');train(c,r,int(s),a.phase,device,lr=float(l[0]) if l else 1e-3)
 
 
 if __name__=='__main__':main()
