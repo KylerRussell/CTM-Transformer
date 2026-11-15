@@ -855,3 +855,28 @@ Two of the four paired "wins" for each cell were both-fail pairs that differed o
 **Caveats.**
 - **Learning rate:** every arm used lr 1e-3, untuned. Dans's failures could be specific to that learning rate, so a learning-rate check is required before this goes in the paper, as for every final comparison.
 - **Scale and training:** width 128, a single task, and one recipe (the curriculum).
+
+### Learning-rate check (2026-11-15; `research/results/recall_memory/LR_CHECK.md`)
+
+**Tuning, on seeds 0–4 (lr 3e-4 / 1e-3 / 2e-3; bound runs out of 5):**
+
+| Cell | 3e-4 | 1e-3 | 2e-3 | Best |
+|---|---:|---:|---:|---:|
+| T8 | 4 | 4 | 3 | 1e-3 |
+| Dans | 1 | 2 | 1 | 1e-3 |
+| CTsq | 2 | 3 | 3 | 2e-3 (tie on bound; OOD 56.7 vs 54.0) |
+| CTsqS | 2 | 4 | 2 | 1e-3 |
+
+- **Dans's failures are not a learning-rate artifact:** 1e-3 is its best rate.
+- **CTsq was rerun at 2e-3 on seeds 5–14,** as the rule requires. It bound on only 2 of 10 (OOD 29.8), against 6 of 10 at 1e-3 on the same seeds. The tie-break on 5 seeds picked the worse rate.
+
+**Rule outcomes at the tuned rates (seeds 5–14):**
+- CTsq's OOD win over Dans does not hold: higher on 6 of 10.
+- CTsq + CTsqS pooled bind on 9 of 20 runs against Dans's 1 of 10, p = 0.062, so synchronization helping binding does not hold.
+- **The synchronization result does not survive tuning, by the rule fixed before the runs.**
+- **CTsqS on its own does hold:** at its tuned rate (1e-3, the same as Dans's), it binds on 7 of 10 seeds against Dans's 1 of 10 (p = 0.010; 0.03 after a Bonferroni correction for the three cells tested).
+- T8 binds on 10 of 10 and remains the best model.
+
+**Reading.**
+- **What the paper can claim:** the CTM Transformer's best on recall (CTsqS, sync query with an attention sink) learns key-value binding far more reliably than the RDT's best (Dans), with both at their tuned learning rates and tested on fresh seeds. It does not beat the Transformer.
+- **What it cannot claim:** that synchronization helps in general. Plain sync query (CTsq) is sensitive to the learning rate, and at the rate the protocol selected it is no better than Dans.
