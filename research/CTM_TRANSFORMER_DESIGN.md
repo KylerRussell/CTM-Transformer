@@ -880,3 +880,28 @@ Two of the four paired "wins" for each cell were both-fail pairs that differed o
 **Reading.**
 - **What the paper can claim:** the CTM Transformer's best on recall (CTsqS, sync query with an attention sink) learns key-value binding far more reliably than the RDT's best (Dans), with both at their tuned learning rates and tested on fresh seeds. It does not beat the Transformer.
 - **What it cannot claim:** that synchronization helps in general. Plain sync query (CTsq) is sensitive to the learning rate, and at the rate the protocol selected it is no better than Dans.
+
+### Replication of CTsqS against Dans (2026-11-16; `research/results/recall_memory/REPLICATE.md`)
+
+Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed before the runs:
+
+| Cell | Bound | ID | OOD at 16 | OOD of bound runs | Updates to 90% (bound runs) |
+|---|---:|---:|---:|---:|---:|
+| T8 | 9/10 | 93.2 | 75.0 | 81.5 | 3,778 |
+| Dans | 1/10 | 44.1 | 24.5 | 79.4 | 5,000 |
+| CTsqS | 8/10 | 86.1 | 68.4 | 81.3 | 4,250 |
+
+**Rule outcomes:**
+- **Primary, replicated:** CTsqS binds more reliably than Dans (8/10 vs 1/10, one-sided Fisher p = 0.003).
+- **Secondary, holds:** CTsqS beats Dans on OOD (68.4 vs 24.5, higher on 9 of 10).
+
+**Pooled (reported):**
+- Seeds 5–24: CTsqS 15/20 vs Dans 2/20 (p = 3.4e-5).
+- All 25 seeds at 1e-3: CTsqS 19/25, Dans 4/25, T8 23/25.
+- CTsqS against T8 on binding: 8 vs 9 of 10, p = 0.50, not distinguishable here. On all 25 seeds T8 is ahead (23 vs 19).
+
+**Conclusion for the paper.** On associative recall at width 128, the CTM Transformer's best (CTsqS: queries from neuron synchronization, plus the CMM attention sink) learns key-value binding in about 3 of 4 runs. The RDT's best (Dans) learns it in about 1 of 6. Both are at their tuned learning rates, and the result is confirmed on two sets of fresh seeds.
+- When either model binds, length generalisation is the same.
+- Ticks beyond 16 add nothing.
+- The plain Transformer is at least as reliable.
+- Plain sync query without the sink (CTsq) is sensitive to the learning rate, and is not a robust win.
