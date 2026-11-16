@@ -905,3 +905,27 @@ Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed befo
 - Ticks beyond 16 add nothing.
 - The plain Transformer is at least as reliable.
 - Plain sync query without the sink (CTsq) is sensitive to the learning rate, and is not a robust win.
+
+## Associative recall inside text at d704 (2026-11-16; `scripts/recall_in_text.py`, `research/results/recall_in_text/RECALL_IN_TEXT.md`)
+
+**Setup.** From the 400M-token Dans and CTsqS checkpoints (seeds 1 and 2), 100M tokens of continued pretraining on FineWeb-Edu text with key-value recall problems embedded (" Recall : y 8 ; W 7 ; ... ; ? A = 6 ."). Problems are 45–59% of the tokens, about 2M of them, with the pair curriculum from width 128 (N up to 6, 9, 13, 16 by stage). Test: N 2–16 (ID) and 17–32 (OOD), after held-out text.
+
+**Results (accuracy % at 16 ticks):**
+
+| Run | ID | OOD | Text loss |
+|---|---:|---:|---:|
+| Dans r1 / r2 | 100 / 100 | 97.5 / 98.4 | 3.607 / 3.615 |
+| CTsqS r1 / r2 | 100 / 100 | 99.8 / 99.4 | 3.616 / 3.627 |
+
+**Rule outcomes.**
+- No CTM win, no CTM cost.
+- Every run binds.
+- Ticks do not pay: 4 ticks is within 0.6 points of 64.
+
+**Reading.**
+- **At d704 the task is at ceiling for both models.** Continued pretraining makes both pretrained language models solve in-context recall, and generalise to twice the trained number of pairs.
+- **The width-128 difference does not carry over to the language model.** At width 128 it was in whether training from scratch finds the binding at all; pretrained d704 models find it reliably.
+- **CTsqS's OOD edge is too small to matter:**
+  - It is +1 to +2 points on both replicates, mostly at N 31–32, where Dans is at 85–91% and CTsqS at 97–100%.
+  - That is far below the rule's 10 points.
+  - It comes with a slightly higher text loss (+0.01).
