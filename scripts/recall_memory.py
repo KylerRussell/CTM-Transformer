@@ -74,7 +74,19 @@ Rules, fixed before any run:
 - The synchronization result survives tuning if both CTsq's OOD win and synchronization helping binding hold at the
   tuned learning rates. Reported: binding and OOD by lr for every cell; T8 against every cell at tuned lrs.
 
-Usage: python -m scripts.recall_memory --phase screen|compare|confirm|lr|tuned --gpu N --runs CELL:RECIPE:SEED[:LR]...
+Phase 4 outcome (2026-11-15): the synchronization result does not survive tuning (CTsq at its selected 2e-3 binds
+2/10; CTsq + CTsqS pooled 9/20 vs Dans 1/10, p = 0.062). CTsqS alone binds 7/10 vs Dans 1/10, both at their best lr
+1e-3 (p = 0.010).
+
+Phase 5, replication of CTsqS against Dans (2026-11-16): CTsqS, Dans and T8 (reported) at lr 1e-3 (the tuned lr of
+each), the phase-2 recipe and budget, on fresh seeds 15-24. Rules, fixed before any run:
+- Primary: CTsqS binds more reliably than Dans if its bound count over seeds 15-24 is higher with a one-sided Fisher
+  exact p < 0.05. The CTsqS binding result is replicated if this holds.
+- Secondary: CTsqS beats Dans on OOD accuracy at 16 ticks (mean at least 5 points higher, higher on at least 8 of 10
+  paired seeds).
+- Reported: seeds 5-24 pooled (20 runs each, Fisher); OOD of bound runs; T8 against both; updates to 90%.
+
+Usage: python -m scripts.recall_memory --phase screen|compare|confirm|lr|tuned|replicate --gpu N --runs CELL:RECIPE:SEED[:LR]...
        | --time CELL:RECIPE
        | --summarize
 """
@@ -293,14 +305,45 @@ def lr_check():
     (OUT/'LR_CHECK.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
+REPLICATE_CELLS=('T8','Dans','CTsqS');REPLICATE_SEEDS=tuple(range(15,25))
+
+
+def replicate():
+    from scipy.stats import fisher_exact
+    recipe=json.loads((OUT/'CHOICE.json').read_text())['recipe'];mean=lambda v:sum(v)/len(v)
+    get=lambda ph,c,S:[json.loads(f.read_text()) if (f:=OUT/f'{ph}_{c}_{recipe}_seed{s}.json').exists() else None for s in S]
+    rs={c:get('replicate',c,REPLICATE_SEEDS) for c in REPLICATE_CELLS}
+    L=['# Recall memory: phase 5 replication (seeds 15-24)','Protocol and rules: `scripts/recall_memory.py`.','',
+       '| Cell | Bound | ID | OOD at 16 | OOD of bound runs | Updates to 90% (bound runs) |','|---|---:|---:|---:|---:|---:|']
+    done=[c for c in REPLICATE_CELLS if all(rs[c])]
+    o16=lambda r:r['ood'].get('16',r['ood'].get('None'))
+    for c in done:
+        b=[r for r in rs[c] if r['id']>=90]
+        L.append(f"| {c} | {len(b)}/10 | {mean([r['id'] for r in rs[c]]):.1f} | {mean([o16(r) for r in rs[c]]):.1f} | "
+                 f"{mean([o16(r) for r in b]) if b else float('nan'):.1f} | {mean([r['updates_to_90'] for r in b]) if b else float('nan'):.0f} |")
+    if 'Dans' in done and 'CTsqS' in done:
+        k=lambda c,R:sum(r['id']>=90 for r in R);fp=lambda a,n,d,m:fisher_exact([[a,n-a],[d,m-d]],alternative='greater')[1]
+        ka,kd=k('CTsqS',rs['CTsqS']),k('Dans',rs['Dans']);p=fp(ka,10,kd,10)
+        oa,od=[o16(r) for r in rs['CTsqS']],[o16(r) for r in rs['Dans']];hi=sum(x>y for x,y in zip(oa,od))
+        L+=['','## Rule outcomes','',f"- **Primary, CTsqS binds more reliably than Dans:** {'yes, replicated' if p<0.05 else 'no, not replicated'} ({ka}/10 vs {kd}/10, p = {p:.3f})",
+            f"- Secondary, CTsqS OOD win over Dans: {'yes' if mean(oa)-mean(od)>=5 and hi>=8 else 'no'} (mean {mean(oa):.1f} vs {mean(od):.1f}, higher on {hi} of 10)"]
+        pa=get('confirm','CTsqS',CONFIRM_SEEDS);pd=get('confirm','Dans',CONFIRM_SEEDS)
+        if all(pa) and all(pd):
+            ka2,kd2=ka+k('CTsqS',pa),kd+k('Dans',pd);L.append(f'- Reported, seeds 5-24 pooled: CTsqS {ka2}/20 vs Dans {kd2}/20, p = {fp(ka2,20,kd2,20):.4f}')
+        if 'T8' in done:
+            kt=k('T8',rs['T8']);L.append(f"- Reported, T8: {kt}/10 bound; T8 vs CTsqS p = {fp(kt,10,ka,10):.3f}, T8 vs Dans p = {fp(kt,10,kd,10):.4f}")
+    (OUT/'REPLICATE.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm','lr','tuned'),default='screen');p.add_argument('--gpu',type=int,default=0)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm','lr','tuned','replicate'),default='screen');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--time');p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:
         choose()
         if (OUT/'CHOICE.json').exists() and any(OUT.glob('compare_*.json')):compare()
         if any(OUT.glob('confirm_*.json')):confirm()
         if any(OUT.glob('lr_*.json')):lr_check()
+        if any(OUT.glob('replicate_*.json')):replicate()
         return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')
