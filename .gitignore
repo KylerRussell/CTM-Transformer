@@ -75,3 +75,6 @@ research/runs/reasoning_in_text/
 research/data/pretrain/reasoning_mix_32k/*.bin
 research/runs/reasoning_mix/
 research/results/recall_memory/logs/
+research/data/pretrain/recall_32k/*.bin
+research/runs/recall_in_text/
+research/results/recall_in_text/logs/

@@ -1,0 +1,33 @@
+{
+  "name": "recall_32k",
+  "tokenizer": "../fineweb_edu_32k/tokenizer.json",
+  "tokenizer_sha256": "9e67a83453d571c32ffd089e323d529b9cdfda783c0ce02e6ee71057275bb565",
+  "vocab_size": 32768,
+  "eot_id": 0,
+  "dtype": "uint16",
+  "train": [
+    "train_000.bin",
+    "train_001.bin",
+    "train_002.bin",
+    "train_003.bin"
+  ],
+  "side": [
+    "side_000.bin",
+    "side_001.bin",
+    "side_002.bin",
+    "side_003.bin"
+  ],
+  "validation": [
+    "../fineweb_edu_32k/validation_000.bin"
+  ],
+  "text_source": "fineweb_edu_32k/train_002.bin, first 47181425 tokens",
+  "problems": 1966106,
+  "problem_token_share_by_stage": [
+    0.45458372,
+    0.50515548,
+    0.55914288,
+    0.59386092
+  ],
+  "gap_mean": 24,
+  "curriculum": "stage s: N uniform over [2, 2 + ceil(14 s / 4)]"
+}
