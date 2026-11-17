@@ -929,3 +929,29 @@ Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed befo
   - It is +1 to +2 points on both replicates, mostly at N 31–32, where Dans is at 85–91% and CTsqS at 97–100%.
   - That is far below the rule's 10 points.
   - It comes with a slightly higher text loss (+0.01).
+
+### When recall emerges (2026-11-17; `scripts/recall_speed.py`, `research/results/recall_speed/RECALL_SPEED.md`)
+
+**Setup.** A rerun of recall in text with a snapshot every 25 updates (6.6M tokens), each scored on ID and OOD at 16 ticks. Emergence is the first snapshot at or above 80% ID.
+
+**Results (ID accuracy at updates 25 / 50 / 75 / 100):**
+
+| Run | 25 | 50 | 75 | 100 | Emerges |
+|---|---:|---:|---:|---:|---:|
+| Dans r1 | 14 | 95 | 95 | 96 | 50 |
+| Dans r2 | 11 | 26 | 96 | 97 | 75 |
+| CTsqS r1 | 11 | 27 | 80 | 99 | 75 |
+| CTsqS r2 | 14 | 22 | 98 | 98 | 75 |
+
+**Rule outcomes.**
+- Emergence: neither (Dans minus CTsqS: -25, 0 updates).
+- Whole curve: neither (CTsqS minus Dans mean ID: -5.2, +0.2).
+- The rerun reproduces recall in text: final ID 100% for every run, OOD within 2.5 points.
+
+**Reading.**
+- **Both pretrained models acquire in-context recall within 13–20M tokens.** That is inside the first curriculum stage (N at most 6), and they already generalise to N 16 when it appears.
+- **No sign of the width-128 advantage.** If anything Dans is a snapshot earlier on one replicate.
+
+**Status of the recall line:**
+- **Width 128, from scratch:** CTsqS learns binding far more reliably than Dans. This is robust: 19/25 vs 4/25 at tuned learning rates, with two fresh-seed confirmations.
+- **Pretrained d704 language models:** neither the final ability nor its speed of acquisition differs. Pretraining appears to supply what the sync-query sink supplied at width 128.
