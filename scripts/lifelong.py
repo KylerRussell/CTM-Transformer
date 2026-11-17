@@ -19,7 +19,25 @@ Pilot (`--phase pilot`): T8 and Dans, seed 0, each of the six tasks alone from s
 reach 90% on any task, rounded up to a multiple of 500, at least 1,000; if some task is not reached by both in 3,000
 updates it is replaced by the first of rotate (s2..sL s1) and swap (adjacent pairs swapped) that both learn.
 
-Main stream (`--phase stream`), and its rules, are added after the pilot and before any stream run.
+Pilot outcome (2026-11-17): T8 and Dans each reach 90% on every task within 500-1,000 updates, so P = 1,000 and the
+stream uses copy, reverse, sort, increment.
+
+Main stream (`--phase stream`): copy, reverse, sort, increment, then the same again (two cycles, 8 phases of 1,000
+updates, 8,000 in all, no replay); every task evaluated every 250 updates and at each phase end. T8, Dans, CTsqS,
+CTnlmA; seeds 0-4. A[p][t] is task t's accuracy at the end of phase p.
+Measures (per run):
+- Forgetting F: for each task except the last of a cycle, its accuracy at the end of its own phase minus its accuracy
+  at the end of that cycle; the mean over the 6 (task, cycle) pairs.
+- Final accuracy: the mean over the four tasks at the end of the stream.
+- Relearning: updates within its cycle-2 phase until a task reaches 90% (checks every 250; 1,250 if never), mean
+  over the four tasks.
+Rules, fixed before any stream run:
+- A beats B on forgetting if its 5-seed mean F is at least 10 points lower and lower on at least 4 of 5 seeds
+  (paired by seed); on final accuracy if at least 5 points higher and higher on at least 4 of 5; on relearning if at
+  least 20% lower and lower on at least 4 of 5.
+- A CTM win: CTsqS or CTnlmA beats Dans on any measure; a CTM cost: Dans beats it. A win counts only once confirmed
+  on fresh seeds 5-14 by the same rule scaled to 10 seeds (higher or lower on at least 8 of 10), rules unchanged.
+- Reported: T8 against every cell; each run's accuracy matrix; Dans against T8.
 
 Usage: python -m scripts.lifelong --phase pilot|stream --gpu N --runs CELL:TASK_OR_STREAM:SEED... | --summarize
 """
@@ -29,7 +47,8 @@ from pathlib import Path
 from scripts.cmm_tasks import BATCH,PAD,SEP,SYM,build
 
 OUT=Path('research/results/lifelong');CKPT=Path('research/runs/lifelong')
-TASKS=('copy','reverse','sort','increment','rotate','swap');START={t:20+i for i,t in enumerate(TASKS)};LENGTHS=(4,16)
+TASKS=('copy','reverse','sort','increment','rotate','swap');STREAM=('copy','reverse','sort','increment');PHASE=1000;CHECK=250
+STREAM_CELLS=('T8','Dans','CTsqS','CTnlmA');STREAM_SEEDS=(0,1,2,3,4);START={t:20+i for i,t in enumerate(TASKS)};LENGTHS=(4,16)
 EVAL=512;RESUME_EVERY=500;PILOT_STEPS=3000;PILOT_CHECK=250;PILOT_CELLS=('T8','Dans')
 
 
@@ -108,15 +127,49 @@ def pilot_summary():
     (OUT/'PILOT.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
+def measures(r):
+    ends=[e for e in r['log'] if e['step']%PHASE==0];A=[e['acc'] for e in ends];n=len(STREAM)
+    F=[A[c*n+i][t]-A[c*n+n-1][t] for c in (0,1) for i,t in enumerate(STREAM[:-1])]
+    rel=[]
+    for i,t in enumerate(STREAM):
+        lo=(n+i)*PHASE;hit=next((e['step']-lo for e in r['log'] if lo<e['step']<=lo+PHASE and e['acc'][t]>=90),None);rel.append(hit if hit is not None else PHASE+CHECK)
+    return {'forgetting':sum(F)/len(F),'final':sum(A[-1][t] for t in STREAM)/n,'relearning':sum(rel)/n,'matrix':A}
+
+
+def stream_summary(seeds=STREAM_SEEDS,title='seeds 0-4',need=4):
+    res={(r['cell'],r['seed']):measures(r) for r in (json.loads(f.read_text()) for f in OUT.glob('stream_*.json')) if r['seed'] in seeds}
+    cells=[c for c in STREAM_CELLS if all((c,s) in res for s in seeds)];mean=lambda v:sum(v)/len(v)
+    L=[f'# Lifelong learning: task stream ({title})','','Protocol and rules: `scripts/lifelong.py`.','','| Cell | Forgetting | Final accuracy | Relearning (updates) |','|---|---:|---:|---:|']
+    for c in cells:L.append(f'| {c} | '+' | '.join(f"{mean([res[(c,s)][m] for s in seeds]):.1f}" for m in ('forgetting','final','relearning'))+' |')
+    def beats(a,b,m):
+        va,vb=[res[(a,s)][m] for s in seeds],[res[(b,s)][m] for s in seeds]
+        if m=='forgetting':return mean(vb)-mean(va)>=10 and sum(x<y for x,y in zip(va,vb))>=need
+        if m=='final':return mean(va)-mean(vb)>=5 and sum(x>y for x,y in zip(va,vb))>=need
+        return mean(va)<=0.8*mean(vb) and sum(x<y for x,y in zip(va,vb))>=need
+    L+=['','## Rule outcomes','']
+    for a,b in [(x,'Dans') for x in ('CTsqS','CTnlmA')]+[('Dans',x) for x in ('CTsqS','CTnlmA')]+[('Dans','T8'),('T8','Dans'),('T8','CTsqS'),('CTsqS','T8'),('T8','CTnlmA'),('CTnlmA','T8')]:
+        if a in cells and b in cells:
+            w=[m for m in ('forgetting','final','relearning') if beats(a,b,m)]
+            L.append(f"- {a} beats {b}: {', '.join(w) if w else 'none'}")
+    L+=['','## Accuracy at each phase end (seed means; rows = phase, columns = '+', '.join(STREAM)+')','']
+    for c in cells:
+        L.append(f'- **{c}:** '+' | '.join('/'.join(f"{mean([res[(c,s)]['matrix'][p][t] for s in seeds]):.0f}" for t in STREAM) for p in range(2*len(STREAM))))
+    name='STREAM.md' if seeds==STREAM_SEEDS else 'STREAM_CONFIRM.md';(OUT/name).write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('pilot','stream'),default='pilot');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--summarize',action='store_true');a=p.parse_args()
-    if a.summarize:pilot_summary();return
+    if a.summarize:
+        pilot_summary()
+        if any(OUT.glob('stream_*.json')):stream_summary()
+        return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')
     for x in a.runs:
         c,t,s=x.split(':')
         if a.phase=='pilot':train(c,[(t,PILOT_STEPS)],int(s),'pilot',device,PILOT_CHECK,t)
+        else:train(c,[(x,PHASE) for _ in range(2) for x in STREAM],int(s),'stream',device,CHECK,'stream')
 
 
 if __name__=='__main__':main()

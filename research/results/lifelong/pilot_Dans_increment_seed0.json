@@ -1,0 +1,111 @@
+{
+ "cell": "Dans",
+ "tag": "increment",
+ "seed": 0,
+ "phase": "pilot",
+ "schedule": [
+  [
+   "increment",
+   3000
+  ]
+ ],
+ "seconds": 3503.151601076126,
+ "log": [
+  {
+   "step": 250,
+   "task": "increment",
+   "loss": 0.7688743472099304,
+   "acc": {
+    "increment": 19.53125
+   }
+  },
+  {
+   "step": 500,
+   "task": "increment",
+   "loss": 0.029675358906388283,
+   "acc": {
+    "increment": 90.625
+   }
+  },
+  {
+   "step": 750,
+   "task": "increment",
+   "loss": 0.05667632818222046,
+   "acc": {
+    "increment": 95.1171875
+   }
+  },
+  {
+   "step": 1000,
+   "task": "increment",
+   "loss": 0.0025617226492613554,
+   "acc": {
+    "increment": 97.8515625
+   }
+  },
+  {
+   "step": 1250,
+   "task": "increment",
+   "loss": 0.009661167860031128,
+   "acc": {
+    "increment": 100.0
+   }
+  },
+  {
+   "step": 1500,
+   "task": "increment",
+   "loss": 0.00019959440396633,
+   "acc": {
+    "increment": 99.8046875
+   }
+  },
+  {
+   "step": 1750,
+   "task": "increment",
+   "loss": 0.00789949856698513,
+   "acc": {
+    "increment": 100.0
+   }
+  },
+  {
+   "step": 2000,
+   "task": "increment",
+   "loss": 0.0003630019200500101,
+   "acc": {
+    "increment": 99.609375
+   }
+  },
+  {
+   "step": 2250,
+   "task": "increment",
+   "loss": 0.0009523808839730918,
+   "acc": {
+    "increment": 100.0
+   }
+  },
+  {
+   "step": 2500,
+   "task": "increment",
+   "loss": 0.015162231400609016,
+   "acc": {
+    "increment": 100.0
+   }
+  },
+  {
+   "step": 2750,
+   "task": "increment",
+   "loss": 0.00043610561988316476,
+   "acc": {
+    "increment": 100.0
+   }
+  },
+  {
+   "step": 3000,
+   "task": "increment",
+   "loss": 2.6782458007801324e-05,
+   "acc": {
+    "increment": 100.0
+   }
+  }
+ ]
+}

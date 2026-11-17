@@ -1,0 +1,111 @@
+{
+ "cell": "T8",
+ "tag": "reverse",
+ "seed": 0,
+ "phase": "pilot",
+ "schedule": [
+  [
+   "reverse",
+   3000
+  ]
+ ],
+ "seconds": 291.8759346008301,
+ "log": [
+  {
+   "step": 250,
+   "task": "reverse",
+   "loss": 0.906119167804718,
+   "acc": {
+    "reverse": 10.9375
+   }
+  },
+  {
+   "step": 500,
+   "task": "reverse",
+   "loss": 0.11248916387557983,
+   "acc": {
+    "reverse": 68.75
+   }
+  },
+  {
+   "step": 750,
+   "task": "reverse",
+   "loss": 0.094391830265522,
+   "acc": {
+    "reverse": 78.3203125
+   }
+  },
+  {
+   "step": 1000,
+   "task": "reverse",
+   "loss": 0.04459282010793686,
+   "acc": {
+    "reverse": 92.96875
+   }
+  },
+  {
+   "step": 1250,
+   "task": "reverse",
+   "loss": 0.007258903700858355,
+   "acc": {
+    "reverse": 94.921875
+   }
+  },
+  {
+   "step": 1500,
+   "task": "reverse",
+   "loss": 0.013837413862347603,
+   "acc": {
+    "reverse": 97.265625
+   }
+  },
+  {
+   "step": 1750,
+   "task": "reverse",
+   "loss": 0.0031944510992616415,
+   "acc": {
+    "reverse": 98.2421875
+   }
+  },
+  {
+   "step": 2000,
+   "task": "reverse",
+   "loss": 0.00623746681958437,
+   "acc": {
+    "reverse": 98.6328125
+   }
+  },
+  {
+   "step": 2250,
+   "task": "reverse",
+   "loss": 0.012335298582911491,
+   "acc": {
+    "reverse": 98.2421875
+   }
+  },
+  {
+   "step": 2500,
+   "task": "reverse",
+   "loss": 0.0017040304373949766,
+   "acc": {
+    "reverse": 99.609375
+   }
+  },
+  {
+   "step": 2750,
+   "task": "reverse",
+   "loss": 0.0041861641220748425,
+   "acc": {
+    "reverse": 100.0
+   }
+  },
+  {
+   "step": 3000,
+   "task": "reverse",
+   "loss": 0.0011636983836069703,
+   "acc": {
+    "reverse": 99.8046875
+   }
+  }
+ ]
+}
