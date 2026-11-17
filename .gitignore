@@ -80,3 +80,5 @@ research/runs/recall_in_text/
 research/results/recall_in_text/logs/
 research/runs/recall_speed/
 research/results/recall_speed/logs/
+research/runs/lifelong/
+research/results/lifelong/logs/
