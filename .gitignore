@@ -78,3 +78,5 @@ research/results/recall_memory/logs/
 research/data/pretrain/recall_32k/*.bin
 research/runs/recall_in_text/
 research/results/recall_in_text/logs/
+research/runs/recall_speed/
+research/results/recall_speed/logs/
