@@ -39,7 +39,21 @@ Rules, fixed before any stream run:
   on fresh seeds 5-14 by the same rule scaled to 10 seeds (higher or lower on at least 8 of 10), rules unchanged.
 - Reported: T8 against every cell; each run's accuracy matrix; Dans against T8.
 
-Usage: python -m scripts.lifelong --phase pilot|stream --gpu N --runs CELL:TASK_OR_STREAM:SEED... | --summarize
+Stream outcome (2026-11-18): forgetting is total for every model (98-99 points; each task 0-1% after the next phase)
+and relearning is at the floor (250 updates): no model beats another. Without replay nothing makes a model use the task
+token, so the test saturates.
+
+Replay (2026-11-19, `--phase replay`): the same stream, but each training example comes from a uniformly chosen
+earlier-seen task (not the current one) with probability r, so that forgetting is partial and models can differ.
+Pilot, rule fixed before it: T8 and Dans, seed 0, r = 0.01, 0.03, 0.1; the chosen r is the one whose mean forgetting
+over the two models is closest to 50 points among those where both models' forgetting is between 10 and 90; if none
+qualifies, r = 0.3 (all above 90) or 0.003 (all below 10) is added and the rule re-applied.
+Main replay stream: T8, Dans, CTsqS, CTnlmA at the chosen r on seeds 1-5 (seed 0 chose r). Rules: the stream's,
+unchanged (forgetting at least 10 points lower and lower on 4 of 5; final accuracy at least 5 higher and higher on 4 of
+5; relearning at least 20% lower and lower on 4 of 5; a CTM win is CTsqS or CTnlmA beating Dans, counted only once
+confirmed on fresh seeds 6-15, at least 8 of 10).
+
+Usage: python -m scripts.lifelong --phase pilot|stream|replay --gpu N --runs CELL:TASK_OR_STREAM:SEED... | --summarize
 """
 import argparse,json,math,os,random,time
 from pathlib import Path
@@ -63,11 +77,12 @@ def output(task,s):
     return out
 
 
-def batch(task,n,rng):
+def batch(task,n,rng,replay=None):
     import torch
     rows=[]
     for _ in range(n):
-        s=[rng.choice(SYM) for _ in range(rng.randint(*LENGTHS))];rows.append(([START[task],*s,SEP,*output(task,s)],len(s)+2))
+        t=task if replay is None or not replay[1] or rng.random()>=replay[0] else rng.choice(replay[1])
+        s=[rng.choice(SYM) for _ in range(rng.randint(*LENGTHS))];rows.append(([START[t],*s,SEP,*output(t,s)],len(s)+2))
     length=max(len(r) for r,_ in rows)-1;x=torch.full((n,length),PAD);y=torch.full((n,length),-100)
     for i,(r,first) in enumerate(rows):
         x[i,:len(r)-1]=torch.tensor(r[:-1]);y[i,first-1:len(r)-1]=torch.tensor(r[first:])
@@ -84,7 +99,7 @@ def accuracy(model,recurrent,task,device):
     return 100*hits/EVAL
 
 
-def train(cell,schedule,seed,phase,device,check_every,tag):
+def train(cell,schedule,seed,phase,device,check_every,tag,replay=0.0):
     """schedule: list of (task, updates). Returns the result dict; evaluates every task at each check and phase end."""
     import torch
     from ctm_transformer.depth_sampling import lognormal_poisson
@@ -107,7 +122,8 @@ def train(cell,schedule,seed,phase,device,check_every,tag):
             torch.save({'model':model.state_dict(),'opt':opt.state_dict(),'step':step,'log':log,'rng':rng.getstate(),'torch_rng':torch.get_rng_state(),
                         'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);os.replace(tmp,resume)
         task=next(t for a,b,t in bounds if a<=step<b);set_lr(opt,1e-3*min(1,(step+1)/200))
-        x,y=batch(task,BATCH,rng);x,y=x.to(device),y.to(device)
+        seen=sorted({t for a,b,t in bounds if b<=step and t!=task})
+        x,y=batch(task,BATCH,rng,(replay,seen) if replay else None);x,y=x.to(device),y.to(device)
         with torch.autocast('cuda',dtype=torch.bfloat16):loss=model(x,targets=y,max_thought_steps=step_depth(sampler,seed,step) if recurrent else None)['loss']
         loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.0);opt.step();opt.zero_grad(set_to_none=True)
         if (step+1)%check_every==0 or any(step+1==b for _,b,_ in bounds):
@@ -136,8 +152,8 @@ def measures(r):
     return {'forgetting':sum(F)/len(F),'final':sum(A[-1][t] for t in STREAM)/n,'relearning':sum(rel)/n,'matrix':A}
 
 
-def stream_summary(seeds=STREAM_SEEDS,title='seeds 0-4',need=4):
-    res={(r['cell'],r['seed']):measures(r) for r in (json.loads(f.read_text()) for f in OUT.glob('stream_*.json')) if r['seed'] in seeds}
+def stream_summary(seeds=STREAM_SEEDS,title='seeds 0-4',need=4,prefix='stream_',name=None):
+    res={(r['cell'],r['seed']):measures(r) for r in (json.loads(f.read_text()) for f in OUT.glob(prefix+'*.json')) if r['seed'] in seeds}
     cells=[c for c in STREAM_CELLS if all((c,s) in res for s in seeds)];mean=lambda v:sum(v)/len(v)
     L=[f'# Lifelong learning: task stream ({title})','','Protocol and rules: `scripts/lifelong.py`.','','| Cell | Forgetting | Final accuracy | Relearning (updates) |','|---|---:|---:|---:|']
     for c in cells:L.append(f'| {c} | '+' | '.join(f"{mean([res[(c,s)][m] for s in seeds]):.1f}" for m in ('forgetting','final','relearning'))+' |')
@@ -154,22 +170,42 @@ def stream_summary(seeds=STREAM_SEEDS,title='seeds 0-4',need=4):
     L+=['','## Accuracy at each phase end (seed means; rows = phase, columns = '+', '.join(STREAM)+')','']
     for c in cells:
         L.append(f'- **{c}:** '+' | '.join('/'.join(f"{mean([res[(c,s)]['matrix'][p][t] for s in seeds]):.0f}" for t in STREAM) for p in range(2*len(STREAM))))
-    name='STREAM.md' if seeds==STREAM_SEEDS else 'STREAM_CONFIRM.md';(OUT/name).write_text('\n'.join(L)+'\n');print('\n'.join(L))
+    name=name or ('STREAM.md' if seeds==STREAM_SEEDS else 'STREAM_CONFIRM.md');(OUT/name).write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
+REPLAY_RATES=(0.01,0.03,0.1);REPLAY_SEEDS=(1,2,3,4,5)
+
+
+def replay_summary():
+    L=['# Lifelong learning with replay: pilot (seed 0)','','| r | T8 forgetting | Dans forgetting | T8 final | Dans final |','|---:|---:|---:|---:|---:|'];F={}
+    for r in sorted({json.loads(f.read_text())['tag'] for f in OUT.glob('replay_*_seed0.json')}):
+        m={c:measures(json.loads((OUT/f'replay_{c}_{r}_seed0.json').read_text())) for c in PILOT_CELLS if (OUT/f'replay_{c}_{r}_seed0.json').exists()}
+        if len(m)==2:F[r]=m;L.append(f"| {r[6:]} | {m['T8']['forgetting']:.1f} | {m['Dans']['forgetting']:.1f} | {m['T8']['final']:.1f} | {m['Dans']['final']:.1f} |")
+    ok={r:m for r,m in F.items() if all(10<=v['forgetting']<=90 for v in m.values())}
+    if ok:
+        r=min(ok,key=lambda k:abs(sum(v['forgetting'] for v in ok[k].values())/2-50));L+=['',f'Chosen: {r}'];(OUT/'REPLAY_CHOICE.json').write_text(json.dumps({'tag':r,'rate':float(r[6:])})+'\n')
+    else:L+=['','No rate qualifies yet.']
+    (OUT/'REPLAY_PILOT.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+    if ok:
+        tag=json.loads((OUT/'REPLAY_CHOICE.json').read_text())['tag']
+        stream_summary(REPLAY_SEEDS,f'replay {tag[6:]}, seeds 1-5',4,f'replay_*_{tag}_seed','REPLAY.md')
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('pilot','stream'),default='pilot');p.add_argument('--gpu',type=int,default=0)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('pilot','stream','replay'),default='pilot');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:
         pilot_summary()
         if any(OUT.glob('stream_*.json')):stream_summary()
+        if any(OUT.glob('replay_*.json')):replay_summary()
         return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')
     for x in a.runs:
         c,t,s=x.split(':')
         if a.phase=='pilot':train(c,[(t,PILOT_STEPS)],int(s),'pilot',device,PILOT_CHECK,t)
-        else:train(c,[(x,PHASE) for _ in range(2) for x in STREAM],int(s),'stream',device,CHECK,'stream')
+        elif a.phase=='stream':train(c,[(x,PHASE) for _ in range(2) for x in STREAM],int(s),'stream',device,CHECK,'stream')
+        else:train(c,[(x,PHASE) for _ in range(2) for x in STREAM],int(s),'replay',device,CHECK,f'replay{float(t):g}',replay=float(t))
 
 
 if __name__=='__main__':main()
