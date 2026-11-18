@@ -22,7 +22,18 @@ Comparison (T8, Dans, CTsqS; seeds 0-9; the screen's budget, no early stop). Rul
   phase 4) and a fresh-seed test (seeds 10-19), with rules fixed before them.
 - Reported: T8 against both; OOD of bound runs; ticks (OOD 64 vs 16).
 
-Usage: python -m scripts.twohop_memory --phase screen|compare --gpu N --runs CELL:cur:SEED... | --summarize
+Screen outcome (2026-11-18): T8 does not learn two-hop in 40,000 updates (ID 33-34%, flat from about update 4,000),
+so by the rule above the comparison is not run.
+
+Recurrent screen (2026-11-19, `--phase rscreen`): recurrent depth is the obvious tool for chaining two lookups, so the
+recurrent models are screened directly. Dans and CTsqS, seeds 0 and 1, `cur`, 20,000 updates (no early stop; T8 was
+flat from update 4,000 to 40,000), ID checks every 1,000 updates. Rules, fixed before any run:
+- Two-hop is learnable by a recurrent model if it reaches 90% ID on at least one seed.
+- If either model learns it, a comparison follows (Dans, CTsqS, T8 as reference; 10 seeds; rules fixed before it).
+  A model that learns two-hop where T8 does not is reported as a recurrent-depth capability.
+- If neither does, two-hop is beyond all three models at width 128 in this budget, and the line is closed.
+
+Usage: python -m scripts.twohop_memory --phase screen|compare|rscreen --gpu N --runs CELL:cur:SEED... | --summarize
 """
 import argparse,json,os
 from pathlib import Path
@@ -69,12 +80,12 @@ def summarize():
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare'),default='screen');p.add_argument('--gpu',type=int,default=0)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','rscreen'),default='screen');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:summarize();return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')
-    for x in a.runs:c,r,s=x.split(':');R.train(c,r,int(s),a.phase,device)
+    for x in a.runs:c,r,s=x.split(':');R.train(c,r,int(s),a.phase,device,steps=20000 if a.phase=='rscreen' else None)
 
 
 if __name__=='__main__':main()
