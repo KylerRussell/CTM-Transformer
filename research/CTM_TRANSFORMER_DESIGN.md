@@ -955,3 +955,25 @@ Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed befo
 **Status of the recall line:**
 - **Width 128, from scratch:** CTsqS learns binding far more reliably than Dans. This is robust: 19/25 vs 4/25 at tuned learning rates, with two fresh-seed confirmations.
 - **Pretrained d704 language models:** neither the final ability nor its speed of acquisition differs. Pretraining appears to supply what the sync-query sink supplied at width 128.
+
+## Lifelong learning: a stream of interfering tasks (2026-11-18; `scripts/lifelong.py`, `research/results/lifelong/{PILOT,STREAM}.md`)
+
+**Setup.** At width 128: copy, reverse, sort and increment, all with one input format and a task start token. Each task is learned in a 1,000-update phase (set by the pilot, where T8 and Dans learned each task alone in 500–1,000 updates), in order, twice, with no replay. Models: T8, Dans, CTsqS and CTnlmA, 5 seeds each.
+
+**Results (5-seed means):**
+
+| Cell | Forgetting | Final accuracy | Relearning (updates) |
+|---|---:|---:|---:|
+| T8 | 98.4 | 24.9 | 250 |
+| Dans | 98.8 | 24.9 | 250 |
+| CTsqS | 98.9 | 24.8 | 262 |
+| CTnlmA | 98.7 | 25.0 | 275 |
+
+**Rule outcomes.** No model beats another on any measure.
+
+**Reading: the test saturates.**
+- **Forgetting is total for every model:** 97–100% at the end of a task's phase, 0–1% after the next phase.
+- **Relearning is at the floor:** every task is back above 90% at the first 250-update check of cycle 2, against 500–1,000 updates from scratch. Savings are real but equal.
+- **Why:** without replay nothing forces a model to use the task token, so each phase overwrites the last rule.
+- **What it means:** none of the CTM mechanisms changes catastrophic forgetting in this setting. Nor do they change relearning, at the 250-update resolution of the checks.
+- **A design that could discriminate:** a little replay, or a stream where the tasks do not conflict, so that retention is partial and can differ. That would be a new experiment, not a fix to this one.

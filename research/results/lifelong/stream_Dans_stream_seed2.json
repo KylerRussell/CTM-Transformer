@@ -1,0 +1,395 @@
+{
+ "cell": "Dans",
+ "tag": "stream",
+ "seed": 2,
+ "phase": "stream",
+ "schedule": [
+  [
+   "copy",
+   1000
+  ],
+  [
+   "reverse",
+   1000
+  ],
+  [
+   "sort",
+   1000
+  ],
+  [
+   "increment",
+   1000
+  ],
+  [
+   "copy",
+   1000
+  ],
+  [
+   "reverse",
+   1000
+  ],
+  [
+   "sort",
+   1000
+  ],
+  [
+   "increment",
+   1000
+  ]
+ ],
+ "seconds": 9707.941792964935,
+ "log": [
+  {
+   "step": 250,
+   "task": "copy",
+   "loss": 0.5977250933647156,
+   "acc": {
+    "copy": 31.640625,
+    "reverse": 0.0,
+    "sort": 0.1953125,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 500,
+   "task": "copy",
+   "loss": 0.035028159618377686,
+   "acc": {
+    "copy": 97.265625,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 750,
+   "task": "copy",
+   "loss": 0.005847684107720852,
+   "acc": {
+    "copy": 95.703125,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 1000,
+   "task": "copy",
+   "loss": 0.0007164048729464412,
+   "acc": {
+    "copy": 98.828125,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 1250,
+   "task": "reverse",
+   "loss": 0.03192336484789848,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 97.265625,
+    "sort": 0.1953125,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 1500,
+   "task": "reverse",
+   "loss": 0.008309981785714626,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 99.609375,
+    "sort": 0.5859375,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 1750,
+   "task": "reverse",
+   "loss": 0.0021198820322752,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 99.21875,
+    "sort": 0.5859375,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 2000,
+   "task": "reverse",
+   "loss": 0.0017845301190391183,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 99.8046875,
+    "sort": 0.5859375,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 2250,
+   "task": "sort",
+   "loss": 0.042452309280633926,
+   "acc": {
+    "copy": 0.390625,
+    "reverse": 0.0,
+    "sort": 91.2109375,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 2500,
+   "task": "sort",
+   "loss": 0.05258958041667938,
+   "acc": {
+    "copy": 0.5859375,
+    "reverse": 0.0,
+    "sort": 92.3828125,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 2750,
+   "task": "sort",
+   "loss": 0.004632552154362202,
+   "acc": {
+    "copy": 0.5859375,
+    "reverse": 0.0,
+    "sort": 99.21875,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 3000,
+   "task": "sort",
+   "loss": 0.0033221887424588203,
+   "acc": {
+    "copy": 0.5859375,
+    "reverse": 0.0,
+    "sort": 99.0234375,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 3250,
+   "task": "increment",
+   "loss": 0.034299105405807495,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 94.3359375
+   }
+  },
+  {
+   "step": 3500,
+   "task": "increment",
+   "loss": 0.00930287130177021,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 99.4140625
+   }
+  },
+  {
+   "step": 3750,
+   "task": "increment",
+   "loss": 0.0023660792503505945,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 99.609375
+   }
+  },
+  {
+   "step": 4000,
+   "task": "increment",
+   "loss": 0.014538142830133438,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 99.21875
+   }
+  },
+  {
+   "step": 4250,
+   "task": "copy",
+   "loss": 0.0035556131042540073,
+   "acc": {
+    "copy": 99.8046875,
+    "reverse": 0.0,
+    "sort": 0.1953125,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 4500,
+   "task": "copy",
+   "loss": 0.00011000626545865089,
+   "acc": {
+    "copy": 100.0,
+    "reverse": 0.0,
+    "sort": 0.1953125,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 4750,
+   "task": "copy",
+   "loss": 0.0067772818729281425,
+   "acc": {
+    "copy": 99.8046875,
+    "reverse": 0.0,
+    "sort": 0.1953125,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 5000,
+   "task": "copy",
+   "loss": 0.0013268283801153302,
+   "acc": {
+    "copy": 100.0,
+    "reverse": 0.0,
+    "sort": 0.1953125,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 5250,
+   "task": "reverse",
+   "loss": 0.009580533020198345,
+   "acc": {
+    "copy": 0.390625,
+    "reverse": 99.21875,
+    "sort": 0.0,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 5500,
+   "task": "reverse",
+   "loss": 0.0037063430063426495,
+   "acc": {
+    "copy": 0.1953125,
+    "reverse": 99.21875,
+    "sort": 0.0,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 5750,
+   "task": "reverse",
+   "loss": 0.005186178255826235,
+   "acc": {
+    "copy": 0.1953125,
+    "reverse": 99.609375,
+    "sort": 0.0,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 6000,
+   "task": "reverse",
+   "loss": 0.0001968947472050786,
+   "acc": {
+    "copy": 0.1953125,
+    "reverse": 99.8046875,
+    "sort": 0.0,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 6250,
+   "task": "sort",
+   "loss": 0.014639788307249546,
+   "acc": {
+    "copy": 0.5859375,
+    "reverse": 0.0,
+    "sort": 98.046875,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 6500,
+   "task": "sort",
+   "loss": 0.06165475770831108,
+   "acc": {
+    "copy": 0.390625,
+    "reverse": 0.390625,
+    "sort": 88.8671875,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 6750,
+   "task": "sort",
+   "loss": 0.006287619937211275,
+   "acc": {
+    "copy": 0.5859375,
+    "reverse": 0.1953125,
+    "sort": 95.1171875,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 7000,
+   "task": "sort",
+   "loss": 0.019877437502145767,
+   "acc": {
+    "copy": 0.5859375,
+    "reverse": 0.5859375,
+    "sort": 99.8046875,
+    "increment": 0.0
+   }
+  },
+  {
+   "step": 7250,
+   "task": "increment",
+   "loss": 0.011768864467740059,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 95.1171875
+   }
+  },
+  {
+   "step": 7500,
+   "task": "increment",
+   "loss": 0.013479442335665226,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 98.2421875
+   }
+  },
+  {
+   "step": 7750,
+   "task": "increment",
+   "loss": 0.0004875629674643278,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 98.828125
+   }
+  },
+  {
+   "step": 8000,
+   "task": "increment",
+   "loss": 0.002108798362314701,
+   "acc": {
+    "copy": 0.0,
+    "reverse": 0.0,
+    "sort": 0.0,
+    "increment": 99.21875
+   }
+  }
+ ]
+}
