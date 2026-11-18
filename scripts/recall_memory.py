@@ -86,7 +86,21 @@ each), the phase-2 recipe and budget, on fresh seeds 15-24. Rules, fixed before 
   paired seeds).
 - Reported: seeds 5-24 pooled (20 runs each, Fisher); OOD of bound runs; T8 against both; updates to 90%.
 
-Usage: python -m scripts.recall_memory --phase screen|compare|confirm|lr|tuned|replicate --gpu N --runs CELL:RECIPE:SEED[:LR]...
+Phase 5 outcome (2026-11-16): replicated (CTsqS 8/10 vs Dans 1/10, p = 0.003; OOD 68.4 vs 24.5); over 25 seeds at
+1e-3: CTsqS 19/25, Dans 4/25, T8 23/25. At d704 (scripts/recall_in_text.py, recall_speed.py) the advantage does not
+reach the pretrained language model.
+
+Phase 6, width 256 (2026-11-18): does the binding result hold at twice the width (about 6.3-6.5M parameters against
+1.6M)? T8, Dans, CTsqS at width 256 (8 heads of 32, SwiGLU 672), the phase-2 recipe and budget. Rules, fixed before
+any run:
+- Tuning (phase `w256`, seeds 0-4, lr 5e-4 and 1e-3): a cell's best lr has the most bound runs (ID at least 90%),
+  ties broken by higher mean OOD at 16 ticks, then by 1e-3.
+- Test (phase `w256test`, fresh seeds 5-14, each cell at its best lr). Primary: CTsqS binds more reliably than Dans
+  (one-sided Fisher exact p < 0.05 on bound counts); the binding result holds at width 256 if this holds. Secondary:
+  CTsqS beats Dans on OOD (mean at least 5 points higher, higher on at least 8 of 10).
+- Reported: T8 against both; bound counts and OOD of bound runs; the same at width 128 for comparison.
+
+Usage: python -m scripts.recall_memory --phase screen|compare|confirm|lr|tuned|replicate|w256|w256test --gpu N --runs CELL:RECIPE:SEED[:LR]...
        | --time CELL:RECIPE
        | --summarize
 """
@@ -142,14 +156,15 @@ def accuracy(model,recurrent,dense,split,ticks,n,device,by_size=False):
 
 
 def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
+    width=256 if phase.startswith('w256') else 128
     import torch
     from ctm_transformer.depth_sampling import lognormal_poisson
     from ctm_transformer.pretrain import lr_at,set_lr,step_depth
-    name=f'{phase}_{cell}_{recipe}'+(f'_lr{lr:g}' if phase in ('lr','tuned') else '')+f'_seed{seed}';out=OUT/f'{name}.json'
+    name=f'{phase}_{cell}_{recipe}'+(f'_lr{lr:g}' if phase in ('lr','tuned','w256','w256test') else '')+f'_seed{seed}';out=OUT/f'{name}.json'
     if out.exists() and not timing:return
     budget=steps or (MAX_STEPS if phase=='screen' else json.loads((OUT/'CHOICE.json').read_text())['budget'])
     dense=recipe=='dense';early=phase=='screen'
-    torch.manual_seed(seed);model,recurrent=build(cell);model=model.to(device)
+    torch.manual_seed(seed);model,recurrent=build(cell,width);model=model.to(device)
     sampler=lognormal_poisson(15,0.5,48) if recurrent else None
     opt=torch.optim.AdamW(model.parameters(),lr=lr,betas=(0.9,0.95),weight_decay=0.1,fused=True)
     rng=random.Random(f'recall-memory-train-{seed}');start=time.time();curve=[];first=0
@@ -335,8 +350,40 @@ def replicate():
     (OUT/'REPLICATE.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
+W256_CELLS=('T8','Dans','CTsqS');W256_LRS=(5e-4,1e-3)
+
+
+def w256():
+    from scipy.stats import fisher_exact
+    recipe=json.loads((OUT/'CHOICE.json').read_text())['recipe'];mean=lambda v:sum(v)/len(v);o16=lambda r:r['ood'].get('16',r['ood'].get('None'))
+    get=lambda ph,c,lr,S:[json.loads(f.read_text()) if (f:=OUT/f'{ph}_{c}_{recipe}_lr{lr:g}_seed{s}.json').exists() else None for s in S]
+    L=['# Recall memory: phase 6, width 256','Protocol and rules: `scripts/recall_memory.py`.','','## Tuning (seeds 0-4)','',
+       '| Cell | '+' | '.join(f'lr {lr:g}: bound / OOD' for lr in W256_LRS)+' | Best |','|---|'+'---:|'*len(W256_LRS)+'---|'];best={}
+    for c in W256_CELLS:
+        score={};cols=[]
+        for lr in W256_LRS:
+            rs=get('w256',c,lr,COMPARE_SEEDS)
+            if all(rs):b=sum(r['id']>=90 for r in rs);o=mean([o16(r) for r in rs]);score[lr]=(b,o,lr==1e-3);cols.append(f'{b}/5 / {o:.1f}')
+            else:cols.append('-')
+        if len(score)==len(W256_LRS):best[c]=max(score,key=lambda k:score[k])
+        L.append(f'| {c} | '+' | '.join(cols)+f" | {best.get(c,'-')} |")
+    if len(best)==len(W256_CELLS):
+        (OUT/'BEST_LR_W256.json').write_text(json.dumps(best)+'\n');rs={c:get('w256test',c,best[c],CONFIRM_SEEDS) for c in W256_CELLS}
+        done=[c for c in W256_CELLS if all(rs[c])]
+        if done:L+=['','## Test (seeds 5-14, best lr)','','| Cell | lr | Bound | OOD at 16 | OOD of bound runs |','|---|---:|---:|---:|---:|']
+        for c in done:
+            b=[r for r in rs[c] if r['id']>=90];L.append(f"| {c} | {best[c]:g} | {len(b)}/10 | {mean([o16(r) for r in rs[c]]):.1f} | {mean([o16(r) for r in b]) if b else float('nan'):.1f} |")
+        if 'Dans' in done and 'CTsqS' in done:
+            k=lambda c:sum(r['id']>=90 for r in rs[c]);p=fisher_exact([[k('CTsqS'),10-k('CTsqS')],[k('Dans'),10-k('Dans')]],alternative='greater')[1]
+            oa,od=[o16(r) for r in rs['CTsqS']],[o16(r) for r in rs['Dans']];hi=sum(x>y for x,y in zip(oa,od))
+            L+=['','## Rule outcomes','',f"- **Primary, CTsqS binds more reliably than Dans at width 256:** {'yes, holds' if p<0.05 else 'no'} ({k('CTsqS')}/10 vs {k('Dans')}/10, p = {p:.3f})",
+                f"- Secondary, CTsqS OOD win over Dans: {'yes' if mean(oa)-mean(od)>=5 and hi>=8 else 'no'} (mean {mean(oa):.1f} vs {mean(od):.1f}, higher on {hi} of 10)"]
+            if 'T8' in done:L.append(f"- Reported, T8 at width 256: {k('T8')}/10 bound; width 128 at 1e-3 over 25 seeds: CTsqS 19/25, Dans 4/25, T8 23/25")
+    (OUT/'W256.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm','lr','tuned','replicate'),default='screen');p.add_argument('--gpu',type=int,default=0)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm','lr','tuned','replicate','w256','w256test'),default='screen');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--time');p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:
         choose()
@@ -344,10 +391,11 @@ def main():
         if any(OUT.glob('confirm_*.json')):confirm()
         if any(OUT.glob('lr_*.json')):lr_check()
         if any(OUT.glob('replicate_*.json')):replicate()
+        if any(OUT.glob('w256_*.json')):w256()
         return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')
-    if a.time:c,r=a.time.split(':');train(c,r,0,'screen',device,timing=True);return
+    if a.time:c,r,*w=a.time.split(':');train(c,r,0,'w256' if w else 'screen',device,timing=True);return
     for x in a.runs:
         c,r,s,*l=x.split(':');train(c,r,int(s),a.phase,device,lr=float(l[0]) if l else 1e-3)
 
