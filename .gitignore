@@ -82,3 +82,5 @@ research/runs/recall_speed/
 research/results/recall_speed/logs/
 research/runs/lifelong/
 research/results/lifelong/logs/
+research/runs/twohop_memory/
+research/results/twohop_memory/logs/
