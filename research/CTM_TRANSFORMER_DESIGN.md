@@ -977,3 +977,28 @@ Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed befo
 - **Why:** without replay nothing forces a model to use the task token, so each phase overwrites the last rule.
 - **What it means:** none of the CTM mechanisms changes catastrophic forgetting in this setting. Nor do they change relearning, at the 250-update resolution of the checks.
 - **A design that could discriminate:** a little replay, or a stream where the tasks do not conflict, so that retention is partial and can differ. That would be a new experiment, not a fix to this one.
+
+### Width 256 (2026-11-18; `research/results/recall_memory/W256.md`)
+
+**Setup.** The same task, curriculum and 10,000-update budget at width 256: 6.3–6.5M parameters, against 1.6M at width 128. lr tuned over 5e-4 and 1e-3 on seeds 0–4, then a test on fresh seeds 5–14. The rules were fixed before the runs.
+
+**Tuning.** Every cell is best at 1e-3, where all of them bind on 5 of 5 seeds: T8 OOD 85.0, Dans 87.2, CTsqS 89.5.
+
+**Test (seeds 5–14, lr 1e-3):**
+
+| Cell | Bound | OOD at 16 | OOD of bound runs |
+|---|---:|---:|---:|
+| T8 | 10/10 | 87.3 | 87.3 |
+| Dans | 6/10 | 59.1 | 87.5 |
+| CTsqS | 9/10 | 80.8 | 88.0 |
+
+**Rule outcomes.**
+- **Primary, does not hold at width 256:** CTsqS binds more reliably than Dans only 9/10 vs 6/10 (p = 0.152).
+- **Secondary, no:** CTsqS's OOD is higher on 7 of 10 seeds, short of the 8 required.
+
+**Reading.**
+- **The gap narrows with width:**
+  - At width 128 and lr 1e-3, Dans binds on 4 of 25 runs and CTsqS on 19 of 25.
+  - At width 256 (seeds 0–14), Dans binds on 11 of 15 and CTsqS on 14 of 15 (p = 0.16, reported).
+- **The direction is unchanged:** CTsqS is ahead at both widths.
+- **What the paper can claim:** synchronization with the sink helps a capacity-limited recurrent model learn binding. The benefit shrinks as the model grows, and pretrained d704 language models show none (recall in text).
