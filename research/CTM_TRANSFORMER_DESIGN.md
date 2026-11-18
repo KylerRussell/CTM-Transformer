@@ -1002,3 +1002,11 @@ Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed befo
   - At width 256 (seeds 0–14), Dans binds on 11 of 15 and CTsqS on 14 of 15 (p = 0.16, reported).
 - **The direction is unchanged:** CTsqS is ahead at both widths.
 - **What the paper can claim:** synchronization with the sink helps a capacity-limited recurrent model learn binding. The benefit shrinks as the model grows, and pretrained d704 language models show none (recall in text).
+
+### Two-hop recall at width 128 (2026-11-18; `scripts/twohop_memory.py`, `research/results/twohop_memory/SCREEN.md`)
+
+**Setup.** The context holds the pairs A→B and B→value, shuffled together. The query A needs the value, which takes two lookups. N 2–16, with the pair curriculum.
+
+**Result.** T8 does not learn it in 40,000 updates on either seed: ID 33–34%, flat from about update 4,000. That is the choose-a-present-value plateau.
+
+**Rule outcome.** By the rule fixed before the run, two-hop cannot be tested at this width, so the comparison was not run. The one-hop binding result remains the only binding task tested.
