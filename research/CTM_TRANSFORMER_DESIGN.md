@@ -1010,3 +1010,29 @@ Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed befo
 **Result.** T8 does not learn it in 40,000 updates on either seed: ID 33–34%, flat from about update 4,000. That is the choose-a-present-value plateau.
 
 **Rule outcome.** By the rule fixed before the run, two-hop cannot be tested at this width, so the comparison was not run. The one-hop binding result remains the only binding task tested.
+
+### Lifelong learning with replay (2026-11-19; `research/results/lifelong/{REPLAY_PILOT,REPLAY}.md`)
+
+**Setup.** The same stream. Each training example comes from a uniformly chosen earlier task with probability r.
+- **Pilot (seed 0, T8 and Dans):** forgetting was 44/42 points at r = 0.01, 23/17 at 0.03 and 6/9 at 0.1. By the rule, r = 0.01 was chosen.
+- **Main runs:** seeds 1–5.
+
+**Results (5-seed means):**
+
+| Cell | Forgetting | Final accuracy | Relearning (updates) |
+|---|---:|---:|---:|
+| T8 | 39.5 | 80.2 | 250 |
+| Dans | 45.3 | 76.0 | 250 |
+| CTsqS | 49.7 | 79.5 | 250 |
+| CTnlmA | 50.3 | 73.9 | 250 |
+
+**Rule outcomes.**
+- No CTM win and no CTM cost against Dans.
+- T8 beats CTsqS on forgetting, and beats CTnlmA on forgetting and final accuracy.
+
+**Reading.**
+- **Replay makes forgetting partial and the models comparable.** CTsqS and CTnlmA forget a little more than Dans, and Dans a little more than T8.
+- **The CTM cells vary most across seeds:** CTsqS 30–64, CTnlmA 31–68, against Dans 42–51.
+- **Sort is retained worst by every model,** at 32–44% at the end.
+- **Relearning is at the floor in every run.**
+- **Conclusion:** the CTM mechanisms do not help lifelong learning in this setting. If anything they forget slightly more than the plain Transformer.
