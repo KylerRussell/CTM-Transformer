@@ -1036,3 +1036,14 @@ Fresh seeds 15–24, both at lr 1e-3 (each model's tuned rate), rules fixed befo
 - **Sort is retained worst by every model,** at 32–44% at the end.
 - **Relearning is at the floor in every run.**
 - **Conclusion:** the CTM mechanisms do not help lifelong learning in this setting. If anything they forget slightly more than the plain Transformer.
+
+### Two-hop recall, recurrent screen (2026-11-19; `scripts/twohop_memory.py`)
+
+**Setup.** Dans and CTsqS, seeds 0 and 1, the curriculum, 20,000 updates.
+
+**Result.** No run learns two-hop recall:
+- ID ends at 32.7–33.6% in every run, flat from about update 6,000, the same plateau as T8.
+- OOD is 17–20%.
+- More ticks do not help (16 → 64: within 0.1 points).
+
+**Rule outcome.** By the rule fixed before the runs, two-hop recall is beyond all three models at width 128 in this budget, and the line is closed. Recurrent depth, with or without synchronization, does not chain two lookups here.
