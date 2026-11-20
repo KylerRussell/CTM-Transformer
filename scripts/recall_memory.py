@@ -447,6 +447,9 @@ def control():
             z,lp=logrank([(r['updates_to_90'],r['budget']) for r in R[a]],[(r['updates_to_90'],r['budget']) for r in R[b]])
             L.append(f'- **{n}: {a} binds more reliably than {b}:** {"yes" if q<0.05 else "no"} ({k(a)}/20 vs {k(b)}/20, p = {p:.4f}, Holm {q:.4f}; log-rank z = {z:.2f}, p = {lp:.4f})')
     if 'DansS' in done and 'Dans' in done:L.append(f"- Reported: DansS against Dans: {k('DansS')}/20 vs {k('Dans')}/20, p = {fp('DansS','Dans'):.4f}")
+    if 'DansS' in done and 'DansT4' in done and not (OUT/'STAGE2.json').exists():  # the stage-2 cells, by the stage-1 rules
+        q=dict(zip([n for n,*_ in run],adj));stage2=(['CTsq1S'] if q['S1']<0.05 else [])+(['CTsqST4'] if q['B1']<0.05 else [])
+        (OUT/'STAGE2.json').write_text(json.dumps({'S1_holm':q['S1'],'B1_holm':q['B1'],'cells':stage2})+'\n')
     if 'DansT4' in done:L.append(f"- Reported: DansT4 ID at 16 ticks, mean {mean([r['id_16'] for r in R['DansT4']]):.1f}")
     (OUT/'CONTROL.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
