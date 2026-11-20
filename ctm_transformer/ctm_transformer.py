@@ -49,6 +49,11 @@ Added 2026-10-21, after CTsqL (``ctm_loss``) collapsed on both seeds:
 * ``nlm_history`` / ``nlm_hidden`` (2026-11-08, constructor options; defaults ``NLM_HISTORY`` and ``NLM_HIDDEN``):
   the neuron-level models' history length M and hidden width h. The CTM paper names the neuron-level models "a new
   avenue for scaling"; ours were sized small (4 and 4) for memory.
+* ``query_order`` (2026-11-21, constructor option, default 2; with ``sync_query``): 1 makes the action "synchronization" a
+  decayed running mean of ``pairs`` randomly chosen normalized state neurons (first order) instead of the products of neuron
+  pairs (second order, the CTM's synchronization). Everything else is unchanged: the same decay, alpha / beta normalization,
+  zero-initialized query projections and parameter count. It is the parameter-matched control for synchronization in the
+  query (reviewer, concern 1).
 * Per-position tick budgets (2026-11-01, ``forward(..., tick_budgets=B)``, as in ``rdt_recipe``): after its last tick a
   position's state, neuron-model history and synchronization sums (with a per-position beta) are frozen.
 * ``record_stats`` (attribute, off by default): each forward stores detached diagnostics in ``self.stats``:
@@ -107,8 +112,11 @@ def neuron_models(nlm, x):
 
 class TickSynchronization(nn.Module):
     """Decayed running averages of products of random neuron pairs over ticks, read as alpha / beta."""
-    def __init__(self, neurons, pairs, generator):
+    def __init__(self, neurons, pairs, generator, order=2):
         super().__init__()
+        if order not in (1, 2):
+            raise ValueError('order is 1 (running mean of single neurons) or 2 (synchronization of neuron pairs)')
+        self.order = order
         self.register_buffer('left', torch.randint(0, neurons, (pairs,), generator=generator))
         self.register_buffer('right', torch.randint(0, neurons, (pairs,), generator=generator))
         self.rho = nn.Parameter(torch.full((pairs,), math.log(math.expm1(DECAY_INIT))))  # r = softplus(rho)
@@ -117,6 +125,8 @@ class TickSynchronization(nn.Module):
         self.register_buffer('select_right', F.one_hot(self.right, neurons).T.float(), persistent=False)
 
     def products(self, z):
+        if self.order == 1:
+            return z @ self.select_left
         return (z @ self.select_left) * (z @ self.select_right)
 
     def step(self, state, z):
@@ -137,7 +147,7 @@ class TickSynchronization(nn.Module):
 class CTMTransformer(RecipeRDT):
     def __init__(self, config, neuron_models=False, sync_query=False, sync_output=False, attention_sink=False, nlm_activation=False, ctm_loss=False,
                  final_tick_loss=False, detached_readouts=False, homeostasis=False, structural_plasticity=False, pairs=None, seed=0,
-                 nlm_history=NLM_HISTORY, nlm_hidden=NLM_HIDDEN, **recipe):
+                 nlm_history=NLM_HISTORY, nlm_hidden=NLM_HIDDEN, query_order=2, **recipe):
         super().__init__(config, **recipe)
         if self.recipe['norm'] != 'prenorm' or not self.recipe['state_norm']:
             raise ValueError('The CTM Transformer builds on a pre-norm recipe with a state norm (Dans)')
@@ -165,7 +175,7 @@ class CTMTransformer(RecipeRDT):
             self.nlms = nn.ModuleList(NeuronLevelModels(hidden, nlm_history, nlm_hidden) for _ in range(layers))
             self.nlm_scale = nn.Parameter(torch.zeros(layers, hidden))
         if sync_query:
-            self.sync_action = TickSynchronization(d, pairs, generator)
+            self.sync_action = TickSynchronization(d, pairs, generator, order=query_order)
             self.sync_queries = nn.ModuleList(nn.Linear(pairs, d, bias=False) for _ in range(layers))
             for layer in self.sync_queries:
                 nn.init.zeros_(layer.weight)

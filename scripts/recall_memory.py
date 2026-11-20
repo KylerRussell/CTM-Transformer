@@ -100,7 +100,31 @@ any run:
   CTsqS beats Dans on OOD (mean at least 5 points higher, higher on at least 8 of 10).
 - Reported: T8 against both; bound counts and OOD of bound runs; the same at width 128 for comparison.
 
-Usage: python -m scripts.recall_memory --phase screen|compare|confirm|lr|tuned|replicate|w256|w256test --gpu N --runs CELL:RECIPE:SEED[:LR]...
+Phase 7, controls for the binding result (2026-11-21, after external review). Is CTsqS's binding advantage due to
+synchronization, to the attention sink, or to a Dans baseline handicapped by its tick sampler at width 128? Seeds 5-24
+(the seeds of the confirmatory CTsqS and Dans runs, so each control is paired with them), the phase-2 recipe and budget,
+lr 1e-3. Binding: ID query accuracy at least 90% at the cell's evaluation ticks. Final weights are saved for probes.
+Cells:
+- DansS: Dans + the attention sink (no synchronization).
+- DansT4: Dans trained with a small-tick sampler (log-normal Poisson, mean 4, max 16), evaluated at 4 ticks (16 reported).
+- CTsq1S (stage 2): CTsqS with the synchronization replaced by a first-order decayed running mean of the same number of
+  randomly chosen state neurons, through the same zero-initialized query projections (same parameters).
+- CTsqST4 (stage 2, only if DansT4 qualifies): CTsqS with DansT4's sampler, evaluated at 4 ticks.
+Rules, fixed before any run (one-sided Fisher exact tests on bound counts over the 20 seeds; Holm adjustment over the
+primary tests run in this phase; log-rank tests on updates to 90%, censored at the budget, reported):
+Stage 1 (DansS, DansT4):
+- S1, sink: CTsqS binds more reliably than DansS (p < 0.05). If S1 fails, the binding gain is not attributed to
+  synchronization beyond the sink, and CTsq1S is not run. Reported: DansS against Dans.
+- B1, baseline: DansT4 binds more reliably than Dans (p < 0.05). If B1 holds, Dans's failures at width 128 come from its
+  tick sampler, and CTsqST4 is run in stage 2.
+Stage 2:
+- S2 (if S1 holds), synchronization proper: CTsqS binds more reliably than CTsq1S (p < 0.05). If S2 fails, the gain
+  comes from a query pathway carrying the state's tick history, not from second-order synchronization.
+- B2 (if B1 holds): CTsqST4 binds more reliably than DansT4 (p < 0.05). If B2 fails, the CTsqS advantage does not
+  survive a baseline with a suitable sampler.
+- The binding result is attributed to synchronization only if S1, S2 and (when B1 holds) B2 all hold.
+
+Usage: python -m scripts.recall_memory --phase screen|compare|confirm|lr|tuned|replicate|w256|w256test|control --gpu N --runs CELL:RECIPE:SEED[:LR]...
        | --time CELL:RECIPE
        | --summarize
 """
@@ -155,8 +179,11 @@ def accuracy(model,recurrent,dense,split,ticks,n,device,by_size=False):
     return (acc,{str(k):round(100*h/c,1) for k,(h,c) in sorted(sizes.items())}) if by_size else acc
 
 
+SMALL_TICKS=('DansT4','CTsqST4')  # phase 7: trained with lognormal_poisson(4,0.5,16), evaluated at 4 ticks
+
+
 def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
-    width=256 if phase.startswith('w256') else 128
+    width=256 if phase.startswith('w256') else 128;small=cell in SMALL_TICKS;at=4 if small else 16
     import torch
     from ctm_transformer.depth_sampling import lognormal_poisson
     from ctm_transformer.pretrain import lr_at,set_lr,step_depth
@@ -164,8 +191,8 @@ def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
     if out.exists() and not timing:return
     budget=steps or (MAX_STEPS if phase=='screen' else json.loads((OUT/'CHOICE.json').read_text())['budget'])
     dense=recipe=='dense';early=phase=='screen'
-    torch.manual_seed(seed);model,recurrent=build(cell,width);model=model.to(device)
-    sampler=lognormal_poisson(15,0.5,48) if recurrent else None
+    torch.manual_seed(seed);model,recurrent=build(cell.removesuffix('T4'),width);model=model.to(device)
+    sampler=(lognormal_poisson(4,0.5,16) if small else lognormal_poisson(15,0.5,48)) if recurrent else None;norms=[]
     opt=torch.optim.AdamW(model.parameters(),lr=lr,betas=(0.9,0.95),weight_decay=0.1,fused=True)
     rng=random.Random(f'recall-memory-train-{seed}');start=time.time();curve=[];first=0
     resume=CKPT/f'{name}.resume.pt'
@@ -183,20 +210,22 @@ def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
         hi=min(16,2+step//700) if recipe=='cur' else 16
         x,y=batch(2,hi,dense,BATCH,rng);x,y=x.to(device),y.to(device)
         with torch.autocast('cuda',dtype=torch.bfloat16):loss=model(x,targets=y,max_thought_steps=step_depth(sampler,seed,step) if recurrent else None)['loss']
-        loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),1.0);opt.step();opt.zero_grad(set_to_none=True)
+        loss.backward();norms.append(float(torch.nn.utils.clip_grad_norm_(model.parameters(),1.0)));opt.step();opt.zero_grad(set_to_none=True)
         if timing and step+1==first+200:
             torch.cuda.synchronize();print(cell,recipe,f'{(time.time()-start)/200:.3f} s/update, peak {torch.cuda.max_memory_allocated(device)/2**30:.2f} GiB',flush=True);return
         if (step+1)%CHECK_EVERY==0:
-            model.eval();acc=accuracy(model,recurrent,dense,'id',16,CHECK,device);model.train()
-            curve.append({'step':step+1,'loss':float(loss),'id_check':acc})
+            model.eval();acc=accuracy(model,recurrent,dense,'id',at,CHECK,device);model.train()
+            curve.append({'step':step+1,'loss':float(loss),'id_check':acc,'grad_norm':sum(norms)/max(1,len(norms))});norms=[]
             if early and len(curve)>=2 and min(c['id_check'] for c in curve[-2:])>=95:stop=step+1;break
     model.eval();reached=next((c['step'] for c in curve if c['id_check']>=90),None)
-    ticks=(16,32,64) if recurrent else (None,)
+    ticks=((4,16,32,64) if small else (16,32,64)) if recurrent else (None,)
     result={'cell':cell,'recipe':recipe,'seed':seed,'phase':phase,'budget':budget,'stopped':stop,'seconds':time.time()-start,
             'parameters':sum(p.numel() for p in model.parameters()),'updates_to_90':reached,'curve':curve}
-    result['id'],result['id_by_n']=accuracy(model,recurrent,dense,'id',16 if recurrent else None,EVAL,device,True)
+    result['id'],result['id_by_n']=accuracy(model,recurrent,dense,'id',at if recurrent else None,EVAL,device,True);result['eval_ticks']=at if recurrent else None
+    if small:result['id_16']=accuracy(model,recurrent,dense,'id',16,EVAL,device)
     result['ood']={str(t):accuracy(model,recurrent,dense,'ood',t,EVAL,device) for t in ticks}
-    _,result['ood_by_n']=accuracy(model,recurrent,dense,'ood',16 if recurrent else None,EVAL,device,True)
+    _,result['ood_by_n']=accuracy(model,recurrent,dense,'ood',at if recurrent else None,EVAL,device,True)
+    if phase=='control':CKPT.mkdir(parents=True,exist_ok=True);torch.save(model.state_dict(),CKPT/f'{name}.final.pt')
     OUT.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(result,indent=1)+'\n');resume.unlink(missing_ok=True)
     print(name,f"{result['seconds']:.0f}s stopped {stop} to90 {reached} id {result['id']:.1f} ood",{k:round(v,1) for k,v in result['ood'].items()},flush=True)
 
@@ -382,8 +411,48 @@ def w256():
     (OUT/'W256.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
+CONTROL_SEEDS=tuple(range(5,25))
+
+
+def logrank(a,b):
+    """Two-sided log-rank test on (updates_to_90 or None, budget) lists; returns (z, p), z > 0 when a binds faster."""
+    from scipy.stats import norm
+    ta=[(t,1) if t else (B,0) for t,B in a];tb=[(t,1) if t else (B,0) for t,B in b];O=E=V=0.0
+    for t in sorted({x for x,e in ta+tb if e}):
+        na=sum(x>=t for x,_ in ta);nb=sum(x>=t for x,_ in tb);da=sum(x==t and e for x,e in ta);d=da+sum(x==t and e for x,e in tb);n=na+nb
+        if n>1:O+=da;E+=d*na/n;V+=d*(na/n)*(1-na/n)*(n-d)/(n-1)
+    if V==0:return 0.0,1.0
+    z=(O-E)/V**0.5;return z,2*norm.sf(abs(z))
+
+
+def control():
+    from scipy.stats import fisher_exact
+    recipe=json.loads((OUT/'CHOICE.json').read_text())['recipe'];S=CONTROL_SEEDS;mean=lambda v:sum(v)/len(v)
+    def runs(c):
+        fs=[OUT/(f'control_{c}_{recipe}_seed{s}.json' if c not in ('Dans','CTsqS','T8') else (f'confirm_{c}_{recipe}_seed{s}.json' if s<15 else f'replicate_{c}_{recipe}_seed{s}.json')) for s in S]
+        return [json.loads(f.read_text()) for f in fs] if all(f.exists() for f in fs) else None
+    cells=('T8','Dans','CTsqS','DansS','DansT4','CTsq1S','CTsqST4');R={c:runs(c) for c in cells};done=[c for c in cells if R[c]]
+    k=lambda c:sum(r['id']>=90 for r in R[c]);fp=lambda a,b:fisher_exact([[k(a),20-k(a)],[k(b),20-k(b)]],alternative='greater')[1]
+    L=['# Recall memory: phase 7 controls (seeds 5-24)','Protocol and rules: `scripts/recall_memory.py`.','',
+       '| Cell | Eval ticks | Bound | ID | Updates to 90% (bound runs) |','|---|---:|---:|---:|---:|']
+    for c in done:
+        b=[r for r in R[c] if r['id']>=90];L.append(f"| {c} | {R[c][0].get('eval_ticks',16 if c!='T8' else '-')} | {len(b)}/20 | {mean([r['id'] for r in R[c]]):.1f} | {mean([r['updates_to_90'] for r in b]) if b else float('nan'):.0f} |")
+    tests=[('S1','CTsqS','DansS'),('B1','DansT4','Dans'),('S2','CTsqS','CTsq1S'),('B2','CTsqST4','DansT4')]
+    run=[(n,a,b,fp(a,b)) for n,a,b in tests if a in done and b in done]
+    if run:
+        ps=sorted(range(len(run)),key=lambda i:run[i][3]);adj=[0.0]*len(run);m=len(run);prev=0
+        for j,i in enumerate(ps):prev=max(prev,min(1,(m-j)*run[i][3]));adj[i]=prev
+        L+=['','## Rule outcomes (one-sided Fisher; Holm-adjusted over the primary tests run so far)','']
+        for (n,a,b,p),q in zip(run,adj):
+            z,lp=logrank([(r['updates_to_90'],r['budget']) for r in R[a]],[(r['updates_to_90'],r['budget']) for r in R[b]])
+            L.append(f'- **{n}: {a} binds more reliably than {b}:** {"yes" if q<0.05 else "no"} ({k(a)}/20 vs {k(b)}/20, p = {p:.4f}, Holm {q:.4f}; log-rank z = {z:.2f}, p = {lp:.4f})')
+    if 'DansS' in done and 'Dans' in done:L.append(f"- Reported: DansS against Dans: {k('DansS')}/20 vs {k('Dans')}/20, p = {fp('DansS','Dans'):.4f}")
+    if 'DansT4' in done:L.append(f"- Reported: DansT4 ID at 16 ticks, mean {mean([r['id_16'] for r in R['DansT4']]):.1f}")
+    (OUT/'CONTROL.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm','lr','tuned','replicate','w256','w256test'),default='screen');p.add_argument('--gpu',type=int,default=0)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--phase',choices=('screen','compare','confirm','lr','tuned','replicate','w256','w256test','control'),default='screen');p.add_argument('--gpu',type=int,default=0)
     p.add_argument('--runs',nargs='*',default=[]);p.add_argument('--time');p.add_argument('--summarize',action='store_true');a=p.parse_args()
     if a.summarize:
         choose()
@@ -392,6 +461,7 @@ def main():
         if any(OUT.glob('lr_*.json')):lr_check()
         if any(OUT.glob('replicate_*.json')):replicate()
         if any(OUT.glob('w256_*.json')):w256()
+        if any(OUT.glob('control_*.json')):control()
         return
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch;device=torch.device('cuda')

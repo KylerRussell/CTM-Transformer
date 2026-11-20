@@ -58,7 +58,9 @@ CELLS={'T8':('transformer',8),'T20':('transformer',20),'Dans':('dans',()),'CTsq'
        'CTsqH':('ct',('sync_query','homeostasis')),'CTnlmA':('ct',('neuron_models','nlm_activation')),'CTsqHS':('ct',('sync_query','homeostasis','structural_plasticity')),'DansH':('ct',('homeostasis',)),
        # larger neuron-level models (2026-11-08, scripts/parity_ticks.py): history m ticks, hidden width h (default 4, 4)
        **{f'CTnlmA{n}':('ct',('neuron_models','nlm_activation'),o) for n,o in (('m16',{'nlm_history':16}),('m32',{'nlm_history':32}),
-          ('h16',{'nlm_hidden':16}),('m16h16',{'nlm_history':16,'nlm_hidden':16}))}}
+          ('h16',{'nlm_hidden':16}),('m16h16',{'nlm_history':16,'nlm_hidden':16}))},
+       # recall controls (2026-11-21, scripts/recall_memory.py phase 7): the sink alone; the sync query made first order
+       'DansS':('ct',('attention_sink',)),'CTsq1S':('ct',('sync_query','attention_sink'),{'query_order':1})}
 
 
 def example(task,size,rng):
