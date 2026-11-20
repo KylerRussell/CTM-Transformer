@@ -1,6 +1,6 @@
 # Thinking Inside the Transformer: A Controlled Study of Continuous Thought Machine Mechanisms in Language Models
 
-*Draft, 2026-11-20. Every number is from a committed result. The source for each section is in `research/CTM_TRANSFORMER_DESIGN.md`, and the scripts named there hold the rules each test was judged by, fixed before its runs.*
+*Draft, 2026-11-20. Figures: `scripts/paper_figures.py` (`research/figures/`). Every number is from a committed result. The source for each section is in `research/CTM_TRANSFORMER_DESIGN.md`, and the scripts named there hold the rules each test was judged by, fixed before its runs.*
 
 ---
 
@@ -26,7 +26,7 @@ At 50M parameters and 400M tokens:
 - **The CTM training loss:** destabilizes the recurrence.
 
 Two positive results come from controlled tasks:
-1. **A serial parity solution.** On parity, a synchronization-query model found a serial algorithm whose required ticks grow linearly with input length, about 0.55 ticks per bit. It extrapolated to three times the trained length, and ablating the synchronization queries removes it. The same behaviour becomes common in Dans when training ticks scale with the input, so the capability belongs to recurrence trained with enough ticks.
+1. **A serial parity solution.** On parity, a synchronization-query model found a serial algorithm whose required ticks grow linearly with input length, about 0.5 ticks per bit. It extrapolated to three times the trained length, and ablating the synchronization queries removes it. The same behaviour becomes common in Dans when training ticks scale with the input, so the capability belongs to recurrence trained with enough ticks.
 2. **Learning key-value binding.** At width 128, synchronization-driven queries with an attention sink (CTsqS) learn key-value binding in 19 of 25 runs, against 4 of 25 for Dans. Both are at their tuned learning rates, and the result is confirmed on two sets of fresh seeds.
    - The advantage narrows at width 256 (9 of 10 against 6 of 10, not significant).
    - It is absent in pretrained language models.
@@ -43,7 +43,7 @@ Recurrent-depth Transformers (RDTs) apply a block of layers repeatedly, so that 
 - each neuron should have its own temporal dynamics (neuron-level models);
 - the representation should be the synchronization of neurons over internal time, rather than their instantaneous activation.
 
-The Continuous Memory Machine (CMM; Regan et al.) extends these ideas to memory tasks: associative recall, copying, sorting and parity.
+The Continuous Memory Machine (CMM; Regan et al., 2026) extends these ideas to memory tasks: associative recall, copying, sorting and parity.
 
 **The problem with a separate head.** Our earlier CTM language model, like other early attempts, was a Transformer backbone feeding a per-position CTM head. Diagnostics showed that the head's ticks contributed nothing:
 - every gain came from products of a token-conditioned start state;
@@ -82,7 +82,7 @@ Most of our tests find no advantage for the CTM mechanisms over a tuned RDT. We 
 - a loss that combines the minimum-loss tick and the most-certain tick;
 - certainty as a label-free signal for adaptive compute.
 
-**Continuous Memory Machine (Regan et al.).** The CMM reports gains on algorithmic memory tasks (copy, associative recall, priority sort, parity), on in-context regression, on mazes and on ImageNet-100. Its mechanisms include:
+**Continuous Memory Machine (Regan et al., 2026).** The CMM reports gains on algorithmic memory tasks (copy, associative recall, priority sort, parity), on in-context regression, on mazes and on ImageNet-100. Its mechanisms include:
 - a synchronization normalization (α/β) whose scale does not depend on the tick count;
 - an attention sink, a learned key with a zero value, so that a tick can attend to nothing.
 
@@ -106,7 +106,7 @@ Layers 1–2 and 7–8 run once. Layers 3–6 form the thinking group and run fo
 | CTM / CMM idea | Where it lives in the Transformer |
 |---|---|
 | Internal ticks, decoupled from tokens | The thinking group runs T ticks, with T drawn per step as for Dans. |
-| Neuron-level models | Each of the 1,856 SwiGLU hidden neurons in each thinking layer keeps its gate pre-activation over the last 4 ticks. A private MLP (hidden width 4) maps that history to an activation, which is added to the SwiGLU output through a per-neuron scale initialized to zero (CTnlm). A variant makes it the gate's activation (CTnlmA). |
+| Neuron-level models | Each of the 1,856 SwiGLU (Shazeer, 2020) hidden neurons in each thinking layer keeps its gate pre-activation over the last 4 ticks. A private MLP (hidden width 4) maps that history to an activation, which is added to the SwiGLU output through a per-neuron scale initialized to zero (CTnlm). A variant makes it the gate's activation (CTnlmA). |
 | Synchronization, normalized as in the CMM (α/β) | The state's normalized neurons are paired at random, 704 pairs for action and 704 for output. Each pair keeps a decayed running average of products over ticks, with a softplus-parametrized learned decay. |
 | Synchronization drives attention | Each thinking layer's query is the Transformer's query plus a zero-initialized projection of the action synchronization (CTsq). |
 | Synchronization is the output | The output synchronization is added to the state before the coda through a zero-initialized projection (CTso). |
@@ -124,8 +124,8 @@ Layers 1–2 and 7–8 run once. Layers 3–6 form the thinking group and run fo
 ## 4. Protocol
 
 **Language modelling.**
-- **Data and schedule:** FineWeb-Edu with a 32k-token BPE vocabulary; sequences of 1,024 tokens; 262,144 tokens per update; 1,526 updates (400M tokens); warmup 100, then cosine decay to 10%.
-- **Optimizer:** AdamW (β = 0.9, 0.95; weight decay 0.1); gradient clip 1; bf16.
+- **Data and schedule:** FineWeb-Edu (Penedo et al., 2024) with a 32k-token BPE vocabulary; sequences of 1,024 tokens; 262,144 tokens per update; 1,526 updates (400M tokens); warmup 100, then cosine decay to 10%.
+- **Optimizer:** AdamW (Loshchilov and Hutter, 2019; β = 0.9, 0.95; weight decay 0.1); gradient clip 1; bf16.
 - **Evaluation:** held-out loss on 1,024 windows at 16 ticks.
 - **Seeds:** two (1234 and 2). The seed changes initialization, data order and the depth sequence.
 
@@ -197,10 +197,14 @@ Stopping the CTM loss's gradient at each tick's state (CTsqLD) ends the instabil
 - multi-token prediction;
 - deeper training ticks (mean 32).
 
+![Figure 1](figures/fig1_fixed_point.png)
+
+*Figure 1. Held-out loss against the number of ticks at evaluation, for the 400M-token models (128 held-out windows; two-seed means; the 8-layer Transformer is one seed). Synchronization changes neither the shape of the curve nor where it flattens.*
+
 **Adaptive compute and calibration.**
 - **Convergence exit** stops a token once its prediction changes little between ticks. It reaches the 16-tick loss at a mean of about 3.8 ticks, equally for Dans and every CTM variant.
 - **The CTM's certainty threshold** needs about 27 ticks to reach the same loss. On language modelling, certainty is not a usable stopping signal, for the CTM Transformer or for Dans.
-- **Calibration:** every model is well calibrated (ECE 0.004–0.007 at 16 ticks, including the 8-layer Transformer), and no variant is better than Dans.
+- **Calibration:** every model is well calibrated (expected calibration error, Guo et al., 2017: 0.004–0.007 at 16 ticks, including the 8-layer Transformer), and no variant is better than Dans.
 
 **Per-token tick budgets in the language model.** We gave harder tokens more ticks, measuring difficulty label-free as the entropy of a 2-tick prediction. Doubling or quadrupling every token's budget changes the loss by less than 0.001 in both models. A first design leaked labels through the budget, and CTsq learned to exploit the leak; see Appendix A.
 
@@ -212,13 +216,18 @@ Stopping the CTM loss's gradient at each tick's state (CTsqLD) ends the instabil
 - No model learns associative recall in this budget. All sit at about 32% of queries right, the level reached by choosing among the values present.
 
 **A serial parity solution.** Of 72 recurrent runs in that grid, exactly one gained accuracy with more ticks, a CTsqS run. We reproduced it and analysed it:
-- **It is a serial algorithm.** The first tick reaching 90% accuracy grows linearly with input length, about 0.55 ticks per bit (2, 6, 12, …, 55 ticks for 10, 20, …, 100 bits).
+- **It is a serial algorithm.** The first tick reaching 90% accuracy grows linearly with input length (Figure 2): 2, 6, 12, …, 55 ticks for 10, 20, …, 100 bits, about 0.5 ticks per bit (least squares through the origin, 0.50).
 - **It reaches far:** 90% on inputs up to three times the trained length (81–120 bits) at 64 ticks.
 - **It depends on the synchronization queries:** ablating them drops it to chance, while ablating the sink changes nothing.
 
 Under the usual tick sampler, however, the solution is found in only 1 of 40 runs with synchronization queries and 0 of 30 without.
 - More training ticks do not make it more common.
 - A length curriculum makes training fit reliably, but produces fixed-reach solutions instead. Dans finds those as often.
+- Three further training changes do not produce it either (0 of 10 runs each, for CTsq and for Dans): the progressive loss of Bansal et al. (2022), a monotone loss across ticks, and width 256.
+
+![Figure 2](figures/fig2_serial_parity.png)
+
+*Figure 2. The extrapolating CTsqS parity run (seed 1). The first tick at which accuracy on inputs of a given length reaches 90% grows linearly with the length, inside and beyond the trained range (shaded). The line is a least-squares fit through the origin.*
 
 **Length-scaled ticks make tick-scaling extrapolation reliable, without the CTM.** When training ticks grow with the input (ceil(0.75 L) + U{0..8}), extrapolating seeds number:
 
@@ -272,13 +281,23 @@ The CTM paper names synchronization as a memory mechanism. In the CMM grid no mo
 - **More ticks do nothing:** 64 ticks minus 16 is within ±0.04 points.
 - **The plain Transformer is at least as reliable** (23 of 25).
 
+![Figure 3](figures/fig3_binding.png)
+
+*Figure 3. Share of runs that learn key-value binding (query accuracy at least 90% on N 2–16), at lr 1e-3, the tuned rate of every model. Width 128: seeds 0–24, from three pre-registered phases. Width 256: seeds 0–14, tuning and test phases.*
+
 **Where the benefit ends.**
 - **Width 256** (6.3–6.5M parameters; learning rates tuned, test on fresh seeds): CTsqS binds 9 of 10 and Dans 6 of 10 (p = 0.15), so the rule does not hold. The gap narrows with width: Dans binds 4 of 25 at width 128, against 11 of 15 at width 256.
 - **Pretrained language models (d704):** we continued pretraining from the 400M-token checkpoints for 100M tokens, with recall problems in text under the same curriculum.
   - Both Dans and CTsqS reach 100% in distribution and 97–100% on N 17–32.
   - Snapshots every 25 updates show recall emerging after 50–75 updates (13–20M tokens) in both models, with no difference.
   - Pretraining supplies what synchronization supplied at width 128.
+- Figure 4 shows how recall emerges in both pretrained models.
 - **Two-hop recall** (A→B, B→value): T8, Dans and CTsqS all stay at about 33% through 40,000 (T8) and 20,000 (recurrent) updates. Ticks do not help.
+
+
+![Figure 4](figures/fig4_recall_emergence.png)
+
+*Figure 4. Recall accuracy on N 2–16 during continued pretraining of the 400M-token d704 models, scored every 25 updates (6.6M tokens). Both models cross 80% after 50–75 updates; every run stays at 99–100% from update 125 to the end (381).*
 
 ### 5.6 Lifelong learning
 
@@ -361,11 +380,14 @@ Its clearest benefit is an inductive bias for learning key-value binding in smal
 | Two-hop recall | Not learnable by any model |
 | Lifelong learning, without and with replay | No CTM win |
 
-## References (to complete)
+## References
 
-- Darlow, L. et al. (2025). Continuous Thought Machines. arXiv:2505.05522. *(verify)*
-- Regan, et al. Continuous Memory Machines. arXiv:2610.07907.
-- Geiping, J. et al. (2025). Scaling up Test-Time Compute with Latent Reasoning: A Recurrent Depth Approach.
-- Bansal, A. et al. (2022). End-to-end Algorithm Synthesis with Recurrent Networks: Logical Extrapolation Without Overthinking.
-- Leon (2026). Biologically Inspired Mechanisms for Facilitating Grokking in Multilayer Perceptrons. arXiv:2608.28184.
-- FineWeb-Edu (Penedo et al., 2024).
+- Bansal, A., Schwarzschild, A., Borgnia, E., Emam, Z., Huang, F., Goldblum, M., and Goldstein, T. (2022). End-to-end Algorithm Synthesis with Recurrent Networks: Extrapolation without Overthinking. *NeurIPS 2022*. arXiv:2202.05826.
+- Darlow, L., Regan, C., Risi, S., Seely, J., and Jones, L. (2025). Continuous Thought Machines. *NeurIPS 2025* (spotlight). arXiv:2505.05522.
+- Geiping, J., McLeish, S., Jain, N., Kirchenbauer, J., Singh, S., Bartoldson, B. R., Kailkhura, B., Bhatele, A., and Goldstein, T. (2025). Scaling up Test-Time Compute with Latent Reasoning: A Recurrent Depth Approach. *NeurIPS 2025*. arXiv:2502.05171.
+- Guo, C., Pleiss, G., Sun, Y., and Weinberger, K. Q. (2017). On Calibration of Modern Neural Networks. *ICML 2017*.
+- Leon, F. (2026). Biologically Inspired Mechanisms for Facilitating Grokking in Multilayer Perceptrons. arXiv:2608.28184.
+- Loshchilov, I., and Hutter, F. (2019). Decoupled Weight Decay Regularization. *ICLR 2019*. arXiv:1711.05101.
+- Penedo, G., Kydlíček, H., Ben allal, L., Lozhkov, A., Mitchell, M., Raffel, C., Von Werra, L., and Wolf, T. (2024). The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale. *NeurIPS 2024 Datasets and Benchmarks Track*. arXiv:2406.17557.
+- Regan, C., Arulkumaran, K., Darlow, L., Druga, S., Risi, S., and Jones, L. (2026). Continuous Memory Machines. *NeurIPS 2026 Workshop on Personalized, Aligned, Long-Term Memory for AI Systems (PALM)*. arXiv:2610.07907.
+- Shazeer, N. (2020). GLU Variants Improve Transformer. arXiv:2002.05202.
