@@ -26,21 +26,29 @@ others unnecessary run first.
   CTM behind the Transformer on recall (loss 3.2e-2 vs 2.7e-4) and copy (3.1e-1 vs near zero). The CMM code linked
   from the paper (github.com/SakanaAI/continuous-memory-machines) is not public as of 2026-11-21.
 
+## Done (2026-11-23)
+
+- **Recall controls (concern 1):** CTsqS 15/20 vs sink alone 1/20, first-order query 3/20 (both Holm p < 0.001); Dans with a
+  small-tick sampler 5/20 vs Dans 2/20 (p = 0.20). The gain is second-order synchronization's. `recall_memory/CONTROL.md`.
+- **LM learning-rate grid (concern 3):** 2e-3 best for Dans, CTsq, CTsqS, T8, T20 on a sqrt(2) grid.
+- **One evaluation set (concern 5) and the state measure (concern 8):** the loss plateaus by 8 ticks, but the state keeps
+  moving about 0.2% per tick to tick 96. `lm_unified/LM_UNIFIED.md`.
+- **Writing:** revision draft with equations, variant legend, related work, corrected numbers, confirmatory statistics,
+  figures 1-3 redrawn and figure 5 added (commit 6e48bb6).
+
 ## Running
 
 | Concern | Test | Script | Status |
 |---|---|---|---|
-| 1 | Recall controls, stage 1: Dans + sink (DansS), Dans with a small-tick sampler (DansT4), seeds 5-24 | `scripts/recall_memory.py` phase 7 | running |
-| 1 | Stage 2 by the stage-1 rules: first-order query control (CTsq1S); CTsqS with the small sampler (CTsqST4) | same | launches automatically |
-| 5, 8 | Every LM on the 1,024 final windows, ticks 1-96, state change per tick | `scripts/lm_unified_eval.py` | running |
-| 3, 4 | Finer lr grid (1.4e-3, 2.8e-3), then 5 seeds, TOST; T8x (compute-matched) | `scripts/lm_revision.py` | queued (GPU 1 now, GPU 0 after recall stage 2) |
+| 3, 4 | Five LM seeds (TOST), T20 seeds, compute-matched T8x | `scripts/lm_revision.py` | running, about 3 days |
+| 2 | Official CTM on our recall (R1 lr grid, R2 seeds 5-24), then copy/sort/parity (R3) | `scripts/reference_ctm.py` | running, 1 worker per GPU |
+| 2 | Reproduction of the CTM's published parity result (phase P) | `scripts/launch/reference_ctm_after_lm.sh` | starts when the LM queue ends |
 
-## To do
+## Not yet designed (marked Pending in the draft)
 
-- Concern 1: attention maps and sync-query probes on saved phase-7 weights (target chosen by the controls' outcome).
-- Concern 2: reference CTM (official code, github.com/SakanaAI/continuous-thought-machines) on our recall task and
-  its published parity setup; claims reworded to "as merged here".
+- Concern 1: attention maps and synchronization-query probes on saved phase-7 weights.
+- Concern 2b: a warm-started (non-zero-init) variant, to test the basin bias.
 - Concern 7: a second model size.
-- Writing: equations, related work (Fan et al.; Schwarzschild et al.; McLeish et al.; Dehghani et al.; Banino et al.;
-  Saunshi et al.; Schlag et al.; Xiao et al.), variant legend, one evaluation set, scale qualifiers, Holm across test
-  families, commit hashes for the pre-registration, figure fixes, restructure as a question-led paper.
+- Concern 8: selective-prediction AUROC for calibration.
+- Concern 9: a harder recall-in-text variant (more pairs, interference).
+- Concern 10: Appendix C, the commit that fixed each test's rules.
