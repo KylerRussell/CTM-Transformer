@@ -4,7 +4,7 @@ Palette: the dataviz reference palette, light mode, categorical slots 1-3 (blue,
 in light mode per the palette reference), neutral tokens for text, axes and gridlines. Aqua is below 3:1 contrast on
 the surface, so every series is also direct-labeled.
 
-Usage: python -m scripts.paper_figures   (writes research/figures/fig{1..4}_*.{png,pdf})
+Usage: python -m scripts.paper_figures   (writes research/figures/fig{1..5}_*.{png,pdf})
 """
 import glob,json
 from pathlib import Path
@@ -30,52 +30,79 @@ def save(fig,name):
 
 
 def fig1_fixed_point():
-    """Held-out loss against ticks at 400M tokens (128 windows; two-seed means; T8 one seed)."""
-    E=R/'exit_calibration';load=lambda f:json.loads((E/f).read_text())['fixed_ce']
-    series=[('Dans (RDT)',BLUE,['Dans_rand_lr0.002.json','Dans_rand_lr0.002_s2.json']),('CTsq',ORANGE,['CTsq_lr0.002.json','CTsq_lr0.002_s2.json']),
-            ('CTsqS',AQUA,['CTsqS_lr0.002.json','CTsqS_lr0.002_s2.json'])]
-    fig,ax=plt.subplots(figsize=(5.2,3.3));t8=load('T8_lr0.002.json')['1']
-    ax.axhline(t8,color=MUTED,linewidth=1.2);ax.text(32,t8+0.006,'8-layer Transformer (one pass)',ha='right',va='bottom',color=TEXT2,fontsize=8)
-    ends=[]
-    for name,color,files in series:
-        cs=[load(f) for f in files];ticks=sorted(int(k) for k in cs[0]);y=[mean([c[str(t)] for c in cs]) for t in ticks]
-        ax.plot(ticks,y,color=color,label=name);ax.plot(ticks[-1],y[-1],'o',color=color,markersize=5,markeredgecolor=SURFACE,markeredgewidth=1.5);ends.append((y[-1],name))
-    for i,(y,name) in enumerate(sorted(ends)):ax.annotate(name,(32,y),xytext=(6,(i-1)*9),textcoords='offset points',va='center',color=TEXT2,fontsize=8)
-    ax.set_xscale('log',base=2);ax.set_xticks([1,2,4,8,16,32]);ax.set_xticklabels(['1','2','4','8','16','32']);ax.set_xlim(0.9,48)
-    ax.set_ylim(3.50,3.90);ax.set_xlabel('Ticks at evaluation');ax.set_ylabel('Held-out loss (nats per token)')
-    ax.legend(loc='upper right',bbox_to_anchor=(1.0,0.92),fontsize=8,labelcolor=TEXT2);ax.set_title('Every recurrent model reaches a fixed point by about 8 ticks',fontsize=9.5,color=TEXT,loc='left')
+    """(a) Held-out loss against ticks, 1,024 windows (scripts/lm_unified_eval.py): two-seed means, band = the two seeds;
+    T8 as a line (two-seed mean). (b) The state's relative change per tick."""
+    U=R/'lm_unified';load=lambda n:json.loads((U/f'{n}.json').read_text())
+    series=[('Dans (RDT)',BLUE,['Dans_rand_lr0.002','Dans_rand_lr0.002_s2']),('CTsq',ORANGE,['CTsq_lr0.002','CTsq_lr0.002_s2']),('CTsqS',AQUA,['CTsqS_lr0.002','CTsqS_lr0.002_s2'])]
+    fig,(ax,bx)=plt.subplots(1,2,figsize=(8.6,3.4));t8=mean([load(n)['loss']['1'] for n in ('T8_lr0.002','T8_lr0.002_s2')])
+    ax.axhline(t8,color=MUTED,linewidth=1.2);ax.text(96,t8+0.006,'8-layer Transformer (one pass)',ha='right',va='bottom',color=TEXT2,fontsize=8)
+    for name,color,runs in series:
+        rs=[load(n) for n in runs];ticks=sorted(int(k) for k in rs[0]['loss']);ys=[[r['loss'][str(t)] for r in rs] for t in ticks]
+        ax.fill_between(ticks,[min(v) for v in ys],[max(v) for v in ys],color=color,alpha=0.18,linewidth=0)
+        ax.plot(ticks,[mean(v) for v in ys],color=color,label=name)
+        ch=[mean([r['relative_state_change'][str(t)] for r in rs]) for t in range(2,97)];bx.plot(range(2,97),ch,color=color,label=name)  # tick 1 starts from the zero state
+    for a in (ax,bx):a.set_xscale('log',base=2);a.set_xticks([1,2,4,8,16,32,64]);a.set_xticklabels(['1','2','4','8','16','32','64']);a.set_xlabel('Ticks')
+    ax.set_xlim(0.9,110);ax.set_ylim(3.55,3.95);ax.set_ylabel('Held-out loss (nats per token)');ax.legend(loc='upper right',bbox_to_anchor=(1.0,0.9),fontsize=8,labelcolor=TEXT2)
+    ax.set_title('(a) The loss stops improving by about 8 ticks',fontsize=9.5,color=TEXT,loc='left')
+    bx.set_yscale('log');bx.set_ylabel('Relative change of the state per tick');bx.set_xlim(1.8,110);bx.set_xticks([2,4,8,16,32,64]);bx.set_xticklabels(['2','4','8','16','32','64'])
+    bx.set_title('(b) The state keeps moving (about 0.2% per tick)',fontsize=9.5,color=TEXT,loc='left')
     save(fig,'fig1_fixed_point')
 
 
 def fig2_serial_parity():
-    """CTsqS seed 1 on parity: the first tick reaching 90% accuracy, by input length."""
+    """CTsqS seed 1 on parity: the first tick reaching 90% accuracy, by input length, with linear (intercept) and
+    quadratic least-squares fits."""
+    import numpy as np
     a=json.loads((R/'parity_ticks/analysis_CTsqS_seed1.json').read_text())['ticks_vs_length']
-    pts=sorted((int(n),v['first_tick_90']) for n,v in a.items() if v['first_tick_90'] is not None);x=[p[0] for p in pts];y=[p[1] for p in pts]
-    k=sum(a*b for a,b in zip(x,y))/sum(a*a for a in x)
-    fig,ax=plt.subplots(figsize=(5.2,3.3));ax.axvspan(0,40,color=GRID,alpha=0.6,linewidth=0);ax.text(20,max(y)*0.97,'trained lengths\n(1-40 bits)',ha='center',va='top',color=TEXT2,fontsize=8)
-    ax.plot([0,max(x)*1.05],[0,k*max(x)*1.05],color=MUTED,linewidth=1.2);ax.text(max(x)*0.62,k*max(x)*0.62-5,f'{k:.2f} ticks per bit',color=TEXT2,fontsize=8,rotation=0)
-    ax.plot(x,y,'o',color=BLUE,markersize=6,markeredgecolor=SURFACE,markeredgewidth=1.5)
-    ax.set_xlim(0,max(x)*1.08);ax.set_ylim(0,max(y)*1.1);ax.set_xlabel('Input length (bits)');ax.set_ylabel('First tick reaching 90% accuracy')
+    pts=sorted((int(n),v['first_tick_90']) for n,v in a.items() if v['first_tick_90'] is not None);x=np.array([p[0] for p in pts],float);y=np.array([p[1] for p in pts],float)
+    lin=np.polyfit(x,y,1);quad=np.polyfit(x,y,2);g=np.linspace(0,120,200)
+    fig,ax=plt.subplots(figsize=(5.2,3.3));ax.axvspan(0,40,color=GRID,alpha=0.6,linewidth=0);ax.text(20,66,'trained lengths\n(1-40 bits)',ha='center',va='top',color=TEXT2,fontsize=8)
+    ax.plot(g,np.polyval(lin,g),color=MUTED,linewidth=1.1,linestyle='--',label=f'linear fit ({lin[0]:.2f} ticks per bit)')
+    ax.plot(g,np.polyval(quad,g),color=BLUE,linewidth=1.4,alpha=0.6,label='quadratic fit')
+    ax.plot(x,y,'o',color=BLUE,markersize=6,markeredgecolor=SURFACE,markeredgewidth=1.5,label='measured')
+    ax.legend(loc='lower right',fontsize=8,labelcolor=TEXT2)
+    ax.set_xlim(0,122);ax.set_ylim(0,72);ax.set_xlabel('Input length (bits)');ax.set_ylabel('First tick reaching 90% accuracy')
     ax.set_title('A serial solution: thinking time grows with the input',fontsize=9.5,color=TEXT,loc='left');save(fig,'fig2_serial_parity')
-    return k
+    return lin,quad
 
 
 def fig3_binding():
-    """Share of runs that bind (ID query accuracy >= 90%) at lr 1e-3, width 128 (seeds 0-24) and 256 (seeds 0-14)."""
-    M=R/'recall_memory';cells=('T8','Dans','CTsqS');counts={}
-    for c in cells:
-        w128=[json.loads((M/f).read_text()) for f in [f'compare_{c}_cur_seed{s}.json' for s in range(5)]+[f'confirm_{c}_cur_seed{s}.json' for s in range(5,15)]+[f'replicate_{c}_cur_seed{s}.json' for s in range(15,25)]]
-        w256=[json.loads((M/f).read_text()) for f in [f'w256_{c}_cur_lr0.001_seed{s}.json' for s in range(5)]+[f'w256test_{c}_cur_lr0.001_seed{s}.json' for s in range(5,15)]]
-        counts[c]={'128':(sum(r['id']>=90 for r in w128),len(w128)),'256':(sum(r['id']>=90 for r in w256),len(w256))}
-    fig,ax=plt.subplots(figsize=(5.2,3.6));bw=0.32;names={'T8':'8-layer Transformer','Dans':'Dans (RDT)','CTsqS':'CTsqS (CTM Transformer)'}
-    for j,(w,color,label) in enumerate((('128',BLUE,'width 128 (25 seeds)'),('256',ORANGE,'width 256 (15 seeds)'))):
-        xs=[i+(j-0.5)*(bw+0.04) for i in range(len(cells))];ys=[100*counts[c][w][0]/counts[c][w][1] for c in cells]
-        ax.bar(xs,ys,width=bw,color=color,label=label,edgecolor=SURFACE,linewidth=1.5)
-        for x,yv,c in zip(xs,ys,cells):ax.text(x,yv+2,f'{counts[c][w][0]}/{counts[c][w][1]}',ha='center',va='bottom',color=TEXT2,fontsize=8)
-    ax.set_xticks(range(len(cells)));ax.set_xticklabels([names[c] for c in cells]);ax.set_ylim(0,108);ax.set_yticks([0,25,50,75,100])
-    ax.set_ylabel('Runs that learn the binding (%)');ax.grid(axis='x',visible=False);ax.legend(loc='upper center',ncol=2,fontsize=8,labelcolor=TEXT2,bbox_to_anchor=(0.5,-0.13))
-    ax.set_title('Associative recall from scratch, lr 1e-3',fontsize=9.5,color=TEXT,loc='left');save(fig,'fig3_binding')
-    return counts
+    """Share of runs that bind (ID query accuracy >= 90%), confirmatory seeds only: width 128, seeds 5-24 (CTsqS, Dans,
+    T8 from the confirmation and replication phases; controls from phase 7); width 256, test seeds 5-14."""
+    M=R/'recall_memory';ld=lambda f:json.loads((M/f).read_text())
+    w128={}
+    for c in ('T8','Dans','CTsqS'):w128[c]=[ld(f'confirm_{c}_cur_seed{s}.json') for s in range(5,15)]+[ld(f'replicate_{c}_cur_seed{s}.json') for s in range(15,25)]
+    for c in ('DansS','DansT4','CTsq1S'):w128[c]=[ld(f'control_{c}_cur_seed{s}.json') for s in range(5,25)]
+    best=json.loads((M/'BEST_LR_W256.json').read_text());w256={c:[ld(f'w256test_{c}_cur_lr{best[c]:g}_seed{s}.json') for s in range(5,15)] for c in ('T8','Dans','CTsqS')}
+    k=lambda rs:sum(r['id']>=90 for r in rs)
+    names={'T8':'8-layer\nTransformer','Dans':'Dans','DansT4':'Dans,\nsmall ticks','DansS':'Dans +\nsink','CTsq1S':'first-order\nquery + sink','CTsqS':'CTsqS'}
+    fig,(ax,bx)=plt.subplots(1,2,figsize=(8.6,3.5),gridspec_kw={'width_ratios':[2,1]})
+    for a,data,order,color,title in ((ax,w128,('T8','Dans','DansT4','DansS','CTsq1S','CTsqS'),BLUE,'(a) Width 128, seeds 5-24'),(bx,w256,('T8','Dans','CTsqS'),ORANGE,'(b) Width 256, seeds 5-14')):
+        ys=[100*k(data[c])/len(data[c]) for c in order];a.bar(range(len(order)),ys,width=0.62,color=color,edgecolor=SURFACE,linewidth=1.5)
+        for i,c in enumerate(order):a.text(i,ys[i]+2,f'{k(data[c])}/{len(data[c])}',ha='center',va='bottom',color=TEXT2,fontsize=8)
+        a.set_xticks(range(len(order)));a.set_xticklabels([names[c] for c in order],fontsize=7.5);a.set_ylim(0,108);a.set_yticks([0,25,50,75,100]);a.grid(axis='x',visible=False)
+        a.set_title(title,fontsize=9.5,color=TEXT,loc='left')
+    ax.set_ylabel('Runs that learn the binding (%)');save(fig,'fig3_binding')
+    return {c:k(v) for c,v in w128.items()}
+
+
+def fig5_time_to_bind():
+    """Kaplan-Meier: share of runs bound by each update (ID check >= 90%, every 1,000 updates), seeds 5-24, width 128."""
+    M=R/'recall_memory';ld=lambda f:json.loads((M/f).read_text());runs={}
+    for c in ('T8','Dans','CTsqS'):runs[c]=[ld(f'confirm_{c}_cur_seed{s}.json') for s in range(5,15)]+[ld(f'replicate_{c}_cur_seed{s}.json') for s in range(15,25)]
+    for c in ('DansS','DansT4','CTsq1S'):runs[c]=[ld(f'control_{c}_cur_seed{s}.json') for s in range(5,25)]
+    style={'CTsq1S':(MUTED,'--','first-order query + sink'),'DansT4':(MUTED,':','Dans, small ticks'),'DansS':(TEXT2,'-.','Dans + sink'),
+           'T8':(AQUA,'-','8-layer Transformer'),'CTsqS':(BLUE,'-','CTsqS'),'Dans':(ORANGE,'-','Dans')}  # coloured lines drawn last, on top
+    fig,ax=plt.subplots(figsize=(5.6,3.4));ends=[]
+    for c,(color,ls,label) in style.items():
+        t=sorted(r['updates_to_90'] for r in runs[c] if r['updates_to_90']);xs=[0];ys=[0]
+        for u in range(1000,10001,1000):xs.append(u);ys.append(100*sum(x<=u for x in t)/len(runs[c]))
+        ax.step(xs,ys,where='post',color=color,linestyle=ls,linewidth=1.6);ends.append((ys[-1],label))
+    ends.sort();last=-99
+    for y,label in ends:
+        y=max(y,last+6.5);last=y;ax.text(10150,y,label,va='center',color=TEXT2,fontsize=7.5)
+    ax.set_xlim(0,13600);ax.set_xticks(range(0,10001,2000));ax.set_ylim(-2,102);ax.set_xlabel('Update');ax.set_ylabel('Runs bound by this update (%)')
+    ax.set_title('Time to bind (width 128, seeds 5-24)',fontsize=9.5,color=TEXT,loc='left');save(fig,'fig5_time_to_bind')
 
 
 def fig4_emergence():
@@ -92,4 +119,4 @@ def fig4_emergence():
 
 
 if __name__=='__main__':
-    fig1_fixed_point();k=fig2_serial_parity();c=fig3_binding();fig4_emergence();print('slope',round(k,3),c)
+    fig1_fixed_point();fits=fig2_serial_parity();c=fig3_binding();fig4_emergence();fig5_time_to_bind();print('fits',fits,c)
