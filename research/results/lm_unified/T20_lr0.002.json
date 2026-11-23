@@ -1,0 +1,10 @@
+{
+ "run": "T20_lr0.002",
+ "family": "transformer",
+ "windows": 1024,
+ "offset": 40000,
+ "tokens": 1048576,
+ "loss": {
+  "1": 3.562440604902804
+ }
+}
