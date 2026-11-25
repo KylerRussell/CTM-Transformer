@@ -4,7 +4,7 @@
 cd /home/kasm-user/Documents/CTM-Transformer
 LM=research/results/lm_revision/logs/worker_gpu1.log; LM0=research/results/recall_memory/logs/stage2_watch.log
 RL=research/results/reference_ctm/logs; RO=research/results/reference_ctm
-fail_lm()  { ls research/runs/revision/*/failed 2>/dev/null; grep -h "exit [1-9]" $LM $LM0 2>/dev/null; }
+fail_lm()  { ls research/runs/revision/*/failed 2>/dev/null; }  # the worker writes failed on any non-zero exit
 fail_ref() { grep -l "Traceback\|Error" $RL/queue_*.log 2>/dev/null; }
 fail_par() { grep -l "Traceback\|rror" $RL/parity_run*.log $RL/after_lm.log 2>/dev/null; }
 while true; do
