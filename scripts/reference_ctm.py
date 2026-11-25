@@ -133,7 +133,7 @@ def train(task,seed,lr,phase,device):
         if step and step%RESUME_EVERY==0:
             CKPT.mkdir(parents=True,exist_ok=True);tmp=resume.with_suffix('.tmp')
             torch.save({'model':net.state_dict(),'opt':opt.state_dict(),'step':step,'curve':curve,'rng':rng.getstate(),'torch_rng':torch.get_rng_state(),
-                        'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);os.replace(tmp,resume)
+                        'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);__import__('scripts.pretrain',fromlist=['durable_replace']).durable_replace(tmp,resume)  # fsynced (2026-11-25)
         set_lr(opt,lr_at(step,lr,200,steps,0.1))
         if task=='recall':
             from scripts.recall_memory import example

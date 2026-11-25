@@ -120,7 +120,7 @@ def train(cell,schedule,seed,phase,device,check_every,tag,replay=0.0):
         if step and step%RESUME_EVERY==0:
             CKPT.mkdir(parents=True,exist_ok=True);tmp=resume.with_suffix('.tmp')
             torch.save({'model':model.state_dict(),'opt':opt.state_dict(),'step':step,'log':log,'rng':rng.getstate(),'torch_rng':torch.get_rng_state(),
-                        'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);os.replace(tmp,resume)
+                        'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);__import__('scripts.pretrain',fromlist=['durable_replace']).durable_replace(tmp,resume)  # fsynced (2026-11-25)
         task=next(t for a,b,t in bounds if a<=step<b);set_lr(opt,1e-3*min(1,(step+1)/200))
         seen=sorted({t for a,b,t in bounds if b<=step and t!=task})
         x,y=batch(task,BATCH,rng,(replay,seen) if replay else None);x,y=x.to(device),y.to(device)

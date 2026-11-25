@@ -205,7 +205,7 @@ def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
         if step and step%RESUME_EVERY==0 and not timing:
             CKPT.mkdir(parents=True,exist_ok=True);tmp=resume.with_suffix('.tmp')
             torch.save({'model':model.state_dict(),'opt':opt.state_dict(),'step':step,'curve':curve,'rng':rng.getstate(),'torch_rng':torch.get_rng_state(),
-                        'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);os.replace(tmp,resume)
+                        'cuda_rng':torch.cuda.get_rng_state(),'seconds':time.time()-start},tmp);__import__('scripts.pretrain',fromlist=['durable_replace']).durable_replace(tmp,resume)  # fsynced (2026-11-25)
         set_lr(opt,lr_at(step,lr,200,budget,0.1))
         hi=min(16,2+step//700) if recipe=='cur' else 16
         x,y=batch(2,hi,dense,BATCH,rng);x,y=x.to(device),y.to(device)

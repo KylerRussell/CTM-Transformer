@@ -94,7 +94,16 @@ def span_budgets(side,depth,spec,seed,step,micro,rank):
 
 
 def atomic_save(payload,path):
-    tmp=path.with_suffix('.tmp');torch.save(payload,tmp);tmp.replace(path)
+    """Write to a temporary file, force it to disk, rename it into place, and force the rename to disk. Without the
+    fsyncs a power cut can leave the renamed file empty (2026-11-25: a 0-byte latest.pt after a machine restart)."""
+    tmp=path.with_suffix('.tmp');torch.save(payload,tmp);durable_replace(tmp,path)
+
+
+def durable_replace(tmp,path):
+    with open(tmp,'rb') as f:os.fsync(f.fileno())
+    os.replace(tmp,path);d=os.open(Path(path).parent,os.O_RDONLY)
+    try:os.fsync(d)
+    finally:os.close(d)
 
 
 def main():
