@@ -27,3 +27,4 @@ Protocol and rules: `scripts/lm_revision.py`. Held-out loss, 1,024 windows, 16 t
 - **CTsq against Dans:** worse than Dans (difference +0.0062, 90% CI +0.0005 to +0.0120; Holm p worse 0.039, p beats-by-0.02 1.000)
 - **CTsqS against Dans:** worse than Dans (difference +0.0091, 90% CI +0.0027 to +0.0154; Holm p worse 0.030, p beats-by-0.02 1.000)
 - **Dans against T8:** Dans beats it (difference -0.0555, 95% CI -0.0655 to -0.0455, p = 0.000)
+- Reported, Dans at 4 ticks (3.5859) against T20 (3.5724), equal compute: difference +0.0135, 95% CI +0.0038 to +0.0232
