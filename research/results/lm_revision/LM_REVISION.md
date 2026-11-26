@@ -15,9 +15,15 @@ Protocol and rules: `scripts/lm_revision.py`. Held-out loss, 1,024 windows, 16 t
 
 | Arm | lr | Seeds | Mean | 95% interval |
 |---|---:|---:|---:|---|
-| Dans | 0.002 | 2 | 3.5740 | 3.5093 to 3.6387 |
-| CTsq | 0.002 | 2 | 3.5818 | 3.5495 to 3.6141 |
-| CTsqS | 0.002 | 2 | 3.5858 | 3.5009 to 3.6708 |
-| T8 | 0.002 | 2 | 3.6279 | 3.5053 to 3.7506 |
-| T20 | 0.002 | 1 | 3.5624 | nan to nan |
+| Dans | 0.002 | 5 | 3.5747 | 3.5690 to 3.5803 |
+| CTsq | 0.002 | 5 | 3.5809 | 3.5745 to 3.5874 |
+| CTsqS | 0.002 | 5 | 3.5837 | 3.5763 to 3.5912 |
+| T8 | 0.002 | 5 | 3.6302 | 3.6202 to 3.6402 |
+| T20 | 0.002 | 5 | 3.5724 | 3.5628 to 3.5821 |
 | T8x | - | 0 | - | - |
+
+## Rule outcomes
+
+- **CTsq against Dans:** worse than Dans (difference +0.0062, 90% CI +0.0005 to +0.0120; Holm p worse 0.039, p beats-by-0.02 1.000)
+- **CTsqS against Dans:** worse than Dans (difference +0.0091, 90% CI +0.0027 to +0.0154; Holm p worse 0.030, p beats-by-0.02 1.000)
+- **Dans against T8:** Dans beats it (difference -0.0555, 95% CI -0.0655 to -0.0455, p = 0.000)
