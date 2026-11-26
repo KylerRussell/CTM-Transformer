@@ -14,7 +14,7 @@ A Transformer is scored once. Output: research/results/lm_unified/<run>.json; --
 
 Usage: python -m scripts.lm_unified_eval --gpu N --runs RUN_DIR... | --summarize
 """
-import argparse,json,os
+import argparse,json,os,re
 from pathlib import Path
 
 OUT=Path('research/results/lm_unified');MAX_TICKS=96
@@ -84,7 +84,7 @@ def evaluate(run_dir,device,windows=1024,micro=4):
 def summarize():
     rs={p.stem:json.loads(p.read_text()) for p in sorted(OUT.glob('*.json'))};mean=lambda v:sum(v)/len(v)
     groups={}
-    for n,r in rs.items():groups.setdefault(n.removesuffix('_s2').removesuffix('_lr0.002').removesuffix('_rand'),[]).append(r)
+    for n,r in rs.items():groups.setdefault(re.sub(r'(_rand)?_lr[0-9.]+(_s\d+)?$','',n),[]).append(r)  # seeds of one arm together
     show=('1','2','4','8','16','32','96')
     L=['# Language models on one evaluation set','','1,024 held-out windows (validation 40,000-41,023), 1,048,576 tokens; `scripts/lm_unified_eval.py`.',
        'Loss in nats per token, mean over seeds (seeds in brackets); Transformers in the 1-tick column.','',
@@ -103,6 +103,10 @@ def main():
     os.environ.setdefault('CUDA_VISIBLE_DEVICES',str(a.gpu))
     import torch
     for r in (RUNS if a.all else a.runs):evaluate(Path(r),torch.device('cuda'))
+
+
+# 2026-11-26: the five-seed runs of scripts/lm_revision.py (seeds 3-5; T20 seeds 2-5)
+REVISION=[f'research/runs/revision/{a}_lr0.002_s{s}' for a in ('Dans','CTsq','CTsqS','T8') for s in (3,4,5)]+[f'research/runs/revision/T20_lr0.002_s{s}' for s in (2,3,4,5)]
 
 
 if __name__=='__main__':main()

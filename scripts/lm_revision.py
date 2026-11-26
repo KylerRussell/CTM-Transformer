@@ -180,6 +180,12 @@ def summarize():
             if full(b):
                 d,_,_,_,se,df=welch(vals['Dans'],vals[b]);p=stats.t.cdf((d+0.02)/se,df);_,(lo,hi),*_=welch(vals['Dans'],vals[b],0.95)
                 L.append(f"- **Dans against {b}:** {'Dans beats it' if p<0.05 else 'Dans does not beat it by 0.02'} (difference {d:+.4f}, 95% CI {lo:+.4f} to {hi:+.4f}, p = {p:.3f})")
+    if full('T20'):  # reported (not a rule): Dans at 4 ticks against T20, whose compute equals Dans at 4 ticks
+        U=Path('research/results/lm_unified');d4=[json.loads(f.read_text())['loss']['4'] for s in SEEDS if (f:=U/f"{directory('Dans',sel['Dans'],s).name}.json").exists()]
+        if len(d4)==len(SEEDS):
+            d,_,_,_,se,df=welch(d4,vals['T20']);_,(lo,hi),*_=welch(d4,vals['T20'],0.95)
+            L.append(f"- Reported, Dans at 4 ticks ({mean(d4):.4f}) against T20 ({mean(vals['T20']):.4f}), equal compute: difference {d:+.4f}, 95% CI {lo:+.4f} to {hi:+.4f}")
+        else:L.append(f'- Reported, Dans at 4 ticks against T20: pending ({len(d4)} of {len(SEEDS)} Dans seeds evaluated at 4 ticks)')
     (OUT/'LM_REVISION.md').parent.mkdir(parents=True,exist_ok=True);(OUT/'LM_REVISION.md').write_text('\n'.join(L)+'\n');print('\n'.join(L))
 
 
