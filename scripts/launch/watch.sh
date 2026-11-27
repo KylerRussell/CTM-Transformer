@@ -15,7 +15,8 @@ while true; do
         f=$(fail_ref); [ -n "$f" ] && { echo "Reference CTM FAILURE $(date -u): $f"; exit 1; } ;;
     reference) n=$(ls $RO/R[123]_*_seed*.json 2>/dev/null | wc -l); [ $n -ge 44 ] && { echo "Reference CTM R1-R3 done (44 runs) $(date -u)"; exit 0; }
         f=$(fail_ref); [ -n "$f" ] && { echo "Reference CTM FAILURE $(date -u) after $n runs: $f"; exit 1; } ;;
-    parity) grep -q "phase P done" $RL/after_lm.log 2>/dev/null && { echo "Parity reproduction finished $(date -u)"; exit 0; }
+    parity) d=0; for k in 1 2 3; do tr '\r' '\n' < $RL/parity_run$k.log 2>/dev/null | grep -q "200001/200001" && d=$((d+1)); done  # all three seeds run in parallel since 2026-11-27
+        [ $d -ge 3 ] && { echo "Parity reproduction finished, 3 of 3 runs $(date -u)"; exit 0; }
         f=$(fail_par); [ -n "$f" ] && { echo "Parity reproduction FAILURE $(date -u): $f"; exit 1; } ;;
   esac
   sleep 300
