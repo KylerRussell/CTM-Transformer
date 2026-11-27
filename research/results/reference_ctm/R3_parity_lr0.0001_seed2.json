@@ -1,0 +1,67 @@
+{
+ "task": "parity",
+ "seed": 2,
+ "lr": 0.0001,
+ "phase": "R3",
+ "steps": 5000,
+ "seconds": 5498.519690036774,
+ "parameters": 1484100,
+ "updates_to_90": null,
+ "curve": [
+  {
+   "step": 1000,
+   "loss": 0.6069763898849487,
+   "grad_norm": 0.22172008454799652,
+   "id_check": 48.828125,
+   "id_check_final": 49.609375
+  },
+  {
+   "step": 2000,
+   "loss": 0.6072661876678467,
+   "grad_norm": 2.6079556941986084,
+   "id_check": 50.390625,
+   "id_check_final": 49.609375
+  },
+  {
+   "step": 3000,
+   "loss": 0.518365740776062,
+   "grad_norm": 2.31308650970459,
+   "id_check": 49.609375,
+   "id_check_final": 49.609375
+  },
+  {
+   "step": 4000,
+   "loss": 0.5974950790405273,
+   "grad_norm": 2.25181245803833,
+   "id_check": 49.609375,
+   "id_check_final": 49.609375
+  },
+  {
+   "step": 5000,
+   "loss": 0.5625041127204895,
+   "grad_norm": 3.0418248176574707,
+   "id_check": 49.609375,
+   "id_check_final": 49.609375
+  }
+ ],
+ "id": {
+  "certain": {
+   "answer": 47.265625,
+   "sequence": 47.265625
+  },
+  "final": {
+   "answer": 47.265625,
+   "sequence": 47.265625
+  }
+ },
+ "ood": {
+  "certain": {
+   "answer": 46.875,
+   "sequence": 46.875
+  },
+  "final": {
+   "answer": 46.875,
+   "sequence": 46.875
+  }
+ }
+}
