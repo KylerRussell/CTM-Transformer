@@ -30,11 +30,13 @@ def save(fig,name):
 
 
 def fig1_fixed_point():
-    """(a) Held-out loss against ticks, 1,024 windows (scripts/lm_unified_eval.py): two-seed means, band = the two seeds;
-    T8 as a line (two-seed mean). (b) The state's relative change per tick."""
+    """(a) Held-out loss against ticks, 1,024 windows (scripts/lm_unified_eval.py): five-seed means, band = range over
+    the five seeds; T8 as a line (five-seed mean). (b) The state's relative change per tick."""
     U=R/'lm_unified';load=lambda n:json.loads((U/f'{n}.json').read_text())
-    series=[('Dans (RDT)',BLUE,['Dans_rand_lr0.002','Dans_rand_lr0.002_s2']),('CTsq',ORANGE,['CTsq_lr0.002','CTsq_lr0.002_s2']),('CTsqS',AQUA,['CTsqS_lr0.002','CTsqS_lr0.002_s2'])]
-    fig,(ax,bx)=plt.subplots(1,2,figsize=(8.6,3.4));t8=mean([load(n)['loss']['1'] for n in ('T8_lr0.002','T8_lr0.002_s2')])
+    five=lambda a,first:first+[f'{a}_lr0.002_s{s}' for s in (3,4,5)]  # seeds 1234 and 2, then the revision's seeds 3-5
+    series=[('Dans (RDT)',BLUE,five('Dans',['Dans_rand_lr0.002','Dans_rand_lr0.002_s2'])),('CTsq',ORANGE,five('CTsq',['CTsq_lr0.002','CTsq_lr0.002_s2'])),
+            ('CTsqS',AQUA,five('CTsqS',['CTsqS_lr0.002','CTsqS_lr0.002_s2']))]
+    fig,(ax,bx)=plt.subplots(1,2,figsize=(8.6,3.4));t8=mean([load(n)['loss']['1'] for n in five('T8',['T8_lr0.002','T8_lr0.002_s2'])])
     ax.axhline(t8,color=MUTED,linewidth=1.2);ax.text(96,t8+0.006,'8-layer Transformer (one pass)',ha='right',va='bottom',color=TEXT2,fontsize=8)
     for name,color,runs in series:
         rs=[load(n) for n in runs];ticks=sorted(int(k) for k in rs[0]['loss']);ys=[[r['loss'][str(t)] for r in rs] for t in ticks]
@@ -42,7 +44,7 @@ def fig1_fixed_point():
         ax.plot(ticks,[mean(v) for v in ys],color=color,label=name)
         ch=[mean([r['relative_state_change'][str(t)] for r in rs]) for t in range(2,97)];bx.plot(range(2,97),ch,color=color,label=name)  # tick 1 starts from the zero state
     for a in (ax,bx):a.set_xscale('log',base=2);a.set_xticks([1,2,4,8,16,32,64]);a.set_xticklabels(['1','2','4','8','16','32','64']);a.set_xlabel('Ticks')
-    ax.set_xlim(0.9,110);ax.set_ylim(3.55,3.95);ax.set_ylabel('Held-out loss (nats per token)');ax.legend(loc='upper right',bbox_to_anchor=(1.0,0.9),fontsize=8,labelcolor=TEXT2)
+    ax.set_xlim(0.9,110);ax.set_ylim(3.55,4.0);ax.set_ylabel('Held-out loss (nats per token)');ax.legend(loc='upper right',bbox_to_anchor=(1.0,0.9),fontsize=8,labelcolor=TEXT2)
     ax.set_title('(a) The loss stops improving by about 8 ticks',fontsize=9.5,color=TEXT,loc='left')
     bx.set_yscale('log');bx.set_ylabel('Relative change of the state per tick');bx.set_xlim(1.8,110);bx.set_xticks([2,4,8,16,32,64]);bx.set_xticklabels(['2','4','8','16','32','64'])
     bx.set_title('(b) The state keeps moving (about 0.2% per tick)',fontsize=9.5,color=TEXT,loc='left')
