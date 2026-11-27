@@ -13,7 +13,7 @@ while true; do
         f=$(fail_lm); [ -n "$f" ] && { echo "LM revision FAILURE $(date -u): $f"; exit 1; } ;;
     r1) [ -f $RO/R1_LR.json ] && { echo "Reference CTM R1 done $(date -u): $(cat $RO/R1_LR.json)"; exit 0; }
         f=$(fail_ref); [ -n "$f" ] && { echo "Reference CTM FAILURE $(date -u): $f"; exit 1; } ;;
-    reference) n=$(ls $RO/R[123]_*_seed*.json 2>/dev/null | wc -l)  # results only, not R1_LR.json; [ $n -ge 44 ] && { echo "Reference CTM R1-R3 done (44 runs) $(date -u)"; exit 0; }
+    reference) n=$(ls $RO/R[123]_*_seed*.json 2>/dev/null | wc -l); [ $n -ge 44 ] && { echo "Reference CTM R1-R3 done (44 runs) $(date -u)"; exit 0; }
         f=$(fail_ref); [ -n "$f" ] && { echo "Reference CTM FAILURE $(date -u) after $n runs: $f"; exit 1; } ;;
     parity) grep -q "phase P done" $RL/after_lm.log 2>/dev/null && { echo "Parity reproduction finished $(date -u)"; exit 0; }
         f=$(fail_par); [ -n "$f" ] && { echo "Parity reproduction FAILURE $(date -u): $f"; exit 1; } ;;
