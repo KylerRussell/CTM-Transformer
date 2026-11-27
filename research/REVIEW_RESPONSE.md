@@ -53,10 +53,10 @@ others unnecessary run first.
 | Concern | Test | Status |
 |---|---|---|
 | 2 | Reproduction of the CTM's published parity result (official script, 200,000 updates, seeds 0-2 in parallel) | started 2026-11-27, about 65 h |
+| 1 | Recall probes: CTsqS and Dans retrained on seeds 5-24 with snapshots; P1 (sync-query use), P2 (retrieval precursor at update 1,000) | `scripts/recall_probes.py`, started 2026-11-27 |
 
 ## Not yet designed (marked Pending in the draft)
 
-- Concern 1: attention maps and synchronization-query probes on saved phase-7 weights.
 - Concern 2b: a warm-started (non-zero-init) variant, to test the basin bias.
 - Concern 7: a second model size.
 - Concern 8: selective-prediction AUROC for calibration.
