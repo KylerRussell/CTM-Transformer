@@ -19,3 +19,11 @@ Reference CTM: 0/20 bound; ID 26.3; OOD 14.0
 - Reference CTM 0/20 against Dans 2/20: two-sided Fisher p = 0.4872
 - Reference CTM 0/20 against T8 19/20: two-sided Fisher p = 0.0000 (differs)
 - **Outcome:** the CTM binds less reliably than the CTM Transformer
+
+## R3, other grid tasks (seeds 0-2, sequence accuracy, most certain tick)
+
+| Task | ID | OOD |
+|---|---:|---:|
+| copy | 11.8 | 0.0 |
+| sort | 0.1 | 0.0 |
+| parity | 49.1 | 49.0 |
