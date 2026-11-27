@@ -179,6 +179,7 @@ def accuracy(model,recurrent,dense,split,ticks,n,device,by_size=False):
     return (acc,{str(k):round(100*h/c,1) for k,(h,c) in sorted(sizes.items())}) if by_size else acc
 
 
+PROBE_SNAPSHOTS=frozenset(range(0,3001,250))|frozenset(range(4000,10000,1000))  # phase `probe` (scripts/recall_probes.py); training unchanged
 SMALL_TICKS=('DansT4','CTsqST4')  # phase 7: trained with lognormal_poisson(4,0.5,16), evaluated at 4 ticks
 
 
@@ -202,6 +203,8 @@ def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
         start-=st['seconds'];print(name,'resumed at step',first,flush=True)
     stop=budget
     for step in range(first,budget):
+        if phase=='probe' and step in PROBE_SNAPSHOTS and not timing:  # scripts/recall_probes.py: weights after `step` updates
+            (CKPT/'probe').mkdir(parents=True,exist_ok=True);torch.save(model.state_dict(),CKPT/'probe'/f'{name}.step{step:05d}.pt')
         if step and step%RESUME_EVERY==0 and not timing:
             CKPT.mkdir(parents=True,exist_ok=True);tmp=resume.with_suffix('.tmp')
             torch.save({'model':model.state_dict(),'opt':opt.state_dict(),'step':step,'curve':curve,'rng':rng.getstate(),'torch_rng':torch.get_rng_state(),
@@ -226,6 +229,7 @@ def train(cell,recipe,seed,phase,device,steps=None,timing=False,lr=1e-3):
     result['ood']={str(t):accuracy(model,recurrent,dense,'ood',t,EVAL,device) for t in ticks}
     _,result['ood_by_n']=accuracy(model,recurrent,dense,'ood',at if recurrent else None,EVAL,device,True)
     if phase=='control':CKPT.mkdir(parents=True,exist_ok=True);torch.save(model.state_dict(),CKPT/f'{name}.final.pt')
+    if phase=='probe':(CKPT/'probe').mkdir(parents=True,exist_ok=True);torch.save(model.state_dict(),CKPT/'probe'/f'{name}.step{budget:05d}.pt')
     OUT.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(result,indent=1)+'\n');resume.unlink(missing_ok=True)
     print(name,f"{result['seconds']:.0f}s stopped {stop} to90 {reached} id {result['id']:.1f} ood",{k:round(v,1) for k,v in result['ood'].items()},flush=True)
 
