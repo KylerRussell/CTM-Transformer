@@ -36,13 +36,23 @@ others unnecessary run first.
 - **Writing:** revision draft with equations, variant legend, related work, corrected numbers, confirmatory statistics,
   figures 1-3 redrawn and figure 5 added (commit 6e48bb6).
 
+## Done (2026-11-27)
+
+- **Five LM seeds, TOST (concern 3):** CTsq +0.0062 and CTsqS +0.0091 against Dans; both meet the rule for "worse"
+  (Holm p 0.039, 0.030) and both 90% CIs lie inside the 0.02 equivalence margin. The rules did not say which verdict
+  takes precedence; the draft reports both. `lm_revision/LM_REVISION.md`.
+- **Compute matching (concern 4):** T8x (Dans's parameters and training compute, 3.36B tokens, 3 seeds) 3.167, 0.408
+  better than Dans; Dans does not beat it, so the T8 margin is per parameter only. T20 beats Dans at 4 ticks by 0.0135.
+- **One evaluation set, five seeds (concern 5):** all 16 new checkpoints scored on the 1,024 windows; Figure 1 redrawn.
+- **Reference CTM (concern 2):** the official code at our budgets binds recall in 0/15 (lr grid) and 0/20 (seeds 5-24),
+  and learns none of copy, sort, parity. `reference_ctm/REFERENCE_CTM.md`.
+- **Writing:** draft updated with all of the above (commit f3d0156).
+
 ## Running
 
-| Concern | Test | Script | Status |
-|---|---|---|---|
-| 3, 4 | Five LM seeds (TOST), T20 seeds, compute-matched T8x | `scripts/lm_revision.py` | running, about 3 days |
-| 2 | Official CTM on our recall (R1 lr grid, R2 seeds 5-24), then copy/sort/parity (R3) | `scripts/reference_ctm.py` | running, 1 worker per GPU |
-| 2 | Reproduction of the CTM's published parity result (phase P) | `scripts/launch/reference_ctm_after_lm.sh` | starts when the LM queue ends |
+| Concern | Test | Status |
+|---|---|---|
+| 2 | Reproduction of the CTM's published parity result (official script, 200,000 updates, seeds 0-2 in parallel) | started 2026-11-27, about 65 h |
 
 ## Not yet designed (marked Pending in the draft)
 
