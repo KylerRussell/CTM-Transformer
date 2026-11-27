@@ -20,11 +20,12 @@ Protocol and rules: `scripts/lm_revision.py`. Held-out loss, 1,024 windows, 16 t
 | CTsqS | 0.002 | 5 | 3.5837 | 3.5763 to 3.5912 |
 | T8 | 0.002 | 5 | 3.6302 | 3.6202 to 3.6402 |
 | T20 | 0.002 | 5 | 3.5724 | 3.5628 to 3.5821 |
-| T8x | - | 0 | - | - |
+| T8x | 0.002 | 3 | 3.1669 | 3.1524 to 3.1815 |
 
 ## Rule outcomes
 
 - **CTsq against Dans:** worse than Dans (difference +0.0062, 90% CI +0.0005 to +0.0120; Holm p worse 0.039, p beats-by-0.02 1.000)
 - **CTsqS against Dans:** worse than Dans (difference +0.0091, 90% CI +0.0027 to +0.0154; Holm p worse 0.030, p beats-by-0.02 1.000)
 - **Dans against T8:** Dans beats it (difference -0.0555, 95% CI -0.0655 to -0.0455, p = 0.000)
+- **Dans against T8x:** Dans does not beat it by 0.02 (difference +0.4078, 95% CI +0.3961 to +0.4194, p = 1.000)
 - Reported, Dans at 4 ticks (3.5859) against T20 (3.5724), equal compute: difference +0.0135, 95% CI +0.0038 to +0.0232
