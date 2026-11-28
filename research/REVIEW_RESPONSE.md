@@ -48,12 +48,16 @@ others unnecessary run first.
   and learns none of copy, sort, parity. `reference_ctm/REFERENCE_CTM.md`.
 - **Writing:** draft updated with all of the above (commit f3d0156).
 
+- **Recall probes (concern 1, 2026-11-28):** retraining reproduced every seed's outcome (20/20 each). Binding is the
+  formation of one retrieval head. P1: the bound CTsqS solution does not need the sync query (100.0 to 99.2%). P2 holds
+  (update 1,000: CTsqS 0.015 vs Dans 0.009, p = 0.004) but is small and does not predict which runs bind (AUROC 0.32).
+  `recall_probes/PROBES.md`.
+
 ## Running
 
 | Concern | Test | Status |
 |---|---|---|
 | 2 | Reproduction of the CTM's published parity result (official script, 200,000 updates, seeds 0-2 in parallel) | started 2026-11-27, about 65 h |
-| 1 | Recall probes: CTsqS and Dans retrained on seeds 5-24 with snapshots; P1 (sync-query use), P2 (retrieval precursor at update 1,000) | `scripts/recall_probes.py`, started 2026-11-27 |
 
 ## Not yet designed (marked Pending in the draft)
 

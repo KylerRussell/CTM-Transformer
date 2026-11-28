@@ -26,6 +26,8 @@ Held-out loss stops improving by about 8 ticks in every recurrent model, althoug
 - the same query pathway carrying a first-order running mean, with identical parameters, binds in 3 of 20;
 - Dans with a smaller tick sampler binds in 5 of 20.
 
+Probes show that binding is the formation of a single retrieval head, and that the bound model no longer needs the synchronization query: synchronization helps the model learn the binding, but is not part of the solution.
+
 The plain Transformer binds in 19 of 20. The official CTM, trained from its authors' code on the same task, binds in 0 of 20, and at our budgets learns none of copy, sort or parity either. The advantage over Dans narrows at width 256 and is absent in pretrained language models.
 
 We conclude that, at this scale, a Transformer can host the CTM's mechanisms and uses them, but on language modelling they cost a little against a tuned RDT rather than helping, and the RDT's own advantage over the Transformer holds per parameter, not per unit of compute. Synchronization does carry a specific inductive bias that helps a small recurrent model learn binding.
@@ -394,7 +396,11 @@ Both models are at their tuned learning rates. CTsqS was tuned in the same grid 
 
 **What is gained is learning, not capacity.** Bound runs generalize to N 17–32 about equally whatever the model: mean OOD of bound runs is 79–88% per cell and phase. More ticks do nothing (64 against 16 ticks: within ±0.04 points).
 
-**The mechanism is not yet known.** Synchronization accumulates over ticks within one position, so it cannot store key-value pairs across tokens; binding still has to happen through attention. The control results rule out a smoother query alone (the first-order mean is smooth), but they do not say what the second-order statistic contributes. **[Pending: attention maps and probes of the synchronization query, from saved weights of bound and unbound runs of CTsqS and the controls.]**
+**How synchronization helps** (`scripts/recall_probes.py`; rules fixed before the runs). Synchronization accumulates over ticks within one position, so it cannot store key-value pairs across tokens; binding has to happen through attention. We retrained CTsqS and Dans on seeds 5–24 with weight snapshots. Every retrained run reproduced its original outcome (20 of 20 seeds for each model). At each query we measure the attention on the matching value minus the mean attention on the other values (the retrieval score: the best head over ticks and layers).
+- **Binding is the formation of a retrieval head.** In bound runs of every cell, one head at the query puts most of its attention on the matching value (mean score 0.46–0.92 per cell at the final weights); in unbound runs no head does (0.01–0.03). The all-or-nothing outcomes have an all-or-nothing mechanism.
+- **The bound solution does not need synchronization (P1).** Removing the synchronization query at evaluation moves bound CTsqS runs from 100.0% to 99.2%. The query supplies about 40% of the matching value's logit advantage at the retrieval head, but the ordinary query alone suffices. Synchronization helps the model find the solution and is not part of it, which fits bound runs generalizing equally whatever the model.
+- **A small early difference (P2).** At update 1,000, while every run is still at chance, CTsqS's retrieval score is higher than Dans's (0.015 against 0.009; one-sided Mann–Whitney p = 0.004). Removing the synchronization query at evaluation narrows it (0.014 to 0.011). The pre-registered rule holds, but the difference is small, and it does not pick out the CTsqS runs that will bind (AUROC 0.32). It is a general tilt of CTsqS's attention towards the matching value, not an early sign of a particular run's success. Bound and unbound CTsqS runs separate from update 1,250, when the retrieval head starts to grow.
+- **Open:** the early snapshots exist only for CTsqS and Dans, so the tilt is not separated from the sink's effect, and what the second-order statistic adds over the first-order one during learning is not known.
 
 ![Figure 3](figures/fig3_binding.png)
 
@@ -444,7 +450,7 @@ The CTM mechanisms do not help here.
 
 **Thinking longer.** On web text the output stops improving by about 8 ticks, although the state keeps moving. On controlled serial tasks, thinking longer pays when training ticks scale with the problem, for the RDT as much as for the CTM Transformer. This is the known behaviour of looped networks (Schwarzschild et al., 2021; Fan et al., 2025).
 
-**Where synchronization helps.** Our one robust advantage is in learning key-value binding at small width. Controls attribute it to the second-order synchronization statistic: not to the sink, not to the extra query pathway, and not to the baseline's sampler. The advantage is about finding the solution, not its quality. It shrinks with width and is absent once pretraining has formed in-context recall. A plain Transformer at the same width binds at least as reliably, so synchronization repairs a weakness of the small recurrent model rather than exceeding the Transformer. Its mechanism remains to be identified.
+**Where synchronization helps.** Our one robust advantage is in learning key-value binding at small width. Controls attribute it to the second-order synchronization statistic: not to the sink, not to the extra query pathway, and not to the baseline's sampler. The advantage is about finding the solution, not its quality. It shrinks with width and is absent once pretraining has formed in-context recall. A plain Transformer at the same width binds at least as reliably, so synchronization repairs a weakness of the small recurrent model rather than exceeding the Transformer. Probes show it acts during learning: bound models form the same kind of retrieval head with or without it, and no longer need it once bound.
 
 **Limitations.**
 - **Scale:** our language models are 50M parameters at about 8 tokens per parameter. The CTM's benefits may need a scale or a task we did not reach. **[Pending: a second model size.]**
@@ -504,6 +510,7 @@ A Transformer can take on the Continuous Thought Machine's mechanisms in its own
 | Recall | Comparison, confirmation, learning-rate check, replication | CTsqS binds more reliably than Dans (15/20 vs 2/20, confirmatory); plain CTsq not robust to tuning |
 | Recall | Controls: sink, first-order query, tick sampler | The gain is second-order synchronization's |
 | Recall | Width 256 | Does not hold (9/10 vs 6/10) |
+| Recall | Probes: sync-query use (P1), retrieval precursor (P2) | Bound solution does not need the sync query; small early attention tilt (p = 0.004) that does not predict which runs bind |
 | Recall | In text, and its emergence, d704 | Both at ceiling |
 | Recall | Two-hop | Not learnable by any model |
 | Recall | Reference CTM, recall (lr grid, seeds 5–24) | 0/15 and 0/20 bound; CTsqS binds more reliably |
